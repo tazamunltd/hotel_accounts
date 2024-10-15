@@ -16,7 +16,7 @@ metadata:
   labels:
     type: local # Sets PV's type to local
 spec:
-  storageClassName: manual
+  storageClassName: local
   capacity:
     storage: 10Gi # Sets PV Volume
   accessModes:
