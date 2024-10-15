@@ -1,3 +1,0 @@
-kustomize:
-   images:
-     - murad1997/odoo:05
