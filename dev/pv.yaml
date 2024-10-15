@@ -13,6 +13,8 @@ spec:
   hostPath:
     path: "/home/ubuntu/data" # Sets the volume's path
 
+---
+
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
