@@ -1,0 +1,680 @@
+<odoo>
+    <!-- Form View for Hotel Details -->
+    <record id="view_system_configuration_form" model="ir.ui.view">
+        <field name="name">system.configuration.form</field>
+        <field name="model">system.configuration</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Details">
+                <sheet>
+                    <group>
+                        <group>
+                              <field name="hotel_name"/>
+                              <field name="address"/>
+                              <field name="contact_info"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+  
+    <!-- Form View for System Configuration -->
+    <record id="view_system_config_form" model="ir.ui.view">
+      <field name="name">system.config.form</field>
+      <field name="model">system.config</field>
+      <field name="arch" type="xml">
+          <form string="System Configuration">
+              <sheet>
+                  <group>
+                      <group>
+                          <field name="system_configuration_id"/>
+                          <field name="pms_integration_id"/>
+                          <field name="accounting_integration_id"/>
+                          <field name="booking_integration_id"/>
+                      </group>
+                  </group>
+              </sheet>
+          </form>
+      </field>
+  </record>
+
+  <!-- Form View for Languages and UI -->
+  <!-- <record id="view_languages_ui_form" model="ir.ui.view">
+    <field name="name">languages.ui.form</field>
+    <field name="model">system.languages.ui</field>
+    <field name="arch" type="xml">
+        <form string="Languages and UI">
+            <sheet>
+                <group>
+                    <field name="language_id"/>
+                    <field name="ui_theme"/>
+                </group>
+            </sheet>
+        </form>
+    </field>
+</record> -->
+
+    <!-- Tree View -->
+    <record id="view_rate_category_tree" model="ir.ui.view">
+        <field name="name">rate.category.tree</field>
+        <field name="model">rate.category</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="category"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_rate_category_form" model="ir.ui.view">
+        <field name="name">rate.category.form</field>
+        <field name="model">rate.category</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="category"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                </group>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Form View for Rate Code -->
+    <record id="view_rate_code_form" model="ir.ui.view">
+        <field name="name">rate.code.form</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <form string="Rate Code">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="description"/>
+                            <field name="abbreviation"/>
+                            <field name="arabic_desc"/>
+                            <field name="arabic_abbr"/>
+                        </group>
+                        <group>
+                            <field name="category_id"/>
+                            <field name="rate_posting_item"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="include_meals"/>
+                        <field name="rhythm"/>
+                        <field name="exchange_rate"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <button string="Edit Details" type="object" name="action_rate_code_details"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Rate Code -->
+    <record id="view_rate_code_tree" model="ir.ui.view">
+        <field name="name">rate.code.tree</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <tree string="Rate Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="arabic_desc"/>
+                <field name="arabic_abbr"/>
+                <field name="category_id"/>
+                <field name="currency_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action for Rate Code -->
+    <record id="action_rate_code" model="ir.actions.act_window">
+        <field name="name">Rate Codes</field>
+        <field name="res_model">rate.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_rate_code_details" model="ir.actions.act_window">
+        <field name="name">Rate Code Details</field>
+        <field name="res_model">rate.detail</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_rate_detail_tree"/>
+        <field name="target">current</field>
+        <field name="domain">[('rate_code_id', '=', active_id)]</field>
+    </record>
+
+    <!-- Tree View for Rate Details -->
+    <record id="view_rate_detail_tree" model="ir.ui.view">
+        <field name="name">rate.detail.tree</field>
+        <field name="model">rate.detail</field>
+        <field name="arch" type="xml">
+            <tree string="Rate Details">
+                <field name="rate_code_id"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <field name="pax_1"/>
+                <field name="pax_2"/>
+                <field name="pax_3"/>
+                <field name="pax_4"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_rate_detail_form" model="ir.ui.view">
+        <field name="name">rate.detail.form</field>
+        <field name="model">rate.detail</field>
+        <field name="arch" type="xml">
+            <form string="Rate Details">
+                <header>
+                    <button name="action_set_room_type_rate" string="Set Room Type Specific Rate" type="object" class="btn-primary"/>
+                    <button name="action_set_room_number_rate" string="Set Room Number Specific Rate" type="object" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <!-- Main Tab -->
+                        <page string="Main">
+                            <group>
+                                <field name="rate_code_id"/>
+                                <field name="from_date"/>
+                                <field name="to_date"/>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="default_price"/>
+                                    <field name="monday_price"/>
+                                    <field name="tuesday_price"/>
+                                    <field name="wednesday_price"/>
+                                    <field name="thursday_price"/>
+                                    <field name="friday_price"/>
+                                    <field name="saturday_price"/>
+                                    <field name="sunday_price"/>
+                                </group>
+                                <group>
+                                    <field name="pax_1"/>
+                                    <field name="pax_2"/>
+                                    <field name="pax_3"/>
+                                    <field name="pax_4"/>
+                                    <field name="pax_5"/>
+                                    <field name="pax_6"/>
+                                    <field name="extra_bed"/>
+                                    <field name="suite_supl"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="price_type"/>
+                                <field name="meal_pattern_id"/>
+                            </group>
+                        </page>
+    
+                        <!-- Discounts Tab -->
+                        <page string="Discounts">
+                            <group>
+                                <!-- Add fields related to discounts here -->
+                            </group>
+                        </page>
+    
+                        <!-- Meals Tab -->
+                        <page string="Meals">
+                            <group>
+                                <!-- Add fields related to meals here -->
+                            </group>
+                        </page>
+    
+                        <!-- Packages Tab -->
+                        <page string="Packages">
+                            <group>
+                                <!-- Add fields related to packages here -->
+                            </group>
+                        </page>
+    
+                        <!-- Promotions Tab -->
+                        <page string="Promotions">
+                            <group>
+                                <!-- Add fields related to promotions here -->
+                            </group>
+                        </page>
+    
+                        <!-- Buttons Section after Promotions Tab -->
+                        
+    
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_room_type_specific_rate_tree" model="ir.ui.view">
+        <field name="name">room.type.specific.rate.tree</field>
+        <field name="model">room.type.specific.rate</field>
+        <field name="arch" type="xml">
+            <tree string="Room Type Specific Rates">
+                <field name="room_type_id"/>
+                <field name="pax_1"/>
+                <field name="pax_2"/>
+                <field name="pax_3"/>
+                <field name="pax_4"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_room_type_specific_rate_form" model="ir.ui.view">
+        <field name="name">room.type.specific.rate.form</field>
+        <field name="model">room.type.specific.rate</field>
+        <field name="arch" type="xml">
+            <form string="Room Type Specific Rate">
+                <group>
+                    <field name="rate_code_id"/>
+                    <field name="from_date"/>
+                    <field name="to_date"/>
+                    <field name="room_type_id"/>
+                </group>
+                <group string="Room Prices">
+                    <group>
+                        <field name="pax_1" string="1 Pax"/>
+                        <field name="pax_2" string="2 Pax"/>
+                        <field name="pax_3" string="3 Pax"/>
+                        <field name="pax_4" string="4 Pax"/>
+                    </group>
+                    <group>
+                        <field name="pax_5" string="5 Pax"/>
+                        <field name="pax_6" string="6 Pax"/>
+                        <field name="extra_bed" string="Extra Bed"/>
+                        <field name="suite_supl" string="Suite Supplement"/>
+                    </group>
+                    <group>
+                        <field name="child" string="Child"/>
+                        <field name="infant" string="Infant"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_room_number_specific_rate_tree" model="ir.ui.view">
+        <field name="name">room.number.specific.rate.tree</field>
+        <field name="model">room.number.specific.rate</field>
+        <field name="arch" type="xml">
+            <tree string="Room Number Specific Rates">
+                <field name="room_number"/>
+                <field name="pax_1"/>
+                <field name="pax_2"/>
+                <field name="pax_3"/>
+                <field name="pax_4"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_room_number_specific_rate_form" model="ir.ui.view">
+        <field name="name">room.number.specific.rate.form</field>
+        <field name="model">room.number.specific.rate</field>
+        <field name="arch" type="xml">
+            <form string="Room Number Specific Rate">
+                <group>
+                    <field name="rate_code_id"/>
+                    <field name="from_date"/>
+                    <field name="to_date"/>
+                    <field name="room_number"/>
+                </group>
+                <group string="Room Prices">
+                    <group>
+                        <field name="pax_1" string="1 Pax"/>
+                        <field name="pax_2" string="2 Pax"/>
+                        <field name="pax_3" string="3 Pax"/>
+                        <field name="pax_4" string="4 Pax"/>
+                    </group>
+                    <group>
+                        <field name="pax_5" string="5 Pax"/>
+                        <field name="pax_6" string="6 Pax"/>
+                        <field name="extra_bed" string="Extra Bed"/>
+                        <field name="suite_supl" string="Suite Supplement"/>
+                    </group>
+                    <group>
+                        <field name="child" string="Child"/>
+                        <field name="infant" string="Infant"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+    
+    
+    <!-- Form View for Rate Promotion -->
+    <record id="view_rate_promotion_form" model="ir.ui.view">
+        <field name="name">rate.promotion.form</field>
+        <field name="model">rate.promotion</field>
+        <field name="arch" type="xml">
+            <form string="Rate Promotion">
+                <group>
+                    <field name="promotion_id"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                </group>
+                <group>
+                    <field name="buy"/>
+                    <field name="get"/>
+                </group>
+                <group>
+                    <field name="valid_from"/>
+                    <field name="valid_to"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Rate Promotion -->
+    <record id="view_rate_promotion_tree" model="ir.ui.view">
+        <field name="name">rate.promotion.tree</field>
+        <field name="model">rate.promotion</field>
+        <field name="arch" type="xml">
+            <tree string="Rate Promotions">
+                <field name="promotion_id"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="buy"/>
+                <field name="get"/>
+                <field name="valid_from"/>
+                <field name="valid_to"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <record id="view_market_category_form" model="ir.ui.view">
+        <field name="name">market.category.form</field>
+        <field name="model">market.category</field>
+        <field name="arch" type="xml">
+            <form string="Market Category">
+                <group>
+                    <field name="category"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Market Category -->
+    <record id="view_market_category_tree" model="ir.ui.view">
+        <field name="name">market.category.tree</field>
+        <field name="model">market.category</field>
+        <field name="arch" type="xml">
+            <tree string="Market Categories" >
+                <field name="category"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_market_segment_form" model="ir.ui.view">
+        <field name="name">market.segment.form</field>
+        <field name="model">market.segment</field>
+        <field name="arch" type="xml">
+            <form string="Market Segment">
+                <group>
+                    <field name="market_segment"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="category"/>
+                    <field name="user_sort"/>
+                    <field name="obsolete"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Market Segment -->
+    <record id="view_market_segment_tree" model="ir.ui.view">
+        <field name="name">market.segment.tree</field>
+        <field name="model">market.segment</field>
+        <field name="arch" type="xml">
+            <tree string="Market Segments" >
+                <field name="market_segment"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="category"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_source_business_form" model="ir.ui.view">
+        <field name="name">source.business.form</field>
+        <field name="model">source.business</field>
+        <field name="arch" type="xml">
+            <form string="Source of Business">
+                <group>
+                    <field name="source"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                    <field name="obsolete"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Source of Business -->
+    <record id="view_source_business_tree" model="ir.ui.view">
+        <field name="name">source.business.tree</field>
+        <field name="model">source.business</field>
+        <field name="arch" type="xml">
+            <tree string="Source of Business" >
+                <field name="source"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_company_category_form" model="ir.ui.view">
+        <field name="name">company.category.form</field>
+        <field name="model">company.category</field>
+        <field name="arch" type="xml">
+            <form string="Company Category">
+                <group>
+                    <field name="category"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Company Category -->
+    <record id="view_company_category_tree" model="ir.ui.view">
+        <field name="name">company.category.tree</field>
+        <field name="model">company.category</field>
+        <field name="arch" type="xml">
+            <tree string="Company Categories" >
+                <field name="category"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Country Region -->
+    <record id="view_country_region_form" model="ir.ui.view">
+        <field name="name">country.region.form</field>
+        <field name="model">country.region</field>
+        <field name="arch" type="xml">
+            <form string="Country Region">
+                <group>
+                    <field name="country_id"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Country Region -->
+    <record id="view_country_region_tree" model="ir.ui.view">
+        <field name="name">country.region.tree</field>
+        <field name="model">country.region</field>
+        <field name="arch" type="xml">
+            <tree string="Country Regions" >
+                <field name="country_id"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Reservation Status Code -->
+    <record id="view_reservation_status_code_form" model="ir.ui.view">
+        <field name="name">reservation.status.code.form</field>
+        <field name="model">reservation.status.code</field>
+        <field name="arch" type="xml">
+            <form string="Reservation Status Code">
+                <group>
+                    <field name="reservation"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                    <field name="obsolete"/>
+                </group>
+                <group>
+                    <field name="count_as"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Reservation Status Code -->
+    <record id="view_reservation_status_code_tree" model="ir.ui.view">
+        <field name="name">reservation.status.code.tree</field>
+        <field name="model">reservation.status.code</field>
+        <field name="arch" type="xml">
+            <tree string="Reservation Status Codes">
+                <field name="reservation"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="count_as"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Allotment Code -->
+    <record id="view_allotment_code_form" model="ir.ui.view">
+        <field name="name">allotment.code.form</field>
+        <field name="model">allotment.code</field>
+        <field name="arch" type="xml">
+            <form string="Allotment Code">
+                <group>
+                    <field name="allotment_code"/>
+                    <field name="description"/>
+                    <field name="company"/>
+                    <field name="user_sort"/>
+                    <field name="obsolete"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    
+    <!-- Tree View for Allotment Code -->
+    <record id="view_allotment_code_tree" model="ir.ui.view">
+        <field name="name">allotment.code.tree</field>
+        <field name="model">allotment.code</field>
+        <field name="arch" type="xml">
+            <tree string="Allotment Codes">
+                <field name="allotment_code"/>
+                <field name="description"/>
+                <field name="company"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <field name="release_date"/>
+                <field name="release_period"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Cancellation Code -->
+    <record id="view_cancellation_code_form" model="ir.ui.view">
+        <field name="name">cancellation.code.form</field>
+        <field name="model">cancellation.code</field>
+        <field name="arch" type="xml">
+            <form string="Cancellation Code">
+                <group>
+                    <field name="code"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                    <field name="obsolete"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Cancellation Code -->
+    <record id="view_cancellation_code_tree" model="ir.ui.view">
+        <field name="name">cancellation.code.tree</field>
+        <field name="model">cancellation.code</field>
+        <field name="arch" type="xml">
+            <tree string="Cancellation Codes" >
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Country Code -->
+    <record id="view_country_code_form" model="ir.ui.view">
+        <field name="name">country.code.form</field>
+        <field name="model">country.code</field>
+        <field name="arch" type="xml">
+            <form string="Country Code">
+                <group>
+                    <field name="country_id"/>
+                    <field name="country_code" readonly="1"/>
+                    <field name="phone_code" readonly="1"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Country Code -->
+    <record id="view_country_code_tree" model="ir.ui.view">
+        <field name="name">country.code.tree</field>
+        <field name="model">country.code</field>
+        <field name="arch" type="xml">
+            <tree string="Country Codes">
+                <field name="country_id"/>
+                <field name="country_code"/>
+                <field name="phone_code"/>
+            </tree>
+        </field>
+    </record>
+
+    
+
+    
+    
+
+  </odoo>
+  

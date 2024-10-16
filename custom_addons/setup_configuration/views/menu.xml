@@ -1,0 +1,231 @@
+<odoo>
+    <!-- Action for Hotel Details -->
+    <record id="action_system_configuration" model="ir.actions.act_window">
+        <field name="name">Hotel Details</field>
+        <field name="res_model">system.configuration</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <!-- Action for System Configuration -->
+    <record id="action_system_config" model="ir.actions.act_window">
+        <field name="name">System Configuration</field>
+        <field name="res_model">system.config</field>
+        <field name="view_mode">form</field>
+    </record>
+
+     <!-- Action for Languages and UI -->
+     <record id="action_languages_ui" model="ir.actions.act_window">
+        <field name="name">Languages and UI</field>
+        <field name="res_model">system.languages.ui</field>
+        <field name="view_mode">form</field>
+    </record>
+
+     <!-- Action -->
+     <record id="action_rate_category" model="ir.actions.act_window">
+        <field name="name">Rate Category</field>
+        <field name="res_model">rate.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_rate_code" model="ir.actions.act_window">
+        <field name="name">Rate Code</field>
+        <field name="res_model">rate.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Rate Promotion -->
+    <record id="action_rate_promotion" model="ir.actions.act_window">
+        <field name="name">Rate Promotions</field>
+        <field name="res_model">rate.promotion</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Market Category -->
+    <record id="action_market_category" model="ir.actions.act_window">
+        <field name="name">Market Categories</field>
+        <field name="res_model">market.category</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new market category.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Market Segment -->
+    <record id="action_market_segment" model="ir.actions.act_window">
+        <field name="name">Market Segments</field>
+        <field name="res_model">market.segment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new market segment.
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Source of Business -->
+    <record id="action_source_business" model="ir.actions.act_window">
+        <field name="name">Source of Business</field>
+        <field name="res_model">source.business</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Company Category -->
+    <record id="action_company_category" model="ir.actions.act_window">
+        <field name="name">Company Categories</field>
+        <field name="res_model">company.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Country Region -->
+    <record id="action_country_region" model="ir.actions.act_window">
+        <field name="name">Country Regions</field>
+        <field name="res_model">country.region</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Reservation Status Code -->
+    <record id="action_reservation_status_code" model="ir.actions.act_window">
+        <field name="name">Reservation Status Codes</field>
+        <field name="res_model">reservation.status.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Allotment Code -->
+    <record id="action_allotment_code" model="ir.actions.act_window">
+        <field name="name">Allotment Codes</field>
+        <field name="res_model">allotment.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Cancellation Code -->
+    <record id="action_cancellation_code" model="ir.actions.act_window">
+        <field name="name">Cancellation Codes</field>
+        <field name="res_model">cancellation.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Country Code -->
+    <record id="action_country_code" model="ir.actions.act_window">
+        <field name="name">Country Codes</field>
+        <field name="res_model">country.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+        
+
+    <!-- Parent Menu -->
+    <menuitem id="menu_setup_and_configuration" 
+              name="Setup and Configuration"
+              sequence="1"/>
+
+    <!-- Child Menu: Hotel Details -->
+    <!-- <menuitem id="menu_system_configuration" 
+              name="Hotel Details" 
+              parent="menu_setup_and_configuration"
+              action="action_system_configuration"
+              sequence="2"/>
+
+    <menuitem id="menu_system_config" 
+              name="System Configuration" 
+              parent="menu_setup_and_configuration"
+              action="action_system_config"
+              sequence="3"/>
+
+    <menuitem id="menu_languages_ui" 
+              name="Languages and UI" 
+              parent="menu_setup_and_configuration"
+              action="action_languages_ui"
+              sequence="4"/> -->
+
+    <!-- Codes Menu -->
+    <menuitem id="menu_code" 
+              name="Codes" 
+              parent="menu_setup_and_configuration"
+              sequence="3"/>
+    
+    <!-- Reservation Menu under Codes -->
+    <menuitem id="sub_menu_reservation" 
+              name="Reservation" 
+              parent="menu_code"
+              sequence="1"/>
+
+    <!-- Front Desk Menu under Codes -->
+    
+    
+    <!-- Rate Categories Menu under Reservation -->
+    <menuitem id="sub_menu_rate_categories" 
+              name="Rate Categories" 
+              parent="sub_menu_reservation"
+              action="action_rate_category"
+              />
+
+    <!-- Rate Code Menu under Reservation -->
+    <menuitem id="sub_menu_rate_code" 
+              name="Rate Code" 
+              parent="sub_menu_reservation"
+              action="action_rate_code"
+              />
+
+    <menuitem id="sub_menu_rate_promotion" 
+              name="Rate Promotions" 
+              parent="sub_menu_reservation"
+              action="action_rate_promotion"
+              />
+    
+    <menuitem id="sub_menu_market_categories" 
+              name="Market Categories" 
+              parent="sub_menu_reservation"
+              action="action_market_category"
+              />
+
+    <menuitem id="sub_menu_market_segments" 
+              name="Market Segments" 
+              parent="sub_menu_reservation"
+              action="action_market_segment"
+              />
+
+    <menuitem id="sub_menu_source_business" 
+              name="Source of Business" 
+              parent="sub_menu_reservation"
+              action="action_source_business"
+              />      
+    
+    <menuitem id="sub_menu_company_category" 
+              name="Company Category" 
+              parent="sub_menu_reservation"
+              action="action_company_category"
+              />  
+              
+    <menuitem id="sub_menu_country_region" 
+              name="Country Regions" 
+              parent="sub_menu_reservation"
+              action="action_country_region"
+              />
+              
+    <menuitem id="sub_menu_country_codes" 
+              name="Country Codes" 
+              parent="sub_menu_reservation"
+              action="action_country_code"
+              />
+
+    
+    <menuitem id="sub_menu_reservation_status_codes" 
+              name="Reservation Status Codes" 
+              parent="sub_menu_reservation"
+              action="action_reservation_status_code"
+              />
+    
+    <menuitem id="sub_menu_allotment_codes" 
+              name="Allotment Codes" 
+              parent="sub_menu_reservation"
+              action="action_allotment_code"
+              />
+
+    <menuitem id="sub_menu_cancellation_codes" 
+              name="Cancellation Codes" 
+              parent="sub_menu_reservation"
+              action="action_cancellation_code"
+              />
+</odoo>

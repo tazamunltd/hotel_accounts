@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_frontdesk_walkin_form" model="ir.ui.view">
+        <field name="name">frontdesk.walkin.form</field>
+        <field name="model">frontdesk.walkin.main</field>
+        <field name="arch" type="xml">
+            <form string="Front Desk Walk-in">
+                <sheet>
+                    <notebook>
+                        <page string="Main">
+                            <group>
+                                <group>
+                                    <field name="guest_id" string="Guest ID#"/>
+                                    <field name="ref" string="Ref."/>
+                                </group>
+                                <group>
+                                    <field name="last_name"/>
+                                    <field name="first_name"/>
+                                </group>
+                                <group>
+                                    <field name="room_number"/>
+                                    <field name="room_type"/>
+                                    <field name="pax_room"/>
+                                    <field name="smoking" string="No Smoking"/>
+                                </group>
+                                <group>
+                                    <field name="nights"/>
+                                    <field name="departure_date"/>
+                                </group>
+                                <group>
+                                    <field name="rate_code"/>
+                                    <field name="meal_pattern"/>
+                                </group>
+                                <group>
+                                    <field name="profile_id"/>
+                                    <field name="nationality"/>
+                                </group>
+                                <group>
+                                    <field name="total_children"/>
+                                    <field name="total_infants"/>
+                                    <field name="extra_beds"/>
+                                    <field name="companions"/>
+                                </group>
+                                <group>
+                                    <field name="rate_value"/>
+                                    <field name="meals_value"/>
+                                </group>
+                                <group>
+                                    <field name="discount_rate" string="Discount on Rate (%)"/>
+                                    <field name="discount_meals" string="Discount on Meals (%)"/>
+                                </group>
+                            </group>
+    
+                            <!-- Adults field specific to the Main page -->
+                            <group string="Adults">
+                                <field name="adult_ids">
+                                    <tree string="Adults" editable="top">
+                                        <field name="first_name"/>
+                                        <field name="last_name"/>
+                                        <field name="profile"/>
+                                        <field name="nationality"/>
+                                        <field name="birth_date"/>
+                                        <field name="passport_number"/>
+                                        <field name="id_type"/>
+                                        <field name="id_number"/>
+                                        <field name="visa_number"/>
+                                        <field name="phone_number"/>
+                                        <field name="relation"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+    
+                        <page string="Optional">
+                            <group>
+                                <field name="company"/>
+                                <field name="source_of_business"/>
+                                <field name="vip_code" widget="boolean_button"/>
+                            </group>
+                            <group>
+                                <field name="travel_method"/>
+                                <field name="visit_reason"/>
+                                <field name="sponsor"/>
+                            </group>
+                            <group>
+                                <field name="payment_type"/>
+                                <field name="credit_limit_value"/>
+                            </group>
+                            <group>
+                                <field name="comments"/>
+                            </group>
+
+                            <group string="Children">
+                                <field name="child_ids">
+                                    <tree string="Children" editable="top">
+                                        <field name="first_name"/>
+                                        <field name="last_name"/>
+                                        <field name="profile"/>
+                                        <field name="nationality"/>
+                                        <field name="birth_date"/>
+                                        <field name="passport_number"/>
+                                        <field name="id_type"/>
+                                        <field name="id_number"/>
+                                        <field name="visa_number"/>
+                                        <field name="phone_number"/>
+                                        <field name="relation"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Profiles/Infants">
+                            <!-- Profiles Section -->
+                            <group string="Profiles">
+                                <field name="profile_ids">
+                                    <tree string="Profiles" editable="top">
+                                        <field name="profile_id"/>
+                                        <field name="name"/>
+                                        <field name="description"/>
+                                    </tree>
+                                </field>
+                            </group>
+    
+                            <!-- Linked Profile Section -->
+                            <group string="Linked Profile">
+                                <field name="linked_profile_id"/>
+                                <field name="description"/>
+                            </group>
+    
+                            <!-- Infants Section -->
+                            <group string="Infants">
+                                <field name="infant_ids">
+                                    <tree string="Infants" editable="top">
+                                        <field name="first_name"/>
+                                        <field name="last_name"/>
+                                        <field name="profile"/>
+                                        <field name="nationality"/>
+                                        <field name="birth_date"/>
+                                        <field name="passport_number"/>
+                                        <field name="id_type"/>
+                                        <field name="id_number"/>
+                                        <field name="visa_number"/>
+                                        <field name="phone_number"/>
+                                        <field name="relation"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="HTML">
+                            <field name="front_desk_html"></field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+
+    <record id="view_frontdesk_walkin_tree" model="ir.ui.view">
+        <field name="name">frontdesk.walkin.tree</field>
+        <field name="model">frontdesk.walkin.main</field>
+        <field name="arch" type="xml">
+            <tree string="Front Desk Walk-ins" limit="10">
+                <field name="guest_id" string="Guest ID"/>
+                <field name="first_name" string="First Name"/>
+                <field name="last_name" string="Last Name"/>
+                <field name="room_number" string="Room Number"/>
+                <field name="departure_date" string="Departure Date"/>
+                <field name="rate_value" string="Rate Value"/>
+                <field name="meals_value" string="Meals Value"/>
+            </tree>
+        </field>
+    </record>
+      
+
+</odoo>

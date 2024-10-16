@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_department_category_form" model="ir.ui.view">
+        <field name="name">department.category.form</field>
+        <field name="model">department.category</field>
+        <field name="arch" type="xml">
+            <form string="Department Category">
+                <sheet>
+                    <group>
+                        <field name="category"/>
+                        <field name="description"/>
+                    </group>
+                    <group>
+                        <field name="abbreviation"/>
+                        <field name="user_sort"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_department_category_tree" model="ir.ui.view">
+        <field name="name">department.category.tree</field>
+        <field name="model">department.category</field>
+        <field name="arch" type="xml">
+            <tree string="Department Category">
+                <field name="category"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    
+    <!-- Form View for Department Code -->
+    <record id="view_department_code_form" model="ir.ui.view">
+        <field name="name">department.code.form</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <form string="Department Code">
+                <sheet>
+                    <notebook>
+                        <!-- Main Tab -->
+                        <page string="Main">
+                            <group>
+                                <field name="department"/>
+                                <field name="description"/>
+                                <field name="abbreviation"/>
+                                <field name="arabic_description"/>
+                                <field name="arabic_abbreviation"/>
+                                <field name="unit_price"/>
+                                <field name="category"/>
+                                <field name="user_sort"/>
+                            </group>
+                            <group string="Function">
+                                <field name="function_type"/>
+                                <separator string="Charges"/>
+                                <field name="charge_room"/>
+                                <field name="charge_food"/>
+                                <field name="charge_beverage"/>
+                                <field name="charge_telephone"/>
+                                <field name="charge_other"/>
+                                
+                                <separator string="Payments"/>
+                                <field name="payment_cash"/>
+                                <field name="payment_credit_card"/>
+                                <field name="payment_other"/>
+
+                                <separator string="Taxes"/>
+                                <field name="tax_service_charge"/>
+                                <field name="tax_vat"/>
+                                <field name="tax_municipality"/>
+                                <field name="tax_other"/>
+                            </group>
+                        </page>
+
+                        <!-- GI Accounts Tab -->
+                        <page string="GI Accounts">
+                            <group>
+                                <field name="default_account_id"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Department Code -->
+    <record id="view_department_code_tree" model="ir.ui.view">
+        <field name="name">department.code.tree</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <tree string="Department Codes">
+                <field name="department"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="unit_price"/>
+                <field name="category"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    
+    <!-- Form View for Posting Item -->
+    <record id="view_posting_item_form" model="ir.ui.view">
+        <field name="name">posting.item.form</field>
+        <field name="model">posting.item</field>
+        <field name="arch" type="xml">
+            <form string="Posting Item">
+                <sheet>
+                    <group>
+                        <field name="item_code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                        <field name="main_department"/>
+                        <field name="default_currency"/>
+                        <field name="default_value"/>
+                        <field name="entry_value_type"/>
+                        <field name="fixed_value"/>
+                        <field name="dummy_room_discount"/>
+                    </group>
+
+                    <group string="Default Settings">
+                        <field name="allow_change_sign"/>
+                        <field name="require_authorization"/>
+                        <field name="default_sign"/>
+                        <field name="entry_require_authorization"/>
+                        <field name="user_sort"/>
+                    </group>
+
+                    <!-- Additions Section -->
+                    <group string="Additions">
+                        <field name="addition_line">
+                            <tree string="Additions" editable="bottom">
+                                <field name="line"/>
+                                <field name="department"/>
+                                <field name="name"/>
+                                <field name="value"/>
+                                <field name="is_entry_value"/>
+                                <field name="added_value"/>
+                                <field name="value_per_pax_child"/>
+                                <field name="value_per_room"/>
+                                <field name="percentage_of_additions"/>
+                            </tree>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Posting Item -->
+    <record id="view_posting_item_tree" model="ir.ui.view">
+        <field name="name">posting.item.tree</field>
+        <field name="model">posting.item</field>
+        <field name="arch" type="xml">
+            <tree string="Posting Items" editable="bottom">
+                <field name="item_code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="main_department"/>
+                <field name="default_currency"/>
+                <field name="default_value"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Dummy Room Code -->
+    <record id="view_dummy_room_code_form" model="ir.ui.view">
+        <field name="name">dummy.room.code.form</field>
+        <field name="model">dummy.room.code</field>
+        <field name="arch" type="xml">
+            <form string="Dummy Room Code">
+                <sheet>
+                    <group>
+                        <field name="room_number"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="arabic_desc"/>
+                        <field name="arabic_abbr"/>
+                        <field name="item_discount"/>
+                        <field name="company_id"/>
+                        <field name="is_obsolete"/>
+                        <field name="auto_reopen_room_account"/>
+                        <field name="auto_payment_posting"/>
+                    </group>
+                    <group string="Applicable Taxes">
+                        <field name="service_charge"/>
+                        <field name="value_added_tax"/>
+                        <field name="municipality_tax"/>
+                        <field name="head_tax"/>
+                        <field name="entertainment_tax"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Dummy Room Code -->
+    <record id="view_dummy_room_code_tree" model="ir.ui.view">
+        <field name="name">dummy.room.code.tree</field>
+        <field name="model">dummy.room.code</field>
+        <field name="arch" type="xml">
+            <tree string="Dummy Room Codes">
+                <field name="room_number"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="item_discount"/>
+                <field name="company_id"/>
+                <field name="is_obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Currency Code -->
+    <record id="view_currency_code_form" model="ir.ui.view">
+        <field name="name">currency.code.form</field>
+        <field name="model">currency.code</field>
+        <field name="arch" type="xml">
+            <form string="Currency Code">
+                <sheet>
+                    <group>
+                        <field name="currency"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="arabic_desc"/>
+                        <field name="arabic_abbr"/>
+                        <field name="exchange_rate"/>
+                    </group>
+                    <group string="Rates">
+                        <field name="fo_rate"/>
+                        <field name="use_fo_default"/>
+                        <field name="rate_code_rate"/>
+                        <field name="use_rate_code_default"/>
+                        <field name="cash_rate"/>
+                        <field name="use_cash_default"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Currency Code -->
+    <record id="view_currency_code_tree" model="ir.ui.view">
+        <field name="name">currency.code.tree</field>
+        <field name="model">currency.code</field>
+        <field name="arch" type="xml">
+            <tree string="Currency Codes">
+                <field name="currency"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="exchange_rate"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Budget Entry -->
+    <record id="view_budget_entry_form" model="ir.ui.view">
+        <field name="name">budget.entry.form</field>
+        <field name="model">budget.entry</field>
+        <field name="arch" type="xml">
+            <form string="Budget Entry">
+                <group>
+                    <field name="month"/>
+                    <field name="rooms"/>
+                    <field name="pax"/>
+                    <field name="child"/>
+                    <field name="infant"/>
+                    <field name="revenue"/>
+                </group>
+                <group>
+                    <button string="Companies" type="object" name="action_view_companies"/>
+                    <button string="Departments" type="object" name="action_view_departments"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Budget Entry -->
+    <record id="view_budget_entry_tree" model="ir.ui.view">
+        <field name="name">budget.entry.tree</field>
+        <field name="model">budget.entry</field>
+        <field name="arch" type="xml">
+            <tree string="Budget Entries">
+                <field name="month"/>
+                <field name="rooms"/>
+                <field name="pax"/>
+                <field name="child"/>
+                <field name="infant"/>
+                <field name="revenue"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Cash Box Code -->
+    <record id="view_cash_box_code_form" model="ir.ui.view">
+        <field name="name">cash.box.code.form</field>
+        <field name="model">cash.box.code</field>
+        <field name="arch" type="xml">
+            <form string="Cash Box Code">
+                <sheet>
+                    <notebook>
+                        <!-- General Tab -->
+                        <page string="General">
+                            <group>
+                                <field name="code"/>
+                                <field name="description"/>
+                                <field name="abbreviation"/>
+                                <field name="arabic_desc"/>
+                                <field name="arabic_abbr"/>
+                                <field name="user_sort"/>
+                                <field name="max_per_day"/>
+                                <field name="exclusive"/>
+                                <field name="reset_upon_opening"/>
+                                <field name="status"/>
+                            </group>
+                        </page>
+
+                        <!-- Reset Values Tab -->
+                        <page string="Reset Values">
+                            <group>
+                                <field name="reset_value_ids" widget="one2many_list">
+                                    <tree string="Reset Values">
+                                        <field name="currency"/>
+                                        <field name="department"/>
+                                        <field name="value"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Cash Box Code -->
+    <record id="view_cash_box_code_tree" model="ir.ui.view">
+        <field name="name">cash.box.code.tree</field>
+        <field name="model">cash.box.code</field>
+        <field name="arch" type="xml">
+            <tree string="Cash Box Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+
+    
+
+</odoo>

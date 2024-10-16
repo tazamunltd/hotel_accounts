@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action for Room Type -->
+    <record id="action_room_type" model="ir.actions.act_window">
+        <field name="name">Room Types</field>
+        <field name="res_model">room.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Room Specification -->
+    <record id="action_room_specification" model="ir.actions.act_window">
+        <field name="name">Room Specifications</field>
+        <field name="res_model">room.specification</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Meal Code -->
+    <record id="action_meal_code" model="ir.actions.act_window">
+        <field name="name">Meal Codes</field>
+        <field name="res_model">meal.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Meal Pattern -->
+    <record id="action_meal_pattern" model="ir.actions.act_window">
+        <field name="name">Meal Patterns</field>
+        <field name="res_model">meal.pattern</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Authorized Code -->
+    <record id="action_authorized_code" model="ir.actions.act_window">
+        <field name="name">Authorized Codes</field>
+        <field name="res_model">authorized.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Complimentary Code -->
+    <record id="action_complimentary_code" model="ir.actions.act_window">
+        <field name="name">Complimentary Codes</field>
+        <field name="res_model">complimentary.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <!-- Action for Out of Order Code -->
+    <record id="action_out_of_order_code" model="ir.actions.act_window">
+        <field name="name">Out of Order Codes</field>
+        <field name="res_model">out.of.order.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Room on Hold Code -->
+    <record id="action_room_on_hold_code" model="ir.actions.act_window">
+        <field name="name">Room on Hold Codes</field>
+        <field name="res_model">room.on.hold.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for VIP Code -->
+    <record id="action_vip_code" model="ir.actions.act_window">
+        <field name="name">VIP Codes</field>
+        <field name="res_model">vip.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Safe Deposit Code -->
+    <record id="action_safe_deposit_code" model="ir.actions.act_window">
+        <field name="name">Safe Deposit Codes</field>
+        <field name="res_model">safe.deposit.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Hotel Code -->
+    <record id="action_hotel_code" model="ir.actions.act_window">
+        <field name="name">Hotel Codes</field>
+        <field name="res_model">hotel.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Rentable Asset -->
+    <record id="action_rentable_asset" model="ir.actions.act_window">
+        <field name="name">Rentable Assets</field>
+        <field name="res_model">rentable.asset</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Telephone Extension -->
+    <record id="action_telephone_extension" model="ir.actions.act_window">
+        <field name="name">Telephone Extensions</field>
+        <field name="res_model">telephone.extension</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Languages and UI -->
+    <record id="action_languages_ui" model="ir.actions.act_window">
+        <field name="name">Languages and UI</field>
+        <field name="res_model">system.languages.ui</field>
+        <field name="view_mode">form</field>
+    </record>
+
+
+    <menuitem id="sub_menu_front_desk" 
+              name="Front Desk" 
+              parent="menu_code"
+              action="action_languages_ui"
+              sequence="2"/>
+    
+    <menuitem id="sub_menu_room_type" 
+              name="Room Type" 
+              parent="sub_menu_front_desk"
+              action="action_room_type"
+              />
+
+              <menuitem id="sub_menu_room_specification" 
+              name="Room Specification" 
+              parent="sub_menu_front_desk"
+              action="action_room_specification"
+              />
+
+              <menuitem id="sub_menu_meal_codes" 
+              name="Meal Codes" 
+              parent="sub_menu_front_desk"
+              action="action_meal_code"
+              />
+
+              <menuitem id="sub_menu_meal_pattern" 
+              name="Meal Pattern" 
+              parent="sub_menu_front_desk"
+              action="action_meal_pattern"
+              />
+
+              <menuitem id="sub_menu_authorization_codes" 
+              name="Authorization Codes" 
+              parent="sub_menu_front_desk"
+              action="action_authorized_code"
+              />
+
+              <menuitem id="sub_menu_complimentary_code" 
+              name="Complimentary Codes" 
+              parent="sub_menu_front_desk"
+              action="action_complimentary_code"
+              />
+
+              <menuitem id="sub_menu_out_order_codes" 
+              name="Out of Order Codes" 
+              parent="sub_menu_front_desk"
+              action="action_out_of_order_code"
+              />
+
+              <menuitem id="sub_menu_room_hold_codes" 
+              name="Room On Hold Codes" 
+              parent="sub_menu_front_desk"
+              action="action_room_on_hold_code"
+              />
+
+              <menuitem id="sub_menu_house_use_codes" 
+              name="House Use Codes" 
+              parent="sub_menu_front_desk"
+              />
+
+              <menuitem id="sub_menu_vip_codes" 
+              name="VIP Codes" 
+              parent="sub_menu_front_desk"
+              action="action_vip_code"
+              />
+
+              <menuitem id="sub_menu_safe_deposit_box" 
+              name="Safe Deposit Box" 
+              parent="sub_menu_front_desk"
+              action="action_safe_deposit_code"
+              />
+
+              <menuitem id="sub_menu_hotel_codes" 
+              name="Hotel Codes" 
+              parent="sub_menu_front_desk"
+              action="action_hotel_code"
+              />
+
+              <menuitem id="sub_menu_rentable_assest" 
+              name="Rentable Assets" 
+              parent="sub_menu_front_desk"
+              action="action_rentable_asset"
+              />
+
+              <menuitem id="sub_menu_telephone_extension" 
+              name="Telephone Extension" 
+              parent="sub_menu_front_desk"
+              action="action_telephone_extension"
+              />
+
+              <menuitem id="sub_menu_contact_group" 
+              name="Contact Group" 
+              parent="sub_menu_front_desk"
+              />
+
+              <menuitem id="sub_menu_contact_list" 
+              name="Contact List" 
+              parent="sub_menu_front_desk"
+              />
+
+
+
+
+</odoo>

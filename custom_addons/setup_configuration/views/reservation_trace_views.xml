@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for Traces -->
+    <record id="view_reservation_trace_form" model="ir.ui.view">
+        <field name="name">reservation.trace.form</field>
+        <field name="model">reservation.trace</field>
+        <field name="arch" type="xml">
+            <form string="Traces">
+                <sheet>
+                    <!-- Main Trace Information -->
+                    <group>
+                        <group>
+                            <field name="trace_id"/>
+                            <field name="target"/>
+                            <field name="room_number"/>
+                            <field name="user_text" widget="text"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="message"/>
+                            <field name="due_date"/>
+                            <field name="end_date"/>
+                            <field name="start_of_day"/>
+                            <field name="end_of_day"/>
+                            <field name="recurring_daily"/>
+                        </group>
+                    </group>
+
+                    <!-- Status and Buttons -->
+                    <group>
+                        <field name="status" widget="radio"/>
+                    </group>
+
+                    <!-- Footer buttons for actions -->
+                    <!-- <footer>
+                        <button string="New" type="object" class="btn-primary" name="create"/>
+                        <button string="Save" type="object" class="btn-primary" name="write"/>
+                        <button string="Delete" type="object" class="btn-danger" name="unlink"/>
+                        <button string="Cancel" type="object" class="btn-secondary"/>
+                    </footer> -->
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Traces -->
+    <record id="view_reservation_trace_tree" model="ir.ui.view">
+        <field name="name">reservation.trace.tree</field>
+        <field name="model">reservation.trace</field>
+        <field name="arch" type="xml">
+            <tree string="Traces">
+                <field name="trace_id" string="ID"/>
+                <field name="message" string="Message"/>
+                <field name="target" string="Target"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+</odoo>

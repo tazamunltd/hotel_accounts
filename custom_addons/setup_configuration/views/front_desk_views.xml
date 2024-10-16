@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for Room Type -->
+    <record id="view_room_type_form" model="ir.ui.view">
+        <field name="name">room.type.form</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <form string="Room Type">
+                <group>
+                    <field name="room_type"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="generic_type"/>
+                    <field name="user_sort"/>
+                    <field name="obsolete"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Room Type -->
+    <record id="view_room_type_tree" model="ir.ui.view">
+        <field name="name">room.type.tree</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <tree string="Room Types">
+                <field name="room_type"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="generic_type"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_room_specification_form" model="ir.ui.view">
+        <field name="name">room.specification.form</field>
+        <field name="model">room.specification</field>
+        <field name="arch" type="xml">
+            <form string="Room Specification">
+                <sheet>
+                    <notebook>
+                        <!-- Main Tab -->
+                        <page string="Main">
+                            <group>
+                                <group>
+                                    <field name="room_number"/>
+                                    <field name="door_sign"/>
+                                    <field name="room_type"/>
+                                    <field name="suite"/>
+                                    <field name="connected_room"/>
+                                    <field name="type_of_bed"/>
+                                    <field name="type_of_bath"/>
+                                </group>
+                                <group>
+                                    <field name="obsolete"/>
+                                    <field name="no_smoking"/>
+                                    <field name="max_pax"/>
+                                    <field name="section_hk"/>
+                                    <field name="telephone_ext"/>
+                                    <field name="disability_features"/>
+                                    <field name="extra_features"/>
+                                </group>
+                                <group>
+                                    <field name="rate_code"/>
+                                    <field name="rate_posting_item"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Count in Statistics">
+                                    <field name="count_in_statistics" widget="radio"/>
+                                </group>
+                                <group string="Count in Availability">
+                                    <field name="count_in_availability" widget="radio"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <!-- Location Tab -->
+                        <page string="Location">
+                            <group>
+                                <field name="floor"/>
+                                <field name="block"/>
+                                <field name="building"/>
+                                <field name="user_sort"/>
+                                <button string="Floor Plan" type="object" name="action_view_floor_plan"/>
+                            </group>
+                        </page>
+
+                        <!-- Information Tab -->
+                        <page string="Information">
+                            <group>
+                                <field name="pending_repairs"/>
+                                <field name="last_repairs"/>
+                                <field name="room_description"/>
+                                <field name="notes"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Room Specification -->
+    <record id="view_room_specification_tree" model="ir.ui.view">
+        <field name="name">room.specification.tree</field>
+        <field name="model">room.specification</field>
+        <field name="arch" type="xml">
+            <tree string="Room Specifications">
+                <field name="room_number"/>
+                <field name="door_sign"/>
+                <field name="room_type"/>
+                <field name="suite"/>
+                <field name="connected_room"/>
+                <field name="type_of_bed"/>
+                <field name="type_of_bath"/>
+                <field name="floor"/>
+                <field name="block"/>
+                <field name="building"/>
+                <field name="section_hk"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Meal Code -->
+    <record id="view_meal_code_form" model="ir.ui.view">
+        <field name="name">meal.code.form</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <form string="Meal Code">
+                <group>
+                    <group>
+                        <field name="meal_code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="posting_item"/>
+                        <field name="price_pax"/>
+                        <field name="price_child"/>
+                        <field name="price_infant"/>
+                        <field name="user_sort"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                        <label for="notes"/>
+                        <field name="notes"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Type">
+                        <field name="type" widget="radio"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Meal Code -->
+    <record id="view_meal_code_tree" model="ir.ui.view">
+        <field name="name">meal.code.tree</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Codes">
+                <field name="meal_code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Meal Pattern -->
+    <record id="view_meal_pattern_form" model="ir.ui.view">
+        <field name="name">meal.pattern.form</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <form string="Meal Pattern">
+                <group>
+                    <group>
+                        <field name="meal_pattern"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="meal_posting_item"/>
+                        <field name="user_sort"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+                <group string="Meals List">
+                    <field name="meals_list_ids">
+                        <tree editable="bottom">
+                            <field name="line"/>
+                            <field name="meal_code"/>
+                            <field name="name"/>
+                            <field name="quantity"/>
+                            <field name="apply_on_arrival"/>
+                            <field name="apply_on_departure"/>
+                            <field name="apply_during_stay"/>
+                        </tree>
+                    </field>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Meal Pattern -->
+    <record id="view_meal_pattern_tree" model="ir.ui.view">
+        <field name="name">meal.pattern.tree</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Patterns">
+                <field name="meal_pattern"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="meal_posting_item"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Authorized Code -->
+    <record id="view_authorized_code_form" model="ir.ui.view">
+        <field name="name">authorized.code.form</field>
+        <field name="model">authorized.code</field>
+        <field name="arch" type="xml">
+            <form string="Authorized Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+                <group string="Can Authorize">
+                    <field name="can_authorize_complimentary"/>
+                    <field name="can_authorize_vip"/>
+                    <field name="can_authorize_house_use"/>
+                    <field name="can_authorize_out_of_order"/>
+                    <field name="can_authorize_room_on_hold"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Authorized Code -->
+    <record id="view_authorized_code_tree" model="ir.ui.view">
+        <field name="name">authorized.code.tree</field>
+        <field name="model">authorized.code</field>
+        <field name="arch" type="xml">
+            <tree string="Authorized Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Complimentary Code -->
+    <record id="view_complimentary_code_form" model="ir.ui.view">
+        <field name="name">complimentary.code.form</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <form string="Complimentary Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+                <group string="Type">
+                    <field name="type" widget="radio"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Complimentary Code -->
+    <record id="view_complimentary_code_tree" model="ir.ui.view">
+        <field name="name">complimentary.code.tree</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <tree string="Complimentary Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Out of Order Code -->
+    <record id="view_out_of_order_code_form" model="ir.ui.view">
+        <field name="name">out.of.order.code.form</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <form string="Out of Order Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Out of Order Code -->
+    <record id="view_out_of_order_code_tree" model="ir.ui.view">
+        <field name="name">out.of.order.code.tree</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <tree string="Out of Order Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Room on Hold Code -->
+    <record id="view_room_on_hold_code_form" model="ir.ui.view">
+        <field name="name">room.on.hold.code.form</field>
+        <field name="model">room.on.hold.code</field>
+        <field name="arch" type="xml">
+            <form string="Room on Hold Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Room on Hold Code -->
+    <record id="view_room_on_hold_code_tree" model="ir.ui.view">
+        <field name="name">room.on.hold.code.tree</field>
+        <field name="model">room.on.hold.code</field>
+        <field name="arch" type="xml">
+            <tree string="Room on Hold Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for VIP Code -->
+    <record id="view_vip_code_form" model="ir.ui.view">
+        <field name="name">vip.code.form</field>
+        <field name="model">vip.code</field>
+        <field name="arch" type="xml">
+            <form string="VIP Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="level"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for VIP Code -->
+    <record id="view_vip_code_tree" model="ir.ui.view">
+        <field name="name">vip.code.tree</field>
+        <field name="model">vip.code</field>
+        <field name="arch" type="xml">
+            <tree string="VIP Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="level"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Safe Deposit Code -->
+    <record id="view_safe_deposit_code_form" model="ir.ui.view">
+        <field name="name">safe.deposit.code.form</field>
+        <field name="model">safe.deposit.code</field>
+        <field name="arch" type="xml">
+            <form string="Safe Deposit Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Safe Deposit Code -->
+    <record id="view_safe_deposit_code_tree" model="ir.ui.view">
+        <field name="name">safe.deposit.code.tree</field>
+        <field name="model">safe.deposit.code</field>
+        <field name="arch" type="xml">
+            <tree string="Safe Deposit Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Hotel Code -->
+    <record id="view_hotel_code_form" model="ir.ui.view">
+        <field name="name">hotel.code.form</field>
+        <field name="model">hotel.code</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                    <group>
+                        <field name="number_of_rooms"/>
+                        <field name="number_of_stars"/>
+                        <field name="notes"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Hotel Code -->
+    <record id="view_hotel_code_tree" model="ir.ui.view">
+        <field name="name">hotel.code.tree</field>
+        <field name="model">hotel.code</field>
+        <field name="arch" type="xml">
+            <tree string="Hotel Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="number_of_rooms"/>
+                <field name="number_of_stars"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Rentable Asset -->
+    <record id="view_rentable_asset_form" model="ir.ui.view">
+        <field name="name">rentable.asset.form</field>
+        <field name="model">rentable.asset</field>
+        <field name="arch" type="xml">
+            <form string="Rentable Asset">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="default_type"/>
+                        <field name="rhythm"/>
+                    </group>
+                </group>
+
+                <group>
+                    <field name="create_as_with_guest"/>
+                    <field name="use_as_default_rent_notes"/>
+                    <field name="description" string="Description"/>
+                </group>
+                
+                <!-- Quantity Information -->
+                <group string="Quantity">
+                    <field name="quantity_type"/>
+                    <field name="default_quantity"/>
+                    <field name="price"/>
+                    <field name="posting_item"/>
+                    <field name="free"/>
+                </group>
+                
+                <!-- Return Check -->
+                <group string="Return Check">
+                    <field name="return_check"/>
+                </group>
+                
+                <!-- Additional Options -->
+                <group string="Options">
+                    <field name="per_pax"/>
+                    <field name="per_child"/>
+                    <field name="per_infant"/>
+                    <field name="extra_bed"/>
+                </group>
+                
+                <field name="notes"/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Rentable Asset -->
+    <record id="view_rentable_asset_tree" model="ir.ui.view">
+        <field name="name">rentable.asset.tree</field>
+        <field name="model">rentable.asset</field>
+        <field name="arch" type="xml">
+            <tree string="Rentable Assets">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="arabic_description"/>
+                <field name="default_type"/>
+                <field name="rhythm"/>
+                <field name="default_quantity"/>
+                <field name="price"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Telephone Extension -->
+    <record id="view_telephone_extension_form" model="ir.ui.view">
+        <field name="name">telephone.extension.form</field>
+        <field name="model">telephone.extension</field>
+        <field name="arch" type="xml">
+            <form string="Telephone Extension">
+                <group>
+                    <field name="extension_number"/>
+                    <field name="room_number"/>
+                    <field name="comments"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Telephone Extension -->
+    <record id="view_telephone_extension_tree" model="ir.ui.view">
+        <field name="name">telephone.extension.tree</field>
+        <field name="model">telephone.extension</field>
+        <field name="arch" type="xml">
+            <tree string="Telephone Extensions">
+                <field name="extension_number"/>
+                <field name="room_number"/>
+            </tree>
+        </field>
+    </record>
+
+    
+    
+    
+
+    
+
+</odoo>

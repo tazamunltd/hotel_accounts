@@ -1,0 +1,273 @@
+<odoo>
+    <!-- Form View for Reservation Profile -->
+    <record id="view_reservation_profile_form" model="ir.ui.view">
+        <field name="name">reservation.profile.form</field>
+        <field name="model">reservation.profile</field>
+        <field name="arch" type="xml">
+            <form string="Reservation Profile">
+                <header>
+                    <!-- Individual buttons for each action -->
+                    <!-- <button name="action_main_info" string="Main" type="object" class="btn-primary"/>
+                    <button name="action_optional_info" string="Optional" type="object" class="btn-secondary"/>
+                    <button name="action_information" string="Information" type="object" class="btn-secondary"/>
+                    <button name="action_address" string="Address" type="object" class="btn-secondary"/>
+                    <button name="action_contact_method" string="Contact Method" type="object" class="btn-secondary"/>
+                    <button name="action_image" string="Image" type="object" class="btn-secondary"/>
+                    <button name="action_credit_cards" string="Credit Cards" type="object" class="btn-secondary"/>
+                    <button name="action_linked_profiles" string="Linked Profiles" type="object" class="btn-secondary"/>
+                    <button name="action_membership" string="Membership" type="object" class="btn-secondary"/>
+                    <button name="action_notes" string="Notes" type="object" class="btn-secondary"/>
+                    <button name="action_profile_tree" string="Profile Tree" type="object" class="btn-secondary"/>
+                    <button name="action_add_attributes" string="Add Attributes" type="object" class="btn-secondary"/> -->
+                </header>
+
+                <!-- <sheet>
+                    <group>
+                        <field name="profile_id"/>
+                    </group> -->
+                    <!-- The main form for fields common to all sections, like profile_id -->
+                <!-- </sheet> -->
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_reservation_profile_notebook_form" model="ir.ui.view">
+        <field name="name">reservation.profile.notebook.form</field>
+        <field name="model">reservation.profile.main</field>
+        <field name="arch" type="xml">
+            <form string="Reservation Profile">
+                <sheet>
+                    <notebook>
+                        <page string="Main">
+                            <group>
+                                <group>
+                                    <field name="profile_id"/>
+                                    <field name="profile_category"/>
+                                    <field name="last_name"/>
+                                    <field name="first_name"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                </group>
+                                <group>
+                                    <field name="nationality"/>
+                                    <field name="source_of_business"/>
+                                    <field name="market_segment"/>
+                                    <field name="meal_pattern"/>
+                                    <field name="rate_code"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="house_use"/>
+                                <field name="vip"/>
+                                <field name="complementary"/>
+                            </group>
+                            <group string="Payment Type">
+                                <field name="payment_type" widget="radio"/>
+                            </group>
+                            <group string="Status">
+                                <field name="status" widget="radio"/>
+                            </group>
+                        </page>
+                        <page string="Optional">
+                            <group>
+                                <group>
+                                    <field name="job_title"/>
+                                    <field name="employer_company"/>
+                                    <field name="position"/>
+                                    <field name="salutation"/>
+                                    <field name="currency"/>
+                                </group>
+                                <group>
+                                    <field name="spouse_name"/>
+                                    <field name="language"/>
+                                    <field name="rank"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="birthday"/>
+                                <field name="birth_place"/>
+                                <field name="gender" widget="radio"/>
+                                <field name="spouse_birthday" placeholder= "Click to Open Calendar"/>
+                            </group>
+                        </page>  
+                        <page string="Information">
+                            <group>
+                                <group>
+                                    <field name="special_rate"/>
+                                    <field name="extra_features"/>
+                                    <field name="preferred_room_type"/>
+                                    <field name="preferred_room"/>
+                                    <field name="expected_room"/>
+                                </group>
+                                <group>
+                                    <field name="total_points"/>
+                                    <field name="user_sort"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="comments"/>
+                            </group>
+                            <group string="Statistics">
+                                <group>
+                                    <field name="first_visit"/>
+                                    <field name="last_visit"/>
+                                    <field name="last_rate"/>
+                                    <field name="last_room"/>
+                                </group>
+                                <group>
+                                    <field name="total_stays"/>
+                                    <field name="total_nights"/>
+                                    <field name="total_cancellations"/>
+                                    <field name="total_no_shows"/>
+                                    <field name="total_revenue"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Address">
+                            <group>
+                                <group>
+                                    <field name="address_type"/>
+                                    <field name="country_id"/>
+                                    <field name="state_id"/>
+                                    <field name="city"/>
+                                    <field name="zip_code"/>
+                                </group>
+                                <group>
+                                    <field name="street"/>
+                                    <field name="user_sort"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="is_obsolete"/>
+                                <field name="is_primary"/>
+                                <field name="comments"/>
+                            </group>
+                        </page>
+                        <page string="Contact Method">
+                            <group>
+                                <group>
+                                    <field name="contact_method_type"/>
+                                    <field name="contact_method_is_obsolete"/>
+                                </group>
+                                <group>
+                                    <field name="contact_method_description"/>
+                                </group>
+                                <group>
+                                    <field name="contact_method_user_sort"/>
+                                    <field name="contact_method_is_primary"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Image">
+                            <group>
+                                <group>
+                                    <field name="image" widget="image" class="oe_avatar"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Credit Card">
+                            <group>
+                                <group>
+                                    <field name="card_type"/>
+                                    <field name="card_number"/>
+                                </group>
+                                <group>
+                                    <field name="card_holder_name"/>
+                                    <field name="card_expiry_date" widget="date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Linked Profiles">
+                            <group>
+                                <group>
+                                    <field name="linked_profile_id"/>
+                                    <field name="linked_profile_description"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Membership">
+                            <group>
+                                <group>
+                                    <field name="membership_type"/>
+                                    <field name="membership_card_number"/>
+                                </group>
+                                <group>
+                                    <field name="membership_description"/>
+                                    <field name="membership_expiry_date" widget="date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <group>
+                                <group>
+                                    <field name="note_category"/>
+                                    <field name="note_not_for_guest"/>
+                                </group>
+                                <group>
+                                    <field name="note_description"/>
+                                </group>
+                                <group>
+                                    <field name="note_expiry_date" widget="datetime"/>
+                                    <field name="note_created_by" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Profile Tree">
+                            <group>
+                                <field name="profile_tree_description" widget="text"/>
+                            </group>
+                        </page>
+                        <page string="Add Attributes">
+                            <group>
+                                <field name="additional_attributes" widget="text"/>
+                            </group>
+                        </page>
+                        <page string="HTML">
+                            <group>
+                                <field name="html_content" widget="html"/>
+                                <button string="Export HTML" type="object" name="export_html" class="btn-primary"/>
+                            </group>
+                        </page>
+                        <page string="Reservation List">
+                            <!-- <group>
+                                <field name="reservation_ids">
+                                    <tree string="Reservations">
+                                        <field name="name"/>
+                                        <field name="arrival_date"/>
+                                        <field name="departure_date"/>
+                                        <field name="rooms"/>
+                                        <field name="pay_room"/>
+                                        <field name="ch"/>
+                                        <field name="in_val"/>
+                                        <field name="status"/>
+                                    </tree>
+                                </field>
+                            </group> -->
+                        </page>
+                    </notebook>
+                </sheet>
+                <!-- <footer>
+                    <button string="Documents" type="object" name="open_documents" class="btn-primary"/>
+                    <button string="Guest Comments" type="object" name="view_guest_comments" class="btn-secondary"/>
+                </footer> -->
+            </form>
+        </field>
+    </record>
+    <!-- Tree View -->
+    <record id="view_reservation_profile_main_tree" model="ir.ui.view">
+        <field name="name">reservation.profile.main.tree</field>
+        <field name="model">reservation.profile.main</field>
+        <field name="arch" type="xml">
+            <tree string="Reservation Profiles Main">
+                <field name="profile_id"/>
+                <field name="last_name"/>
+                <field name="first_name"/>
+                <field name="nationality"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    
+</odoo>
