@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: odoo
-        image: murad1997/odoo:05
+        image: murad1997/hotel:latest
         ports:
         - containerPort: 8069
         env:
