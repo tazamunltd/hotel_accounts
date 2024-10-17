@@ -1,0 +1,8 @@
+resources: 
+ - ../../base
+
+namespace: prod
+
+patches:
+- replicas.yaml
+  

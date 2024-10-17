@@ -1,0 +1,8 @@
+resources: 
+ - ../../base
+
+namespace: dev
+
+patches:
+- replicas.yaml
+  
