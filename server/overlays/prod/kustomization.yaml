@@ -6,3 +6,8 @@ namespace: prod
 patchesStrategicMerge:
 - replicas.yaml
   
+
+
+configMapGenerator:
+- name: postgres-config
+  env: config.properties

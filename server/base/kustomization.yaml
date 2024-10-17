@@ -19,3 +19,7 @@ namePrefix:
 
 nameSuffix:
   -v1
+
+configMapGenerator:
+- name: postgres-config
+  env: config.properties
