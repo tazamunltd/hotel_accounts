@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.reljicd</groupId>
-    <artifactId>shopping-cart</artifactId>
+    <artifactId>Hotel-Management</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>shopping-cart</name>
-    <description>Demo project for Spring Boot Shopping Cart</description>
+    <name>Hotel-Management</name>
+    <description>Hotel Management system</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

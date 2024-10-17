@@ -1,0 +1,13 @@
+resources: 
+ - ../../base
+
+namespace: stage
+
+patchesStrategicMerge:
+- replicas.yaml
+  
+
+configMapGenerator:
+- name: postgres-config
+  env: config.properties
+  namespace: stage

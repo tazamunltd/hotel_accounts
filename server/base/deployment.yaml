@@ -1,19 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: odoo
+  name: hotel
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: odoo
   template:
-    metadata:
-      labels:
-        app: odoo
     spec:
       containers:
-      - name: odoo
+      - name: hotel
         image: murad1997/hotel:latest
         ports:
         - containerPort: 8069

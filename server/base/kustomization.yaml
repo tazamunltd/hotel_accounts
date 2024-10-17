@@ -1,0 +1,25 @@
+resources: 
+- deployment.yaml
+- service.yaml
+
+commonLabels:
+  app: hotel
+
+commonAnnotations:
+  argocd-image-updater.argoproj.io/git-branch: nur
+  argocd-image-updater.argoproj.io/image-list: hotel=murad1997/hotel
+  argocd-image-updater.argoproj.io/hotel.update-strategy: newest-build
+  argocd-image-updater.argoproj.io/hotel.pull-secret:  dockerhub-secret
+  argocd-image-updater.argoproj.io/write-back-method: git
+  argocd-image-updater.argoproj.io/write-back-target: Kustomization
+
+
+namePrefix:
+  hotel-
+
+nameSuffix:
+  -v1
+
+configMapGenerator:
+- name: postgres-config
+  env: config.properties
