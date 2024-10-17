@@ -4,7 +4,3 @@ resources:
 
 commonLabels:
   app: hotel
-
-configMapGenerator:
-- name: postgres-config
-  env: config.properties

@@ -21,7 +21,7 @@ spec:
         - containerPort: 8069
         env:
         - name: HOST
-          value: postgres
+          value: postgres.default.svc.cluster.local
         - name: USER
           valueFrom:
             configMapKeyRef:
