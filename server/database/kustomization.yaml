@@ -1,0 +1,8 @@
+resource: 
+   - configMap.yaml
+   - pv.yaml
+   - deployment.yaml
+   - service.yaml    
+
+commonLabels:
+  app: postgres
