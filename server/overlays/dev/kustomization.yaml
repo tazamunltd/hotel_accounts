@@ -10,4 +10,5 @@ patchesStrategicMerge:
 configMapGenerator:
 - name: postgres-config
   env: config.properties
+  namespace: dev
 
