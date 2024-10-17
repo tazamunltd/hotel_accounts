@@ -3,6 +3,6 @@ resources:
 
 namespace: dev
 
-patches:
+patchesStrategicMerge:
 - replicas.yaml
   

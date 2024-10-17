@@ -3,6 +3,6 @@ resources:
 
 namespace: test
 
-patches:
+patchesStrategicMerge:
 - replicas.yaml
   
