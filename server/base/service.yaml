@@ -7,4 +7,3 @@ spec:
   ports:
   - port: 8069
     targetPort: 8069
-    nodePort: 30300
