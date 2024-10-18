@@ -4,5 +4,7 @@ resources:
    - deployment.yaml
    - service.yaml    
 
+namespace: default   
+
 commonLabels:
   app: postgres
