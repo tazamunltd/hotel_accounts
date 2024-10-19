@@ -3,9 +3,16 @@ resources:
 
 namespace: dev 
 
+
+namePrefix:
+  dev-
+
+nameSuffix:
+  -v1
+
 patchesStrategicMerge:
 - replicas.yaml
-  
+
 
 configMapGenerator:
 - name: postgres-config
