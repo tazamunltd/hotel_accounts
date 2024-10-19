@@ -3,6 +3,12 @@ resources:
 
 namespace: stage
 
+namePrefix:
+  stage-
+
+nameSuffix:
+  -v1
+
 patchesStrategicMerge:
 - replicas.yaml
   

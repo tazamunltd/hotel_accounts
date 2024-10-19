@@ -4,6 +4,12 @@ resources:
 
 namespace: prod
 
+namePrefix:
+  prod-
+
+nameSuffix:
+  -v1
+
 patchesStrategicMerge:
 - replicas.yaml
   
