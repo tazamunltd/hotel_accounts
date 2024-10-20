@@ -4,7 +4,7 @@ metadata:
   name: hotel
   annotations:
     argocd-image-updater.argoproj.io/git-branch: nur
-    argocd-image-updater.argoproj.io/image-list: hotel=murad1997/hotel
+    argocd-image-updater.argoproj.io/image-list: hotel=tazamun/test-hotel
     argocd-image-updater.argoproj.io/hotel.update-strategy: newest-build
     argocd-image-updater.argoproj.io/hotel.pull-secret:  dockerhub-secret
     argocd-image-updater.argoproj.io/write-back-method: git
