@@ -42,5 +42,4 @@ spec:
              mountPath: /var/lib/odoo
       volumes:
       - name: odoo-data
-        persistentVolumeClaim:
-          claimName: dev-odoo-pvc-v1
+        emptyDir: {}
