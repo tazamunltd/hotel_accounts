@@ -43,4 +43,4 @@ spec:
       volumes:
       - name: odoo-data
         persistentVolumeClaim:
-          claimName: odoo-pvc
+          claimName: dev-odoo-pvc-v1
