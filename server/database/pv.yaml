@@ -9,7 +9,7 @@ spec:
   capacity:
     storage: 30Gi # Sets PV Volume
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   hostPath:
     path: "/home/ubuntu/data" # Sets the volume's path
 
@@ -22,7 +22,7 @@ metadata:
 spec:
   storageClassName: local
   accessModes:
-  - ReadWriteOnce
+  - ReadWriteMany
   resources:
     requests:
       storage: 10Gi
