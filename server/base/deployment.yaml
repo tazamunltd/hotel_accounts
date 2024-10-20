@@ -37,3 +37,10 @@ spec:
             configMapKeyRef:
               name: postgres-config
               key: POSTGRES_DB
+          volumeMounts:
+           - name: odoo-data
+             mountPath: /var/lib/odoo
+      volumes:
+      - name: odoo-data
+        persistentVolumeClaim:
+          claimName: odoo-pvc
