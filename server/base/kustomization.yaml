@@ -1,7 +1,8 @@
 resources: 
-- pv.yaml
+
 - deployment.yaml
 - service.yaml
+- pv.yaml
 
 commonLabels:
   app: hotel
