@@ -6,7 +6,7 @@ spec:
   tls:
   - hosts:
       - dev.tazamun.com.sa
-    secretName: my-secret
+    secretName: tazamun-tls
   ingressClassName: nginx
   rules:
   - host: "dev.tazamun.com.sa"
@@ -18,5 +18,4 @@ spec:
           service:
             name: odoo
             port:
-              number: 8069
- 
+              number: 8069 
