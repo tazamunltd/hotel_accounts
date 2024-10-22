@@ -2,21 +2,23 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: test-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   tls:
   - hosts:
-      - dev.tazamun.com.sa
-    secretName: my-secret
-  ingressClassName: nginx
+      - test.hotel.com
+    secretName: tls-secret
   rules:
-  - host: "dev.tazamun.com.sa"
+  - host: "test.hotel.com"
     http:
       paths:
       - pathType: Prefix
         path: "/"
         backend:
           service:
-            name: odoo
+            name: nginx
             port:
-              number: 8069
+              number: 80
  
