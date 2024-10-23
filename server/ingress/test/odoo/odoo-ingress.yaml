@@ -33,7 +33,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: www.example.com
+    - host: dev.tazamun.com.sa
       http:
         paths:
           - pathType: Prefix
@@ -45,5 +45,5 @@ spec:
             path: /
   tls:
     - hosts:
-      - www.example.com
+      - dev.tazamun.com.sa
       secretName: example-tls
