@@ -6,10 +6,6 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  tls:
-  - hosts:
-      - test.hotel.com
-    secretName: tls-secret
   rules:
   - host: "test.hotel.com"
     http:
@@ -20,5 +16,5 @@ spec:
           service:
             name: nginx
             port:
+              number: 8069
               number: 80
- 
