@@ -46,4 +46,4 @@ spec:
   tls:
     - hosts:
       - dev.tazamun.com.sa
-      secretName: example-tls
+      secretName: tazamun-tls
