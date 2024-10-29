@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: odoo17
+  POSTGRES_USER: odoo17
+  POSTGRES_PASSWORD: admin
