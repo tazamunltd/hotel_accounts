@@ -15,24 +15,15 @@ spec:
       restartPolicy: Always
       containers:
       - name: odoo
-        image: tazamun/hotel:dev1.0
+        image: tazamun/hotel:test1.2
         ports:
         - containerPort: 8069
         env:
         - name: HOST
           value: postgres
         - name: USER
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: POSTGRES_USER
+          value: odoo
         - name: PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: POSTGRES_PASSWORD
+          value: odoo
         - name: DATABASE
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: POSTGRES_DB
+          value: postgres
