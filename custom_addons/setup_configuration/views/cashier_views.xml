@@ -141,7 +141,7 @@
                     <!-- Additions Section -->
                     <group string="Additions">
                         <field name="addition_line">
-                            <tree string="Additions" editable="bottom">
+                            <tree string="Additions" >
                                 <field name="line"/>
                                 <field name="department"/>
                                 <field name="name"/>
@@ -164,7 +164,7 @@
         <field name="name">posting.item.tree</field>
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
-            <tree string="Posting Items" editable="bottom">
+            <tree string="Posting Items" >
                 <field name="item_code"/>
                 <field name="description"/>
                 <field name="abbreviation"/>

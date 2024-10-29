@@ -55,17 +55,19 @@ class RateCode(models.Model):
     _name = 'rate.code'
     _description = 'Rate Code Management'
 
+    _rec_name = 'rate_code_category_id'
     code = fields.Char(string='Rate Code', required=True)
     description = fields.Char(string='Description', required=True)
     abbreviation = fields.Char(string='Abbreviation')
     arabic_desc = fields.Char(string='Arabic Description')
     arabic_abbr = fields.Char(string='Arabic Abbreviation')
-    category_id = fields.Many2one('rate.category', string='Category', required=True)
+    rate_code_category_id = fields.Many2one('rate.category', string='Category', required=True)
     rate_posting_item = fields.Many2one('posting.item', string='Rate Posting Item')
     currency_id = fields.Many2one('res.currency', string='Currency')
     include_meals = fields.Boolean(string='Include Meals in Posting Item')
     user_sort = fields.Integer(string='User Sort', default=0)
     obsolete = fields.Boolean(string='Obsolete')
+    
 
     rhythm = fields.Selection([
         ('every_night', 'Every Night'),
@@ -80,6 +82,7 @@ class RateCode(models.Model):
 
     # Date fields for rate details
     rate_details = fields.One2many('rate.detail', 'rate_code_id', string="Rate Details")
+
 
         # Method for "Edit Details" button
     def action_rate_code_details(self):
@@ -224,7 +227,9 @@ class MarketCategory(models.Model):
     _name = 'market.category'
     _description = 'Market Category'
 
-    category = fields.Many2one('rate.category', string='Category', required=True)
+    category = fields.Many2one('rate.category', string='Category')
+    _rec_name = "market_category"
+    market_category = fields.Char(string='Category', required=True)
     description = fields.Char(string="Description")
     abbreviation = fields.Char(string="Abbreviation")
     user_sort = fields.Integer(string="User Sort")
@@ -233,10 +238,11 @@ class MarketSegment(models.Model):
     _name = 'market.segment'
     _description = 'Market Segment'
 
+    _rec_name = 'market_segment'
     market_segment = fields.Char(string="Market Segment", required=True)
     description = fields.Char(string="Description")
     abbreviation = fields.Char(string="Abbreviation")
-    category = fields.Many2one('rate.category', string='Category', required=True)
+    category = fields.Many2one('market.category', string='Category', required=True)
     user_sort = fields.Integer(string="User Sort")
     obsolete = fields.Boolean(string="Obsolete", default=False)
 
@@ -244,6 +250,7 @@ class SourceOfBusiness(models.Model):
     _name = 'source.business'
     _description = 'Source of Business'
 
+    _rec_name = 'source'
     source = fields.Char(string="Source", required=True)
     description = fields.Char(string="Description")
     abbreviation = fields.Char(string="Abbreviation")

@@ -7,12 +7,16 @@ class HousekeepingManagement(models.Model):
 
     # Room Information
     room_number = fields.Char(string="Room Number")
-    room_type = fields.Selection([
-        ('single', 'Single Room'),
-        ('double', 'Double Room'),
-        ('triple', 'Triple Room'),
-        ('suite', 'Suite Room'),
-    ], string="Room Type")
+    # room_type = fields.Selection([
+    #     ('single', 'Single Room'),
+    #     ('double', 'Double Room'),
+    #     ('triple', 'Triple Room'),
+    #     ('suite', 'Suite Room'),
+    # ], string="Room Type")
+
+    room_type = fields.Many2one('room.type', string="Room Type")
+
+
 
     floor_number = fields.Char(string="Floor #")
     section_hk = fields.Char(string="Section (H.K)")

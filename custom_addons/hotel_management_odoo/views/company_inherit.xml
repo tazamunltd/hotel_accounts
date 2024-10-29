@@ -1,0 +1,14 @@
+<odoo>
+    <record id="view_res_company_form_inherit" model="ir.ui.view">
+        <field name="name">res.company.form.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <!-- Targeting the group where you want to add the test_field -->
+            <xpath expr="//page[@name='general_info']/group/group[1]" position="inside">
+                <!-- Add the test field -->
+                <field name="test_field" widget='url'/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

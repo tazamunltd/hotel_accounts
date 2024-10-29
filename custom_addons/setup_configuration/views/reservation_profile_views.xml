@@ -53,7 +53,8 @@
                                     <field name="nationality"/>
                                     <field name="source_of_business"/>
                                     <field name="market_segment"/>
-                                    <field name="meal_pattern"/>
+                                    <!-- <field name="meal_pattern"/> -->
+                                    <field name="reservation_meal_pattern"/>
                                     <field name="rate_code"/>
                                 </group>
                             </group>

@@ -103,6 +103,7 @@ class MealPattern(models.Model):
     _name = 'meal.pattern'
     _description = 'Meal Pattern'
 
+    _rec_name = 'meal_pattern'
     meal_pattern = fields.Char(string="Meal Pattern", required=True)
     description = fields.Char(string="Description", required=True)
     abbreviation = fields.Char(string="Abbreviation")
