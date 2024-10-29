@@ -1,0 +1,148 @@
+<odoo>
+    <!-- Form View for Group Booking -->
+    <record id="view_group_booking_form" model="ir.ui.view">
+        <field name="name">group.booking.form</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <form string="Group Booking">
+                <sheet>
+                    <notebook>
+                        <page string="Main">
+                            <group>
+                                <field name="name"/>
+                                <field name="address"/>
+                                <field name="image"/>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="profile_id"/>
+                                    <field name="group_name"/>
+                                    <field name="company"/>
+                                    <field name="nationality"/>
+                                </group>
+                                <group>
+                                    <field name="source_of_business"/>
+                                    <field name="status_code"/>
+                                    <field name="house_use"/>
+                                    <field name="complimentary"/>
+                                </group>
+                            </group>
+
+                            <group string="Payment Details">
+                                <group>
+                                    <field name="payment_type" widget="radio"/>
+                                    <field name="master_folio_limit"/>
+                                </group>
+                            </group>
+
+                            <group string="Rate and Market Details">
+                                <group>
+                                    <field name="rate_code"/>
+                                    <field name="group_meal_pattern"/>
+                                    <field name="market_segment"/>
+                                </group>
+                                <group>
+                                    <field name="reference"/>
+                                    <field name="allotment"/>
+                                </group>
+                            </group>
+
+                            <group>
+                                <field name="allow_profile_change"/>
+                            </group>
+                            <group>
+                                <field name="person_ids">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                        <field name="age"/>
+                                        <field name="address"/>
+                                        <field name="image"/>
+        
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                        <page string= "Optional">
+                            <group string="Address">
+                                <group>
+                                    <field name="country_id"/>
+                                    <field name="street"/>
+                                    <field name="city"/>
+                                    <field name="zip_code"/>
+                                    <field name="billing_address"/>
+                                </group>
+                            </group>
+
+                            <group string="Contact / Leader">
+                                <group>
+                                    <field name="contact_leader"/>
+                                    <field name="phone_1"/>
+                                    <field name="phone_2"/>
+                                    <field name="mobile"/>
+                                    <field name="email_address"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Information">
+                            <group>
+                                <group>
+                                    <field name="expected_rooms"/>
+                                    <field name="user_sort"/>
+                                    <field name="comments"/>
+                                </group>
+                            </group>
+
+                            <group string="Statistics">
+                                <group>
+                                    <field name="first_visit"/>
+                                    <field name="last_visit"/>
+                                    <field name="last_rate"/>
+                                    <field name="total_stays"/>
+                                </group>
+                                <group>
+                                    <field name="total_nights"/>
+                                    <field name="total_cancellations"/>
+                                    <field name="total_no_shows"/>
+                                    <field name="total_revenue"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Reservation List">
+                            <field name="room_booking_ids" widget="one2many_list" context="{'default_model': 'room.booking'}">
+                                <tree string="Room Bookings" editable="bottom">
+                                    <field name="name" />
+                                    <field name="partner_id" />
+                                    <field name="date_order" />
+                                    <field name="state" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Group Booking -->
+    <record id="view_group_booking_tree" model="ir.ui.view">
+        <field name="name">group.booking.tree</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <tree string="Group Bookings">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action for Group Booking -->
+    <record id="group_booking_action" model="ir.actions.act_window">
+        <field name="name">Group Booking</field>
+        <field name="res_model">group.booking</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Item for Group Reservation -->
+    <menuitem id="group_reservation_menu" name="Group" sequence="10"
+              parent="room_booking_menu"
+              action="group_booking_action"/>
+</odoo>

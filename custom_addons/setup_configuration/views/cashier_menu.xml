@@ -18,7 +18,7 @@
     <record id="action_posting_item" model="ir.actions.act_window">
         <field name="name">Posting Items</field>
         <field name="res_model">posting.item</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">form,tree</field>
     </record>
 
     <!-- Action for Dummy Room Code -->

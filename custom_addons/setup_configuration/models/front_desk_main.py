@@ -31,9 +31,9 @@ class FrontDeskWalkinMain(models.Model):
     discount_meals = fields.Float(string="Discount on Meals (%)")
     
     # Adult Information
-    adult_ids = fields.One2many('reservation.adult', 'reservation_id')
-    child_ids = fields.One2many('reservation.child', 'reservation_id')
-    infant_ids = fields.One2many('reservation.infant', 'reservation_id')
+    adult_ids = fields.One2many('reservation.adults', 'reservation_id')
+    child_ids = fields.One2many('reservation.childs', 'reservation_id')
+    infant_ids = fields.One2many('reservation.infants', 'reservation_id')
 
     # Optional/Children Fields
     company = fields.Char(string="Company")
@@ -67,7 +67,7 @@ class FrontDeskWalkinMain(models.Model):
     description = fields.Text(string="Description")
     
     # Infants Information
-    infant_ids = fields.One2many('reservation.infant', 'reservation_id', string="Infants")
+    infant_ids = fields.One2many('reservation.infants', 'reservation_id', string="Infants")
 
     front_desk_html = fields.Html(string="HTML")
 
@@ -153,9 +153,9 @@ class FrontDeskInHouseGuest(models.Model):
     sponsor = fields.Char(string="Sponsor")
     reserved_by = fields.Char(string="Reserved By")
 
-    adult_ids = fields.One2many('reservation.adult', 'reservation_id', string='Adults')
-    child_ids = fields.One2many('reservation.child', 'reservation_id', string='Children')
-    infant_ids = fields.One2many('reservation.infant', 'reservation_id', string='Infants')
+    adult_ids = fields.One2many('reservation.adults', 'reservation_id', string='Adults')
+    child_ids = fields.One2many('reservation.childs', 'reservation_id', string='Children')
+    infant_ids = fields.One2many('reservation.infants', 'reservation_id', string='Infants')
     # profile_ids = fields.One2many('reservation.reservation.profile', 'profile_reservation_id', string='Profile ID')
 
     # Relation to Profiles (using the existing profile model)

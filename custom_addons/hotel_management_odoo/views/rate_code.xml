@@ -1,0 +1,122 @@
+<odoo>
+    <!-- Form View for Rate Code -->
+    <record id="view_rate_code_form" model="ir.ui.view">
+        <field name="name">rate.code.form</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <form string="Rate Code">
+                <group>
+                    <field name="rate_code"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="category"/>
+                    <field name="user_sort"/>
+                    <field name="obsolete"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Rate Code -->
+    <record id="view_rate_code_tree" model="ir.ui.view">
+        <field name="name">rate.code.tree</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <tree string="Rate Codes" editable="bottom">
+                <field name="rate_code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="category"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action for Rate Code -->
+    <record id="action_rate_code" model="ir.actions.act_window">
+        <field name="name">Rate Codes</field>
+        <field name="res_model">rate.code</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new rate code.
+            </p>
+        </field>
+    </record>
+
+    <!-- Form View for Rate Promotion -->
+    <record id="view_rate_promotion_form" model="ir.ui.view">
+        <field name="name">rate.promotion.form</field>
+        <field name="model">rate.promotion</field>
+        <field name="arch" type="xml">
+            <form string="Rate Promotion">
+                <group>
+                    <field name="id_number"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <field name="buy"/>
+                    <field name="get"/>
+                    <field name="valid_from"/>
+                    <field name="valid_to"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Rate Promotion -->
+    <record id="view_rate_promotion_tree" model="ir.ui.view">
+        <field name="name">rate.promotion.tree</field>
+        <field name="model">rate.promotion</field>
+        <field name="arch" type="xml">
+            <tree string="Rate Promotions" editable="bottom">
+                <field name="id_number"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="buy"/>
+                <field name="get"/>
+                <field name="valid_from"/>
+                <field name="valid_to"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action for Rate Promotion -->
+    <record id="action_rate_promotion" model="ir.actions.act_window">
+        <field name="name">Rate Promotions</field>
+        <field name="res_model">rate.promotion</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a new rate promotion.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items for Codes -->
+    <menuitem id="codes_menu"
+              name="Codes"
+              parent="hotel_management_menu_root"
+              sequence="80"/>
+
+    <!-- Submenu for Reservations under Codes -->
+    <menuitem id="reservations_menu"
+              name="Reservations"
+              parent="codes_menu"
+              sequence="10"/>
+
+    <!-- Menu Item for Rate Codes under Reservations -->
+    <menuitem id="menu_rate_code"
+              name="Rate Codes"
+              sequence="10"
+              parent="reservations_menu"
+              action="action_rate_code"/>
+
+    <!-- Menu Item for Rate Promotions under Reservations -->
+    <menuitem id="rate_promo_code"
+              name="Rate Promotions"
+              sequence="15"
+              parent="reservations_menu"
+              action="action_rate_promotion"/>
+
+</odoo>

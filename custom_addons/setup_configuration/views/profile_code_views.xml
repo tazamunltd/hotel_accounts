@@ -99,7 +99,7 @@
                                 <field name="obsolete"/>
                             </group>
                             <group string="Type">
-                                <field name="profile_type"/>
+                                <field name="profile_type" widget='radio'/>
                             </group>
                         </page>
 

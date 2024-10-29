@@ -1,0 +1,48 @@
+<odoo>
+  <data>
+    <odoo>
+      <data>
+        <!-- List (tree) View -->
+        <record model="ir.ui.view" id="templates.list">
+          <field name="name">templates list</field>
+          <field name="model">templates.templates</field>
+          <field name="arch" type="xml">
+            <tree>
+              <field name="template_id" string="Template ID"/>
+              <field name="description"/>
+              <field name="user_sort"/>
+            </tree>
+          </field>
+        </record>
+    
+        <!-- Form View -->
+        <record model="ir.ui.view" id="templates_form">
+          <field name="name">templates.form</field>
+          <field name="model">templates.templates</field>
+          <field name="arch" type="xml">
+            <form string="Templates">
+              <sheet>
+                  <group>
+                    <field name="description"/>
+                  <field name="user_sort"/>
+                  </group>
+              </sheet>
+            </form>
+          </field>
+        </record>
+    
+        <!-- Action to open form/tree views -->
+        <record model="ir.actions.act_window" id="action_templates_window">
+          <field name="name">Templates</field>
+          <field name="res_model">templates.templates</field>
+          <field name="view_mode">tree,form</field>
+        </record>
+    
+        <!-- Top menu item -->
+        <menuitem id="menu_templates_root" name="Templates" sequence="10"/>
+        <!-- Add action to the menu -->
+        <menuitem id="menu_templates_list" name="Manage Templates" parent="menu_templates_root" action="action_templates_window"/>
+      </data>
+    </odoo>
+  </data>
+</odoo>

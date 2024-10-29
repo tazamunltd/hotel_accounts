@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Agent Form View -->
+    <record id="agent_view_form" model="ir.ui.view">
+        <field name="name">agent.agent.view.form</field>
+        <field name="model">agent.agent</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="image" widget="image"/>
+                    </group>
+                    <group>
+                        <field name="address"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Agent Tree View -->
+    <record id="agent_view_tree" model="ir.ui.view">
+        <field name="name">agent.agent.view.tree</field>
+        <field name="model">agent.agent</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" string="Agent Name"/>
+                <field name="address" string="Address"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Kanban View for Agent -->
+    <record id="agent_view_kanban" model="ir.ui.view">
+        <field name="name">agent.agent.view.kanban</field>
+        <field name="model">agent.agent</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="address"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <strong><field name="name"/></strong>
+                                <div><field name="image" widget="image"/></div>
+                                <div><field name="address"/></div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Agent Menu Action -->
+    <record id="agent_action" model="ir.actions.act_window">
+        <field name="name">Agents</field>
+        <field name="res_model">agent.agent</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="agent_view_tree"/>
+    </record>
+
+    <!-- Agent Menu -->
+   <menuitem id="agent_menu" name="Agents" sequence="80"
+          parent="hotel_management_menu_root"
+          action="agent_action"/>
+
+</odoo>
+
+
+<!--custom res.partner contact with agent-->
+<!--<odoo>-->
+<!--    &lt;!&ndash; Action for the Agent menu &ndash;&gt;-->
+<!--    <record id="action_agent" model="ir.actions.act_window">-->
+<!--        <field name="name">Agents</field>-->
+<!--        <field name="res_model">res.partner</field>-->
+<!--        <field name="view_mode">tree,form</field>-->
+<!--        <field name="domain">[('agent_name', '!=', False)]</field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Agent Menu Item under Contacts &ndash;&gt;-->
+<!--    <menuitem id="menu_contact_agent" name="Agents"-->
+<!--              parent="contacts.menu_contacts"-->
+<!--              action="action_agent"-->
+<!--              sequence="5"/>-->
+
+<!--    &lt;!&ndash; Tree View for Agent &ndash;&gt;-->
+<!--    <record id="view_agent_tree" model="ir.ui.view">-->
+<!--        <field name="name">res.partner.agent.tree</field>-->
+<!--        <field name="model">res.partner</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <tree string="Agents">-->
+<!--                <field name="agent_name"/>-->
+<!--                <field name="agent_city"/>-->
+<!--                <field name="agent_country_id"/>-->
+<!--            </tree>-->
+<!--        </field>-->
+<!--    </record>-->
+
+<!--    &lt;!&ndash; Form View for Agent &ndash;&gt;-->
+<!--    <record id="view_agent_form" model="ir.ui.view">-->
+<!--        <field name="name">res.partner.agent.form</field>-->
+<!--        <field name="model">res.partner</field>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <form string="Agent">-->
+<!--                <sheet>-->
+<!--                    <group>-->
+<!--                        <field name="agent_name"/>-->
+<!--                        <field name="agent_street"/>-->
+<!--                        <field name="agent_street2"/>-->
+<!--                        <field name="agent_city"/>-->
+<!--                        <field name="agent_state_id"/>-->
+<!--                        <field name="agent_zip"/>-->
+<!--                        <field name="agent_country_id"/>-->
+<!--                        <field name="agent_image" widget="image" class="oe_avatar"/>-->
+<!--                    </group>-->
+<!--                </sheet>-->
+<!--            </form>-->
+<!--        </field>-->
+<!--    </record>-->
+<!--</odoo>-->

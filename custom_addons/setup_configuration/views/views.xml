@@ -100,7 +100,7 @@
                             <field name="arabic_abbr"/>
                         </group>
                         <group>
-                            <field name="category_id"/>
+                            <field name="rate_code_category_id"/>
                             <field name="rate_posting_item"/>
                             <field name="currency_id"/>
                         </group>
@@ -129,8 +129,8 @@
                 <field name="abbreviation"/>
                 <field name="arabic_desc"/>
                 <field name="arabic_abbr"/>
-                <field name="category_id"/>
-                <field name="currency_id"/>
+                <field name="rate_code_category_id"/>
+<!--                <field name="currency_id"/>-->
             </tree>
         </field>
     </record>
@@ -146,9 +146,9 @@
         <field name="name">Rate Code Details</field>
         <field name="res_model">rate.detail</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_rate_detail_tree"/>
+        <!-- <field name="view_id" ref="view_rate_detail_tree"/>
         <field name="target">current</field>
-        <field name="domain">[('rate_code_id', '=', active_id)]</field>
+        <field name="domain">[('rate_code_id', '=', active_id)]</field> -->
     </record>
 
     <!-- Tree View for Rate Details -->
@@ -394,7 +394,7 @@
         <field name="arch" type="xml">
             <form string="Market Category">
                 <group>
-                    <field name="category"/>
+                    <field name="market_category"/>
                     <field name="description"/>
                     <field name="abbreviation"/>
                     <field name="user_sort"/>
@@ -409,7 +409,7 @@
         <field name="model">market.category</field>
         <field name="arch" type="xml">
             <tree string="Market Categories" >
-                <field name="category"/>
+                <field name="market_category"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>

@@ -78,7 +78,6 @@
                             </group>
                         </page>
                         
-                        <!-- Location Tab -->
                         <page string="Location">
                             <group>
                                 <field name="floor"/>

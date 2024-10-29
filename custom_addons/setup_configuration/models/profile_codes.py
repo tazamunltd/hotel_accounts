@@ -51,6 +51,7 @@ class ProfileCategory(models.Model):
     _name = 'profile.category'
     _description = 'Profile Category'
 
+    _rec_name = 'code'
     code = fields.Char(string="Code", required=True)
     description = fields.Char(string="Description")
     abbreviation = fields.Char(string="Abbreviation")

@@ -157,7 +157,7 @@ class ReservationProfileMain(models.Model):
     _description = 'Reservation Profile Main'
 
     profile_id = fields.Char(string='Profile ID', required=True)
-    profile_category = fields.Char(string='Profile Category')
+    profile_category = fields.Many2one('profile.category',string='Profile Category')
     last_name = fields.Char(string='Last Name')
     first_name = fields.Char(string='First Name')
     passport_number = fields.Char(string='Passport')
@@ -175,15 +175,16 @@ class ReservationProfileMain(models.Model):
 
     nationality = fields.Many2one('res.country', string='Nationality')
     source_of_business = fields.Many2one('source.business', string='Source of Business')
-    market_segment = fields.Char(string='Market Segment')
+    market_segment = fields.Many2one('market.segment', string='Market Segment')
     meal_pattern = fields.Selection([
         ('ro', 'Room Only'),
         ('bb', 'Bed & Breakfast'),
         ('hb', 'Half Board'),
         ('fb', 'Full Board')
     ], string='Meal Pattern')
+    reservation_meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern')
     
-    rate_code = fields.Char(string='Rate Code')
+    rate_code = fields.Many2one('rate.code',string='Rate Code')
 
     status = fields.Selection([
         ('active', 'Active'),
@@ -195,7 +196,7 @@ class ReservationProfileMain(models.Model):
     documents = fields.Binary(string='Documents')
     guest_comments = fields.Text(string='Guest Comments')
     job_title = fields.Char(string='Job Title')
-    employer_company = fields.Char(string='Employer/Company')
+    employer_company = fields.Many2one('res.company', string='Employer/Company')
     position = fields.Char(string='Position')
     salutation = fields.Char(string='Salutation')
     currency = fields.Many2one('res.currency', string='Currency')
@@ -392,9 +393,9 @@ class ReservationReservationMain(models.Model):
     _description = 'Reservation Reservation Main'
 
     # One2many relation for Adults
-    adult_ids = fields.One2many('reservation.adult', 'reservation_id', string='Adults')
-    child_ids = fields.One2many('reservation.child', 'reservation_id', string='Children')
-    infant_ids = fields.One2many('reservation.infant', 'reservation_id', string='Infants')
+    adult_ids = fields.One2many('reservation.adults', 'reservation_id', string='Adults')
+    child_ids = fields.One2many('reservation.childs', 'reservation_id', string='Children')
+    infant_ids = fields.One2many('reservation.infants', 'reservation_id', string='Infants')
 
     linked_profile_id = fields.Many2one('reservation.profile.main', string='Linked Profile ID')
 
@@ -518,7 +519,7 @@ class ReservationReservationMain(models.Model):
         pass
 
 class ReservationAdult(models.Model):
-    _name = 'reservation.adult'
+    _name = 'reservation.adults'
     _description = 'Reservation Adult'
 
     first_name = fields.Char(string='First Name')
@@ -537,7 +538,7 @@ class ReservationAdult(models.Model):
     reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation')
 
 class ReservationChild(models.Model):
-    _name = 'reservation.child'
+    _name = 'reservation.childs'
     _description = 'Reservation Child'
 
     first_name = fields.Char(string='First Name')
@@ -558,7 +559,7 @@ class ReservationChild(models.Model):
     
 
 class ReservationInfant(models.Model):
-    _name = 'reservation.infant'
+    _name = 'reservation.infants'
     _description = 'Reservation Infant'
 
     first_name = fields.Char(string='First Name')
@@ -576,6 +577,9 @@ class ReservationInfant(models.Model):
 
     # Link to the main reservation
     reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation')
+
+class ReservationInfant(models.Model):
+    _name = 'reservation.infant'
 
 
 

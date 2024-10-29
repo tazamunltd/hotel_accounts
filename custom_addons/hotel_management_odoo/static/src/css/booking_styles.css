@@ -1,0 +1,54 @@
+.booking-group {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+}
+
+.count-field {
+    width: 60px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.btn {
+    padding: 8px 12px;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.btn-decrease {
+    background-color: #ff4d4d;
+}
+
+.btn-decrease:hover {
+    background-color: #cc0000;
+}
+
+.btn-increase {
+    background-color: #28a745;
+}
+
+.btn-increase:hover {
+    background-color: #218838;
+}
