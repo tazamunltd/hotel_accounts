@@ -25,14 +25,15 @@ RUN apt-get update && apt-get install -y \
     xfonts-75dpi \
     wget \
     xvfb \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    vim 
+  #  && apt-get clean \
+  #  && rm -rf /var/lib/apt/lists/*
 
 RUN wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1n-0+deb10u6_amd64.deb \
     && apt-get update && apt-get install -y ./libssl1.1_1.1.1n-0+deb10u6_amd64.deb \
-    && rm libssl1.1_1.1.1n-0+deb10u6_amd64.deb \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm libssl1.1_1.1.1n-0+deb10u6_amd64.deb 
+  #  && apt-get clean \
+  #  && rm -rf /var/lib/apt/lists/*
 
 # Install wkhtmltopdf using the buster version, which is more compatible with the base image
 RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb \
