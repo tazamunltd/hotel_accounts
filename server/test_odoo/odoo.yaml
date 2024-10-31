@@ -15,7 +15,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: odoo
-        image: tazamun/hotel:test1.2
+        image: tazamun/hotel:test1.1
         ports:
         - containerPort: 8069
         env:
