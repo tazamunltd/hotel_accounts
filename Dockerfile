@@ -64,14 +64,6 @@ COPY . /opt/odoo-tazamun/
 # Odoo configuration
 COPY odoo.conf /etc/odoo.conf
 
-COPY tazamun.key /etc/tazamun.key
-
-COPY tazamun.pem /etc/tazamun.pem
-
-RUN export PGSSLCERT=/etc/tazamun.pem
-RUN export PGSSLKEY=/etc/tazamun.key
-RUN export PGSSLROOTCERT=/etc/tazamun.pem
-
 # Expose Odoo port
 EXPOSE 8069
 
