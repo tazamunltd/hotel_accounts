@@ -56,13 +56,21 @@ RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
 # Create a session directory with correct permissions
 RUN mkdir -p /var/lib/odoo/.local && chown -R odoo:odoo /var/lib/odoo
 
-USER odoo
+USER root
 
 # Copy Odoo source files and custom modules
 COPY . /opt/odoo-tazamun/
 
 # Odoo configuration
 COPY odoo.conf /etc/odoo.conf
+
+COPY tazamun.key /etc/tazamun.key
+
+COPY tazamun.pem /etc/tazamun.pem
+
+RUN export PGSSLCERT=/etc/tazamun.pem
+RUN export PGSSLKEY=/etc/tazamun.key
+RUN export PGSSLROOTCERT=/etc/tazamun.pem
 
 # Expose Odoo port
 EXPOSE 8069
