@@ -15,6 +15,20 @@
             </tree>
         </field>
     </record>
+
+    <record id="hotel_room_search_view" model="ir.ui.view">
+        <field name="name">hotel.room.search</field>
+        <field name="model">hotel.room</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Room Name"/>
+                <field name="room_type_name" string="Room Type"/>
+                <filter name="room_type_filter"
+                        string="Room Type"
+                        domain="[('room_type_name', '!=', False)]"/>
+            </search>
+        </field>
+    </record>
     <!--    Hotel Room form view-->
     <record id="hotel_room_view_form" model="ir.ui.view">
         <field name="name">hotel.room.view.form</field>
@@ -67,6 +81,9 @@
                                     <field name="telephone_ext"/>
                                     <field name="disability_features"/>
                                     <field name="extra_features"/>
+                                    <field name="housekeeping_staff_status"/>
+                                    <field name="maintenance_status"/>
+                                    <field name="housekeeping_status"/>
                                 </group>
                                 <group>
                                     <field name="rate_code"/>

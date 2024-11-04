@@ -220,8 +220,8 @@ class RoomBookingLine(models.Model):
                         'checkout_date': record.checkout_date,
                         'state': 'block',  # Set state to block
                     })
-                    room = self.env['hotel.room'].browse(vals['room_id'])
-                    room.write({'status': 'reserved'})
+                    # room = self.env['hotel.room'].browse(vals['room_id'])
+                    # room.write({'status': 'reserved'})
 
                     # Update the record's state
                     record.write({
