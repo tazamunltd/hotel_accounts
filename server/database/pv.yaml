@@ -5,25 +5,10 @@ metadata:
   labels:
     type: local # Sets PV's type to local
 spec:
-  storageClassName: local
+  storageClassName: manual
   capacity:
     storage: 30Gi # Sets PV Volume
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/ubuntu/data" # Sets the volume's path
-
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pvc
-spec:
-  storageClassName: local
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
+    path: "/data/postgresql" # Sets the volume's p

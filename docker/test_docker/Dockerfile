@@ -7,6 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Install system dependencies, PostgreSQL, and wkhtmltopdf-compatible libraries
 RUN apt-get update && apt-get install -y \
+    git \
     postgresql-client \
     libpq-dev \
     build-essential \
@@ -25,7 +26,6 @@ RUN apt-get update && apt-get install -y \
     xfonts-75dpi \
     wget \
     xvfb \
-    vim \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -43,29 +43,36 @@ RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkh
 RUN mkdir -p /opt/odoo-tazamun
 WORKDIR /opt/odoo-tazamun
 
-# Install Python dependencies
-COPY requirements.txt /opt/odoo-tazamun/
-RUN pip install --upgrade pip setuptools wheel \
-    && pip install -r /opt/odoo-tazamun/requirements.txt
-
-
 # Create and set permissions for Odoo user and configuration
 RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
     && chown -R odoo:odoo /opt/odoo-tazamun/
 
+RUN git clone https://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@github.com/hajikhan/tazamun_internal.git .
+
+# Install Python dependencies
+# COPY requirements.txt /opt/odoo-tazamun/
+RUN pip install --upgrade pip setuptools wheel \
+    && pip install -r /opt/odoo-tazamun/requirements.txt
+
+# Create a directory for Odoo
+
+
+# Switch to root user to create and set permissions for Odoo user and configuration
+
+
 # Create a session directory with correct permissions
 RUN mkdir -p /var/lib/odoo/.local && chown -R odoo:odoo /var/lib/odoo
 
-USER root
+USER odoo
 
 # Copy Odoo source files and custom modules
-COPY . /opt/odoo-tazamun/
+# COPY . /opt/odoo-tazamun/
 
 # Odoo configuration
-COPY odoo.conf /etc/odoo.conf
+COPY odoo.conf /opt/odoo-tazamun/odoo.conf
 
 # Expose Odoo port
-EXPOSE 8069 8071
+EXPOSE 8069
 
 # Expose PostgreSQL port
 EXPOSE 5432
@@ -73,3 +80,33 @@ EXPOSE 5432
 
 # Run Odoo
 CMD ["python", "/opt/odoo-tazamun/odoo-bin", "-c", "/opt/odoo-tazamun/odoo.conf", "-i", "base"]
+
+#COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Find and use the correct path for supervisord
+
+# Copy entrypoint script and make it executable
+#COPY entrypoint.sh /entrypoint.sh
+
+#RUN apt-get update && apt-get install -y dos2unix && dos2unix /entrypoint.sh
+
+#RUN chmod +x /entrypoint.sh
+
+# Switch to the odoo user
+#USER root
+
+# Install supervisor separately to ensure it is available
+#RUN apt-get update && apt-get install -y supervisor
+
+
+# Run both PostgreSQL and Odoo
+#CMD service postgresql start && python /opt/odoo-tazamun/odoo-bin -c /etc/odoo.conf
+# Configure supervisor to manage both PostgreSQL and Odoo
+
+
+# Set entrypoint
+#ENTRYPOINT ["/entrypoint.sh"]
+
+# Start supervisor
+#CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+
