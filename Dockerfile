@@ -65,7 +65,7 @@ COPY . /opt/odoo-tazamun/
 COPY odoo.conf /etc/odoo.conf
 
 # Expose Odoo port
-EXPOSE 8069
+EXPOSE 8069 8071
 
 # Expose PostgreSQL port
 EXPOSE 5432
