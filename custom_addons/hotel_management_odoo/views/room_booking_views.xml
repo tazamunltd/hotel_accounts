@@ -612,6 +612,7 @@
                             <field name="rate_code" string="Rate Code"/>
                             <field name="source_of_business" string="Source of Business"/>
                             <field name="nationality" string="Nationality"/>
+                            <field name="hashed_password" string="Hash password" readonly="1"/>
                      </xpath>
               </field>
        </record>
@@ -646,7 +647,19 @@
                                    </field>
                             </page>
                      </xpath>
-
+                  <xpath expr="//page[@name='branches']" position="after">
+                      <page string="Web">
+                          <group string="Hotel Information">
+                            <field name="web_title" string="Title"/>
+                            <field name="web_star_rating" string="Star rating"/>
+                            <field name="web_kaaba_view" string="Kaaba view"/>
+                            <field name="web_hotel_location" string="Hotel location"/>
+                            <field name="web_discount" string="Discount"/>
+                            <field name="web_review" string="Review"/>
+                            <field name="web_description" string="Description"/>
+                        </group>
+                      </page>
+                  </xpath>
               </field>
        </record>
 

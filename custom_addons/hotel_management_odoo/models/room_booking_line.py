@@ -41,6 +41,12 @@ class RoomBookingLine(models.Model):
     booking_id = fields.Many2one("room.booking", string="Booking",
                                  help="Indicates the Room",
                                  ondelete="cascade")
+    
+    room_availability_result_id = fields.Many2one(
+        'room.availability.result', string="Room Availability Result",
+        readonly=True
+    )
+
     checkin_date = fields.Datetime(string="Check In",
                                    help="You can choose the date,"
                                         " Otherwise sets to current Date",
@@ -49,16 +55,23 @@ class RoomBookingLine(models.Model):
                                     help="You can choose the date,"
                                          " Otherwise sets to current Date",
                                     required=True)
-    room_id = fields.Many2one('hotel.room', string="Room",
-                              help="Indicates the Room",
-                              required=False,
-                              domain="[('num_person', '>=', parent.total_people)]"
-                              )
+    # room_id = fields.Many2one('hotel.room', string="Room",
+    #                           help="Indicates the Room",
+    #                           required=False,
+    #                           domain="[('num_person', '>=', parent.total_people)]"
+    #                           )
+    room_id = fields.Many2one(
+        'hotel.room',
+        string="Room",
+        help="Indicates the Room",
+        required=False,
+        domain=lambda self: [('room_type', '=', self.env.context.get('default_room_type'))]
+    )
     room_type = fields.Many2one('hotel.room', string="Room Type")
 
     room_type_name = fields.Many2one('room.type', string="Room Type", related="room_id.room_type_name", readonly=True)
 
-    adult_count = fields.Integer(string="Adults", related="booking_id.adult_count", readonly=True)
+    adult_count = fields.Integer(string="Adults", readonly=True)
     child_count = fields.Integer(string="Children", related="booking_id.child_count", readonly=True)
 
     # adult_count = fields.Integer(string="Adults")
@@ -204,7 +217,7 @@ class RoomBookingLine(models.Model):
         for record in self:
             if 'room_id' in vals and record.is_unassigned:
                 if record.booking_id and record.booking_id.state == 'confirmed':
-                    # Proceed with creating room booking details and setting the state
+                    # Prepare values for the new booking line
                     new_booking_vals = {
                         'room_id': vals['room_id'],
                         'checkin_date': record.checkin_date,
@@ -212,18 +225,50 @@ class RoomBookingLine(models.Model):
                         'uom_qty': record.uom_qty,
                         'adult_count': record.adult_count,
                         'child_count': record.child_count,
+
                     }
 
+                    # Prepare the adult lines based on the adult_count
+                    adult_lines = [(0, 0, {
+                        'first_name': '',
+                        'last_name': '',
+                        'profile': '',  # Set default values or keep empty
+                        'nationality': '',
+                        'birth_date': False,
+                        'passport_number': '',
+                        'id_number': '',
+                        'visa_number': '',
+                        'id_type': '',
+                        'phone_number': '',
+                        'relation': ''
+                    }) for _ in range(record.adult_count)]
+
+                    # Prepare the child lines based on the child_count
+                    child_lines = [(0, 0, {
+                        'first_name': '',
+                        'last_name': '',
+                        'profile': '',
+                        'nationality': '',
+                        'birth_date': False,
+                        'passport_number': '',
+                        'id_number': '',
+                        'visa_number': '',
+                        'id_type': '',
+                        'phone_number': '',
+                        'relation': ''
+                    }) for _ in range(record.child_count)]
+
+                    # Create the new booking with adult_ids based on adult count
                     self.env['room.booking'].create({
                         'room_line_ids': [(0, 0, new_booking_vals)],
                         'checkin_date': record.checkin_date,
                         'checkout_date': record.checkout_date,
                         'state': 'block',  # Set state to block
+                        'adult_ids': adult_lines,  # Add the adult lines here
+                        'is_room_line_readonly': True,
                     })
-                    # room = self.env['hotel.room'].browse(vals['room_id'])
-                    # room.write({'status': 'reserved'})
 
-                    # Update the record's state
+                    # Update the original record to unassign and hide fields
                     record.write({
                         'booking_id': False,
                         'hide_fields': True  # Set the flag to hide fields

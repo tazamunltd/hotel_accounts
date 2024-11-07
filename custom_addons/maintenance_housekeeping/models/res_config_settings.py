@@ -8,3 +8,4 @@ class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
     module_maintenance_worksheet = fields.Boolean(string="Custom Maintenance Worksheets")
+    website_description = fields.Char(string="Website Description")

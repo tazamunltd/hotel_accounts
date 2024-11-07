@@ -466,15 +466,59 @@ class RoomTypeSpecificRate(models.Model):
     child = fields.Float(string="Child")
     infant = fields.Float(string="Infant")
 
+
+class RoomNumberStore(models.Model):
+    _name = 'room.number.store'
+    _description = 'Room Number Store'
+
+    name = fields.Char(string="Room Name", required=True)
+    fsm_location = fields.Many2one('fsm.location', string="Location")
+
+class FSMLocation(models.Model):
+    _inherit = 'fsm.location'
+
+    _rec_name = 'description'
+
 class RoomNumberSpecificRate(models.Model):
     _name = 'room.number.specific.rate'
     _description = 'Room Number Specific Rate'
 
     # Fields for Room Type Specific Rate Model
     rate_code_id = fields.Many2one('rate.code', string="Rate Code", required=True)
-    from_date = fields.Date(string="From Date", required=True)
-    to_date = fields.Date(string="To Date", required=True)
-    room_number = fields.Char(string="Room Number")
+    from_date = fields.Date(string="From Date")
+    to_date = fields.Date(string="To Date")
+
+    room_fsm_location = fields.Many2one(
+        'fsm.location',
+        string="Location",
+        domain=[('dynamic_selection_id', '=', 4)]
+    )
+
+    room_fsm_location_id = fields.Integer(
+        string="Location ID",
+        compute="_compute_room_fsm_location_id",
+        store=True
+    )
+
+    room_number = fields.Many2one(
+        'room.number.store',
+        string="Room Number",
+        domain="[('fsm_location', '=', room_fsm_location)]"
+    )
+
+    @api.onchange('room_fsm_location')
+    def _onchange_room_fsm_location(self):
+        """Reset the room number when the location changes"""
+        self.room_number = False
+        if self.room_fsm_location:
+            # Store the rooms in a custom model if they do not already exist
+            for room in self.env['hotel.room'].search([('fsm_location', '=', self.room_fsm_location.id)]):
+                existing_room = self.env['room.number.store'].search([('name', '=', room.name), ('fsm_location', '=', room.fsm_location.id)], limit=1)
+                if not existing_room:
+                    self.env['room.number.store'].create({
+                        'name': room.name,
+                        'fsm_location': room.fsm_location.id,})
+                    
 
      # Fields for Weekday Rates
     room_number_monday_pax_1 = fields.Float(string="Monday 1 Pax")
@@ -534,6 +578,17 @@ class RoomNumberSpecificRate(models.Model):
     pax_4 = fields.Float(string="4 Pax")
     pax_5 = fields.Float(string="5 Pax")
     pax_6 = fields.Float(string="6 Pax")
+
+    default_checkbox_rn = fields.Boolean(string="Apply Default")
+    monday_checkbox_rn = fields.Boolean(string="Apply Default for Monday")
+    tuesday_checkbox_rn= fields.Boolean(string="Apply Default for Tuesday")
+    wednesday_checkbox_rn = fields.Boolean(string="Apply Default for Wednesday")
+    thursday_checkbox_rn = fields.Boolean(string="Apply Default for Thursday")
+    friday_checkbox_rn = fields.Boolean(string="Apply Default for Friday")
+    saturday_checkbox_rn = fields.Boolean(string="Apply Default for Saturday")
+    sunday_checkbox_rn = fields.Boolean(string="Apply Default for Sunday")
+
+
     extra_bed = fields.Float(string="Extra Bed")
     suite_supl = fields.Float(string="Suite Supplement")
     child = fields.Float(string="Child")
