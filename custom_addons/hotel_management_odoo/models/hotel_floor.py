@@ -37,3 +37,8 @@ class FSMLocationInherit(models.Model):
     _inherit = 'fsm.location'
 
     partner_id = fields.Many2one(required=False)
+
+    dynamic_selection_id = fields.Many2one(
+        'dynamic.selection',
+        string="Location Type"
+    )

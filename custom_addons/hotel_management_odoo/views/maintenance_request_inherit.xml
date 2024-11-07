@@ -32,7 +32,7 @@
      </record>
 
      <record id="action_activity_item_list" model="ir.actions.act_window">
-        <field name="name">Item List</field>
+        <field name="name">Activity List</field>
         <field name="res_model">activity.item</field>
         <field name="view_mode">tree,form</field>
     </record>
@@ -67,7 +67,7 @@
 
     <menuitem
         id="menu_activity_item_list"
-        name="Item List"
+        name="Activity List"
         parent="maintenance.menu_maintenance_configuration"
         action="action_activity_item_list"
         sequence="25"
