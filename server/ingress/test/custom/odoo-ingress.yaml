@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: odoo-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "dev.tazamun.com.sa"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: odoo
+            port:
+              number: 8069 

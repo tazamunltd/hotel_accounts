@@ -3,6 +3,12 @@ resources:
 
 namespace: test
 
+namePrefix:
+  test-
+
+nameSuffix:
+  -v1
+
 patchesStrategicMerge:
 - replicas.yaml
   

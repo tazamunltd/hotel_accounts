@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dev-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+      - dev.tazamun.com.sa
+    secretName: tls-secret
+  ingressClassName: nginx
+  rules:
+  - host: "dev.tazamun.com.sa"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: odoo
+            port:
+              number: 8069
+ 

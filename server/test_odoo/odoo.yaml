@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odoo
+  template:
+    metadata:
+      labels:
+        app: odoo
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: odoo
+        image: tazamun/hotel:test1.1
+        ports:
+        - containerPort: 8069
+        env:
+        - name: HOST
+          value: postgres
+        - name: USER
+          value: odoo
+        - name: PASSWORD
+          value: odoo
+        - name: DATABASE
+          value: postgres

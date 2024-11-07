@@ -3,7 +3,6 @@ resources:
    - pv.yaml
    - deployment.yaml
    - service.yaml    
-   
-namespace: dev
+
 commonLabels:
   app: postgres
