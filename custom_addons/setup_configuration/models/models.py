@@ -55,7 +55,9 @@ class RateCode(models.Model):
     _name = 'rate.code'
     _description = 'Rate Code Management'
 
-    _rec_name = 'rate_code_category_id'
+    rate_detail_ids = fields.One2many('rate.detail', 'rate_code_id', string="Rate Details")
+
+    _rec_name = 'code'
     code = fields.Char(string='Rate Code', required=True)
     description = fields.Char(string='Description', required=True)
     abbreviation = fields.Char(string='Abbreviation')
@@ -67,6 +69,8 @@ class RateCode(models.Model):
     include_meals = fields.Boolean(string='Include Meals in Posting Item')
     user_sort = fields.Integer(string='User Sort', default=0)
     obsolete = fields.Boolean(string='Obsolete')
+
+    room_type_id = fields.Many2one('room.type', string="Room Type")
     
 
     rhythm = fields.Selection([
@@ -127,6 +131,150 @@ class RateDetail(models.Model):
     extra_bed = fields.Float(string="Extra Bed")
     suite_supl = fields.Float(string="Suite Supl")
 
+    # Pax Rates for Default
+    # default_pax_1 = fields.Float(string="1 Pax (Default)")
+    # default_pax_2 = fields.Float(string="2 Pax (Default)")
+    # default_pax_3 = fields.Float(string="3 Pax (Default)")
+    # default_pax_4 = fields.Float(string="4 Pax (Default)")
+    # default_pax_5 = fields.Float(string="5 Pax (Default)")
+    # default_pax_6 = fields.Float(string="6 Pax (Default)")
+
+    # Pax Rates for Monday
+    monday_pax_1 = fields.Float(string="1 Pax (Monday)")
+    monday_pax_2 = fields.Float(string="2 Pax (Monday)")
+    monday_pax_3 = fields.Float(string="3 Pax (Monday)")
+    monday_pax_4 = fields.Float(string="4 Pax (Monday)")
+    monday_pax_5 = fields.Float(string="5 Pax (Monday)")
+    monday_pax_6 = fields.Float(string="6 Pax (Monday)")
+
+    # Pax Rates for Tuesday
+    tuesday_pax_1 = fields.Float(string="1 Pax (Tuesday)")
+    tuesday_pax_2 = fields.Float(string="2 Pax (Tuesday)")
+    tuesday_pax_3 = fields.Float(string="3 Pax (Tuesday)")
+    tuesday_pax_4 = fields.Float(string="4 Pax (Tuesday)")
+    tuesday_pax_5 = fields.Float(string="5 Pax (Tuesday)")
+    tuesday_pax_6 = fields.Float(string="6 Pax (Tuesday)")
+
+    # Pax Rates for Wednesday
+    wednesday_pax_1 = fields.Float(string="1 Pax (Wednesday)")
+    wednesday_pax_2 = fields.Float(string="2 Pax (Wednesday)")
+    wednesday_pax_3 = fields.Float(string="3 Pax (Wednesday)")
+    wednesday_pax_4 = fields.Float(string="4 Pax (Wednesday)")
+    wednesday_pax_5 = fields.Float(string="5 Pax (Wednesday)")
+    wednesday_pax_6 = fields.Float(string="6 Pax (Wednesday)")
+
+    # Pax Rates for Thursday
+    thursday_pax_1 = fields.Float(string="1 Pax (Thursday)")
+    thursday_pax_2 = fields.Float(string="2 Pax (Thursday)")
+    thursday_pax_3 = fields.Float(string="3 Pax (Thursday)")
+    thursday_pax_4 = fields.Float(string="4 Pax (Thursday)")
+    thursday_pax_5 = fields.Float(string="5 Pax (Thursday)")
+    thursday_pax_6 = fields.Float(string="6 Pax (Thursday)")
+
+    # Pax Rates for Friday
+    friday_pax_1 = fields.Float(string="1 Pax (Friday)")
+    friday_pax_2 = fields.Float(string="2 Pax (Friday)")
+    friday_pax_3 = fields.Float(string="3 Pax (Friday)")
+    friday_pax_4 = fields.Float(string="4 Pax (Friday)")
+    friday_pax_5 = fields.Float(string="5 Pax (Friday)")
+    friday_pax_6 = fields.Float(string="6 Pax (Friday)")
+
+    # Pax Rates for Saturday
+    saturday_pax_1 = fields.Float(string="1 Pax (Saturday)")
+    saturday_pax_2 = fields.Float(string="2 Pax (Saturday)")
+    saturday_pax_3 = fields.Float(string="3 Pax (Saturday)")
+    saturday_pax_4 = fields.Float(string="4 Pax (Saturday)")
+    saturday_pax_5 = fields.Float(string="5 Pax (Saturday)")
+    saturday_pax_6 = fields.Float(string="6 Pax (Saturday)")
+
+    # Pax Rates for Sunday
+    sunday_pax_1 = fields.Float(string="1 Pax (Sunday)")
+    sunday_pax_2 = fields.Float(string="2 Pax (Sunday)")
+    sunday_pax_3 = fields.Float(string="3 Pax (Sunday)")
+    sunday_pax_4 = fields.Float(string="4 Pax (Sunday)")
+    sunday_pax_5 = fields.Float(string="5 Pax (Sunday)")
+    sunday_pax_6 = fields.Float(string="6 Pax (Sunday)")
+
+    monday_checkbox = fields.Boolean(string="Apply Default for Monday")
+    tuesday_checkbox = fields.Boolean(string="Apply Default for Tuesday")
+    wednesday_checkbox = fields.Boolean(string="Apply Default for Wednesday")
+    thursday_checkbox = fields.Boolean(string="Apply Default for Thursday")
+    friday_checkbox = fields.Boolean(string="Apply Default for Friday")
+    saturday_checkbox = fields.Boolean(string="Apply Default for Saturday")
+    sunday_checkbox = fields.Boolean(string="Apply Default for Sunday")
+
+    # Onchange methods for each checkbox
+    @api.onchange('monday_checkbox', 'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6')
+    def _onchange_monday_checkbox(self):
+        if self.monday_checkbox:
+            self.monday_pax_1 = self.pax_1
+            self.monday_pax_2 = self.pax_2
+            self.monday_pax_3 = self.pax_3
+            self.monday_pax_4 = self.pax_4
+            self.monday_pax_5 = self.pax_5
+            self.monday_pax_6 = self.pax_6
+
+    @api.onchange('tuesday_checkbox', 'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6')
+    def _onchange_tuesday_checkbox(self):
+        if self.tuesday_checkbox:
+            self.tuesday_pax_1 = self.pax_1
+            self.tuesday_pax_2 = self.pax_2
+            self.tuesday_pax_3 = self.pax_3
+            self.tuesday_pax_4 = self.pax_4
+            self.tuesday_pax_5 = self.pax_5
+            self.tuesday_pax_6 = self.pax_6
+
+    @api.onchange('wednesday_checkbox', 'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6')
+    def _onchange_wednesday_checkbox(self):
+        if self.wednesday_checkbox:
+            self.wednesday_pax_1 = self.pax_1
+            self.wednesday_pax_2 = self.pax_2
+            self.wednesday_pax_3 = self.pax_3
+            self.wednesday_pax_4 = self.pax_4
+            self.wednesday_pax_5 = self.pax_5
+            self.wednesday_pax_6 = self.pax_6
+
+    @api.onchange('thursday_checkbox', 'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6')
+    def _onchange_thursday_checkbox(self):
+        if self.thursday_checkbox:
+            self.thursday_pax_1 = self.pax_1
+            self.thursday_pax_2 = self.pax_2
+            self.thursday_pax_3 = self.pax_3
+            self.thursday_pax_4 = self.pax_4
+            self.thursday_pax_5 = self.pax_5
+            self.thursday_pax_6 = self.pax_6
+
+    @api.onchange('friday_checkbox', 'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6')
+    def _onchange_friday_checkbox(self):
+        if self.friday_checkbox:
+            self.friday_pax_1 = self.pax_1
+            self.friday_pax_2 = self.pax_2
+            self.friday_pax_3 = self.pax_3
+            self.friday_pax_4 = self.pax_4
+            self.friday_pax_5 = self.pax_5
+            self.friday_pax_6 = self.pax_6
+
+    @api.onchange('saturday_checkbox', 'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6')
+    def _onchange_saturday_checkbox(self):
+        if self.saturday_checkbox:
+            self.saturday_pax_1 = self.pax_1
+            self.saturday_pax_2 = self.pax_2
+            self.saturday_pax_3 = self.pax_3
+            self.saturday_pax_4 = self.pax_4
+            self.saturday_pax_5 = self.pax_5
+            self.saturday_pax_6 = self.pax_6
+
+    @api.onchange('sunday_checkbox', 'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6')
+    def _onchange_sunday_checkbox(self):
+        if self.sunday_checkbox:
+            self.sunday_pax_1 = self.pax_1
+            self.sunday_pax_2 = self.pax_2
+            self.sunday_pax_3 = self.pax_3
+            self.sunday_pax_4 = self.pax_4
+            self.sunday_pax_5 = self.pax_5
+            self.sunday_pax_6 = self.pax_6
+
+
     # Price Type and Meal Pattern Fields
     price_type = fields.Selection([
         ('rate_only', 'Rate Only'),
@@ -153,7 +301,7 @@ class RateDetail(models.Model):
     def action_set_room_number_rate(self):
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Room Type Specific Rate',
+            'name': 'Room Number Specific Rate',
             'res_model': 'room.number.specific.rate',
             'view_mode': 'tree,form',  # Show the tree view first, and allow form view when a record is selected
             'view_type': 'form',
@@ -174,6 +322,64 @@ class RoomTypeSpecificRate(models.Model):
     to_date = fields.Date(string="To Date", required=True)
     room_type_id = fields.Many2one('room.type', string="Room Type", required=True)
 
+    # Fields for Weekday Rates
+    room_type_monday_pax_1 = fields.Float(string="Monday 1 Pax")
+    room_type_monday_pax_2 = fields.Float(string="Monday 2 Pax")
+    room_type_monday_pax_3 = fields.Float(string="Monday 3 Pax")
+    room_type_monday_pax_4 = fields.Float(string="Monday 4 Pax")
+    room_type_monday_pax_5 = fields.Float(string="Monday 5 Pax")
+    room_type_monday_pax_6 = fields.Float(string="Monday 6 Pax")
+
+    room_type_tuesday_pax_1 = fields.Float(string="Tuesday 1 Pax")
+    room_type_tuesday_pax_2 = fields.Float(string="Tuesday 2 Pax")
+    room_type_tuesday_pax_3 = fields.Float(string="Tuesday 3 Pax")
+    room_type_tuesday_pax_4 = fields.Float(string="Tuesday 4 Pax")
+    room_type_tuesday_pax_5 = fields.Float(string="Tuesday 5 Pax")
+    room_type_tuesday_pax_6 = fields.Float(string="Tuesday 6 Pax")
+
+    room_type_wednesday_pax_1 = fields.Float(string="Wednesday 1 Pax")
+    room_type_wednesday_pax_2 = fields.Float(string="Wednesday 2 Pax")
+    room_type_wednesday_pax_3 = fields.Float(string="Wednesday 3 Pax")
+    room_type_wednesday_pax_4 = fields.Float(string="Wednesday 4 Pax")
+    room_type_wednesday_pax_5 = fields.Float(string="Wednesday 5 Pax")
+    room_type_wednesday_pax_6 = fields.Float(string="Wednesday 6 Pax")
+
+    room_type_thursday_pax_1 = fields.Float(string="Thursday 1 Pax")
+    room_type_thursday_pax_2 = fields.Float(string="Thursday 2 Pax")
+    room_type_thursday_pax_3 = fields.Float(string="Thursday 3 Pax")
+    room_type_thursday_pax_4 = fields.Float(string="Thursday 4 Pax")
+    room_type_thursday_pax_5 = fields.Float(string="Thursday 5 Pax")
+    room_type_thursday_pax_6 = fields.Float(string="Thursday 6 Pax")
+
+    room_type_friday_pax_1 = fields.Float(string="Friday 1 Pax")
+    room_type_friday_pax_2 = fields.Float(string="Friday 2 Pax")
+    room_type_friday_pax_3 = fields.Float(string="Friday 3 Pax")
+    room_type_friday_pax_4 = fields.Float(string="Friday 4 Pax")
+    room_type_friday_pax_5 = fields.Float(string="Friday 5 Pax")
+    room_type_friday_pax_6 = fields.Float(string="Friday 6 Pax")
+
+    room_type_saturday_pax_1 = fields.Float(string="Saturday 1 Pax")
+    room_type_saturday_pax_2 = fields.Float(string="Saturday 2 Pax")
+    room_type_saturday_pax_3 = fields.Float(string="Saturday 3 Pax")
+    room_type_saturday_pax_4 = fields.Float(string="Saturday 4 Pax")
+    room_type_saturday_pax_5 = fields.Float(string="Saturday 5 Pax")
+    room_type_saturday_pax_6 = fields.Float(string="Saturday 6 Pax")
+
+    room_type_sunday_pax_1 = fields.Float(string="Sunday 1 Pax")
+    room_type_sunday_pax_2 = fields.Float(string="Sunday 2 Pax")
+    room_type_sunday_pax_3 = fields.Float(string="Sunday 3 Pax")
+    room_type_sunday_pax_4 = fields.Float(string="Sunday 4 Pax")
+    room_type_sunday_pax_5 = fields.Float(string="Sunday 5 Pax")
+    room_type_sunday_pax_6 = fields.Float(string="Sunday 6 Pax")
+
+    monday_checkbox_rt = fields.Boolean(string="Apply Default for Monday")
+    tuesday_checkbox_rt = fields.Boolean(string="Apply Default for Tuesday")
+    wednesday_checkbox_rt = fields.Boolean(string="Apply Default for Wednesday")
+    thursday_checkbox_rt = fields.Boolean(string="Apply Default for Thursday")
+    friday_checkbox_rt = fields.Boolean(string="Apply Default for Friday")
+    saturday_checkbox_rt = fields.Boolean(string="Apply Default for Saturday")
+    sunday_checkbox_rt = fields.Boolean(string="Apply Default for Sunday")
+
     # Room Prices for different configurations
     pax_1 = fields.Float(string="1 Pax")
     pax_2 = fields.Float(string="2 Pax")
@@ -181,10 +387,97 @@ class RoomTypeSpecificRate(models.Model):
     pax_4 = fields.Float(string="4 Pax")
     pax_5 = fields.Float(string="5 Pax")
     pax_6 = fields.Float(string="6 Pax")
+
+    # Onchange methods for each checkbox
+    @api.onchange('monday_checkbox_rt')
+    def _onchange_monday_checkbox_rt(self):
+        if self.monday_checkbox_rt:
+            self.room_type_monday_pax_1 = self.pax_1
+            self.room_type_monday_pax_2 = self.pax_2
+            self.room_type_monday_pax_3 = self.pax_3
+            self.room_type_monday_pax_4 = self.pax_4
+            self.room_type_monday_pax_5 = self.pax_5
+            self.room_type_monday_pax_6 = self.pax_6
+
+    @api.onchange('tuesday_checkbox_rt')
+    def _onchange_tuesday_checkbox_rt(self):
+        if self.tuesday_checkbox_rt:
+            self.room_type_tuesday_pax_1 = self.pax_1
+            self.room_type_tuesday_pax_2 = self.pax_2
+            self.room_type_tuesday_pax_3 = self.pax_3
+            self.room_type_tuesday_pax_4 = self.pax_4
+            self.room_type_tuesday_pax_5 = self.pax_5
+            self.room_type_tuesday_pax_6 = self.pax_6
+
+    @api.onchange('wednesday_checkbox_rt')
+    def _onchange_wednesday_checkbox_rt(self):
+        if self.wednesday_checkbox_rt:
+            self.room_type_wednesday_pax_1 = self.pax_1
+            self.room_type_wednesday_pax_2 = self.pax_2
+            self.room_type_wednesday_pax_3 = self.pax_3
+            self.room_type_wednesday_pax_4 = self.pax_4
+            self.room_type_wednesday_pax_5 = self.pax_5
+            self.room_type_wednesday_pax_6 = self.pax_6
+
+    @api.onchange('thursday_checkbox_rt')
+    def _onchange_thursday_checkbox_rt(self):
+        if self.thursday_checkbox_rt:
+            self.room_type_thursday_pax_1 = self.pax_1
+            self.room_type_thursday_pax_2 = self.pax_2
+            self.room_type_thursday_pax_3 = self.pax_3
+            self.room_type_thursday_pax_4 = self.pax_4
+            self.room_type_thursday_pax_5 = self.pax_5
+            self.room_type_thursday_pax_6 = self.pax_6
+
+    @api.onchange('friday_checkbox_rt')
+    def _onchange_friday_checkbox_rt(self):
+        if self.friday_checkbox_rt:
+            self.room_type_friday_pax_1 = self.pax_1
+            self.room_type_friday_pax_2 = self.pax_2
+            self.room_type_friday_pax_3 = self.pax_3
+            self.room_type_friday_pax_4 = self.pax_4
+            self.room_type_friday_pax_5 = self.pax_5
+            self.room_type_friday_pax_6 = self.pax_6
+
+    @api.onchange('saturday_checkbox_rt')
+    def _onchange_saturday_checkbox_rt(self):
+        if self.saturday_checkbox_rt:
+            self.room_type_saturday_pax_1 = self.pax_1
+            self.room_type_saturday_pax_2 = self.pax_2
+            self.room_type_saturday_pax_3 = self.pax_3
+            self.room_type_saturday_pax_4 = self.pax_4
+            self.room_type_saturday_pax_5 = self.pax_5
+            self.room_type_saturday_pax_6 = self.pax_6
+
+    @api.onchange('sunday_checkbox_rt')
+    def _onchange_sunday_checkbox_rt(self):
+        if self.sunday_checkbox_rt:
+            self.room_type_sunday_pax_1 = self.pax_1
+            self.room_type_sunday_pax_2 = self.pax_2
+            self.room_type_sunday_pax_3 = self.pax_3
+            self.room_type_sunday_pax_4 = self.pax_4
+            self.room_type_sunday_pax_5 = self.pax_5
+            self.room_type_sunday_pax_6 = self.pax_6
+
+
+
     extra_bed = fields.Float(string="Extra Bed")
     suite_supl = fields.Float(string="Suite Supplement")
     child = fields.Float(string="Child")
     infant = fields.Float(string="Infant")
+
+
+class RoomNumberStore(models.Model):
+    _name = 'room.number.store'
+    _description = 'Room Number Store'
+
+    name = fields.Char(string="Room Name", required=True)
+    fsm_location = fields.Many2one('fsm.location', string="Location")
+
+class FSMLocation(models.Model):
+    _inherit = 'fsm.location'
+
+    _rec_name = 'description'
 
 class RoomNumberSpecificRate(models.Model):
     _name = 'room.number.specific.rate'
@@ -192,9 +485,91 @@ class RoomNumberSpecificRate(models.Model):
 
     # Fields for Room Type Specific Rate Model
     rate_code_id = fields.Many2one('rate.code', string="Rate Code", required=True)
-    from_date = fields.Date(string="From Date", required=True)
-    to_date = fields.Date(string="To Date", required=True)
-    room_number = fields.Char(string="Room Number")
+    from_date = fields.Date(string="From Date")
+    to_date = fields.Date(string="To Date")
+
+    room_fsm_location = fields.Many2one(
+        'fsm.location',
+        string="Location",
+        domain=[('dynamic_selection_id', '=', 4)]
+    )
+
+    room_fsm_location_id = fields.Integer(
+        string="Location ID",
+        compute="_compute_room_fsm_location_id",
+        store=True
+    )
+
+    room_number = fields.Many2one(
+        'room.number.store',
+        string="Room Number",
+        domain="[('fsm_location', '=', room_fsm_location)]"
+    )
+
+    @api.onchange('room_fsm_location')
+    def _onchange_room_fsm_location(self):
+        """Reset the room number when the location changes"""
+        self.room_number = False
+        if self.room_fsm_location:
+            # Store the rooms in a custom model if they do not already exist
+            for room in self.env['hotel.room'].search([('fsm_location', '=', self.room_fsm_location.id)]):
+                existing_room = self.env['room.number.store'].search([('name', '=', room.name), ('fsm_location', '=', room.fsm_location.id)], limit=1)
+                if not existing_room:
+                    self.env['room.number.store'].create({
+                        'name': room.name,
+                        'fsm_location': room.fsm_location.id,})
+                    
+
+     # Fields for Weekday Rates
+    room_number_monday_pax_1 = fields.Float(string="Monday 1 Pax")
+    room_number_monday_pax_2 = fields.Float(string="Monday 2 Pax")
+    room_number_monday_pax_3 = fields.Float(string="Monday 3 Pax")
+    room_number_monday_pax_4 = fields.Float(string="Monday 4 Pax")
+    room_number_monday_pax_5 = fields.Float(string="Monday 5 Pax")
+    room_number_monday_pax_6 = fields.Float(string="Monday 6 Pax")
+
+    room_number_tuesday_pax_1 = fields.Float(string="Tuesday 1 Pax")
+    room_number_tuesday_pax_2 = fields.Float(string="Tuesday 2 Pax")
+    room_number_tuesday_pax_3 = fields.Float(string="Tuesday 3 Pax")
+    room_number_tuesday_pax_4 = fields.Float(string="Tuesday 4 Pax")
+    room_number_tuesday_pax_5 = fields.Float(string="Tuesday 5 Pax")
+    room_number_tuesday_pax_6 = fields.Float(string="Tuesday 6 Pax")
+
+    room_number_wednesday_pax_1 = fields.Float(string="Wednesday 1 Pax")
+    room_number_wednesday_pax_2 = fields.Float(string="Wednesday 2 Pax")
+    room_number_wednesday_pax_3 = fields.Float(string="Wednesday 3 Pax")
+    room_number_wednesday_pax_4 = fields.Float(string="Wednesday 4 Pax")
+    room_number_wednesday_pax_5 = fields.Float(string="Wednesday 5 Pax")
+    room_number_wednesday_pax_6 = fields.Float(string="Wednesday 6 Pax")
+
+    room_number_thursday_pax_1 = fields.Float(string="Thursday 1 Pax")
+    room_number_thursday_pax_2 = fields.Float(string="Thursday 2 Pax")
+    room_number_thursday_pax_3 = fields.Float(string="Thursday 3 Pax")
+    room_number_thursday_pax_4 = fields.Float(string="Thursday 4 Pax")
+    room_number_thursday_pax_5 = fields.Float(string="Thursday 5 Pax")
+    room_number_thursday_pax_6 = fields.Float(string="Thursday 6 Pax")
+
+    room_number_friday_pax_1 = fields.Float(string="Friday 1 Pax")
+    room_number_friday_pax_2 = fields.Float(string="Friday 2 Pax")
+    room_number_friday_pax_3 = fields.Float(string="Friday 3 Pax")
+    room_number_friday_pax_4 = fields.Float(string="Friday 4 Pax")
+    room_number_friday_pax_5 = fields.Float(string="Friday 5 Pax")
+    room_number_friday_pax_6 = fields.Float(string="Friday 6 Pax")
+
+    room_number_saturday_pax_1 = fields.Float(string="Saturday 1 Pax")
+    room_number_saturday_pax_2 = fields.Float(string="Saturday 2 Pax")
+    room_number_saturday_pax_3 = fields.Float(string="Saturday 3 Pax")
+    room_number_saturday_pax_4 = fields.Float(string="Saturday 4 Pax")
+    room_number_saturday_pax_5 = fields.Float(string="Saturday 5 Pax")
+    room_number_saturday_pax_6 = fields.Float(string="Saturday 6 Pax")
+
+    room_number_sunday_pax_1 = fields.Float(string="Sunday 1 Pax")
+    room_number_sunday_pax_2 = fields.Float(string="Sunday 2 Pax")
+    room_number_sunday_pax_3 = fields.Float(string="Sunday 3 Pax")
+    room_number_sunday_pax_4 = fields.Float(string="Sunday 4 Pax")
+    room_number_sunday_pax_5 = fields.Float(string="Sunday 5 Pax")
+    room_number_sunday_pax_6 = fields.Float(string="Sunday 6 Pax")
+
 
     # Room Prices for different configurations
     pax_1 = fields.Float(string="1 Pax")
@@ -203,6 +578,17 @@ class RoomNumberSpecificRate(models.Model):
     pax_4 = fields.Float(string="4 Pax")
     pax_5 = fields.Float(string="5 Pax")
     pax_6 = fields.Float(string="6 Pax")
+
+    default_checkbox_rn = fields.Boolean(string="Apply Default")
+    monday_checkbox_rn = fields.Boolean(string="Apply Default for Monday")
+    tuesday_checkbox_rn= fields.Boolean(string="Apply Default for Tuesday")
+    wednesday_checkbox_rn = fields.Boolean(string="Apply Default for Wednesday")
+    thursday_checkbox_rn = fields.Boolean(string="Apply Default for Thursday")
+    friday_checkbox_rn = fields.Boolean(string="Apply Default for Friday")
+    saturday_checkbox_rn = fields.Boolean(string="Apply Default for Saturday")
+    sunday_checkbox_rn = fields.Boolean(string="Apply Default for Sunday")
+
+
     extra_bed = fields.Float(string="Extra Bed")
     suite_supl = fields.Float(string="Suite Supplement")
     child = fields.Float(string="Child")

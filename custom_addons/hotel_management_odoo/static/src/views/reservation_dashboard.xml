@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="reservation.ReservationDashBoard">
+        <div class="o_purchase_dashboard container-fluid py-4 border-bottom bg-view">
+            <div class="row justify-content-start gap-3 gap-lg-0">
+                <div class="col-12 d-flex flex-row align-items-center gap-3 flex-wrap-xxl-nowrap flex-grow-1 flex-lg-grow-0 flex-shrink-0">
+                    <!-- Today's Check-In -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'today_checkin'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                            <span>Today's Check-In (<t t-esc="dashboardData.today_checkin"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Today's Check-Out -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'today_checkout'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                            <span>Today's Check-Out (<t t-esc="dashboardData.today_checkout"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Not Confirm -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'not_confirm'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                            <span>Not Confirm (<t t-esc="dashboardData.not_confirm"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Confirm -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'confirmed'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                           <span>Confirmed (<t t-esc="dashboardData.confirmed"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Blocked -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'blocked'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                            <span>Blocked (<t t-esc="dashboardData.blocked"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Waiting List -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'waiting'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                           <span>Waiting List (<t t-esc="dashboardData.waiting"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Cancelled -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'cancelled'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                           <span>Cancelled (<t t-esc="dashboardData.cancelled"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Check-In -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'checkin'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                            <span>Occupied (<t t-esc="dashboardData.checkin"/>)</span>
+                        </a>
+                    </div>
+
+                    <!-- Check-Out -->
+                    <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'checkout'">
+                        <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
+                           style="width: 140px; height: 140px;">
+                            <span>Depart (<t t-esc="dashboardData.checkout"/>)</span>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

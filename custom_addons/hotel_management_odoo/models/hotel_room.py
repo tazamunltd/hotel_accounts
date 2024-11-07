@@ -29,6 +29,10 @@ class HotelRoom(models.Model):
     _description = 'Rooms'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    housekeeping_status = fields.Many2one('housekeeping.status', string="HouseKeeping Status")
+    maintenance_status = fields.Many2one('maintenance.status', string="Maintenance Status")
+    housekeeping_staff_status = fields.Many2one('housekeeping.staff.status', string="HouseKeeping Staff Status")
+
     door_sign = fields.Char(string="Door Sign")
     suite = fields.Boolean(string="Suite")
     connected_room = fields.Char(string="Connected Room")
@@ -59,7 +63,7 @@ class HotelRoom(models.Model):
         """Method for getting the default uom id"""
         return self.env.ref('uom.product_uom_unit')
 
-    name = fields.Char(string='Name', help="Name of the Room", index='trigram', translate=True)
+    name = fields.Char(string='Name', help="Name of the Room", index='trigram')
     room_type_name = fields.Many2one('room.type', string='Room Type')
     hotel_id = fields.Many2one('hotel.hotel', string="Hotel", help="Hotel associated with this booking")
     status = fields.Selection([("available", "Available"),
@@ -156,6 +160,30 @@ class HotelRoom(models.Model):
 
     checkin_date = fields.Datetime(string='Check-In Date')
     checkout_date = fields.Datetime(string='Check-Out Date')
+
+class HouseKeepingStatus(models.Model):
+    _name = 'housekeeping.status'
+    _description = 'Housekeeping Status'
+
+    _rec_name = 'house_keeping_status'
+    house_keeping_status = fields.Char(string="HouseKeeping Status")
+
+
+class MaintenanceStatus(models.Model):
+    _name = 'maintenance.status'
+    _description = 'Housekeeping Status'
+
+    _rec_name = 'maintenance_status'
+    maintenance_status = fields.Char(string="Maintenance Status")
+
+
+class HouseKeepingStaffStatus(models.Model):
+    _name = 'housekeeping.staff.status'
+    _description = 'Housekeeping Staff Status'
+
+
+    _rec_name = 'housekeeping_staff_status'
+    housekeeping_staff_status = fields.Char(string="HouseKeeping Staff Status")
 
 
 

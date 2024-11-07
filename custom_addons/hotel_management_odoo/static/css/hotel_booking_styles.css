@@ -1,0 +1,5 @@
+.vertical-counter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adjusts spacing between each counter */
+}

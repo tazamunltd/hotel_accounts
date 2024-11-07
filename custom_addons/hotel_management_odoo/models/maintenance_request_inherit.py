@@ -12,9 +12,7 @@ class MaintenanceRequest(models.Model):
     _rec_names_search = ["code"]
 
     dynamic_selection_id = fields.Many2one(
-        'dynamic.selection', string='Location Type',
-        domain=lambda self: [('name', 'in', ['Floor', 'Hotel', 'Block'])]
-    )
+        'dynamic.selection', string='Location Type')
 
     maintenance_fsm_location = fields.Many2one('fsm.location', string="Location")
 

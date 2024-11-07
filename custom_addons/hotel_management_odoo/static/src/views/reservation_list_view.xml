@@ -1,0 +1,7 @@
+<templates>
+    <t t-name="reservation.ReservationListView" t-inherit="web.ListRenderer" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('o_list_renderer')]" position="before">
+            <ReservationDashBoard />
+        </xpath>
+    </t>
+</templates>

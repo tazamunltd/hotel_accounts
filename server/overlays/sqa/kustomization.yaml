@@ -1,10 +1,10 @@
 resources: 
  - ../../base
 
-namespace: test
+namespace: sqa
 
 namePrefix:
-  test-
+  sqa-
 
 nameSuffix:
   -v1
@@ -16,4 +16,4 @@ patchesStrategicMerge:
 configMapGenerator:
 - name: postgres-config
   env: config.properties
-  namespace: test
+  namespace: sqa

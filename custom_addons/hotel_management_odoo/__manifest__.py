@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['account', 'event', 'fleet', 'lunch'],
+    'depends': ['account', 'event', 'fleet', 'lunch', 'base'],
     'data': [
         'security/hotel_management_odoo_groups.xml',
         # 'security/hotel_management_odoo_security.xml',
@@ -75,6 +75,9 @@
             # 'hotel_management_odoo/static/src/css/booking_styles.css',
             # 'hotel_management_odoo/static/src/js/room_booking_buttons.js',
             # 'hotel_management_odoo/static/src/xml/room_booking_buttons.xml',
+            'hotel_management_odoo/static/src/views/*.js',
+            'hotel_management_odoo/static/src/**/*.xml',
+            'hotel_management_odoo/static/css/hotel_booking_styles.css'
         ],
     },
     'images': ['static/description/banner.jpg'],
