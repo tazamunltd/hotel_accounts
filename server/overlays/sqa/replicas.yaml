@@ -3,13 +3,13 @@ kind: Deployment
 metadata:
   name: hotel
   annotations:
-    argocd-image-updater.argoproj.io/git-branch: nur
-    argocd-image-updater.argoproj.io/image-list: hotel=murad1997/hotel
+    argocd-image-updater.argoproj.io/git-branch: qa
+    argocd-image-updater.argoproj.io/image-list: hotel=tazamun/hotel:sqa1.0
     argocd-image-updater.argoproj.io/hotel.update-strategy: newest-build
     argocd-image-updater.argoproj.io/hotel.pull-secret:  dockerhub-secret
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: Kustomization
 spec:
-  replicas: 3
+  replicas: 2
 
 
