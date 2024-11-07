@@ -56,7 +56,7 @@ RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
 # Create a session directory with correct permissions
 RUN mkdir -p /var/lib/odoo/.local && chown -R odoo:odoo /var/lib/odoo
 
-USER odoo
+USER root
 
 # Copy Odoo source files and custom modules
 COPY . /opt/odoo-tazamun/
@@ -65,7 +65,7 @@ COPY . /opt/odoo-tazamun/
 COPY odoo.conf /etc/odoo.conf
 
 # Expose Odoo port
-EXPOSE 8069
+EXPOSE 8069 8071
 
 # Expose PostgreSQL port
 EXPOSE 5432
