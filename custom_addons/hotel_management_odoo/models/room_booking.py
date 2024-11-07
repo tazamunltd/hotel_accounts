@@ -4,8 +4,10 @@ from odoo import exceptions
 from odoo.exceptions import ValidationError
 from odoo.tools.safe_eval import pytz
 from itertools import combinations
+from operator import itemgetter
 
 from odoo.exceptions import UserError
+import bcrypt
 
 
 class RoomBooking(models.Model):
@@ -16,11 +18,17 @@ class RoomBooking(models.Model):
     _description = "Hotel Room Reservation"
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    is_room_line_readonly = fields.Boolean(string="Room Line Readonly", default=False)
+
+    availability_results = fields.One2many(
+        'room.availability.result', 'room_booking_id', string="Availability Results", readonly=True
+    )
+
     @api.model
     def get_today_checkin_domain(self):
         today = fields.Date.context_today(self)
         return [
-            ('checkin_date', '>=', today), 
+            ('checkin_date', '>=', today),
             ('checkin_date', '<', today + timedelta(days=1)),
             ('state', '=', 'check_in')
         ]
@@ -29,7 +37,7 @@ class RoomBooking(models.Model):
     def get_today_checkout_domain(self):
         today = fields.Date.context_today(self)
         return [
-            ('checkout_date', '>=', today), 
+            ('checkout_date', '>=', today),
             ('checkout_date', '<', today + timedelta(days=1)),
             ('state', '=', 'check_out')
         ]
@@ -82,7 +90,6 @@ class RoomBooking(models.Model):
     #     }
     #     return result
 
-
     adult_ids = fields.One2many('reservation.adult', 'reservation_id', string='Adults')
     child_ids = fields.One2many('reservation.child', 'reservation_id', string='Children')
 
@@ -127,16 +134,14 @@ class RoomBooking(models.Model):
     partner_id = fields.Many2one(
         'res.partner',
         string='Contact'
-        
+
     )
 
     reference_contact = fields.Many2one(
         'res.partner',
         string='Contact Reference'
-        
-    )
-    
 
+    )
 
     # @api.onchange('partner_id')
     # def _onchange_customer(self):
@@ -163,7 +168,7 @@ class RoomBooking(models.Model):
                 'partner_id': [('is_company', '=', self.is_agent)]
             }
         }
-    
+
     date_order = fields.Datetime(string="Order Date",
                                  required=True, copy=False,
                                  help="Creation date of draft/sent orders,"
@@ -178,12 +183,13 @@ class RoomBooking(models.Model):
                                                    "maintenance request send "
                                                    "once")
     checkin_date = fields.Datetime(string="Check In",
-                                   help="Date of Checkin")
-                                   # default=fields.Datetime.now()
+                                   help="Date of Checkin", required=True)
+    # default=fields.Datetime.now()
     checkout_date = fields.Datetime(string="Check Out",
-                                    help="Date of Checkout")
-                                    # default=fields.Datetime.now() + timedelta(
-                                    #     hours=23, minutes=59, seconds=59)
+                                    help="Date of Checkout", required=True)
+
+    # default=fields.Datetime.now() + timedelta(
+    #     hours=23, minutes=59, seconds=59)
 
     @api.onchange('checkin_date')
     def _onchange_checkin_date(self):
@@ -271,9 +277,9 @@ class RoomBooking(models.Model):
         ('reserved', 'Reserved')
     ], string='State', help="State of the Booking", default='not_confirmed', tracking=True)
 
-    show_confirm_button = fields.Boolean(string = "Confirm Button")
-    show_cancel_button = fields.Boolean(string = "Cancel Button")
-    
+    show_confirm_button = fields.Boolean(string="Confirm Button")
+    show_cancel_button = fields.Boolean(string="Cancel Button")
+
     hotel_room_type = fields.Many2one('room.type', string="Room Type")
 
     def action_confirm_booking(self):
@@ -300,7 +306,7 @@ class RoomBooking(models.Model):
         # if not selected_records:
         #     raise ValidationError("No records found in the 'Not Confirm' state to confirm.")
 
-            # Update state to 'confirmed' for each valid record
+        # Update state to 'confirmed' for each valid record
         # for record in selected_records.sudo():
         #     record.state = 'confirmed'
         #     print("State changed to confirmed for record ID: %s", record.id)
@@ -308,7 +314,7 @@ class RoomBooking(models.Model):
         self.env.cr.commit()
 
         dashboard_data = self.retrieve_dashboard()
-        print("dashboard_data",dashboard_data)
+        print("dashboard_data", dashboard_data)
 
         # confirmed_count = self.env['room.booking'].search_count([('state', '=', 'confirmed')])
         # not_confirm_count = self.env['room.booking'].search_count([('state', '=', 'not_confirmed')])
@@ -499,7 +505,6 @@ class RoomBooking(models.Model):
             num_rooms = record.room_count
             print(partner_id, checkin_date, checkout_date, room_type_id, num_rooms)
 
-
             try:
                 # Call the make_reservation method
                 record.make_reservation(
@@ -532,7 +537,7 @@ class RoomBooking(models.Model):
                         'sticky': False,
                     }
                 }
-    
+
     @api.model
     def make_reservation(self, partner_id, checkin_date, checkout_date, room_type_id, num_rooms):
         checkin_date = fields.Datetime.to_datetime(checkin_date)
@@ -564,9 +569,9 @@ class RoomBooking(models.Model):
             })
             # Step 4: Set state to 'waiting' and inform the user
             self.state = 'waiting'
-            self.message_post(body='No rooms available for the selected dates. The reservation has been added to the waiting list.')
+            self.message_post(
+                body='No rooms available for the selected dates. The reservation has been added to the waiting list.')
             return self
-
 
     def _get_available_rooms(self, checkin_date, checkout_date, room_type_id, num_rooms):
         # Get all rooms of the specified type
@@ -589,7 +594,6 @@ class RoomBooking(models.Model):
                     break
         return available_rooms
 
-
     user_id = fields.Many2one(comodel_name='res.partner',
                               string="Address",
                               compute='_compute_user_id',
@@ -598,7 +602,7 @@ class RoomBooking(models.Model):
                               domain="['|', ('company_id', '=', False), "
                                      "('company_id', '=',"
                                      " company_id)]")
-   
+
     pricelist_id = fields.Many2one(comodel_name='product.pricelist',
                                    string="Pricelist",
                                    compute='_compute_pricelist_id',
@@ -607,18 +611,18 @@ class RoomBooking(models.Model):
                                    help="If you change the pricelist,"
                                         " only newly added lines"
                                         " will be affected.")
-    
+
     currency_id = fields.Many2one(
         string="Currency", help="This is the Currency used",
         related='pricelist_id.currency_id',
         depends=['pricelist_id.currency_id'],
     )
-    
+
     invoice_count = fields.Integer(compute='_compute_invoice_count',
                                    string="Invoice "
                                           "Count",
                                    help="The number of invoices created")
-    
+
     account_move = fields.Integer(string='Invoice Id',
                                   help="Id of the invoice created")
     amount_untaxed = fields.Monetary(string="Total Untaxed Amount",
@@ -687,9 +691,6 @@ class RoomBooking(models.Model):
                                          compute='_compute_amount_untaxed',
                                          help="This is the Total Amount for "
                                               "Fleet", tracking=5)
-    
-    
-    
 
     passport = fields.Char(string='Passport')
     nationality = fields.Many2one('res.country', string='Nationality')
@@ -698,53 +699,95 @@ class RoomBooking(models.Model):
 
     rate_details = fields.One2many('room.type.specific.rate', compute="_compute_rate_details", string="Rate Details")
     # rate_details = fields.One2many('rate.detail', compute="_compute_rate_details", string="Rate Details")
-    rate_code = fields.Many2one('rate.code',string='Rate Code')
+    rate_code = fields.Many2one('rate.code', string='Rate Code')
 
     monday_pax_1 = fields.Float(string="Monday (1 Pax)")
 
     # Fields for all weekdays and pax counts
-    monday_pax_1_rb = fields.Float(string="Monday (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    monday_pax_2_rb = fields.Float(string="Monday (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    monday_pax_3_rb = fields.Float(string="Monday (3 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    monday_pax_4_rb = fields.Float(string="Monday (4 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    monday_pax_5_rb = fields.Float(string="Monday (5 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    monday_pax_6_rb = fields.Float(string="Monday (6 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    tuesday_pax_1_rb = fields.Float(string="Tuesday (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    tuesday_pax_2_rb = fields.Float(string="Tuesday (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    tuesday_pax_3_rb = fields.Float(string="Tuesday (3 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    tuesday_pax_4_rb = fields.Float(string="Tuesday (4 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    tuesday_pax_5_rb = fields.Float(string="Tuesday (5 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    tuesday_pax_6_rb = fields.Float(string="Tuesday (6 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    wednesday_pax_1_rb = fields.Float(string="Wednesday (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    wednesday_pax_2_rb = fields.Float(string="Wednesday (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    wednesday_pax_3_rb = fields.Float(string="Wednesday (3 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    wednesday_pax_4_rb = fields.Float(string="Wednesday (4 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    wednesday_pax_5_rb = fields.Float(string="Wednesday (5 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    wednesday_pax_6_rb = fields.Float(string="Wednesday (6 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    thursday_pax_1_rb = fields.Float(string="Thursday (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    thursday_pax_2_rb = fields.Float(string="Thursday (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    thursday_pax_3_rb = fields.Float(string="Thursday (3 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    thursday_pax_4_rb = fields.Float(string="Thursday (4 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    thursday_pax_5_rb = fields.Float(string="Thursday (5 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    thursday_pax_6_rb = fields.Float(string="Thursday (6 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    friday_pax_1_rb = fields.Float(string="Friday (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    friday_pax_2_rb = fields.Float(string="Friday (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    friday_pax_3_rb = fields.Float(string="Friday (3 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    friday_pax_4_rb = fields.Float(string="Friday (4 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    friday_pax_5_rb = fields.Float(string="Friday (5 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    friday_pax_6_rb = fields.Float(string="Friday (6 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    saturday_pax_1_rb = fields.Float(string="Saturday (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    saturday_pax_2_rb = fields.Float(string="Saturday (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    saturday_pax_3_rb = fields.Float(string="Saturday (3 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    saturday_pax_4_rb = fields.Float(string="Saturday (4 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    saturday_pax_5_rb = fields.Float(string="Saturday (5 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    saturday_pax_6_rb = fields.Float(string="Saturday (6 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    sunday_pax_1_rb = fields.Float(string="Sunday (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    sunday_pax_2_rb = fields.Float(string="Sunday (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    sunday_pax_3_rb = fields.Float(string="Sunday (3 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    sunday_pax_4_rb = fields.Float(string="Sunday (4 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    sunday_pax_5_rb = fields.Float(string="Sunday (5 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
-    sunday_pax_6_rb = fields.Float(string="Sunday (6 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
+    monday_pax_1_rb = fields.Float(string="Monday (1 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    monday_pax_2_rb = fields.Float(string="Monday (2 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    monday_pax_3_rb = fields.Float(string="Monday (3 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    monday_pax_4_rb = fields.Float(string="Monday (4 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    monday_pax_5_rb = fields.Float(string="Monday (5 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    monday_pax_6_rb = fields.Float(string="Monday (6 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    tuesday_pax_1_rb = fields.Float(string="Tuesday (1 Pax)", compute="_compute_rate_details_", store=True,
+                                    readonly=False)
+    tuesday_pax_2_rb = fields.Float(string="Tuesday (2 Pax)", compute="_compute_rate_details_", store=True,
+                                    readonly=False)
+    tuesday_pax_3_rb = fields.Float(string="Tuesday (3 Pax)", compute="_compute_rate_details_", store=True,
+                                    readonly=False)
+    tuesday_pax_4_rb = fields.Float(string="Tuesday (4 Pax)", compute="_compute_rate_details_", store=True,
+                                    readonly=False)
+    tuesday_pax_5_rb = fields.Float(string="Tuesday (5 Pax)", compute="_compute_rate_details_", store=True,
+                                    readonly=False)
+    tuesday_pax_6_rb = fields.Float(string="Tuesday (6 Pax)", compute="_compute_rate_details_", store=True,
+                                    readonly=False)
+    wednesday_pax_1_rb = fields.Float(string="Wednesday (1 Pax)", compute="_compute_rate_details_", store=True,
+                                      readonly=False)
+    wednesday_pax_2_rb = fields.Float(string="Wednesday (2 Pax)", compute="_compute_rate_details_", store=True,
+                                      readonly=False)
+    wednesday_pax_3_rb = fields.Float(string="Wednesday (3 Pax)", compute="_compute_rate_details_", store=True,
+                                      readonly=False)
+    wednesday_pax_4_rb = fields.Float(string="Wednesday (4 Pax)", compute="_compute_rate_details_", store=True,
+                                      readonly=False)
+    wednesday_pax_5_rb = fields.Float(string="Wednesday (5 Pax)", compute="_compute_rate_details_", store=True,
+                                      readonly=False)
+    wednesday_pax_6_rb = fields.Float(string="Wednesday (6 Pax)", compute="_compute_rate_details_", store=True,
+                                      readonly=False)
+    thursday_pax_1_rb = fields.Float(string="Thursday (1 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    thursday_pax_2_rb = fields.Float(string="Thursday (2 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    thursday_pax_3_rb = fields.Float(string="Thursday (3 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    thursday_pax_4_rb = fields.Float(string="Thursday (4 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    thursday_pax_5_rb = fields.Float(string="Thursday (5 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    thursday_pax_6_rb = fields.Float(string="Thursday (6 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    friday_pax_1_rb = fields.Float(string="Friday (1 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    friday_pax_2_rb = fields.Float(string="Friday (2 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    friday_pax_3_rb = fields.Float(string="Friday (3 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    friday_pax_4_rb = fields.Float(string="Friday (4 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    friday_pax_5_rb = fields.Float(string="Friday (5 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    friday_pax_6_rb = fields.Float(string="Friday (6 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    saturday_pax_1_rb = fields.Float(string="Saturday (1 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    saturday_pax_2_rb = fields.Float(string="Saturday (2 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    saturday_pax_3_rb = fields.Float(string="Saturday (3 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    saturday_pax_4_rb = fields.Float(string="Saturday (4 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    saturday_pax_5_rb = fields.Float(string="Saturday (5 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    saturday_pax_6_rb = fields.Float(string="Saturday (6 Pax)", compute="_compute_rate_details_", store=True,
+                                     readonly=False)
+    sunday_pax_1_rb = fields.Float(string="Sunday (1 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    sunday_pax_2_rb = fields.Float(string="Sunday (2 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    sunday_pax_3_rb = fields.Float(string="Sunday (3 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    sunday_pax_4_rb = fields.Float(string="Sunday (4 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    sunday_pax_5_rb = fields.Float(string="Sunday (5 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
+    sunday_pax_6_rb = fields.Float(string="Sunday (6 Pax)", compute="_compute_rate_details_", store=True,
+                                   readonly=False)
 
     pax_1_rb = fields.Float(string="Default (1 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
     pax_2_rb = fields.Float(string="Default (2 Pax)", compute="_compute_rate_details_", store=True, readonly=False)
@@ -828,11 +871,6 @@ class RoomBooking(models.Model):
                         for pax in range(1, 7):
                             setattr(record, f"{day}_pax_{pax}_rb", 0.0)
 
-
-
-
-
-   
     # @api.onchange('hotel_room_type')
     # def _onchange_hotel_room_type(self):
     #     for record in self:
@@ -848,7 +886,7 @@ class RoomBooking(models.Model):
     #         rate_detail = self.env['room.type.specific.rate'].search([
     #             ('room_type_id', '=', record.hotel_room_type.id)
     #         ], limit=1)
-            
+
     #         # Set the rate code if found
     #         record.rate_code = rate_detail.rate_code_id if rate_detail else False
 
@@ -906,14 +944,14 @@ class RoomBooking(models.Model):
         for record in self:
             # Initialize default value for monday_pax_1 field
             record.monday_pax_1 = 0.0
-            
+
             # Check if rate_code and rate_detail exist
             if record.rate_code and record.rate_code.rate_detail_ids:
-                rate_detail = record.rate_code.rate_detail_ids.filtered(lambda r: r.monday_pax_1 is not None)  # Filter rate_details with non-None values
+                rate_detail = record.rate_code.rate_detail_ids.filtered(
+                    lambda r: r.monday_pax_1 is not None)  # Filter rate_details with non-None values
                 if rate_detail:
                     record.monday_pax_1 = rate_detail[0].monday_pax_1
 
-    
     id_number = fields.Char(string='ID Number')
     house_use = fields.Boolean(string='House Use')
 
@@ -921,23 +959,19 @@ class RoomBooking(models.Model):
     def _compute_rate_details_(self):
         pass
 
-    
-
     is_customer_company = fields.Boolean(string="Filter Company Customers", default=False)  # New helper field
 
-           
     @api.model
     def name_get(self):
         res = super(RoomBooking, self).name_get()
         for partner in self.env['res.partner'].search([]):
             print(f"Partner Name: {partner.name}, is_company: {partner.is_company}")
-        return res 
-                
+        return res
+
     vip = fields.Boolean(string='VIP')
     vip_code = fields.Many2one('vip.code', string="VIP Code")
 
-     
-     # Adding a computed boolean field that controls if the vip_code should be visible
+    # Adding a computed boolean field that controls if the vip_code should be visible
     show_vip_code = fields.Boolean(string="Show VIP Code", compute="_compute_show_vip_code", store=True)
 
     @api.depends('vip')
@@ -1009,7 +1043,6 @@ class RoomBooking(models.Model):
                  'event_line_ids.price_subtotal', 'event_line_ids.price_tax',
                  'event_line_ids.price_total',
                  )
-    
     @api.depends('room_line_ids', 'food_order_line_ids', 'service_line_ids', 'vehicle_line_ids', 'event_line_ids')
     def _compute_amount_untaxed(self, flag=False):
         for rec in self:
@@ -1117,7 +1150,7 @@ class RoomBooking(models.Model):
             rec.amount_total_service = amount_total_service
 
         return booking_list
-    
+
     # def _compute_amount_untaxed(self, flag=False):
     #     """Compute the total amounts of the Sale Order"""
     #     amount_untaxed_room = 0.0
@@ -1472,7 +1505,7 @@ class RoomBooking(models.Model):
     def action_checkin(self):
 
         today = fields.Date.context_today(self)
-        if fields.Date.to_date(self.checkout_date) != today:
+        if fields.Date.to_date(self.checkin_date) != today:
             raise ValidationError(
                 _("You can only check in on the reservation's check-in date, which should be today."))
         """
@@ -1505,7 +1538,7 @@ class RoomBooking(models.Model):
 
     def button_split_rooms(self):
         pass
-    
+
     def get_details(self):
         """ Returns different counts for displaying in dashboard"""
         today = datetime.today()
@@ -1659,6 +1692,7 @@ class RoomBooking(models.Model):
     def _onchange_rooms_to_add(self):
         for line in self.room_line_ids:
             line.adult_count = self.adult_count
+            print("adult line added")
             line.child_count = self.child_count
 
     @api.depends('adult_count', 'child_count')
@@ -1697,48 +1731,46 @@ class RoomBooking(models.Model):
     #     #         f'Only {len(available_rooms)} rooms are available that can accommodate the specified number of people. You requested {rooms_to_add} rooms.')
 
     #     return available_rooms
-    
-    is_button_clicked = fields.Boolean(string="Is Button Clicked", default=False)
 
+    is_button_clicked = fields.Boolean(string="Is Button Clicked", default=False)
 
     # def button_find_rooms(self):
     #     if not self.hotel_room_type:
     #         raise UserError("Please select your Room Type before proceeding.")
     #     # if self.is_button_clicked:
     #     #     raise UserError("Rooms have already been added. You cannot add them again.")
-        
+
     #     total_people = self.adult_count + self.child_count
-        
+
     #     # Validate check-in and check-out dates
     #     if not self.checkin_date or not self.checkout_date:
     #         raise UserError('Check-in and Check-out dates must be set before finding rooms.')
-            
+
     #     checkin_date = self.checkin_date
     #     checkout_date = self.checkout_date
     #     duration = (checkout_date - checkin_date).days + (checkout_date - checkin_date).seconds / (24 * 3600)
-        
+
     #     if duration <= 0:
     #         raise UserError('Checkout date must be later than Check-in date.')
-        
-            
+
     #     # Calculate remaining available rooms
     #     total_available = self.env['hotel.room'].search_count([('status', '=', 'available')])
     #     currently_booked = len(self.room_line_ids)
-        
+
     #     # Validate if enough rooms are available
     #     if self.room_count > (total_available + currently_booked):
     #         raise UserError(f'Not enough rooms available. Total available rooms: {total_available}')
-            
+
     #     # Check for overlapping bookings with the same date range
     #     overlapping_bookings = self.env['room.booking'].search([
     #         ('id', '!=', self.id),
     #         ('checkin_date', '<', checkout_date),
     #         ('checkout_date', '>', checkin_date),
     #     ])
-        
+
     #     # if overlapping_bookings:
     #     #     raise UserError('Date conflict found with existing booking. Please change the Check-in and Check-out dates.')
-        
+
     #     # Find valid rooms based on criteria
     #     new_rooms = self._find_rooms_for_capacity()
     #     # print('new_rooms', new_rooms)
@@ -1777,32 +1809,32 @@ class RoomBooking(models.Model):
     #     })
 
     #     # Reset rooms_to_add after successful addition
-    #     self.rooms_to_add = 0 
-            
+    #     self.rooms_to_add = 0
 
     def button_find_rooms(self):
         if not self.hotel_room_type:
             raise UserError("Please select your Room Type before proceeding.")
-        
+
         total_people = self.adult_count + self.child_count
-        
+
         if not self.checkin_date or not self.checkout_date:
             raise UserError('Check-in and Check-out dates must be set before finding rooms.')
-            
+
         checkin_date = self.checkin_date
         checkout_date = self.checkout_date
         duration = (checkout_date - checkin_date).days + (checkout_date - checkin_date).seconds / (24 * 3600)
-        
+
         if duration <= 0:
             raise UserError('Checkout date must be later than Check-in date.')
-        
+
         total_available = self.env['hotel.room'].search_count([
             ('status', '=', 'available'),
             ('room_type_name', '=', self.hotel_room_type.id)
         ])
         if self.room_count > total_available:
-            raise UserError(f'Not enough rooms available for the selected room type. Total available rooms: {total_available}')
-        
+            raise UserError(
+                f'Not enough rooms available for the selected room type. Total available rooms: {total_available}')
+
         new_rooms = self._find_rooms_for_capacity()
         room_lines = []
         if new_rooms:
@@ -1843,6 +1875,380 @@ class RoomBooking(models.Model):
 
         return available_rooms
 
+    @api.model
+    def check_room_availability_all_hotels_split_across_type(
+            self,
+            checkin_date,
+            checkout_date,
+            room_count,
+            adult_count,
+            hotel_room_type_id=None
+    ):
+        # Initialize results list
+        results = []
+
+        # Get unique companies from hotel inventory
+        companies = self.env['hotel.inventory'].read_group(
+            [], ['company_id'], ['company_id']
+        )
+
+        total_available_rooms = 0  # To sum up total available rooms
+
+        # Retrieve all room types
+        room_types = self.env['room.type'].search_read([], [])
+        room_types_dict = {room_type['id']: room_type for room_type in room_types}
+
+        # First pass: Calculate total available rooms for the (selected) room type(s)
+        for company in companies:
+            loop_company_id = company['company_id'][0]
+
+            # Build domain for room_availabilities
+            room_availabilities_domain = [
+                ('company_id', '=', loop_company_id),
+                ('pax', '>=', adult_count),
+            ]
+
+            # If hotel_room_type_id is selected, filter by that room type
+            if hotel_room_type_id:
+                room_availabilities_domain.append(('room_type', '=', hotel_room_type_id))
+            else:
+                # Proceed without adding room_type to the domain
+                pass  # Search across all room types
+
+            # Query to get room types by pax in ascending order
+            room_availabilities = self.env['hotel.inventory'].search_read(
+                room_availabilities_domain,
+                ['room_type', 'pax', 'total_room_count', 'overbooking_allowed', 'overbooking_rooms'],
+                order='pax ASC'
+            )
+
+            if not room_availabilities:
+                continue  # No available rooms in this company
+
+            for availability in room_availabilities:
+                room_type_field = availability['room_type']
+                if isinstance(room_type_field, tuple):
+                    room_type_id = room_type_field[0]
+                else:
+                    room_type_id = availability['room_type']
+
+                # Build domain for booked rooms
+                booked_rooms_domain = [
+                    ('company_id', '=', loop_company_id),
+                    ('room_type_name', '=', room_type_id),
+                    ('total_people', '<=', availability['pax']),
+                    ('state', '=', 'confirmed'),
+                    ('checkin_date', '<=', checkout_date),
+                    ('checkout_date', '>=', checkin_date),
+                ]
+
+                booked_rooms = self.env['room.booking'].search_count(booked_rooms_domain)
+
+                # Determine available room count
+                if availability['overbooking_allowed']:
+                    if availability['overbooking_rooms'] == 0:
+                        available_rooms = None  # Unlimited overbooking
+                        total_available_rooms = None
+                        break  # No need to sum further, rooms are unlimited
+                    else:
+                        available_rooms = (
+                                availability['total_room_count']
+                                - booked_rooms
+                                + availability['overbooking_rooms']
+                        )
+                else:
+                    available_rooms = availability['total_room_count'] - booked_rooms
+
+                if available_rooms is not None and available_rooms > 0:
+                    if total_available_rooms is not None:
+                        total_available_rooms += available_rooms
+
+            if total_available_rooms is None:
+                break  # Unlimited rooms available across companies
+
+        # Check if the total available rooms meet the requested room count
+        if total_available_rooms is None:
+            # Unlimited rooms available, proceed with allocation
+            pass
+        elif total_available_rooms < room_count:
+            if hotel_room_type_id:
+                room_type_record = self.env['room.type'].browse(hotel_room_type_id)
+                room_type_name = room_type_record.description or room_type_record.room_type
+                raise UserError(
+                    f"You requested {room_count} rooms of type '{room_type_name}', but only {total_available_rooms} are available."
+                )
+            else:
+                raise UserError(
+                    f"You requested {room_count} rooms, but only {total_available_rooms} are available."
+                )
+
+        # Proceed to allocate rooms since enough are available
+        remaining_rooms = room_count
+        for company in companies:
+            loop_company_id = company['company_id'][0]
+
+            room_availabilities_domain = [
+                ('company_id', '=', loop_company_id),
+                ('pax', '>=', adult_count),
+            ]
+
+            if hotel_room_type_id:
+                room_availabilities_domain.append(('room_type', '=', hotel_room_type_id))
+            else:
+                # Proceed without adding room_type to the domain
+                pass
+
+            room_availabilities = self.env['hotel.inventory'].search_read(
+                room_availabilities_domain,
+                ['room_type', 'pax', 'total_room_count', 'overbooking_allowed', 'overbooking_rooms'],
+                order='pax ASC'
+            )
+
+            if not room_availabilities:
+                continue
+
+            for availability in room_availabilities:
+                room_type_field = availability['room_type']
+                if isinstance(room_type_field, tuple):
+                    room_type_id = room_type_field[0]
+                else:
+                    room_type_id = availability['room_type']
+
+                room_type_info = room_types_dict.get(room_type_id)
+
+                # Build domain for booked rooms
+                booked_rooms_domain = [
+                    ('company_id', '=', loop_company_id),
+                    ('room_type_name', '=', room_type_id),
+                    ('total_people', '<=', availability['pax']),
+                    ('state', '=', 'confirmed'),
+                    ('checkin_date', '<=', checkout_date),
+                    ('checkout_date', '>=', checkin_date),
+                ]
+
+                booked_rooms = self.env['room.booking'].search_count(booked_rooms_domain)
+
+                # Determine available room count
+                if availability['overbooking_allowed']:
+                    if availability['overbooking_rooms'] == 0:
+                        available_rooms = None  # Unlimited overbooking
+                    else:
+                        available_rooms = (
+                                availability['total_room_count']
+                                - booked_rooms
+                                + availability['overbooking_rooms']
+                        )
+                else:
+                    available_rooms = availability['total_room_count'] - booked_rooms
+
+                # Calculate rooms to reserve
+                current_rooms_reserved = (
+                    remaining_rooms if available_rooms is None else min(available_rooms, remaining_rooms)
+                )
+
+                # Append result
+                results.append({
+                    'company_id': loop_company_id,
+                    'room_type': room_type_id,
+                    'pax': availability['pax'],
+                    'rooms_reserved': current_rooms_reserved,
+                    'available_rooms': 'Unlimited' if available_rooms is None else str(available_rooms),
+                    'description': room_type_info.get('description') if room_type_info else '',
+                    'user_sort': room_type_info.get('user_sort') if room_type_info else '',
+                    'abbreviation': room_type_info.get('abbreviation') if room_type_info else '',
+                })
+
+                # Update remaining rooms
+                remaining_rooms -= current_rooms_reserved
+
+                if remaining_rooms <= 0:
+                    break  # All requested rooms have been allocated
+
+            if remaining_rooms <= 0:
+                break  # Exit company loop as all rooms are allocated
+
+        return results
+    # def action_split_rooms(self):
+    #     for record in self:
+    #         # Retrieve split results
+    #         results = record.check_room_availability_all_hotels_split_across_type(
+    #             record.checkin_date,
+    #             record.checkout_date,
+    #             record.room_count,
+    #             record.adult_count
+    #         )
+    #         print("results 1963", results)
+    #
+    #         # Ensure that a room type is selected
+    #         # if not record.hotel_room_type:
+    #         #     raise UserError("Please select your Room Type before proceeding.")
+    #         #
+    #         # # Validate check-in and check-out dates
+    #         # if not record.checkin_date or not record.checkout_date:
+    #         #     raise UserError('Check-in and Check-out dates must be set before finding rooms.')
+    #         #
+    #         # checkin_date = record.checkin_date
+    #         # checkout_date = record.checkout_date
+    #         # duration = (checkout_date - checkin_date).days + (checkout_date - checkin_date).seconds / (24 * 3600)
+    #         #
+    #         # if duration <= 0:
+    #         #     raise UserError('Checkout date must be later than Check-in date.')
+    #         #
+    #         # # Extract and parse the available room details from the split results
+    #         # room_lines = []
+    #         # total_added_rooms = 0  # Counter to limit to room_count
+    #         #
+    #         # for res in results:
+    #         #     print("res", res)
+    #         #     available_rooms = res.get('available_rooms')
+    #         #     print("available_rooms", available_rooms, type(available_rooms))
+    #         #     room_type = res.get('room_type')
+    #         #     print("room_type", room_type)
+    #         #     room_capacity = res.get('adult_count')  # Assume 'capacity' is provided in results
+    #         #     print("room_capacity",room_capacity)
+    #         #
+    #         #     if available_rooms:
+    #         #         extracted_room_ids = [int(room_id) for room_id in available_rooms.split(',')]
+    #         #         print("extracted_room_ids", extracted_room_ids)
+    #         #
+    #         #         # Add lines based on room_count limit
+    #         #         for room_id in extracted_room_ids:
+    #         #             print("1996")
+    #         #             if total_added_rooms < record.room_count:
+    #         #                 room_lines.append((0, 0, {
+    #         #                     'room_id': room_type,  # Use the room_type as requested
+    #         #                     'checkin_date': checkin_date,
+    #         #                     'checkout_date': checkout_date,
+    #         #                     'uom_qty': duration,
+    #         #                     'adult_count': record.adult_count,
+    #         #                     'child_count': record.child_count,
+    #         #
+    #         #                 }))
+    #         #                 total_added_rooms += 1
+    #         #             else:
+    #         #                 break
+    #         #
+    #         #     # Stop if we've reached the required room count
+    #         #     if total_added_rooms >= record.room_count:
+    #         #         break
+    #         #
+    #         # # Debug: Print room_lines to check what will be written to room_line_ids
+    #         # print("Room lines to be added:", room_lines)
+    #         #
+    #         # # Verify that we have enough rooms available
+    #         # print(total_added_rooms)
+    #         # print(record.room_count)
+    #         # if total_added_rooms < record.room_count:
+    #         #     raise UserError(
+    #         #         f'Not enough rooms available. Required: {record.room_count}, Available: {total_added_rooms}')
+    #         #
+    #         # # Clear existing room_line_ids to avoid duplication
+    #         # record.write({'room_line_ids': [(5, 0, 0)]})
+    #         #
+    #         # # Write the filtered room lines to room_line_ids
+    #         # record.write({'room_line_ids': room_lines})
+
+    def action_clear_rooms(self):
+        for booking in self:
+            # Unlink all room lines associated with this booking
+            booking.room_line_ids.unlink()
+
+    def action_split_rooms(self):
+        for booking in self:
+            # Retrieve related `room.availability.result` records
+            availability_results = self.env['room.availability.result'].search([('room_booking_id', '=', booking.id)])
+
+            # Calculate total rooms_reserved and pax from related availability results
+            total_rooms_reserved = sum(result.rooms_reserved for result in availability_results)
+            total_pax = sum(result.pax for result in availability_results)
+
+            # Ensure we have a value for rooms_reserved and pax
+            if total_rooms_reserved <= 0 or total_pax <= 0:
+                raise UserError("Total rooms reserved or pax count is missing from availability results.")
+
+            # # Prepare the adult lines based on the total pax count
+            # adult_lines = [(0, 0, {
+            #     'first_name': '',
+            #     'last_name': '',
+            #     'profile': '',
+            #     'nationality': '',
+            #     'birth_date': False,
+            #     'passport_number': '',
+            #     'id_number': '',
+            #     'visa_number': '',
+            #     'id_type': '',
+            #     'phone_number': '',
+            #     'relation': ''
+            # }) for _ in range(total_pax)]
+
+            # Add adult lines to the booking's `adult_ids`
+            # booking.write({'adult_ids': adult_lines})
+
+            # Loop through the reserved room count and add each as a room line
+            room_line_vals = []
+            for _ in range(total_rooms_reserved):
+                new_booking_line = {
+                    'room_id': False,  # Room can be assigned later based on availability
+                    'checkin_date': booking.checkin_date,
+                    'checkout_date': booking.checkout_date,
+                    'uom_qty': 1,
+                    'adult_count': total_pax,
+                    'child_count': 0,
+                    'room_type_name': availability_results[0].room_type.id if availability_results else False
+                }
+                room_line_vals.append((0, 0, new_booking_line))
+
+
+            # Add room lines to the booking's `room_line_ids`
+            booking.write({'room_line_ids': room_line_vals})
+
+            # Prepare the adult lines based on the total pax count
+            adult_lines = [(0, 0, {
+                'first_name': '',
+                'last_name': '',
+                'profile': '',
+                'nationality': '',
+                'birth_date': False,
+                'passport_number': '',
+                'id_number': '',
+                'visa_number': '',
+                'id_type': '',
+                'phone_number': '',
+                'relation': ''
+            }) for _ in range(total_pax)]
+
+            # Add adult lines to the booking's `adult_ids`
+            booking.write({'adult_ids': adult_lines})
+
+
+
+    def action_search_rooms(self):
+        for record in self:
+            # Retrieve split results
+            results = record.check_room_availability_all_hotels_split_across_type(
+                record.checkin_date,
+                record.checkout_date,
+                record.room_count,
+                record.adult_count,
+                record.hotel_room_type.id if record.hotel_room_type else None
+            )
+            print("results 1963", results)
+
+            # Clear existing results
+            record.availability_results.unlink()
+
+            # Populate the results into availability_results
+            result_lines = []
+            for res in results:
+                result_lines.append((0, 0, {
+                    'company_id': res.get('company_id'),
+                    'room_type': res.get('room_type'),
+                    'pax': res.get('pax'),
+                    'rooms_reserved': res.get('rooms_reserved'),
+                    'available_rooms': res.get('available_rooms')
+                }))
+
+            record.write({'availability_results': result_lines})
 
     room_count_tree = fields.Integer(string="Room Count", compute="_compute_room_count", store=False)
 
@@ -1875,7 +2281,7 @@ class RoomBooking(models.Model):
         new_rooms = self._find_rooms_for_capacity()
         room_ids = new_rooms.mapped('id') if new_rooms else []
         return {'domain': {'room_id': [('id', 'in', room_ids)]}}
-    
+
     # def button_find_rooms(self):
     #     total_people = self.adult_count + self.child_count
 
@@ -1953,17 +2359,15 @@ class RoomBooking(models.Model):
     #     else:
     #         raise UserError('No suitable rooms found that are not already used.')
 
-    
-    
     # def button_find_rooms(self):
     #     if self.is_button_clicked:
     #         raise UserError("Rooms have already been added. You cannot add them again.")
-        
+
     #     """Find and add requested number of rooms to the booking"""
     #     # Calculate remaining available rooms
     #     total_available = self.env['hotel.room'].search_count([('status', '=', 'available')])
     #     currently_booked = len(self.room_line_ids)
-        
+
     #     # Validate if we have enough rooms available
     #     if self.room_count > (total_available + currently_booked):
     #         raise UserError(f'Not enough rooms available. Total available rooms: {total_available}')
@@ -1975,7 +2379,6 @@ class RoomBooking(models.Model):
     #         # Ensure check-in and check-out dates are set
     #         if not self.checkin_date or not self.checkout_date:
     #             raise UserError('Check-in and Check-out dates must be set before finding rooms.')
-            
 
     #         checkin_date = self.checkin_date
     #         checkout_date = self.checkout_date
@@ -2008,7 +2411,7 @@ class RoomBooking(models.Model):
     #         })
 
     #         self.is_button_clicked = True
-            
+
     #         # Reset rooms_to_add after successful addition
     #         self.rooms_to_add = 0
     #     else:
@@ -2019,10 +2422,9 @@ class RoomBooking(models.Model):
     #     """Handle room count changes"""
     #     if self.room_count < len(self.room_line_ids):
     #         raise UserError('Cannot decrease room count below number of selected rooms.')
-        
+
     #     # Calculate how many new rooms to add
     #     self.rooms_to_add = self.room_count - len(self.room_line_ids)
-
 
     # @api.onchange('child_count')
     # def _onchange_child_count(self):
@@ -2056,7 +2458,6 @@ class RoomBooking(models.Model):
         # Update the adult_ids field with the new records
         self.child_ids = new_child_records
 
-
     @api.onchange('adult_count')
     def _onchange_adult_count(self):
         # Clear existing adult records
@@ -2082,7 +2483,7 @@ class RoomBooking(models.Model):
 
         # Update the adult_ids field with the new records
         self.adult_ids = new_adult_records
-
+        print(f"{len(new_adult_records)} adult lines have been added.")
 
     def increase_room_count(self):
         for record in self:
@@ -2114,7 +2515,6 @@ class RoomBooking(models.Model):
             # Add a new adult when count increases
             self.env['reservation.adult'].create({'reservation_id': record.id})
 
-
     def decrease_adult_count(self):
         for record in self:
             if record.adult_count > 0:
@@ -2123,12 +2523,10 @@ class RoomBooking(models.Model):
                     last_adult.unlink()  # Remove last adult record
                 record.adult_count -= 1
 
-
     def increase_child_count(self):
         for record in self:
             record.child_count += 1
             self.env['reservation.child'].create({'reservation_id': record.id})
-
 
     def decrease_child_count(self):
         for record in self:
@@ -2166,7 +2564,6 @@ class HotelChildAge(models.Model):
 
     child_label = fields.Char(string='Child Label', compute='_compute_child_label', store=True)
 
-
     @api.depends('booking_id.child_ages')
     def _compute_child_label(self):
         for record in self:
@@ -2199,10 +2596,10 @@ class ReservationAdult(models.Model):
     # Link to the main reservation
     reservation_id = fields.Many2one('room.booking', string='Reservation')
 
+
 class ReservationChild(models.Model):
     _name = 'reservation.child'
     _description = 'Reservation Child'
-
 
     first_name = fields.Char(string='First Name')
     last_name = fields.Char(string='Last Name')
@@ -2220,6 +2617,7 @@ class ReservationChild(models.Model):
     # Link to the main reservation
     reservation_id = fields.Many2one('room.booking', string='Reservation')
 
+
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
@@ -2229,15 +2627,30 @@ class ResPartner(models.Model):
     source_of_business = fields.Many2one('source.business', string="Source of Business")
     nationality = fields.Many2one('res.country', string='Nationality')
 
+    hashed_password = fields.Char(string="Hashed Password")
+
+    @api.model
+    def set_password(self, password):
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+        self.hashed_password = hashed.decode('utf-8')
+
+    def check_password(self, password):
+        if self.hashed_password:
+            return bcrypt.checkpw(password.encode('utf-8'), self.hashed_password.encode('utf-8'))
+        return False
+
 class ProductPricelist(models.Model):
     _inherit = 'product.pricelist'
 
     rate_code_ids = fields.One2many('rate.code', 'pricelist_id', string="Rate Codes")
 
+
 class RateCodeInherit(models.Model):
     _inherit = 'rate.code'
 
     pricelist_id = fields.Many2one('product.pricelist', string='Pricelist', ondelete='cascade')
+
 
 class SystemDate(models.Model):
     _inherit = 'res.company'
@@ -2245,6 +2658,15 @@ class SystemDate(models.Model):
     system_date = fields.Datetime(string="System Date")
     inventory_ids = fields.One2many('hotel.inventory', 'company_id', string="Inventory")
     age_threshold = fields.Integer(string="Age Threshold")
+
+    # data fields for hotel web
+    web_title = fields.Char(string="Title", help="Title of the Hotel")
+    web_star_rating = fields.Integer(string="Star Rating", help="Star rating of the hotel")
+    web_kaaba_view = fields.Boolean(string="Kaaba view", default=False, help="is Kaaba visible from the hotel")
+    web_hotel_location = fields.Char(string="Hotel location", help="Location of the hotel")
+    web_description = fields.Text(string="Hotel description", help="Description of the hotel")
+    web_discount = fields.Float(string="Discount", help="General discount given to hotel customers")
+    web_review = fields.Float(string="Guest review", help="Guest review of the hotel")
 
 
 class HotelInventory(models.Model):
@@ -2262,3 +2684,71 @@ class HotelInventory(models.Model):
     overbooking_rooms = fields.Integer(string="Overbooking Rooms")
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company)
 
+
+class RoomAvailabilityResult(models.Model):
+    _name = 'room.availability.result'
+    _description = 'Room Availability Result'
+
+    room_booking_id = fields.Many2one('room.booking', string="Room Booking", ondelete="cascade")
+    company_id = fields.Many2one('res.company', string="Company")
+    room_type = fields.Many2one('room.type', string="Room Type")
+    pax = fields.Integer(string="Adults")
+    rooms_reserved = fields.Integer(string="Searched Rooms Count")
+    available_rooms = fields.Integer(string="Available Rooms")
+
+    def action_split_selected(self):
+        rooms_reserved_count = int(self.rooms_reserved) if isinstance(self.rooms_reserved, str) else self.rooms_reserved
+
+        for record in self:
+            # Ensure we have an existing room.booking record to add lines to
+            if not record.room_booking_id:
+                raise UserError("No room booking record found to add lines to.")
+
+            booking = record.room_booking_id
+
+            # Prepare the adult lines based on the pax count
+            # adult_lines = [(0, 0, {
+            #     'first_name': '',
+            #     'last_name': '',
+            #     'profile': '',
+            #     'nationality': '',
+            #     'birth_date': False,
+            #     'passport_number': '',
+            #     'id_number': '',
+            #     'visa_number': '',
+            #     'id_type': '',
+            #     'phone_number': '',
+            #     'relation': ''
+            # }) for _ in range(record.pax)]
+
+            # Add adult lines to the booking's `adult_ids`
+            # booking.write({'adult_ids': adult_lines})
+
+            # Loop through the reserved room count and add each as a room line
+            room_line_vals = []
+            for _ in range(rooms_reserved_count):
+                new_booking_line = {
+                    'room_id': False,  # Room will be selected later based on room_type
+                    'checkin_date': fields.Date.today(),
+                    'checkout_date': fields.Date.today() + timedelta(days=1),
+                    'uom_qty': 1,
+                    'adult_count': record.pax,
+                    'child_count': 0,
+                    'booking_id': record.id,
+                    'room_type_name': record.room_type.id  # Assign room_type
+                }
+                room_line_vals.append((0, 0, new_booking_line))
+
+            # Add room lines to the booking's `room_line_ids`
+            booking.write({'room_line_ids': room_line_vals})
+
+
+
+
+
+
+class ResConfigSettings(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+    website_name = fields.Char(string="Website Name")
+    website_url = fields.Char(string="Website URL")
