@@ -10,8 +10,9 @@ spec:
     storage: 30Gi # Sets PV Volume
   accessModes:
     - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
   hostPath:
-    path: "/home/ubuntu/data" # Sets the volume's path
+    path: "/home/ubuntu/database" # Sets the volume's path
 
 ---
 
@@ -25,5 +26,5 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 20Gi
 

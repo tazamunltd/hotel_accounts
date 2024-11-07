@@ -15,6 +15,7 @@ spec:
       containers:
       - name: postgres
         image: postgres:15
+        imagePullPolicy: Always
         env:
         - name: POSTGRES_USER
           value: odoo
