@@ -6,8 +6,6 @@ spec:
   replicas: 1
   template:
     spec:
-      imagePullSecrets:
-      - name: regcred   
       restartPolicy: Always 
       containers:
       - name: hotel

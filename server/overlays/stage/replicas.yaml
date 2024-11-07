@@ -10,6 +10,8 @@ metadata:
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: Kustomization
 spec:
+  imagePullSecrets:
+  - name: regcred
   replicas: 2
 
 
