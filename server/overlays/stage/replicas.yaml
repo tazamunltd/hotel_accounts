@@ -10,8 +10,14 @@ metadata:
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: Kustomization
 spec:
-  imagePullSecrets:
-  - name: regcred
   replicas: 2
+  template:
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always 
+      containers:
+      - name: hotel
+        image: tazamun/hotel:stag1.0
 
 
