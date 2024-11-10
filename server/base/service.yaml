@@ -6,12 +6,10 @@ spec:
   type: NodePort
   ports:
   - name: odoo
-    nodePort: 32425
     port: 8069
     protocol: TCP
     targetPort: 8069
   - name: odoochat
-    nodePort: 32305
     port: 8071
     protocol: TCP
     targetPort: 8071
