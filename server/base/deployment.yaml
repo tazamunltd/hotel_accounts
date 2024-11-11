@@ -20,7 +20,7 @@ spec:
           protocol: TCP
         env:
         - name: HOST
-          value: postgres.default.svc.cluster.local
+          value: postgres
         - name: USER
           value: odoo
         - name: PASSWORD

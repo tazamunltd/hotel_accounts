@@ -1,7 +1,10 @@
 resources: 
 
 - deployment.yaml
+- pv.yaml
+- postgres.yaml
 - service.yaml
+
 
 commonLabels:
   app: hotel
