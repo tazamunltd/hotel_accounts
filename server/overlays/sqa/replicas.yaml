@@ -18,6 +18,6 @@ spec:
       restartPolicy: Always 
       containers:
       - name: hotel
-        image: tazamun/hotel:sqa1.0
+        image: tazamun/hotel:sqa1.1
 
 
