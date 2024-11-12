@@ -42,3 +42,5 @@ class FSMLocationInherit(models.Model):
         'dynamic.selection',
         string="Location Type"
     )
+
+    company_id = fields.Many2one('res.company', string="Hotel", )

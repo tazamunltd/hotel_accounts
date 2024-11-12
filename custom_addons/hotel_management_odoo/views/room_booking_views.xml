@@ -1,688 +1,890 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-       <record id="room_booking_view_kanban" model="ir.ui.view">
-              <field name="name">room.booking.view.kanban</field>
-              <field name="model">room.booking</field>
-              <field name="arch" type="xml">
-                     <kanban js_class="reservation_dashboard_kanban">
-                            <field name="name"/>
-                            <field name="state"/>
-                            <templates>
-                                   <t t-name="kanban-box">
-                                          <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_#{record.state.raw_value}">
-                                                 <div class="oe_kanban_details">
-                                                        <strong>
-                                                               <field name="name"/>
-                                                        </strong>
-                                                        <div>
-                                                               <span>Room Name:</span>
-                                                               <field name="room_ids_display"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Room Type:</span>
-                                                               <field name="room_type_display"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Room Count:</span>
-                                                               <field name="room_count_tree"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Guest:</span>
-                                                               <field name="partner_id"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Parent Booking:</span>
-                                                               <field name="parent_booking_name"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Group Booking:</span>
-                                                               <field name="group_booking"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Check-in Date:</span>
-                                                               <field name="checkin_date"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Check-out Date:</span>
-                                                               <field name="checkout_date"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Date of Order:</span>
-                                                               <field name="date_order"/>
-                                                        </div>
-                                                        <div>
-                                                               <span>Status:</span>
-                                                               <field name="state"/>
-                                                        </div>
-                                                 </div>
-                                          </div>
-                                   </t>
-                            </templates>
-                     </kanban>
-              </field>
-       </record>
-       <record id="room_booking_view_pivot" model="ir.ui.view">
-              <field name="name">room.booking.view.pivot</field>
-              <field name="model">room.booking</field>
-              <field name="arch" type="xml">
-                     <pivot>
-                            <field name="room_count_tree" string="Room Count" type="measure"/>
-                            <field name="state" type="row"/>
-                            <field name="checkin_date" type="col" interval="day"/>
-                            <field name="checkout_date" type="col" interval="day"/>
-                            <field name="partner_id" type="row"/>
-                     </pivot>
-              </field>
-       </record>
-       <record id="room_booking_view_graph" model="ir.ui.view">
-              <field name="name">room.booking.view.graph</field>
-              <field name="model">room.booking</field>
-              <field name="arch" type="xml">
-                     <graph string="Room Bookings" type="bar">
-                            <field name="room_count_tree" type="measure" string="Room Count"/>
-                            <field name="state" type="row"/>
-                            <field name="checkin_date" type="col" interval="day"/>
-                     </graph>
-              </field>
-       </record>
-       <record id="room_booking_view_calendar" model="ir.ui.view">
-              <field name="name">room.booking.view.calendar</field>
-              <field name="model">room.booking</field>
-              <field name="arch" type="xml">
-                     <calendar date_start="checkin_date" date_stop="checkout_date" string="Room Bookings">
-                            <field name="name"/>
-                            <field name="partner_id"/>
-                            <field name="state"/>
-                     </calendar>
-              </field>
-       </record>
-       <record id="view_product_pricelist_custom" model="ir.ui.view">
-              <field name="name">product.pricelist.form.inherit.rate.code</field>
-              <field name="model">product.pricelist</field>
-              <field name="inherit_id" ref="product.product_pricelist_view"/>
-              <!-- Reference the original view -->
-              <field name="arch" type="xml">
-                     <!-- Hiding the pricelist rules tab -->
-                     <xpath expr="//page[@name='pricelist_rules']" position="attributes">
-                            <attribute name="invisible">1</attribute>
-                     </xpath>
+    <record id="room_booking_view_kanban" model="ir.ui.view">
+        <field name="name">room.booking.view.kanban</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <kanban js_class="reservation_dashboard_kanban">
+                <field name="name"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_#{record.state.raw_value}">
+                            <div class="oe_kanban_details">
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                                <div>
+                                    <span>Room Name:</span>
+                                    <field name="room_ids_display"/>
+                                </div>
+                                <div>
+                                    <span>Room Type:</span>
+                                    <field name="room_type_display"/>
+                                </div>
+                                <div>
+                                    <span>Room Count:</span>
+                                    <field name="room_count_tree"/>
+                                </div>
+                                <div>
+                                    <span>Guest:</span>
+                                    <field name="partner_id"/>
+                                </div>
+                                <div>
+                                    <span>Parent Booking:</span>
+                                    <field name="parent_booking_name"/>
+                                </div>
+                                <div>
+                                    <span>Group Booking:</span>
+                                    <field name="group_booking"/>
+                                </div>
+                                <div>
+                                    <span>Check-in Date:</span>
+                                    <field name="checkin_date"/>
+                                </div>
+                                <div>
+                                    <span>Check-out Date:</span>
+                                    <field name="checkout_date"/>
+                                </div>
+                                <div>
+                                    <span>Date of Order:</span>
+                                    <field name="date_order"/>
+                                </div>
+                                <div>
+                                    <span>Status:</span>
+                                    <field name="state"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="room_booking_view_pivot" model="ir.ui.view">
+        <field name="name">room.booking.view.pivot</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="room_count_tree" string="Room Count" type="measure"/>
+                <field name="state" type="row"/>
+                <field name="checkin_date" type="col" interval="day"/>
+                <field name="checkout_date" type="col" interval="day"/>
+                <field name="partner_id" type="row"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="room_booking_view_graph" model="ir.ui.view">
+        <field name="name">room.booking.view.graph</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <graph string="Room Bookings" type="bar">
+                <field name="room_count_tree" type="measure" string="Room Count"/>
+                <field name="state" type="row"/>
+                <field name="checkin_date" type="col" interval="day"/>
+            </graph>
+        </field>
+    </record>
+    <record id="room_booking_view_calendar" model="ir.ui.view">
+        <field name="name">room.booking.view.calendar</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <calendar date_start="checkin_date" date_stop="checkout_date" string="Room Bookings">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+    <record id="view_product_pricelist_custom" model="ir.ui.view">
+        <field name="name">product.pricelist.form.inherit.rate.code</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <!-- Reference the original view -->
+        <field name="arch" type="xml">
+            <!-- Hiding the pricelist rules tab -->
+            <xpath expr="//page[@name='pricelist_rules']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
 
-                     <!-- Adding a new page for Rate Code before the Configuration page -->
-                     <xpath expr="//notebook/page[@name='pricelist_config']" position="before">
-                            <page name="rate_code_config" string="Rate Code">
-                                   <field name="rate_code_ids" widget="one2many_list">
-                                          <tree string="Rate Codes">
-                                                 <field name="code"/>
-                                                 <field name="description"/>
-                                                 <field name="abbreviation"/>
-                                                 <field name="arabic_desc"/>
-                                                 <field name="arabic_abbr"/>
-                                                 <field name="rate_code_category_id"/>
-                                          </tree>
-                                   </field>
-                            </page>
-                     </xpath>
-              </field>
-       </record>
-
-
-       <record id="view_room_booking_search" model="ir.ui.view">
-              <field name="name">room.booking.search.view</field>
-              <field name="model">room.booking</field>
-              <field name="arch" type="xml">
-                     <search string="Room Booking">
-                            <!-- Search by customer -->
-                            <field name="name" string="Folio Number"/>
-                            <field name="partner_id" string="Customer"/>
-                            <!-- Optional: Add other fields you want to search by -->
-                            <!--                <field name="date_order" string="Order Date"/>-->
-                            <!--                <field name="state" string="State"/>-->
-                     </search>
-              </field>
-       </record>
+            <!-- Adding a new page for Rate Code before the Configuration page -->
+            <xpath expr="//notebook/page[@name='pricelist_config']" position="before">
+                <page name="rate_code_config" string="Rate Code">
+                    <field name="rate_code_ids" widget="one2many_list">
+                        <tree string="Rate Codes">
+                            <field name="code"/>
+                            <field name="description"/>
+                            <field name="abbreviation"/>
+                            <field name="arabic_desc"/>
+                            <field name="arabic_abbr"/>
+                            <field name="rate_code_category_id"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
 
 
+    <record id="view_room_booking_search" model="ir.ui.view">
+        <field name="name">room.booking.search.view</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <search string="Room Booking">
+                <!-- Search by customer -->
+                <field name="name" string="Folio Number"/>
+                <field name="partner_id" string="Customer"/>
+                <!-- Optional: Add other fields you want to search by -->
+                <!--                <field name="date_order" string="Order Date"/>-->
+                <!--                <field name="state" string="State"/>-->
+            </search>
+        </field>
+    </record>
 
-       <!--     Room Booking Form View -->
-       <record id="room_booking_view_form" model="ir.ui.view">
-              <field name="name">room.booking.view.form</field>
-              <field name="model">room.booking</field>
-              <field name="arch" type="xml">
-                     <form>
-                            <!-- <header> -->
-                            <!-- <button name="action_reserve" string="Reserve" invisible="state != 'draft'" type="object" class="btn-primary"/>
-                    <button name="action_checkin" string="Check-In" class="btn-primary" invisible="is_checkin == True or state in ('check_in','check_out','done','cancel')" type="object"/> -->
-                            <!-- <button name="action_maintenance_request" string="Maintenance Request" type="object" class="btn-primary" invisible=" maintenance_request_sent == True or  state not in ('check_in', 'reserved')"/> -->
-                            <!-- <button name="action_checkout" string="Check-Out" class="btn-primary" invisible="state != 'check_in'" type="object"/>
+
+    <!--     Room Booking Form View -->
+    <record id="room_booking_view_form" model="ir.ui.view">
+        <field name="name">room.booking.view.form</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- <header> -->
+                <!-- <button name="action_reserve" string="Reserve" invisible="state != 'draft'" type="object" class="btn-primary"/>
+        <button name="action_checkin" string="Check-In" class="btn-primary" invisible="is_checkin == True or state in ('check_in','check_out','done','cancel')" type="object"/> -->
+                <!-- <button name="action_maintenance_request" string="Maintenance Request" type="object" class="btn-primary" invisible=" maintenance_request_sent == True or  state not in ('check_in', 'reserved')"/> -->
+                <!-- <button name="action_checkout" string="Check-Out" class="btn-primary" invisible="state != 'check_in'" type="object"/>
+        <button name="action_done" string="Set as Done" class="btn-primary" invisible="state != 'check_out'" type="object"/>
+        <button name="action_invoice" string="Create Invoice" type="object" class="btn-primary" invisible="state not in ('draft', 'done') or invoice_button_visible == True"/>
+        <button name="action_cancel" string="Cancel" invisible="state not in ('draft','reserved','check_out')" type="object" class="btn-secondary"/>
+        <field name="state" select="2" widget="statusbar" statusbar_visible="not_confirmed,draft,confirmed,waiting,no_show,block,check_in,check_out,done"/>
+        <field name="invoice_status" select="2" widget="statusbar" invisible="1"/>
+    </header> -->
+                <header>
+                    <!-- Confirm Button: Visible when state is 'Not Confirmed', 'Block', 'No Show', or 'Waiting' -->
+                    <button name="action_confirm" string="Confirm" class="btn-primary" invisible="state not in ('not_confirmed', 'block', 'no_show', 'waiting')" type="object"/>
+
+                    <!-- Cancel Button: Visible when state is 'Not Confirmed', 'Confirmed', or 'Waiting' -->
+                    <button name="action_cancel" string="Cancel" class="btn-secondary" invisible="state not in ('not_confirmed', 'confirmed', 'waiting')" type="object"/>
+
+                    <!-- Waiting List Button: Visible when state is 'Not Confirmed' or 'Confirmed' -->
+                    <button name="action_waiting" string="Waiting List" class="btn-primary" invisible="state not in ('not_confirmed', 'confirmed')" type="object"/>
+
+                    <!-- Block Button: Visible when state is 'Confirmed', 'CheckIn', or 'No Show' -->
+                    <button name="action_block" string="Block" class="btn-primary" invisible="state not in ('confirmed', 'check_in', 'no_show')" type="object"/>
+
+                    <!-- Not Confirmed Button: Visible when state is 'Confirmed', 'Cancel', or 'Waiting' -->
+                    <button name="action_unconfirm" string="Not Confirmed" class="btn-secondary" invisible="state not in ('confirmed', 'cancel', 'waiting')" type="object"/>
+
+                    <!-- Check-In Button: Visible when state is 'Block' or 'Check-Out' -->
+                    <button name="action_checkin" string="Check-In" class="btn-primary" invisible="state not in ('block', 'check_out')" type="object"/>
+
+                    <!-- Check-Out Button: Visible only when state is 'Check-In' -->
+                    <button name="action_checkout" string="Check-Out" class="btn-primary" invisible="state != 'check_in'" type="object"/>
+
+                    <!-- Set as Done Button: Visible only when state is 'Check-Out' -->
                     <button name="action_done" string="Set as Done" class="btn-primary" invisible="state != 'check_out'" type="object"/>
-                    <button name="action_invoice" string="Create Invoice" type="object" class="btn-primary" invisible="state not in ('draft', 'done') or invoice_button_visible == True"/>
-                    <button name="action_cancel" string="Cancel" invisible="state not in ('draft','reserved','check_out')" type="object" class="btn-secondary"/>
-                    <field name="state" select="2" widget="statusbar" statusbar_visible="not_confirmed,draft,confirmed,waiting,no_show,block,check_in,check_out,done"/>
-                    <field name="invoice_status" select="2" widget="statusbar" invisible="1"/>
-                </header> -->
-                            <header>
-                                   <!-- Confirm Button -->
-                                   <button name="action_confirm" string="Confirm" class="btn-primary" invisible="state != 'not_confirmed'" type="object"/>
 
-                                   <!-- Cancel Button -->
-                                   <button name="action_cancel" string="Cancel" class="btn-secondary" invisible="state not in ('not_confirmed', 'confirmed', 'block')" type="object"/>
+                    <!-- Create Invoice Button: Visible when state is 'Draft' or 'Done' -->
+                    <button name="action_invoice" string="Create Invoice" class="btn-primary" invisible="state not in ('draft', 'done') or invoice_button_visible == True" type="object"/>
 
-                                   <!-- Block Button (Visible when in Confirmed state) -->
-                                   <button name="action_block" string="Block" class="btn-primary" invisible="state != 'confirmed'" type="object"/>
+                    <!-- No Show Button: Visible when state is 'Block' or 'Check-In' -->
+                    <button name="no_show" string="No Show" class="btn-danger" invisible="state not in ('block', 'check_in')" type="object"/>
 
-                                   <!-- Check-In Button (Visible when in Block state) -->
-                                   <button name="action_checkin" string="Check-In" class="btn-primary" invisible="state != 'block' or is_checkin == True or state in ('check_in','check_out','done','cancel')" type="object"/>
+                    <!-- Statusbar Fields -->
+                    <field name="state" widget="statusbar" statusbar_visible="not_confirmed,confirmed,waiting,no_show,block,check_in,check_out,done,cancel"/>
 
-                                   <!-- Check-Out Button -->
-                                   <button name="action_checkout" string="Check-Out" class="btn-primary" invisible="state != 'check_in'" type="object"/>
+                    <field name="invoice_status" widget="statusbar" invisible="1"/>
+                </header>
 
-                                   <!-- Set as Done Button -->
-                                   <button name="action_done" string="Set as Done" class="btn-primary" invisible="state != 'check_out'" type="object"/>
-
-                                   <!-- Create Invoice Button -->
-                                   <button name="action_invoice" string="Create Invoice" class="btn-primary" invisible="state not in ('draft', 'done') or invoice_button_visible == True" type="object"/>
-
-                                   <!-- Statusbar Fields -->
-                                   <field name="state" widget="statusbar" statusbar_visible="not_confirmed,confirmed,waiting,no_show,block,check_in,check_out,done"/>
-
-                                   <field name="invoice_status" widget="statusbar" invisible="1"/>
-                            </header>
+                <header>
+                    <field name="reservation_status_count_as" widget="statusbar" statusbar_visible="not_confirmed,confirmed,wait_list,release,cancelled"/>
+                </header>
 
 
-                            <sheet>
-                                   <notebook>
-                                          <page string="Main">
-                                                 <group>
-                                                        <!-- <group string="State"> -->
-                                                               <!-- <field name="state" readonly="state in ['block']"></field> -->
-                                                        <field name="state" string="State" readonly="1"></field>
-                                                        <!-- </group> -->
-                                                        <!-- Invisible Fields -->
-                                                        <field name="is_checkin" invisible="1"/>
-                                                        <field name="checkin_date" invisible="1"/>
-                                                        <field name="checkout_date" invisible="1"/>
-                                                        <field name="duration" readonly="1" invisible="1"/>
-                                                        <field name="duration_visible" invisible="1"/>
-                                                        <field name="invoice_button_visible" invisible="1"/>
-                                                        <field name="maintenance_request_sent" invisible="1"/>
-                                                        <group>
-                                                               <field name="company_id" placeholder="Select Hotel"/>
-                                                               <!--                            <field name="hotel_id"/>-->
-                                                               <field name="parent_booking"/>
-                                                               <field name="group_booking"/>
-                                                               <field name="is_agent"/>
-                                                               <!-- <field name="agent"/> -->
-                                                               <field name="partner_id" options="{'no_create': False}" domain="[('is_company', '=', is_agent)]"/>
-                                                               <field name="reference_contact"/>
-                                                               <field name="id_number"/>
-                                                               <field name="house_use"/>
-                                                               <!-- <field name="vip"/>
-                                    <field name="vip_code" invisible="vip == False"/> -->
-                                                               <field name="is_vip" invisible="1"/>
-                                                               <field name="vip_code" invisible="is_vip == False"/>
-                                                               <field name="complementary"/>
-                                                               <field name="allow_profile_change" invisible="1"/>
-                                                               <field name="nationality" readonly="allow_profile_change == False and group_booking == True"/>
-                                                               <!-- <field name="passport"/> -->
-                                                               <field name="source_of_business" readonly="allow_profile_change == False and group_booking == True"/>
-                                                               <field name="meal_pattern" readonly="allow_profile_change == False and group_booking == True"/>
-                                                               <field name="market_segment" readonly="allow_profile_change == False and group_booking == True"/>
-                                                               <field name= "room_price"/>
-                                                               <field name= "meal_price"/>
-                                                               <field name="rate_code" readonly="allow_profile_change == False and group_booking == True"/>
-                                                        </group>
+                <sheet>
+                    <notebook>
+                        <page string="Main">
+                            <group>
+                                <!-- <group string="State"> -->
+                                <!-- <field name="state" readonly="state in ['block']"></field> -->
+                                <field name="state" string="State" readonly="1"></field>
+                                <!-- </group> -->
+                                <!-- Invisible Fields -->
+                                <field name="is_checkin" invisible="1"/>
+                                <field name="checkin_date" invisible="1"/>
+                                <field name="checkout_date" invisible="1"/>
+                                <field name="duration" readonly="1" invisible="1"/>
+                                <field name="duration_visible" invisible="1"/>
+                                <field name="invoice_button_visible" invisible="1"/>
+                                <field name="maintenance_request_sent" invisible="1"/>
+                                <group>
+                                    <field name="company_id" placeholder="Select Hotel"/>
+                                    <!--                            <field name="hotel_id"/>-->
+                                    <field name="parent_booking"/>
+                                    <field name="no_show_" widget="boolean_toggle"/>
+                                    <field name="group_booking"/>
+                                    <field name="is_agent"/>
 
-                                                        <group string="Hotel Booking" class="booking-group" invisible="state in ['block']">
-                                                               
-                                                               <group>
-                                                                      <!-- Arrange Rooms, Adults, and Children vertically -->
-                                                                      <group class="vertical-counter-group">
-                                                                             <!-- Rooms -->
-                                                                             <label for="room_count" string="Rooms"/>
-                                                                             <div class="o_field_widget o_input">
-                                                                                    <div class="input-group">
-                                                                                           <button type="object" name="decrease_room_count" class="btn btn-secondary" style="border-right: none;">
-                                                                                  -
-                                                                                           </button>
-                                                                                           <field name="room_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;"/>
-                                                                                           <button type="object" name="increase_room_count" class="btn btn-primary" style="border-left: none;">
-                                                                                  +
-                                                                                           </button>
-                                                                                    </div>
-                                                                             </div>
+                                    <!-- <field name="agent"/> -->
+                                    <field name="partner_id" options="{'no_create': False}" domain="[('is_company', '=', is_agent)]" required="true"/>
+                                    <field name="reference_contact" required="true"/>
+                                    <!-- <field name="id_number"/> -->
+                                    <field name="house_use"/>
+                                    <!-- <field name="vip"/>
+         <field name="vip_code" invisible="vip == False"/> -->
+                                    <field name="is_vip" invisible="1"/>
+                                    <field name="vip_code" invisible="is_vip == False"/>
+                                    <field name="complementary"/>
+                                    <field name="allow_profile_change" invisible="1"/>
+                                    <field name="nationality" readonly="allow_profile_change == False and group_booking == True"/>
+                                    <!-- <field name="passport"/> -->
+                                    <field name="source_of_business" readonly="allow_profile_change == False and group_booking == True"/>
+                                    <field name="meal_pattern" readonly="allow_profile_change == False and group_booking == True"/>
+                                    <field name="market_segment" readonly="allow_profile_change == False and group_booking == True"/>
+                                    <field name="room_price"/>
+                                    <field name="meal_price"/>
+                                    <field name="rate_code" readonly="allow_profile_change == False and group_booking == True"/>
+                                </group>
 
-                                                                             <!-- Adults -->
-                                                                             <label for="adult_count" string="Adults"/>
-                                                                             <div class="o_field_widget o_input">
-                                                                                    <div class="input-group">
-                                                                                           <button type="object" name="decrease_adult_count" class="btn btn-secondary" style="border-right: none;">
-                                                                                  -
-                                                                                           </button>
-                                                                                           <field name="adult_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;"/>
-                                                                                           <button type="object" name="increase_adult_count" class="btn btn-primary" style="border-left: none;">
-                                                                                  +
-                                                                                           </button>
-                                                                                    </div>
-                                                                             </div>
+                                <group string="Hotel Booking" class="booking-group">
 
-                                                                             <!-- Children -->
-                                                                             <label for="child_count" string="Children"/>
-                                                                             <div class="o_field_widget o_input">
-                                                                                    <div class="input-group">
-                                                                                           <button type="object" name="decrease_child_count" class="btn btn-secondary" style="border-right: none;">
-                                                                                  -
-                                                                                           </button>
-                                                                                           <field name="child_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;"/>
-                                                                                           <button type="object" name="increase_child_count" class="btn btn-primary" style="border-left: none;">
-                                                                                  +
-                                                                                           </button>
-                                                                                    </div>
-                                                                             </div>
-                                                                      </group>
-                                                               </group>
+                                    <group>
+                                        <!-- Arrange Rooms, Adults, and Children vertically -->
+                                        <group class="vertical-counter-group">
+                                            <!-- Rooms -->
+                                            <label for="room_count" string="Rooms"/>
+                                            <div class="o_field_widget o_input">
+                                                <div class="input-group">
+                                                    <!-- Decrease Button -->
+                                                    <button type="object" name="decrease_room_count" class="btn btn-secondary" style="border-right: none;" modifiers="{'invisible': [('state', '=', 'block')]}">
+                                                        -
+                                                    </button>
 
-                                                               <group>
-                                                                      <field name="checkin_date" placeholder="Select check-in date"/>
-                                                                      <field name="checkout_date" placeholder="Select check-out date"/>
-                                                                      <field name="hotel_room_type" placeholder="Select Room Type"/>
-                                                                      <div class="button-group" style="display: inline-flex;">
-                                                                             <div style="margin-right: 20px;">
-                                                                                    <button name="button_find_rooms" type="object" string="Split Rooms" class="oe_highlight"/>
-                                                                             </div>
-                                                                      </div>
-                                                               </group>
-                                                               <group>
-                                                                      <field name="date_order"/>
-                                                                      <field name="pricelist_id"/>
-                                                                      <field name="need_service" invisible=" state not in ['check_in']"/>
-                                                                      <field name="need_fleet" invisible=" state not in ['check_in']"/>
-                                                                      <field name="need_food" invisible=" state not in ['check_in']"/>
-                                                                      <field name="need_event" invisible=" state not in ['check_in']"/>
-                                                               </group>
-                                                        </group>
+                                                    <!-- Room Count Field -->
+                                                    <field name="room_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;" modifiers="{'readonly': [('state', '=', 'block')]}"/>
 
+                                                    <!-- Increase Button -->
+                                                    <button type="object" name="increase_room_count" class="btn btn-primary" style="border-left: none;" modifiers="{'invisible': [('state', '=', 'block')]}">
+                                                        +
+                                                    </button>
+                                                </div>
 
-                                                        
-                                                        <group>
-                                                               <group string="Rate Details">
-                                                                   <table class="o_list_view table table-condensed table-striped" style="width: 100%;">
-                                                                       <thead>
-                                                                             <tr>
-                                                                                    <th style="padding: 15px; text-align: left; white-space: nowrap; width: 200px;">Day</th>
-                                                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">1 Pax</th>
-                                                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">2 Pax</th>
-                                                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">3 Pax</th>
-                                                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">4 Pax</th>
-                                                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">5 Pax</th>
-                                                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">6 Pax</th>
-                                                                             </tr>
-                                                                       </thead>
-                                                                       <tbody>
-                                                                           <tr>
-                                                                               <td style="padding: 25px; white-space: nowrap; font-weight: bold;">Monday</td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="monday_pax_1_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="monday_pax_2_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="monday_pax_3_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="monday_pax_4_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="monday_pax_5_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="monday_pax_6_rb"/></td>
-                                                                           </tr>
-                                                                           <tr>
-                                                                               <td style="padding: 15px; white-space: nowrap; font-weight: bold;">Tuesday</td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="tuesday_pax_1_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="tuesday_pax_2_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="tuesday_pax_3_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="tuesday_pax_4_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="tuesday_pax_5_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="tuesday_pax_6_rb"/></td>
-                                                                           </tr>
-                                                                           <tr>
-                                                                             <td style="padding: 15px; white-space: nowrap; font-weight: bold;">Wedneday</td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="wednesday_pax_1_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="wednesday_pax_2_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="wednesday_pax_3_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="wednesday_pax_4_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="wednesday_pax_5_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="wednesday_pax_6_rb"/></td>
-                                                                         </tr>
-                                                                         <tr>
-                                                                             <td style="padding: 15px; white-space: nowrap; font-weight: bold;">Thursday</td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="thursday_pax_1_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="thursday_pax_2_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="thursday_pax_3_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="thursday_pax_4_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="thursday_pax_5_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="thursday_pax_6_rb"/></td>
-                                                                         </tr>
-                                                                         <tr>
-                                                                             <td style="padding: 15px; white-space: nowrap; font-weight: bold;">Friday</td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="friday_pax_1_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="friday_pax_2_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="friday_pax_3_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="friday_pax_4_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="friday_pax_5_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="friday_pax_6_rb"/></td>
-                                                                         </tr>
-                                                                         <tr>
-                                                                             <td style="padding: 15px; white-space: nowrap; font-weight: bold;">Saturday</td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="saturday_pax_1_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="saturday_pax_2_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="saturday_pax_3_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="saturday_pax_4_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="saturday_pax_5_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="saturday_pax_6_rb"/></td>
-                                                                         </tr>
-                                                                         <tr>
-                                                                             <td style="padding: 15px; white-space: nowrap; font-weight: bold;">Sunday</td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="sunday_pax_1_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="sunday_pax_2_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="sunday_pax_3_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="sunday_pax_4_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="sunday_pax_5_rb"/></td>
-                                                                             <td style="padding: 15px; white-space: nowrap;"><field name="sunday_pax_6_rb"/></td>
-                                                                         </tr>
-                                                                           <!-- Repeat similarly for the other days -->
-                                                                           <tr>
-                                                                               <td style="padding: 15px; white-space: nowrap; font-weight: bold;">Default</td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="pax_1_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="pax_2_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="pax_3_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="pax_4_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="pax_5_rb"/></td>
-                                                                               <td style="padding: 15px; white-space: nowrap;"><field name="pax_6_rb"/></td>
-                                                                           </tr>
-                                                                       </tbody>
-                                                                   </table>
-                                                               </group>
-                                                           </group>
-                                                           
-                                                        <group string="Payment Type">
-                                                               <field name="payment_type" widget="radio"/>
-                                                        </group>
-                                                 </group>
+                                            </div>
 
-                                          </page>
-                                          <page string="Adults">
-                                                 <field name="adult_ids" options="{'invisible': [('adult_count', '=', 0)]}">
-                                                        <tree string="Adults" editable="top" create="false">
-                                                               <field name="first_name"/>
-                                                               <field name="last_name"/>
-                                                               <field name="profile"/>
-                                                               <field name="nationality"/>
-                                                               <field name="birth_date"/>
-                                                               <field name="passport_number"/>
-                                                               <field name="id_number"/>
-                                                               <field name="visa_number"/>
-                                                               <field name="id_type"/>
-                                                               <field name="phone_number"/>
-                                                               <field name="relation"/>
-                                                        </tree>
-                                                 </field>
-                                          </page>
-                                          <page string="Children">
-                                                 <field name="child_ids" options="{'invisible': [('child_count', '=', 0)]}">
-                                                        <tree string="Children" editable="top" create="false">
-                                                               <field name="first_name"/>
-                                                               <field name="last_name"/>
-                                                               <field name="profile"/>
-                                                               <field name="nationality"/>
-                                                               <field name="birth_date"/>
-                                                               <field name="passport_number"/>
-                                                               <field name="id_number"/>
-                                                               <field name="visa_number"/>
-                                                               <field name="id_type"/>
-                                                               <field name="phone_number"/>
-                                                               <field name="relation"/>
-                                                        </tree>
-                                                 </field>
-                                          </page>
-                                   </notebook>
-                                   <div name="button_box" position="inside">
-                                          <button class="oe_stat_button" type="object" name="action_view_invoices" invisible="invoice_status != 'invoiced'" icon="fa-edit">
-                                                 <field string="Invoices" name="invoice_count" widget="statinfo"/>
-                                          </button>
-                                   </div>
-                                   <!-- <div>
-                        <h1>
-                            <field name="name" colspan="4"/>
-                        </h1>
-                    </div> -->
+                                            <!-- Adults -->
+                                            <label for="adult_count" string="Adults"/>
+                                            <div class="o_field_widget o_input">
+                                                <div class="input-group">
+                                                    <button type="object" name="decrease_adult_count" class="btn btn-secondary" style="border-right: none;" readonly="state in ('block')">
+                                                        -
+                                                    </button>
+                                                    <field name="adult_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;"/>
+                                                    <button type="object" name="increase_adult_count" class="btn btn-primary" style="border-left: none;" readonly="state in ('block')">
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
 
-                                   <notebook>
-                                          <page name="folio" string="Folio">
-                                                 <field name="total_people" invisible="1"/>
-                                                 <field name="room_line_ids" colspan="4" string="Room Lines" context="{'default_checkin_date':checkin_date, 'default_checkout_date':checkout_date, 'default_uom_qty':duration}">
-                                                        <tree editable="bottom">
-                                                               <field name="room_id" string="Room" required="1" domain="[('num_person', '>=', parent.total_people), ('status', '=', 'available')]" options="{'no_open': True, 'no_create': True}" placeholder="Select rooms"/>
-                                                               <field name="room_type_name" readonly="1"/>
-                                                               <field name="adult_count" readonly="1"/>
-                                                               <field name="child_count" readonly="1"/>
-                                                               <field name="checkin_date"/>
-                                                               <field name="booking_line_visible" invisible="1"/>
-                                                               <field name="checkout_date"/>
-                                                               <field name="uom_qty" string="Duration" force_save="1"/>
-                                                               <field name="uom_id" readonly="booking_line_visible == True" string="Unit of Measure" options="{'no_open': True, 'no_create': True}"/>
-                                                               <field name="price_unit" readonly="booking_line_visible == True"/>
-                                                               <field name="tax_ids" readonly="booking_line_visible == True " options="{'no_create': True}" widget="many2many_tags"/>
-                                                               <field name="price_subtotal" widget="monetary" readonly="booking_line_visible == True"/>
-                                                               <field groups="account.group_account_manager" name="price_total" widget="monetary" readonly="booking_line_visible == True"/>
-                                                        </tree>
-                                                 </field>
-                                                 <group colspan="2" class="oe_subtotal_footer oe_right">
-                                                        <field name="amount_untaxed_room" sum="Untaxed amount for Room" widget="monetary"/>
-                                                        <field name="amount_untaxed_food" sum="Untaxed amount for Food" widget="monetary" invisible="need_food == False"/>
-                                                        <field name="amount_untaxed_service" sum="Untaxed amount for Service" widget="monetary" invisible="need_service == False"/>
-                                                        <field name="amount_untaxed_fleet" sum="Untaxed amount for Fleet" widget="monetary" invisible="need_fleet == False"/>
-                                                        <field name="amount_untaxed_event" sum="Untaxed amount for Event" widget="monetary" invisible="need_event == False"/>
-                                                        <field name="amount_untaxed" sum="Untaxed amount" widget="monetary"/>
-                                                        <field name="amount_tax" widget="monetary"/>
-                                                        <label for="amount_total"/>
-                                                        <field name="amount_total" nolabel="1" sum="Total amount" widget="monetary"/>
-                                                 </group>
-                                                 <div class="oe_clear"/>
-                                          </page>
-                                          <page name="food" string="Food" invisible="need_food == False ">
-                                                 <field name="food_order_line_ids" colspan="4" string="Food Lines">
-                                                        <tree editable="bottom">
-                                                               <field name="food_id" string="Product" required="1" options="{'no_open': True,'no_create': True}"/>
-                                                               <field name="description"/>
-                                                               <field name="uom_qty" string="Qty" force_save="1"/>
-                                                               <field name="uom_id" string="Unit of Measure" options="{'no_open': True,'no_create': True}"/>
-                                                               <field name="price_unit"/>
-                                                               <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
-                                                               <field name="price_subtotal" widget="monetary"/>
-                                                               <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
-                                                        </tree>
-                                                 </field>
-                                                 <group colspan="2" class="oe_subtotal_footer oe_right">
-                                                        <field name="amount_untaxed_food" sum="Untaxed amount for Food" widget="monetary"/>
-                                                        <field name="amount_taxed_food" widget="monetary"/>
-                                                        <label for="amount_total_food"/>
-                                                        <field name="amount_total_food" nolabel="1" sum="Total amount" widget="monetary"/>
-                                                 </group>
-                                                 <div class="oe_clear"/>
-                                          </page>
-                                          <page name="service" string="Service" invisible="need_service == False">
-                                                 <field name="service_line_ids" colspan="4" string="Service Lines">
-                                                        <tree editable="bottom">
-                                                               <field name="service_id" string="Service" required="1" options="{'no_open': True,'no_create': True}"/>
-                                                               <field name="description"/>
-                                                               <field name="uom_qty" string="Qty" force_save="1"/>
-                                                               <field name="uom_id" string="Unit of Measure" options="{'no_open': True,'no_create': True}"/>
-                                                               <field name="price_unit"/>
-                                                               <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
-                                                               <field name="price_subtotal" widget="monetary"/>
-                                                               <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
-                                                        </tree>
-                                                 </field>
-                                                 <group colspan="2" class="oe_subtotal_footer oe_right">
-                                                        <field name="amount_untaxed_service" sum="Untaxed amount for Service" widget="monetary"/>
-                                                        <field name="amount_taxed_service" widget="monetary"/>
-                                                        <label for="amount_total_service"/>
-                                                        <field name="amount_total_service" nolabel="1" sum="Total amount" widget="monetary"/>
-                                                 </group>
-                                                 <div class="oe_clear"/>
-                                          </page>
-                                          <page name="fleet" string="Fleet" invisible="need_fleet == False">
-                                                 <field name="vehicle_line_ids" colspan="4" string="Fleet Lines">
-                                                        <tree editable="bottom">
-                                                               <field name="fleet_id" string="Vehicle" required="1" options="{'no_open': True,'no_create': True}"/>
-                                                               <field name="description"/>
-                                                               <field name="uom_qty" string="Allotted KM" force_save="1"/>
-                                                               <field name="uom_id" string="Unit of Measure" options="{'no_open': True, 'no_create': True}"/>
-                                                               <field name="price_unit"/>
-                                                               <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
-                                                               <field name="price_subtotal" widget="monetary"/>
-                                                               <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
-                                                        </tree>
-                                                 </field>
-                                                 <group colspan="2" class="oe_subtotal_footer oe_right">
-                                                        <field name="amount_untaxed_fleet" sum="Untaxed amount for Fleet" widget="monetary"/>
-                                                        <field name="amount_taxed_fleet" widget="monetary"/>
-                                                        <label for="amount_total_fleet"/>
-                                                        <field name="amount_total_fleet" nolabel="1" sum="Total amount" widget="monetary"/>
-                                                 </group>
-                                                 <div class="oe_clear"/>
-                                          </page>
-                                          <page name="event" string="Events" invisible=" need_event == False ">
-                                                 <field name="event_line_ids" colspan="4" string="Event Lines">
-                                                        <tree editable="bottom">
-                                                               <field name="event_id" string="Event" required="1" options="{'no_open': True,'no_create': True}"/>
-                                                               <field name="description"/>
-                                                               <field name="ticket_id" string="Ticket" required="1"/>
-                                                               <field name="uom_qty" string="Qty" force_save="1"/>
-                                                               <field name="uom_id" string="Unit of Measure" options="{'no_open': True, 'no_create': True}"/>
-                                                               <field name="price_unit"/>
-                                                               <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
-                                                               <field name="price_subtotal" widget="monetary"/>
-                                                               <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
-                                                        </tree>
-                                                 </field>
-                                                 <group colspan="2" class="oe_subtotal_footer oe_right">
-                                                        <field name="amount_untaxed_event" sum="Untaxed amount for Event" widget="monetary"/>
-                                                        <field name="amount_taxed_event" widget="monetary"/>
-                                                        <label for="amount_total_event"/>
-                                                        <field name="amount_total_event" nolabel="1" sum="Total amount" widget="monetary"/>
-                                                 </group>
-                                                 <div class="oe_clear"/>
-                                          </page>
-                                   </notebook>
-                            </sheet>
-                     </form>
-              </field>
-       </record>
+                                            <!-- Children -->
+                                            <label for="child_count" string="Children"/>
+                                            <div class="o_field_widget o_input">
+                                                <div class="input-group">
+                                                    <button type="object" name="decrease_child_count" class="btn btn-secondary" style="border-right: none;" readonly="state in ('block')">
+                                                        -
+                                                    </button>
+                                                    <field name="child_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;"/>
+                                                    <button type="object" name="increase_child_count" class="btn btn-primary" style="border-left: none;" readonly="state in ('block')">
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </group>
+                                    </group>
+
+                                    <group>
+                                        <field name="checkin_date" placeholder="Select check-in date" readonly="state in ('block')"/>
+                                        <field name="checkout_date" placeholder="Select check-out date" readonly="state in ('block')"/>
+                                        <field name="hotel_room_type" placeholder="Select Room Type" readonly="state in ('block')"/>
+                                        <!--                                        <div class="button-group" style="display: inline-flex;">-->
+                                        <div style="margin-right: 20px;">
+                                            <!--                                                                                    <button name="button_find_rooms" type="object" string="Split Rooms" class="oe_highlight"/>-->
+                                            <button name="action_search_rooms" type="object" string="Search Rooms" class="oe_highlight" invisible="state in ('block')"/>
+                                        </div>
+                                        <div style="margin-right: 20px;">
+                                            <!--                                                                                    <button name="button_find_rooms" type="object" string="Split Rooms" class="oe_highlight"/>-->
+                                            <button name="action_split_rooms" type="object" string="Split All Rooms" class="oe_highlight" invisible="state in ('block')"/>
+                                        </div>
+                                        <div style="margin-right: 20px;">
+                                            <button name="action_clear_rooms" type="object" string="Clear All Rooms" class="oe_highlight" context="{'clear_search_results': True}" invisible="state in ('block')"/>
+                                        </div>
+                                        <div style="margin-right: 20px;">
+                                            <button name="action_assign_all_rooms" type="object" string="Assign All Rooms" class="oe_highlight" invisible="state in ('block')"/>
+                                        </div>
+                                        <!--                                        </div>-->
+                                    </group>
+                                    <group>
+                                        <field name="date_order" readonly="state in ('block')"/>
+                                        <field name="pricelist_id"/>
+                                        <field name="need_service" />
+                                        <field name="need_fleet" />
+                                        <field name="need_food"/>
+                                        <field name="need_event"/>
+                                    </group>
+                                </group>
 
 
-       <!--     Room Booking Tree view -->
-       <record id="room_booking_view_tree" model="ir.ui.view">
-              <field name="name">room.booking.view.tree</field>
-              <field name="model">room.booking</field>
-              <field name="arch" type="xml">
-                     <tree js_class="reservation_dashboard_list">
-                            <header>
-                                   <button name="action_confirm_booking" string="Confirm" type="object" class="btn-primary"/>
-                                   <button name="action_cancel_booking" string="Cancel" type="object" class="btn-danger"/>
-                                   <button name="action_checkin_booking" string="Check-in" type="object" class="btn-primary"/>
-                                   <button name="action_checkout_booking" string="Check-out" type="object" class="btn-primary"/>
-                            </header>
-                            <field name="name"/>
-                            <field name="room_ids_display" string="Room Name"/>
-                            <field name="room_type_display" string="Room Type"/>
-                            <field name="room_count_tree"/>
-                            <field name="partner_id"/>
-                            <field name="reference_contact"/>
-                            <field name="parent_booking_name"/>
-                            <field name="group_booking"/>
-                            <field name="checkin_date"/>
-                            <field name="checkout_date"/>
-                            <field name="date_order"/>
-                            <field name="state"/>
-                     </tree>
-              </field>
-       </record>
+                                <group>
+                                    <group string="Rate Details">
+                                        <table class="o_list_view table table-condensed table-striped" style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="padding: 15px; text-align: left; white-space: nowrap; width: 200px;">
+                                                        Day
+                                                    </th>
+                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
+                                                        1 Pax
+                                                    </th>
+                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
+                                                        2 Pax
+                                                    </th>
+                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
+                                                        3 Pax
+                                                    </th>
+                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
+                                                        4 Pax
+                                                    </th>
+                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
+                                                        5 Pax
+                                                    </th>
+                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
+                                                        6 Pax
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="padding: 25px; white-space: nowrap; font-weight: bold;">
+                                                        Monday
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="monday_pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="monday_pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="monday_pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="monday_pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="monday_pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="monday_pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
+                                                        Tuesday
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="tuesday_pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="tuesday_pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="tuesday_pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="tuesday_pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="tuesday_pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="tuesday_pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
+                                                        Wedneday
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="wednesday_pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="wednesday_pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="wednesday_pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="wednesday_pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="wednesday_pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="wednesday_pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
+                                                        Thursday
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="thursday_pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="thursday_pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="thursday_pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="thursday_pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="thursday_pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="thursday_pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
+                                                        Friday
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="friday_pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="friday_pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="friday_pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="friday_pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="friday_pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="friday_pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
+                                                        Saturday
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="saturday_pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="saturday_pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="saturday_pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="saturday_pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="saturday_pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="saturday_pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
+                                                        Sunday
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="sunday_pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="sunday_pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="sunday_pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="sunday_pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="sunday_pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="sunday_pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                                <!-- Repeat similarly for the other days -->
+                                                <tr>
+                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
+                                                        Default
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="pax_1_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="pax_2_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="pax_3_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="pax_4_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="pax_5_rb"/>
+                                                    </td>
+                                                    <td style="padding: 15px; white-space: nowrap;">
+                                                        <field name="pax_6_rb"/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </group>
+                                </group>
 
-       <record id="view_partner_form_inherit_vip" model="ir.ui.view">
-              <field name="name">res.partner.form.inherit.vip</field>
-              <field name="model">res.partner</field>
-              <field name="inherit_id" ref="base.view_partner_form"/>
-              <field name="arch" type="xml">
-                     <!-- Locate the vat (Tax ID) field and add is_vip after it -->
-                     <xpath expr="//field[@name='vat']" position="after">
-                            <field name="is_vip" string="VIP"/>
-                            <field name="rate_code" string="Rate Code"/>
-                            <field name="source_of_business" string="Source of Business"/>
-                            <field name="nationality" string="Nationality"/>
-                            <field name="hashed_password" string="Hash password" readonly="1"/>
-                     </xpath>
-              </field>
-       </record>
+                                <group string="Payment Type">
+                                    <field name="payment_type" widget="radio"/>
+                                </group>
+                            </group>
 
-       <record id="view_company_form_inherit_date_field" model="ir.ui.view">
-              <field name="name">res.company.form.inherit.date</field>
-              <field name="model">res.company</field>
-              <field name="inherit_id" ref="base.view_company_form"/>
-              <field name="arch" type="xml">
-                     <field name="name" position="attributes">
-                            <attribute name="string">Hotel Name</attribute>
-                     </field>
-                     <xpath expr="//field[@name='currency_id']" position="after">
-                            <field name="system_date" widget="date"/>
-                     </xpath>
-                     <xpath expr="//field[@name='system_date']" position="after">
-                            <field name="age_threshold"/>
-                     </xpath>
-                     <xpath expr="//page[@name='branches']" position="after">
-                            <page string="Inventory">
-                                   <field name="inventory_ids" widget="one2many_list" options="{'no_create': True, 'no_edit': True}">
-                                          <tree editable="false" create="false">
-                                                 <field name="company_id" readonly="1"/>
-                                                 <field name="room_type" readonly="1"/>
-                                                 <field name="pax" readonly="1"/>
-                                                 <field name="total_room_count" readonly="1"/>
-                                                 <!-- <field name="age_threshold"/> -->
-                                                 <field name="web_allowed_reservations"/>
-                                                 <field name="overbooking_allowed"/>
-                                                 <field name="overbooking_rooms"/>
-                                          </tree>
-                                   </field>
-                            </page>
-                     </xpath>
-                  <xpath expr="//page[@name='branches']" position="after">
-                      <page string="Web">
-                          <group string="Hotel Information">
-                            <field name="web_title" string="Title"/>
-                            <field name="web_star_rating" string="Star rating"/>
-                            <field name="web_kaaba_view" string="Kaaba view"/>
-                            <field name="web_hotel_location" string="Hotel location"/>
-                            <field name="web_discount" string="Discount"/>
-                            <field name="web_review" string="Review"/>
-                            <field name="web_description" string="Description"/>
-                        </group>
-                      </page>
-                  </xpath>
-              </field>
-       </record>
+                        </page>
+                        <page string="Adults">
+                            <field name="adult_ids" options="{'invisible': [('adult_count', '=', 0)]}">
+                                <tree string="Adults" editable="top" create="false">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Children">
+                            <field name="child_ids" options="{'invisible': [('child_count', '=', 0)]}">
+                                <tree string="Children" editable="top" create="false">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <div name="button_box" position="inside">
+                        <button class="oe_stat_button" type="object" name="action_view_invoices" invisible="invoice_status != 'invoiced'" icon="fa-edit">
+                            <field string="Invoices" name="invoice_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <!-- <div>
+         <h1>
+             <field name="name" colspan="4"/>
+         </h1>
+     </div> -->
 
-       <record id="menu_administration_companies_inherit" model="ir.ui.menu">
-              <field name="name">HOTELS</field>
-       </record>
+                    <notebook>
+                        <page name="search_result" string="Search Result">
+                            <field name="availability_results">
+                                <tree string="Room Availability Results" editable="true" no_create="1" no_create_edit="1">
+                                    <field name="company_id"/>
+                                    <field name="room_type"/>
+                                    <field name="pax"/>
+                                    <field name="rooms_reserved"/>
+                                    <field name="available_rooms"/>
+                                    <!-- Adding a button in each line -->
+                                    <button name="action_split_selected" type="object" string="Split Rooms" icon="fa-exchange"/>
+                                    <button name="action_delete_selected" type="object" icon="fa-trash" class="btn-link"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="folio" string="Folio">
+                            <field name="total_people" invisible="1"/>
+                            <field name="is_room_line_readonly" invisible="1"/>
+                            <field name="room_line_ids" colspan="4" string="Room Lines" readonly="is_room_line_readonly" context="{'default_checkin_date':checkin_date, 'default_checkout_date':checkout_date, 'default_uom_qty':duration, 'default_hotel_room_type': hotel_room_type}">
+                                <tree editable="bottom">
+                                    <field name="state"/>
+                                    <field name="room_id" string="Room" options="{'no_open': True, 'no_create': True}" placeholder="Select rooms"/>
+                                    <!-- <field name="hotel_room_type" string="Room Type" invisible="1"/>
+                                      -->
+                                    <field name="hotel_room_type" string="Room Type" invisible="1" modifiers="{'tree_invisible': true, 'invisible': true}"/>
+                                    <field name="room_type_name" readonly="1"/>
+                                    <field name="related_hotel_room_type" invisible="1"/>
+                                    <field name="adult_count" readonly="1"/>
+                                    <field name="child_count" readonly="1"/>
+                                    <field name="checkin_date"/>
+                                    <field name="booking_line_visible" invisible="1"/>
+                                    <field name="checkout_date"/>
+                                    <field name="uom_qty" string="Duration" force_save="1"/>
+                                    <field name="uom_id" readonly="booking_line_visible == True" string="Unit of Measure" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="price_unit" readonly="booking_line_visible == True"/>
+                                    <field name="tax_ids" readonly="booking_line_visible == True " options="{'no_create': True}" widget="many2many_tags"/>
+                                    <field name="price_subtotal" widget="monetary" readonly="booking_line_visible == True"/>
+                                    <field groups="account.group_account_manager" name="price_total" widget="monetary" readonly="booking_line_visible == True"/>
+                                </tree>
+                            </field>
+                            <group colspan="2" class="oe_subtotal_footer oe_right">
+                                <field name="amount_untaxed_room" sum="Untaxed amount for Room" widget="monetary"/>
+                                <field name="amount_untaxed_food" sum="Untaxed amount for Food" widget="monetary" invisible="need_food == False"/>
+                                <field name="amount_untaxed_service" sum="Untaxed amount for Service" widget="monetary" invisible="need_service == False"/>
+                                <field name="amount_untaxed_fleet" sum="Untaxed amount for Fleet" widget="monetary" invisible="need_fleet == False"/>
+                                <field name="amount_untaxed_event" sum="Untaxed amount for Event" widget="monetary" invisible="need_event == False"/>
+                                <field name="amount_untaxed" sum="Untaxed amount" widget="monetary"/>
+                                <field name="amount_tax" widget="monetary"/>
+                                <label for="amount_total"/>
+                                <field name="amount_total" nolabel="1" sum="Total amount" widget="monetary"/>
+                            </group>
+                            <div class="oe_clear"/>
+                        </page>
+                        <page name="food" string="Food" invisible="need_food == False ">
+                            <field name="food_order_line_ids" colspan="4" string="Food Lines">
+                                <tree editable="bottom">
+                                    <field name="food_id" string="Product" required="1" options="{'no_open': True,'no_create': True}"/>
+                                    <field name="description"/>
+                                    <field name="uom_qty" string="Qty" force_save="1"/>
+                                    <field name="uom_id" string="Unit of Measure" options="{'no_open': True,'no_create': True}"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
+                                </tree>
+                            </field>
+                            <group colspan="2" class="oe_subtotal_footer oe_right">
+                                <field name="amount_untaxed_food" sum="Untaxed amount for Food" widget="monetary"/>
+                                <field name="amount_taxed_food" widget="monetary"/>
+                                <label for="amount_total_food"/>
+                                <field name="amount_total_food" nolabel="1" sum="Total amount" widget="monetary"/>
+                            </group>
+                            <div class="oe_clear"/>
+                        </page>
+                        <page name="service" string="Service" invisible="need_service == False">
+                            <field name="service_line_ids" colspan="4" string="Service Lines">
+                                <tree editable="bottom">
+                                    <field name="service_id" string="Service" required="1" options="{'no_open': True,'no_create': True}"/>
+                                    <field name="description"/>
+                                    <field name="uom_qty" string="Qty" force_save="1"/>
+                                    <field name="uom_id" string="Unit of Measure" options="{'no_open': True,'no_create': True}"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
+                                </tree>
+                            </field>
+                            <group colspan="2" class="oe_subtotal_footer oe_right">
+                                <field name="amount_untaxed_service" sum="Untaxed amount for Service" widget="monetary"/>
+                                <field name="amount_taxed_service" widget="monetary"/>
+                                <label for="amount_total_service"/>
+                                <field name="amount_total_service" nolabel="1" sum="Total amount" widget="monetary"/>
+                            </group>
+                            <div class="oe_clear"/>
+                        </page>
+                        <page name="fleet" string="Fleet" invisible="need_fleet == False">
+                            <field name="vehicle_line_ids" colspan="4" string="Fleet Lines">
+                                <tree editable="bottom">
+                                    <field name="fleet_id" string="Vehicle" required="1" options="{'no_open': True,'no_create': True}"/>
+                                    <field name="description"/>
+                                    <field name="uom_qty" string="Allotted KM" force_save="1"/>
+                                    <field name="uom_id" string="Unit of Measure" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
+                                </tree>
+                            </field>
+                            <group colspan="2" class="oe_subtotal_footer oe_right">
+                                <field name="amount_untaxed_fleet" sum="Untaxed amount for Fleet" widget="monetary"/>
+                                <field name="amount_taxed_fleet" widget="monetary"/>
+                                <label for="amount_total_fleet"/>
+                                <field name="amount_total_fleet" nolabel="1" sum="Total amount" widget="monetary"/>
+                            </group>
+                            <div class="oe_clear"/>
+                        </page>
+                        <page name="event" string="Events" invisible=" need_event == False ">
+                            <field name="event_line_ids" colspan="4" string="Event Lines">
+                                <tree editable="bottom">
+                                    <field name="event_id" string="Event" required="1" options="{'no_open': True,'no_create': True}"/>
+                                    <field name="description"/>
+                                    <field name="ticket_id" string="Ticket" required="1"/>
+                                    <field name="uom_qty" string="Qty" force_save="1"/>
+                                    <field name="uom_id" string="Unit of Measure" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" options="{'no_create': True}" widget="many2many_tags"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field groups="account.group_account_manager" name="price_total" widget="monetary"/>
+                                </tree>
+                            </field>
+                            <group colspan="2" class="oe_subtotal_footer oe_right">
+                                <field name="amount_untaxed_event" sum="Untaxed amount for Event" widget="monetary"/>
+                                <field name="amount_taxed_event" widget="monetary"/>
+                                <label for="amount_total_event"/>
+                                <field name="amount_total_event" nolabel="1" sum="Total amount" widget="monetary"/>
+                            </group>
+                            <div class="oe_clear"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
 
-       <!--     Room Booking Menu action -->
-       <record id="room_booking_action" model="ir.actions.act_window">
-              <field name="name">Room Booking</field>
-              <field name="type">ir.actions.act_window</field>
-              <field name="res_model">room.booking</field>
-              <field name="view_mode">tree,kanban,pivot,graph,calendar,form</field>
-       </record>
+    <!--     Room Booking Tree view -->
+    <record id="room_booking_view_tree" model="ir.ui.view">
+        <field name="name">room.booking.view.tree</field>
+        <field name="model">room.booking</field>
+        <field name="arch" type="xml">
+            <tree js_class="reservation_dashboard_list">
+                <header>
+                    <button name="action_confirm_booking" string="Confirm" type="object" class="btn-primary"/>
+                    <button name="action_cancel_booking" string="Cancel" type="object" class="btn-danger"/>
+                    <button name="action_checkin_booking" string="Check-in" type="object" class="btn-primary"/>
+                    <button name="action_checkout_booking" string="Check-out" type="object" class="btn-primary"/>
+                </header>
+                <field name="name"/>
+                <field name="room_ids_display" string="Room Name"/>
+                <field name="room_type_display" string="Room Type"/>
+                <field name="room_count_tree"/>
+                <field name="partner_id"/>
+                <field name="reference_contact"/>
+                <field name="parent_booking_name"/>
+                <field name="group_booking"/>
+                <field name="checkin_date"/>
+                <field name="checkout_date"/>
+                <field name="date_order"/>
+                <field name="state"/>
+                <field name="reservation_status_count_as"/>
+                <!-- <field name="child_bookings" invisible="1"/> -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_partner_form_inherit_vip" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.vip</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <!-- Locate the vat (Tax ID) field and add is_vip after it -->
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="is_vip" string="VIP"/>
+                <field name="rate_code" string="Rate Code"/>
+                <field name="source_of_business" string="Source of Business"/>
+                <field name="nationality" string="Nationality"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_company_form_inherit_date_field" model="ir.ui.view">
+        <field name="name">res.company.form.inherit.date</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="string">Hotel Name</attribute>
+            </field>
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="system_date" widget="date"/>
+            </xpath>
+            <xpath expr="//field[@name='system_date']" position="after">
+                <field name="age_threshold"/>
+            </xpath>
+            <xpath expr="//page[@name='branches']" position="after">
+                <page string="Inventory">
+                    <field name="inventory_ids" widget="one2many_list" options="{'no_create': True, 'no_edit': True}">
+                        <tree editable="false" create="false">
+                            <field name="company_id" readonly="1"/>
+                            <field name="room_type" readonly="1"/>
+                            <field name="pax" readonly="1"/>
+                            <field name="total_room_count" readonly="1"/>
+                            <!-- <field name="age_threshold"/> -->
+                            <field name="web_allowed_reservations"/>
+                            <field name="overbooking_allowed"/>
+                            <field name="overbooking_rooms"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+            <xpath expr="//page[@name='branches']" position="after">
+                <page string="Web">
+                    <group string="Hotel Information">
+                        <field name="web_title" string="Title"/>
+                        <field name="web_star_rating" string="Star rating"/>
+                        <field name="web_kaaba_view" string="Kaaba view"/>
+                        <field name="web_hotel_location" string="Hotel location"/>
+                        <field name="web_discount" string="Discount"/>
+                        <field name="web_review" string="Review"/>
+                        <field name="web_description" string="Description"/>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_room_availability_wizard" model="ir.ui.view">
+        <field name="name">room.availability.wizard.form</field>
+        <field name="model">room.availability.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Room Availability" class="o_form_minimal_popup" style="width: 400px;">
+                <group>
+                    <field name="message" nolabel="1" readonly="1" widget="html"/>
+                </group>
+                <footer>
+                    <button string="Send to Waiting List" type="object" name="action_send_to_waiting" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_room_availability_wizard" model="ir.actions.act_window">
+        <field name="name">Room Availability Wizard</field>
+        <field name="res_model">room.availability.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
 
 
-       <!--     Reservation menu -->
-       <menuitem id="room_booking_menu" name="Reservation" sequence="10" parent="hotel_management_menu_root"/>
+    <record id="menu_administration_companies_inherit" model="ir.ui.menu">
+        <field name="name">HOTELS</field>
+    </record>
 
-       <menuitem id="individual_reservation_menu" name="Reservation" sequence="20" parent="room_booking_menu" action="room_booking_action"/>
 
-       <!--    <menuitem id="group_reservation_menu" name="Group Reservation" sequence="20"-->
-       <!-- parent="room_booking_menu"-->
-       <!-- action="group_booking_action"/>-->
+    <!--     Room Booking Menu action -->
+    <record id="room_booking_action" model="ir.actions.act_window">
+        <field name="name">Room Booking</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">room.booking</field>
+        <field name="view_mode">tree,kanban,pivot,graph,calendar,form</field>
+    </record>
+
+
+    <!--     Reservation menu -->
+    <menuitem id="room_booking_menu" name="Reservation" sequence="10" parent="hotel_management_menu_root"/>
+
+    <menuitem id="individual_reservation_menu" name="Reservation" sequence="20" parent="room_booking_menu" action="room_booking_action"/>
+
+    <!--    <menuitem id="group_reservation_menu" name="Group Reservation" sequence="20"-->
+    <!-- parent="room_booking_menu"-->
+    <!-- action="group_booking_action"/>-->
 </odoo>

@@ -40,7 +40,7 @@ class HotelRoom(models.Model):
     type_of_bath = fields.Char(string="Type of Bath")
     block = fields.Integer(string="Block")
     building = fields.Char(string="Building")
-    user_sort = fields.Integer(string="User Sort", default=0)
+    user_sort = fields.Integer(string="User Sort", compute="_compute_user_sort")
 
     # New fields for the Information tab
     pending_repairs = fields.Char(string="Pending Repairs")
@@ -65,6 +65,13 @@ class HotelRoom(models.Model):
 
     name = fields.Char(string='Name', help="Name of the Room", index='trigram')
     room_type_name = fields.Many2one('room.type', string='Room Type')
+
+    @api.depends('room_type_name')
+    def _compute_user_sort(self):
+        """Compute the user_sort value from the related room type."""
+        for room in self:
+            room.user_sort = room.room_type_name.user_sort if room.room_type_name else 0
+
     hotel_id = fields.Many2one('hotel.hotel', string="Hotel", help="Hotel associated with this booking")
     status = fields.Selection([("available", "Available"),
                                ("reserved", "Reserved"),

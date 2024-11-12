@@ -42,6 +42,14 @@ class RoomBookingLine(models.Model):
                                  help="Indicates the Room",
                                  ondelete="cascade")
     
+    state = fields.Selection([
+        ('block', 'Block'),
+        ('no_show', 'No Show'),
+        ('confirmed', 'Confirmed'),
+        ('check_in', 'Check In'),
+        ('check_out', 'Check Out'),
+    ], default='block', string="Status")
+    
     room_availability_result_id = fields.Many2one(
         'room.availability.result', string="Room Availability Result",
         readonly=True
@@ -60,13 +68,86 @@ class RoomBookingLine(models.Model):
     #                           required=False,
     #                           domain="[('num_person', '>=', parent.total_people)]"
     #                           )
+    related_hotel_room_type = fields.Many2one(
+        related='booking_id.hotel_room_type', 
+        string="Related Room Type", 
+        store=True
+    )
+
     room_id = fields.Many2one(
         'hotel.room',
         string="Room",
-        help="Indicates the Room",
-        required=False,
-        domain=lambda self: [('room_type', '=', self.env.context.get('default_room_type'))]
+        domain="[('status', '=', 'available'), ('num_person', '>=', adult_count), ('room_type_name', '=', hotel_room_type)] if hotel_room_type else [('status', '=', 'available')]",
+        # domain="[('status', '=', 'available'), ('room_type_name', '=', related_hotel_room_type)] if related_hotel_room_type else [('status', '=', 'available')]",
+        # required=True,
+        help="Indicates the Room"
     )
+
+    hotel_room_type = fields.Many2one(
+        'room.type',
+        string="Room Type",
+        help="Select a room type to filter available rooms."
+    )
+
+    # @api.onchange('room_id')
+    # def _onchange_room_id(self):
+    #     """Update Room Type when room is selected."""
+    #     if self.room_id:
+    #         self.hotel_room_type = self.room_id.room_type_name
+
+    # @api.onchange('related_hotel_room_type')
+    # def _onchange_related_hotel_room_type(self):
+    #     """Update the domain for room_id and sort by user_sort."""
+    #     domain = [('status', '=', 'available')]
+    #     if self.related_hotel_room_type:
+    #         domain.append(('room_type_name', '=', self.related_hotel_room_type.id))
+    #     return {
+    #         'domain': {
+    #             'room_id': domain,
+    #         },
+    #         'context': {
+    #             'order': 'user_sort ASC'  # Ensure rooms are sorted by user_sort
+    #         },
+    #     }
+
+    @api.onchange('hotel_room_type')
+    def _onchange_hotel_room_type(self):
+        """Automatically filter room_id based on hotel_room_type."""
+        return {
+            'domain': {
+                'room_id': [
+                    ('status', '=', 'available'),
+                    ('room_type_name', '=', self.hotel_room_type.id)
+                ] if self.hotel_room_type else [('status', '=', 'available')]
+            }
+        }
+
+    # @api.onchange('hotel_room_type')
+    # def _onchange_hotel_room_type(self):
+    #     """Dynamically update the room_id domain based on hotel_room_type."""
+    #     if self.hotel_room_type:
+    #         return {
+    #             'domain': {
+    #                 'room_id': [
+    #                     ('room_type_name', '=', self.hotel_room_type.id),
+    #                     ('status', '=', 'available')
+    #                 ]
+    #             }
+    #         }
+    #     else:
+    #         return {
+    #             'domain': {
+    #                 'room_id': [('status', '=', 'available')]
+    #             }
+    #         }
+
+    def _get_dynamic_room_domain(self):
+        """Get dynamic domain for room_id based on hotel_room_type."""
+        domain = [('status', '=', 'available')]
+        if self.hotel_room_type:
+            domain.append(('room_type_name', '=', self.hotel_room_type.id))
+        return domain
+    
     room_type = fields.Many2one('hotel.room', string="Room Type")
 
     room_type_name = fields.Many2one('room.type', string="Room Type", related="room_id.room_type_name", readonly=True)
@@ -212,11 +293,47 @@ class RoomBookingLine(models.Model):
     def _onchange_room_id(self):
         if self.booking_id.state != 'confirmed':
             raise UserError("Please confirm booking first.")
+        
+    @api.model
+    def _update_inventory(self, room_type_id, company_id, increment=True):
+        """Update available rooms in hotel.inventory."""
+        inventory = self.env['hotel.inventory'].search([
+            ('room_type', '=', room_type_id),
+            ('company_id', '=', company_id)
+        ], limit=1)
+        
+        if inventory:
+            if increment:
+                inventory.available_rooms += 1
+            else:
+                inventory.available_rooms -= 1
+
+    @api.model
+    def assign_room(self, parent_booking, room_vals):
+        """Assign a room from a parent booking, creating a child booking."""
+        new_booking_vals = {
+            'parent_booking_id': parent_booking.id,  # Link parent booking
+            'room_line_ids': [(0, 0, room_vals)],
+            'state': 'block',  # New state for child booking
+        }
+
+        # Create child booking with reference to parent
+        return self.env['room.booking'].create(new_booking_vals)
 
     def write(self, vals):
         for record in self:
+            # Handle room assignment change
+            if 'room_id' in vals and record.room_id:
+                # Increment the inventory count for the previous room type (unassigning room)
+                self._update_inventory(record.room_type_name.id, record.booking_id.company_id.id, increment=True)
+                # Decrement the inventory count for the new room type (assigning room)
+                self._update_inventory(vals['room_id'], record.booking_id.company_id.id, increment=False)
+
+            # Original logic for handling room assignment
             if 'room_id' in vals and record.is_unassigned:
                 if record.booking_id and record.booking_id.state == 'confirmed':
+                    parent_booking = record.booking_id
+                    
                     # Prepare values for the new booking line
                     new_booking_vals = {
                         'room_id': vals['room_id'],
@@ -225,7 +342,6 @@ class RoomBookingLine(models.Model):
                         'uom_qty': record.uom_qty,
                         'adult_count': record.adult_count,
                         'child_count': record.child_count,
-
                     }
 
                     # Prepare the adult lines based on the adult_count
@@ -260,12 +376,13 @@ class RoomBookingLine(models.Model):
 
                     # Create the new booking with adult_ids based on adult count
                     self.env['room.booking'].create({
+                        'parent_booking_id': parent_booking.id,
                         'room_line_ids': [(0, 0, new_booking_vals)],
                         'checkin_date': record.checkin_date,
                         'checkout_date': record.checkout_date,
                         'state': 'block',  # Set state to block
                         'adult_ids': adult_lines,  # Add the adult lines here
-                        'is_room_line_readonly': True,
+                        'is_room_line_readonly': False,
                     })
 
                     # Update the original record to unassign and hide fields
@@ -276,6 +393,18 @@ class RoomBookingLine(models.Model):
                     vals['is_unassigned'] = False
 
         return super(RoomBookingLine, self).write(vals)
+
+    # def unlink(self):
+    #     """Override unlink to restore inventory when a line is deleted."""
+    #     for line in self:
+    #         self._update_inventory(line.room_type_name.id, line.booking_id.company_id.id, increment=True)
+    #     return super(RoomBookingLine, self).unlink()
+    def unlink(self):
+        """Override unlink to restore inventory when a line is deleted."""
+        # for line in self:
+        #     self._update_inventory(line.room_type_name.id, line.booking_id.company_id.id, increment=True)
+        return super(RoomBookingLine, self).unlink()
+
 
     # @api.onchange('checkin_date', 'checkout_date', 'room_id')
     # def onchange_checkin_date(self):

@@ -22,6 +22,9 @@
             <field name="category_id" position="after">
                 <field name="dynamic_selection_id" string="Location Type"/>
             </field>
+            <field name="fsm_parent_id" position="before">
+                <field name="company_id" string="Hotel"/>
+            </field>
         </field>
     </record>
     

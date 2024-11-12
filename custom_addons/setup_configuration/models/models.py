@@ -672,6 +672,7 @@ class ReservationStatusCode(models.Model):
     obsolete = fields.Boolean(string="Obsolete", default=False)
 
     count_as = fields.Selection([
+        ('not_confirmed', 'Not Confirmed'),
         ('confirmed', 'Confirmed'),
         ('wait_list', 'Wait List'),
         ('tentative', 'Tentative'),

@@ -111,6 +111,11 @@
                             <field name="room_booking_ids" widget="one2many_list" context="{'default_model': 'room.booking'}">
                                 <tree string="Room Bookings" editable="bottom">
                                     <field name="name" />
+                                    <field name="room_ids_display" />
+                                    <field name="room_type_display" />
+                                    <field name="room_count_tree" />
+                                    <field name="checkin_date" />
+                                    <field name="checkout_date" />
                                     <field name="partner_id" />
                                     <field name="date_order" />
                                     <field name="state" />
