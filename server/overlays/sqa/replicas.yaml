@@ -18,9 +18,6 @@ spec:
       restartPolicy: Always 
       containers:
       - name: hotel
-        image: tazamun/hotel:sqa1.3
-        env:
-        - name: HOST
-          value: sqa-postgres-v1
+        image: tazamun/hotel:sqa1.0
 
 
