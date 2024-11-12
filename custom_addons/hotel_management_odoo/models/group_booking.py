@@ -10,7 +10,17 @@ class GroupBooking(models.Model):
         string='Reservations'
     )
 
-    room_booking_ids = fields.One2many('room.booking', 'group_booking', string='Room Bookings')
+    room_booking_ids = fields.One2many('room.booking', 'group_booking', string='Room Bookings', compute='_compute_room_booking_ids', store=False)
+
+    @api.depends('reservation_ids')
+    def _compute_room_booking_ids(self):
+        for record in self:
+            all_bookings = self.env['room.booking'].search([
+                '|', ('group_booking', '=', record.id), ('parent_booking_id.group_booking', '=', record.id)
+            ])
+            record.room_booking_ids = all_bookings
+
+
 
     # @api.depends()
     # def _compute_room_bookings(self):
