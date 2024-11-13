@@ -45,7 +45,7 @@ WORKDIR /opt/odoo-tazamun
 
 # Install Python dependencies
 COPY requirements.txt /opt/odoo-tazamun/
-RUN pip install --upgrade pip setuptools wheel \
+RUN pip install --upgrade setuptools wheel \
     && pip install -r /opt/odoo-tazamun/requirements.txt
 
 
@@ -56,7 +56,7 @@ RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
 # Create a session directory with correct permissions
 RUN mkdir -p /var/lib/odoo/.local && chown -R odoo:odoo /var/lib/odoo
 
-USER root
+USER odoo
 
 # Copy Odoo source files and custom modules
 COPY . /opt/odoo-tazamun/
