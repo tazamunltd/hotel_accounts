@@ -47,7 +47,6 @@ WORKDIR /opt/odoo-tazamun
 COPY requirements.txt /opt/odoo-tazamun/
 RUN pip install --upgrade pip setuptools wheel \
     && pip install -r /opt/odoo-tazamun/requirements.txt
-RUN pip install bcrypt    
 
 
 # Create and set permissions for Odoo user and configuration
