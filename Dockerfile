@@ -24,8 +24,8 @@ RUN apt-get update && apt-get install -y \
     xfonts-base \
     xfonts-75dpi \
     wget \
+    git \
     xvfb \
-    vim \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -43,33 +43,35 @@ RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkh
 RUN mkdir -p /opt/odoo-tazamun
 WORKDIR /opt/odoo-tazamun
 
-# Install Python dependencies
-COPY requirements.txt /opt/odoo-tazamun/
-RUN pip install --upgrade setuptools wheel \
-    && pip install -r /opt/odoo-tazamun/requirements.txt
-
-
 # Create and set permissions for Odoo user and configuration
 RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
     && chown -R odoo:odoo /opt/odoo-tazamun/
 
+# RUN git clone https://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@github.com/hajikhan/tazamun_internal.git .
+
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel
+
+COPY requirements.txt /opt/odoo-tazamun/requirements.txt
+
+RUN pip install -r /opt/odoo-tazamun/requirements.txt
+
 # Create a session directory with correct permissions
 RUN mkdir -p /var/lib/odoo/.local && chown -R odoo:odoo /var/lib/odoo
 
-USER odoo
-
-# Copy Odoo source files and custom modules
-COPY . /opt/odoo-tazamun/
+USER root
 
 # Odoo configuration
-COPY odoo.conf /etc/odoo.conf
+COPY odoo.conf /opt/odoo-tazamun/odoo.conf
+
+RUN pip install redis
+RUN pip install bcrypt
 
 # Expose Odoo port
 EXPOSE 8069 8071
 
 # Expose PostgreSQL port
 EXPOSE 5432
-
 
 # Run Odoo
 CMD ["python", "/opt/odoo-tazamun/odoo-bin", "-c", "/opt/odoo-tazamun/odoo.conf", "-i", "base"]
