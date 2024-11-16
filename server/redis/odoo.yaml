@@ -19,6 +19,8 @@ spec:
       - name: odoo
         image: tazamun/hotel:dev2.0
         imagePullPolicy: Always
+        ports:
+        - containerPort: 8069 
         env:
         - name: HOST
           value: postgres
