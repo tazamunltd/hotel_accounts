@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      restartPolicy: Always
+      containers: 
+      - name: nginx
+        image: tazamun/hotel:nginx
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8069 
+
