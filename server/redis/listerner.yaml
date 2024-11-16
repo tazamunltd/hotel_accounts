@@ -23,7 +23,7 @@ spec:
         - containerPort: 9001
         env:
         - name: POSTGRES_DB
-          value: dev
+          value: test
         - name: POSTGRES_USER
           value: odoo
         - name: POSTGRES_PASSWORD
