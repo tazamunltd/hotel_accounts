@@ -12,6 +12,8 @@ spec:
       labels:
         app: odoo
     spec:
+      imagePullSecrets:
+      - name: regcred
       restartPolicy: Always
       containers:
       - name: odoo
