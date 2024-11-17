@@ -23,8 +23,6 @@ spec:
           emptyDir: {}
         - name: views
           emptyDir: {}
-      securityContext:
-        fsGroup: 82
       initContainers:
         - name: database-migrations
           image: tazamun/backend:latest
@@ -46,9 +44,6 @@ spec:
                 name: application-config
             - secretRef:
                 name: application-secret
-          securityContext:
-            runAsUser: 82
-            readOnlyRootFilesystem: true
           volumeMounts:
             - name: logs
               mountPath: /var/www/html/storage/logs
