@@ -16,8 +16,21 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 9000
+  - port: 3000
   selector:
     app: frontend
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apiserver-svc
+spec:
+  type: NodePort
+  selector:
+    app: apiserver
+  ports:
+    - port: 9000
+
 
 
