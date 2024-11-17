@@ -55,6 +55,6 @@ spec:
             - name: views
               mountPath: /var/www/html/storage/framework/views
           resources: {}
-          image: azamun/backend:latest
+          image: tazamun/backend:latest
           ports:
             - containerPort: 9000
