@@ -36,7 +36,7 @@ spec:
                 name: application-secret
           args:
             - /bin/bash
-             - -c
+            - -c
             - php artisan migrate --force && php artisan config:cache && chown -R www-data:www-data /var/www/backend
       containers:
         - name: fpm
