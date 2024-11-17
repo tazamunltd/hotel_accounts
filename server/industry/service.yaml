@@ -16,7 +16,7 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 3000
+  - port: 9000
   selector:
     app: frontend
 

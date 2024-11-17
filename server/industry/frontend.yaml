@@ -20,7 +20,7 @@ spec:
         image: tazamun/frontend:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 3000 
+        - containerPort: 9000 
         env:
         - name: API_BASE
           value: "https://back.industry.com.sa/"
