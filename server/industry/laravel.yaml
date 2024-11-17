@@ -37,7 +37,7 @@ spec:
           args:
             - /bin/bash
             - -c
-            - php artisan migrate --force && php artisan config:cache && chown -R www-data:www-data /var/www/backend
+            - chown -R www-data:www-data /var/www/backend
       containers:
         - name: fpm
           imagePullPolicy: IfNotPresent
