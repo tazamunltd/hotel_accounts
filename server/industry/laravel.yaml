@@ -19,10 +19,9 @@ spec:
       imagePullSecrets:
       - name: regcred
       volumes:
-        - name: logs
-          emptyDir: {}
-        - name: views
-          emptyDir: {}
+        - name: laravel-storage
+          persistentVolumeClaim:
+           claimName: laravel-pvc-storage
       initContainers:
         - name: database-migrations
           image: tazamun/backend:latest
@@ -35,7 +34,10 @@ spec:
           args:
             - /bin/bash
             - -c
-            - chown -R www-data:www-data /var/www/backend
+            - chown -R www-data:www-data /var/www/html && php artisan migrate && php artisan optimize:Clear && cp -Rnp /var/www/html/storage/* /mnt
+          volumeMounts:
+           - name: laravel-storage
+             mountPath: /mnt 
       containers:
         - name: fpm
           imagePullPolicy: IfNotPresent
@@ -44,12 +46,10 @@ spec:
                 name: application-config
             - secretRef:
                 name: application-secret
-          volumeMounts:
-            - name: logs
-              mountPath: /var/www/html/storage/logs
-            - name: views
-              mountPath: /var/www/html/storage/framework/views
           resources: {}
           image: tazamun/backend:latest
           ports:
             - containerPort: 9000
+          volumeMounts:
+           - name: laravel-storage
+             mountPath: /var/www/html/storage  
