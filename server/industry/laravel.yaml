@@ -33,7 +33,7 @@ spec:
                 name: application-secret
           command: ["/bin/sh","-c"]      
           args:
-            - chown -R www-data:www-data /var/www/html && php artisan migrate && php artisan optimize:Clear && cp -Rnp /var/www/html/storage/* /mnt
+            - php artisan migrate && php artisan optimize:Clear && cp -Rnp /var/www/html/storage/* /mnt
           volumeMounts:
            - name: laravel-storage
              mountPath: /mnt 
