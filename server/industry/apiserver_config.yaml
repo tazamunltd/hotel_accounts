@@ -4,7 +4,7 @@ metadata:
   name: application-config
 data:
   APP_NAME: Industry Exports Directory
-  APP_ENV: production
+  APP_ENV: local
   Front_APP_URL: frontend.default.svc.cluster.local
   Back_APP_URL: admin.default.svc.cluster.local
   CLIENT_BASE_URL: apiserver.default.svc.cluster.local
