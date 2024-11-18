@@ -25,7 +25,7 @@ spec:
       initContainers:
         - name: database-migrations
           image: tazamun/backend:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           envFrom:
             - configMapRef:
                 name: application-config
@@ -40,7 +40,7 @@ spec:
              mountPath: /mnt 
       containers:
         - name: fpm
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           envFrom:
             - configMapRef:
                 name: application-config
