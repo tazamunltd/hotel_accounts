@@ -50,10 +50,7 @@ spec:
             - configMapRef:
                 name: application-config
             - secretRef:
-                name: application-secret
-          command: ["/bin/sh","-c"]      
-          args:
-            - chown -R www-data:www-data /var/www/html/storage/*      
+                name: application-secret  
           resources: {}
           image: tazamun/backend:latest
           ports:
