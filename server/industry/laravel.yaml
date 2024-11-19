@@ -54,7 +54,7 @@ spec:
             - containerPort: 9000
           command: ["/bin/sh","-c"]      
           args:
-            - chown -R www-data:www-data /var/www/html/storage/* && chown -R www-data:www-data /var/www/html/storage/logs/*
+            - chown -R www-data:www-data /var/www/html/storage
           volumeMounts:
            - name: laravel-storage
              mountPath: /var/www/html/storage  
