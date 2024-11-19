@@ -31,6 +31,9 @@ spec:
                 name: application-config
             - secretRef:
                 name: application-secret
+          command: ["/bin/sh","-c"]      
+          args:
+            - chown -R www-data:www-data /var/www/html/storage/*
       containers:
         - name: nginx
           imagePullPolicy: Always
@@ -52,9 +55,6 @@ spec:
           image: tazamun/backend:latest
           ports:
             - containerPort: 9000
-          command: ["/bin/sh","-c"]      
-          args:
-            - chown -R www-data:www-data /var/www/html/storage
           volumeMounts:
            - name: laravel-storage
              mountPath: /var/www/html/storage  
