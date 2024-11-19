@@ -38,6 +38,15 @@ spec:
            - name: laravel-storage
              mountPath: /mnt 
       containers:
+        - name: nginx
+          imagePullPolicy: Always
+          image: tazamun/backend:nginx
+          resources: {}
+            # limits:
+            #   cpu: 500m
+            #   memory: 50M
+          ports:
+            - containerPort: 80
         - name: fpm
           imagePullPolicy: Always
           envFrom:
