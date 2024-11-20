@@ -27,13 +27,11 @@ spec:
           image: tazamun/backend:latest
           imagePullPolicy: Always
           envFrom:
-            - configMapRef:
-                name: application-config
             - secretRef:
                 name: application-secret
           command: ["/bin/sh","-c"]      
           args:
-            - chown -R www-data:www-data /var/www/html/storage/*
+            - chown -R www-data:www-data /var/www/html/storage/* && mv /var/www/html/.env.example /var/www/html/.env && php artisan key:generate
       containers:
         - name: nginx
           imagePullPolicy: Always
@@ -47,8 +45,6 @@ spec:
         - name: fpm
           imagePullPolicy: Always
           envFrom:
-            - configMapRef:
-                name: application-config
             - secretRef:
                 name: application-secret  
           resources: {}
