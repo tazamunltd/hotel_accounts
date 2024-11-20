@@ -28,7 +28,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: test_config
+                name: test-config
             - secretRef:
                 name: application-secret
           command: ["/bin/sh","-c"]      
@@ -49,7 +49,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: test_config
+                name: test-config
             - secretRef:
                 name: application-secret  
           resources: {}
