@@ -1,5 +1,0 @@
-resources: 
-- prod-issuer.yaml
-- staging-issuer.yaml
-- prod-ingress.yaml
-- dev-ingress.yaml
