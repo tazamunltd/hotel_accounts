@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotel
+spec:
+  type: NodePort
+  ports:
+  - name: odoo
+    port: 8069
+    protocol: TCP
+    targetPort: 8069
+  - name: odoochat
+    port: 8071
+    protocol: TCP
+    targetPort: 8071
+
