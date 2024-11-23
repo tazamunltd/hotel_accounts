@@ -50,10 +50,10 @@ RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
 RUN git clone https://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@github.com/hajikhan/tazamun_internal.git .
 
 # Install Python dependencies
-RUN pip install --upgrade pip setuptools wheel
+RUN pip install --upgrade pip setuptools wheel Cython==3.0.0a10
 
 COPY requirements.txt /opt/odoo-tazamun/requirements.txt
-
+# RUN pip install gevent==20.9.0 --no-build-isolation
 RUN pip install -r /opt/odoo-tazamun/requirements.txt
 
 # Create a session directory with correct permissions
