@@ -2,7 +2,13 @@ resources:
 
 - deployment.yaml
 - service.yaml
-- pv.yaml
+
 
 commonLabels:
   app: hotel
+
+secretGenerator:
+  - name: regcred
+    files:
+      - .dockerconfigjson=./config.json
+    type: kubernetes.io/dockerconfigjson

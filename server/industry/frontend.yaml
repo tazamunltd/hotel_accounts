@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      containers:
+      - name: odoo
+        image: tazamun/frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9000 
+        env:
+        - name: API_BASE
+          value: "https://back.industry.com.sa/"
+        - name: domain
+          value: ".industry.com.sa"
+        - name: app_id
+          value: "1616560"
+        - name: key
+          value: "933de91b2f4d1fa5191a"
+        - name: secret
+          value: "b7e505381061b28ec059"
+        - name: cluster
+          value: "ap2"    
+        - name: MAP_KEY
+          value: "AIzaSyC4ARSwu-AOLCGSKFi5AaqYhb5isnINxk0" 
+        - name: PUSHER_APP_KEY
+          value: "75951d0e59e5b0b7a9f1" 
+        - name: PUSHER_APP_CLUSTER
+          value: "eu"     

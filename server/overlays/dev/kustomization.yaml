@@ -1,7 +1,7 @@
 resources: 
  - ../../base
 
-namespace: default 
+namespace: dev
 
 
 namePrefix:

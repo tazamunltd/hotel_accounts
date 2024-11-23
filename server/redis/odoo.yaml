@@ -12,16 +12,15 @@ spec:
       labels:
         app: odoo
     spec:
+      imagePullSecrets:
+      - name: regcred
       restartPolicy: Always
       containers:
       - name: odoo
-        image: tazamun/hotel:latest
+        image: tazamun/hotel:dev2.0
         imagePullPolicy: Always
         ports:
-        - containerPort: 8069
-          protocol: TCP
-        - containerPort: 8071
-          protocol: TCP
+        - containerPort: 8069 
         env:
         - name: HOST
           value: postgres
@@ -30,4 +29,4 @@ spec:
         - name: PASSWORD
           value: odoo
         - name: DATABASE
-          value: hotel
+          value: dev

@@ -2,44 +2,28 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hotel
-  #annotations:
-    #argocd-image-updater.argoproj.io/git-branch: nur
-   # argocd-image-updater.argoproj.io/image-list: hotel=murad1997/hotel
-    #argocd-image-updater.argoproj.io/hotel.update-strategy: newest-build
-    #argocd-image-updater.argoproj.io/hotel.pull-secret:  dockerhub-secret
-   # argocd-image-updater.argoproj.io/write-back-method: git
-   # argocd-image-updater.argoproj.io/write-back-target: Kustomization
-
 spec:
   replicas: 1
   template:
     spec:
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always 
       containers:
       - name: hotel
-        image: odoo:17
+        image: tazamun/hotel:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8069
+          protocol: TCP
+        - containerPort: 8071
+          protocol: TCP
         env:
         - name: HOST
           value: postgres.default.svc.cluster.local
         - name: USER
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: POSTGRES_USER
+          value: odoo
         - name: PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: POSTGRES_PASSWORD
+          value: odoo
         - name: DATABASE
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: POSTGRES_DB
-          volumeMounts:
-           - name: odoo-data
-             mountPath: /var/lib/odoo
-      volumes:
-      - name: odoo-data
-        emptyDir: {}
+          value: hotel
