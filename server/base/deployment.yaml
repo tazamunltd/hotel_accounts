@@ -20,10 +20,10 @@ spec:
           protocol: TCP
         env:
         - name: HOST
-          value: postgres.industry.svc.cluster.local
+          value: postgres-postgresql.database.svc.cluster.local
         - name: USER
           value: odoo
         - name: PASSWORD
-          value: odoo
+          value: Roll@1300010
         - name: DATABASE
-          value: hotel
+          value: odoo
