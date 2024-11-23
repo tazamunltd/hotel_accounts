@@ -19,4 +19,6 @@ spec:
       containers:
       - name: hotel
         image: tazamun/hotel-dev:latest
+        imagePullPolicy: Always
+        
 

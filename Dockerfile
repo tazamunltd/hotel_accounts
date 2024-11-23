@@ -53,7 +53,8 @@ RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
 RUN pip install --upgrade pip setuptools wheel Cython==3.0.0a10
 
 COPY requirements.txt /opt/odoo-tazamun/requirements.txt
-# RUN pip install gevent==20.9.0 --no-build-isolation
+
+RUN pip install gevent
 RUN pip install -r /opt/odoo-tazamun/requirements.txt
 
 # Create a session directory with correct permissions
