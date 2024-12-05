@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: listerner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: listerner
+  template:
+    metadata:
+      labels:
+        app: listerner
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      containers:
+      - name: listener
+        image: tazamun/hotel:listerner    
+        imagePullPolicy: Always
+        ports:  
+        - containerPort: 9001
+        env:
+        - name: POSTGRES_DB
+          value: test
+        - name: POSTGRES_USER
+          value: odoo
+        - name: POSTGRES_PASSWORD
+          value: odoo
+        - name: POSTGRES_HOST
+          value: postgres
+        - name: REDIS_HOST
+          value: redis  
+        - name: REDIS_PORT
+          value: "6379"  
+

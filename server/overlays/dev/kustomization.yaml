@@ -1,7 +1,7 @@
 resources: 
  - ../../base
 
-namespace: default 
+namespace: hotel
 
 
 namePrefix:
@@ -17,5 +17,5 @@ patchesStrategicMerge:
 configMapGenerator:
 - name: postgres-config
   env: config.properties
-  namespace: dev
+  namespace: hotel
 

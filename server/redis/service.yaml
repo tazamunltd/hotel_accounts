@@ -14,12 +14,24 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: redis
 spec:
+  type: NodePort
   ports:
-  - port: 5432
+  - port: 6379
   selector:
-    app: postgres
+    app: redis
 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: listerner
+spec:
+  type: NodePort
+  ports:
+  - port: 9001
+  selector:
+    app: listerner
 
 
