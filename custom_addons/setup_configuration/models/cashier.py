@@ -4,6 +4,7 @@ class DepartmentCategory(models.Model):
     _name = 'department.category'
     _description = 'Department Category'
 
+    _rec_name = 'category'
     category = fields.Char(string="Category", required=True)
     description = fields.Char(string="Description", required=True)
     abbreviation = fields.Char(string="Abbreviation")
@@ -15,6 +16,7 @@ class DepartmentCode(models.Model):
     _name = 'department.code'
     _description = 'Department Code'
 
+    _rec_name = 'department'
     department = fields.Char(string="Department", required=True)
     description = fields.Char(string="Description", required=True)
     abbreviation = fields.Char(string="Abbreviation")
@@ -28,6 +30,7 @@ class DepartmentCode(models.Model):
         ('telephone_charge', 'Telephone Charge'),
         ('other', 'Other Payments')
     ], string="Category")
+    dept_category = fields.Many2one('department.category', string="Category")
     user_sort = fields.Integer(string="User Sort", default=0)
 
     # Functionality selection fields
@@ -63,18 +66,19 @@ class DepartmentCode(models.Model):
     sort_order = fields.Integer(string="Sort Order", default=0)
 
     # New Field for GI Accounts
-    default_account_id = fields.Many2one('account.account', string="Default Account")
+    # default_account_id = fields.Many2one('account.account', string="Default Account")
 
 class PostingItem(models.Model):
     _name = 'posting.item'
     _description = 'Posting Item'
 
+    _rec_name = 'item_code'
     item_code = fields.Char(string="Item", required=True)
     description = fields.Char(string="Description")
     abbreviation = fields.Char(string="Abbreviation")
     arabic_description = fields.Char(string="Arabic Desc.")
     arabic_abbreviation = fields.Char(string="Arabic Abbr.")
-    main_department = fields.Char(string="Main Department")
+    main_department = fields.Many2one('department.code', string="Main Department")
     default_currency = fields.Char(string="Default Currency")
     default_value = fields.Float(string="Default Value", default=0.0)
     entry_value_type = fields.Selection([
@@ -96,6 +100,19 @@ class PostingItem(models.Model):
     # Additions Fields
     addition_line = fields.One2many('posting.item.addition', 'posting_item_id', string="Additions")
     user_sort = fields.Integer(string="User Sort", default=0)
+    show_in_website = fields.Boolean(string="Show in Website")
+    website_desc = fields.Char(string='Website Description')
+
+    posting_item_selection = fields.Selection(
+        [
+            ('first_night', 'First Night'),
+            ('every_night', 'Every Night'),
+        ],
+        string="Posting Item Option",
+        help="Select whether the posting applies to the first night or every night."
+    )
+
+    taxes = fields.Many2one('account.tax', string="Taxes")
 
 class PostingItemAddition(models.Model):
     _name = 'posting.item.addition'

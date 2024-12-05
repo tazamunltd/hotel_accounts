@@ -26,6 +26,9 @@
                             <field name="icon" widget="image" class="oe_avatar"
                                    string=""/>
                         </group>
+                        <group>
+                            <field name="frequency" widget="radio"/>
+                        </group>
                     </group>
                 </sheet>
                 <div class="oe_chatter">

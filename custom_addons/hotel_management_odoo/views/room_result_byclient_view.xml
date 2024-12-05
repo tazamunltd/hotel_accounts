@@ -1,0 +1,133 @@
+<odoo>
+
+    <!-- Tree View for Room Results By Client -->
+    <record id="view_room_result_by_client_tree" model="ir.ui.view">
+        <field name="name">room.result.by.client.tree</field>
+        <field name="model">room.result.by.client</field>
+        <field name="arch" type="xml">
+            <tree>
+               <field name="report_date"/>
+                <field name="room_type"/>
+                <field name="total_rooms"/>
+                <field name="out_of_order"/>
+                <field name="available"/>
+                <field name="inhouse"/>
+                <field name="expected_arrivals"/>
+                <field name="expected_departures"/>
+                <field name="expected_inhouse"/>
+                <field name="expected_occupied_rate"/>
+                <field name="overbook"/>
+                <field name="free_to_sell"/>
+                <field name="reserved"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Graph View for Room Results By Client -->
+    <record id="view_room_result_by_client_graph" model="ir.ui.view">
+        <field name="name">room.result.by.client.graph</field>
+        <field name="model">room.result.by.client</field>
+        <field name="arch" type="xml">
+            <graph string="Room Results By Client" type="bar">
+                <field name="report_date" type="row"/>
+                <field name="room_type" type="row"/>
+                <field name="total_rooms" type="measure"/>
+                <field name="out_of_order" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="inhouse" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_inhouse" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="overbook" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+                <field name="reserved" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View for Room Results By Client -->
+    <record id="view_room_result_by_client_pivot" model="ir.ui.view">
+        <field name="name">room.result.by.client.pivot</field>
+        <field name="model">room.result.by.client</field>
+        <field name="arch" type="xml">
+            <pivot string="Room Results By Client">
+                <field name="report_date" type="row"/>
+                <field name="room_type" type="row"/>
+                <field name="total_rooms" type="measure"/>
+                <field name="out_of_order" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="inhouse" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_inhouse" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="overbook" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+                <field name="reserved" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Server Action -->
+    <record id="action_run_process" model="ir.actions.server">
+        <field name="name">Run Room Process</field>
+        <field name="model_id" ref="model_room_result_by_client"/>
+        <field name="state">code</field>
+        <field name="code"><![CDATA[
+model.run_process()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Room Results',
+    'res_model': 'room.result.by.client',
+    'view_mode': 'tree,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_room_result_by_client_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_room_result_by_client_pivot').id, 'pivot'),
+        (env.ref('hotel_management_odoo.view_room_result_by_client_graph').id, 'graph'),
+    ],
+    'target': 'current',
+}
+]]></field>
+    </record>
+
+    <!-- Report Action -->
+<!--    <record id="action_room_result_by_client_report" model="ir.actions.report">-->
+<!--        <field name="name">Room Results By Client Report</field>-->
+<!--        <field name="model">room.result.by.client</field>-->
+<!--        <field name="report_type">qweb-pdf</field>-->
+<!--        <field name="report_name">hotel_management_odoo.report_room_result_by_client</field>-->
+<!--        <field name="report_file">hotel_management_odoo.report_room_result_by_client</field>-->
+<!--        <field name="binding_model_id" ref="model_room_result_by_client"/>-->
+<!--        <field name="binding_type">report</field>-->
+<!--    </record>-->
+
+    <!-- Action Window -->
+    <record id="action_room_result_by_client" model="ir.actions.act_window">
+        <field name="name">Room Results By Client</field>
+        <field name="res_model">room.result.by.client</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_reporting"
+              name="Reporting"
+              parent="hotel_management_menu_root"
+              sequence="30"/>
+
+    <menuitem id="menu_reservation"
+              name="Reservation"
+              parent="menu_reporting"
+              sequence="10"/>
+
+    <!-- Run Room Process Menu Item -->
+    <menuitem
+        id="menu_run_process"
+        name="Yearly Reservation Chart"
+        parent="menu_reservation"
+        action="action_run_process"
+        sequence="20"
+    />
+
+</odoo>

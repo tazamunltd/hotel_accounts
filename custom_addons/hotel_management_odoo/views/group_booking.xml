@@ -15,16 +15,19 @@
                             </group>
                             <group>
                                 <group>
-                                    <field name="profile_id"/>
+                                    <!-- <field name="profile_id"/> -->
                                     <field name="group_name"/>
-                                    <field name="company"/>
+                                    <field name="is_grp_company"/>
+                                    <field name="company" domain="[('is_company', '=', is_grp_company)]"/>
                                     <field name="nationality"/>
                                 </group>
                                 <group>
                                     <field name="source_of_business"/>
                                     <field name="status_code"/>
                                     <field name="house_use"/>
+                                    <field name="house_use_codes_" invisible="house_use == False"/>
                                     <field name="complimentary"/>
+                                    <field name="complimentary_codes" invisible="complimentary == False"/>
                                 </group>
                             </group>
 

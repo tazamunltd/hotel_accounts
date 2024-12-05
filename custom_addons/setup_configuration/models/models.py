@@ -108,9 +108,72 @@ class RateDetail(models.Model):
     _name = 'rate.detail'
     _description = 'Rate Details'
 
+
+    hotel_services_config = fields.Many2one('hotel.configuration', string="Hotel Services")
+    line_ids = fields.One2many('rate.detail', 'parent_id', string="Lines")
+    parent_id = fields.Many2one('rate.detail', string="Parent")
+
+    def action_add_line(self):
+        """Add a line with the current field values to the table below."""
+        self.write({
+            'line_ids': [(0, 0, {
+                'hotel_services_config': self.hotel_services_config.id,
+                'packages_posting_item': self.packages_posting_item,
+                'packages_value': self.packages_value,
+                'packages_rhythm': self.packages_rhythm,
+                'packages_value_type': self.packages_value_type,
+            })]
+        })
+
+
+    # taxes = fields.Many2one('account.tax', string="Taxes")
+    customize_meal = fields.Selection([
+        ('meal_pattern', 'Meal Pattern'),
+        ('customize', 'Customize Meal')
+    ], string="Meal Option", required=True, default='meal_pattern')
+    adult_meal_rate = fields.Float(string='Adult Rate')
+    child_meal_rate = fields.Float(string='Child Rate')
+    infant_meal_rate = fields.Float(string='Infant Rate')
+
+    packages_line_number = fields.Integer(string="Line")
+    packages_posting_item = fields.Char(string="Posting Item")
+    packages_value = fields.Float(string="Value")
+    packages_rhythm = fields.Selection([
+        ('every_night', 'Every Night'),
+        ('first_night', 'First Night')
+    ], string="Rhythm", default='every_night')
+
+    packages_value_type = fields.Selection([
+        ('added_value', 'Added Value'),
+        ('per_pax', 'Per Pax')
+    ], string="Value Type", default='added_value')
+
     from_date = fields.Date(string="From Date")
     to_date = fields.Date(string="To Date")
+    rate_detail_dicsount = fields.Float(string="Discount")
+    is_amount = fields.Boolean(string="Amount", default=True)
+    is_percentage = fields.Boolean(string="Percentage", default=False)
+
+    @api.onchange('is_amount')
+    def _onchange_is_amount(self):
+        if self.is_amount:
+            self.is_percentage = False
+
+    @api.onchange('is_percentage')
+    def _onchange_is_percentage(self):
+        if self.is_percentage:
+            self.is_amount = False
+
+    # Additional radio buttons for Total and Line Wise
+    amount_selection = fields.Selection([
+        ('total', 'Total'),
+        ('line_wise', 'Line Wise')
+    ], string="Amount Selection")
+
+    posting_item = fields.Many2one('posting.item', string="Posting Item")
+
     rate_code_id = fields.Many2one('rate.code', string="Rate Code")
+    
 
     # Room Prices for different configurations (1 Pax, 2 Pax, etc.)
     default_price = fields.Float(string="Default")
@@ -284,6 +347,24 @@ class RateDetail(models.Model):
 
     meal_pattern_id = fields.Many2one('meal.pattern', string="Meal Pattern")
 
+    rate_meal_pattern = fields.Many2one('meal.pattern', string="Meal Pattern")
+
+    packages_line_number = fields.Integer(string="Line")
+    packages_posting_item = fields.Char(string="Posting Item")
+    packages_value = fields.Float(string="Value")
+    packages_rhythm = fields.Selection([
+        ('every_night', 'Every Night'),
+        ('first_night', 'First Night')
+    ], string="Rhythm", default='every_night')
+
+    packages_value_type = fields.Selection([
+        ('added_value', 'Added Value'),
+        ('per_pax', 'Per Pax')
+    ], string="Value Type", default='added_value')
+
+    rate_detail_child = fields.Float(string="Child")
+    rate_detail_infant = fields.Float(string="Infant")
+
     def action_set_room_type_rate(self):
         return {
             'type': 'ir.actions.act_window',
@@ -293,9 +374,9 @@ class RateDetail(models.Model):
             'view_type': 'form',
             'target': 'current',  # Use 'current' instead of 'new' to show the full tree and form view
             'context': {
-                'default_rate_code_id': self.id,
+                'default_rate_code_id': self.rate_code_id.id,
             },
-            'domain': [('rate_code_id', '=', self.id)]
+            'domain': [('rate_code_id', '=', self.rate_code_id.id)]
         }
 
     def action_set_room_number_rate(self):
@@ -307,14 +388,16 @@ class RateDetail(models.Model):
             'view_type': 'form',
             'target': 'current',  # Use 'current' instead of 'new' to show the full tree and form view
             'context': {
-                'default_rate_code_id': self.id,
+                'default_rate_code_id': self.rate_code_id.id,
             },
-            'domain': [('rate_code_id', '=', self.id)]
+            'domain': [('rate_code_id', '=', self.rate_code_id.id)]
         }
 
 class RoomTypeSpecificRate(models.Model):
     _name = 'room.type.specific.rate'
     _description = 'Room Type Specific Rate'
+
+
 
     # Fields for Room Type Specific Rate Model
     rate_code_id = fields.Many2one('rate.code', string="Rate Code", required=True)
@@ -322,6 +405,7 @@ class RoomTypeSpecificRate(models.Model):
     to_date = fields.Date(string="To Date", required=True)
     room_type_id = fields.Many2one('room.type', string="Room Type", required=True)
 
+    
     # Fields for Weekday Rates
     room_type_monday_pax_1 = fields.Float(string="Monday 1 Pax")
     room_type_monday_pax_2 = fields.Float(string="Monday 2 Pax")
@@ -387,6 +471,81 @@ class RoomTypeSpecificRate(models.Model):
     pax_4 = fields.Float(string="4 Pax")
     pax_5 = fields.Float(string="5 Pax")
     pax_6 = fields.Float(string="6 Pax")
+
+    # Linked to rate.detail
+    rate_detail_id = fields.Many2one('rate.detail', string="Rate Detail")
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(RoomTypeSpecificRate, self).default_get(fields_list)
+        context = self.env.context
+
+        # Get the rate_code_id from context if provided
+        rate_code_id = context.get('default_rate_code_id')
+        if rate_code_id:
+            # Fetch the related rate.detail record
+            rate_detail = self.env['rate.detail'].search([('rate_code_id', '=', rate_code_id)], limit=1)
+            if rate_detail:
+                # Prefill the pax fields and weekday-specific fields with values from rate.detail
+                res.update({
+                    'pax_1': rate_detail.pax_1,
+                    'pax_2': rate_detail.pax_2,
+                    'pax_3': rate_detail.pax_3,
+                    'pax_4': rate_detail.pax_4,
+                    'pax_5': rate_detail.pax_5,
+                    'pax_6': rate_detail.pax_6,
+
+                    'room_type_monday_pax_1': rate_detail.monday_pax_1,
+                    'room_type_monday_pax_2': rate_detail.monday_pax_2,
+                    'room_type_monday_pax_3': rate_detail.monday_pax_3,
+                    'room_type_monday_pax_4': rate_detail.monday_pax_4,
+                    'room_type_monday_pax_5': rate_detail.monday_pax_5,
+                    'room_type_monday_pax_6': rate_detail.monday_pax_6,
+
+                    'room_type_tuesday_pax_1': rate_detail.tuesday_pax_1,
+                    'room_type_tuesday_pax_2': rate_detail.tuesday_pax_2,
+                    'room_type_tuesday_pax_3': rate_detail.tuesday_pax_3,
+                    'room_type_tuesday_pax_4': rate_detail.tuesday_pax_4,
+                    'room_type_tuesday_pax_5': rate_detail.tuesday_pax_5,
+                    'room_type_tuesday_pax_6': rate_detail.tuesday_pax_6,
+
+                    'room_type_wednesday_pax_1': rate_detail.wednesday_pax_1,
+                    'room_type_wednesday_pax_2': rate_detail.wednesday_pax_2,
+                    'room_type_wednesday_pax_3': rate_detail.wednesday_pax_3,
+                    'room_type_wednesday_pax_4': rate_detail.wednesday_pax_4,
+                    'room_type_wednesday_pax_5': rate_detail.wednesday_pax_5,
+                    'room_type_wednesday_pax_6': rate_detail.wednesday_pax_6,
+
+                    'room_type_thursday_pax_1': rate_detail.thursday_pax_1,
+                    'room_type_thursday_pax_2': rate_detail.thursday_pax_2,
+                    'room_type_thursday_pax_3': rate_detail.thursday_pax_3,
+                    'room_type_thursday_pax_4': rate_detail.thursday_pax_4,
+                    'room_type_thursday_pax_5': rate_detail.thursday_pax_5,
+                    'room_type_thursday_pax_6': rate_detail.thursday_pax_6,
+
+                    'room_type_friday_pax_1': rate_detail.friday_pax_1,
+                    'room_type_friday_pax_2': rate_detail.friday_pax_2,
+                    'room_type_friday_pax_3': rate_detail.friday_pax_3,
+                    'room_type_friday_pax_4': rate_detail.friday_pax_4,
+                    'room_type_friday_pax_5': rate_detail.friday_pax_5,
+                    'room_type_friday_pax_6': rate_detail.friday_pax_6,
+
+                    'room_type_saturday_pax_1': rate_detail.saturday_pax_1,
+                    'room_type_saturday_pax_2': rate_detail.saturday_pax_2,
+                    'room_type_saturday_pax_3': rate_detail.saturday_pax_3,
+                    'room_type_saturday_pax_4': rate_detail.saturday_pax_4,
+                    'room_type_saturday_pax_5': rate_detail.saturday_pax_5,
+                    'room_type_saturday_pax_6': rate_detail.saturday_pax_6,
+
+                    'room_type_sunday_pax_1': rate_detail.sunday_pax_1,
+                    'room_type_sunday_pax_2': rate_detail.sunday_pax_2,
+                    'room_type_sunday_pax_3': rate_detail.sunday_pax_3,
+                    'room_type_sunday_pax_4': rate_detail.sunday_pax_4,
+                    'room_type_sunday_pax_5': rate_detail.sunday_pax_5,
+                    'room_type_sunday_pax_6': rate_detail.sunday_pax_6,
+                })
+        return res
+
 
     # Onchange methods for each checkbox
     @api.onchange('monday_checkbox_rt')
@@ -473,6 +632,7 @@ class RoomNumberStore(models.Model):
 
     name = fields.Char(string="Room Name", required=True)
     fsm_location = fields.Many2one('fsm.location', string="Location")
+    room_type = fields.Many2one('room.type', string="Room Type")
 
 class FSMLocation(models.Model):
     _inherit = 'fsm.location'
@@ -518,6 +678,9 @@ class RoomNumberSpecificRate(models.Model):
                     self.env['room.number.store'].create({
                         'name': room.name,
                         'fsm_location': room.fsm_location.id,})
+                    
+
+    room_number_default_price = fields.Float(string="Default")
                     
 
      # Fields for Weekday Rates
@@ -588,13 +751,153 @@ class RoomNumberSpecificRate(models.Model):
     saturday_checkbox_rn = fields.Boolean(string="Apply Default for Saturday")
     sunday_checkbox_rn = fields.Boolean(string="Apply Default for Sunday")
 
+    # Onchange methods for each checkbox
+    @api.onchange('monday_checkbox_rn')
+    def _onchange_monday_checkbox_rn(self):
+        if self.monday_checkbox_rn:
+            self.room_number_monday_pax_1 = self.pax_1
+            self.room_number_monday_pax_2 = self.pax_2
+            self.room_number_monday_pax_3 = self.pax_3
+            self.room_number_monday_pax_4 = self.pax_4
+            self.room_number_monday_pax_5 = self.pax_5
+            self.room_number_monday_pax_6 = self.pax_6
+
+    @api.onchange('tuesday_checkbox_rn')
+    def _onchange_tuesday_checkbox_rn(self):
+        if self.tuesday_checkbox_rn:
+            self.room_number_tuesday_pax_1 = self.pax_1
+            self.room_number_tuesday_pax_2 = self.pax_2
+            self.room_number_tuesday_pax_3 = self.pax_3
+            self.room_number_tuesday_pax_4 = self.pax_4
+            self.room_number_tuesday_pax_5 = self.pax_5
+            self.room_number_tuesday_pax_6 = self.pax_6
+
+    @api.onchange('wednesday_checkbox_rn')
+    def _onchange_wednesday_checkbox_rn(self):
+        if self.wednesday_checkbox_rn:
+            self.room_number_wednesday_pax_1 = self.pax_1
+            self.room_number_wednesday_pax_2 = self.pax_2
+            self.room_number_wednesday_pax_3 = self.pax_3
+            self.room_number_wednesday_pax_4 = self.pax_4
+            self.room_number_wednesday_pax_5 = self.pax_5
+            self.room_number_wednesday_pax_6 = self.pax_6
+
+    @api.onchange('thursday_checkbox_rn')
+    def _onchange_thursday_checkbox_rn(self):
+        if self.thursday_checkbox_rn:
+            self.room_number_thursday_pax_1 = self.pax_1
+            self.room_number_thursday_pax_2 = self.pax_2
+            self.room_number_thursday_pax_3 = self.pax_3
+            self.room_number_thursday_pax_4 = self.pax_4
+            self.room_number_thursday_pax_5 = self.pax_5
+            self.room_number_thursday_pax_6 = self.pax_6
+
+    @api.onchange('friday_checkbox_rn')
+    def _onchange_friday_checkbox_rn(self):
+        if self.friday_checkbox_rn:
+            self.room_number_friday_pax_1 = self.pax_1
+            self.room_number_friday_pax_2 = self.pax_2
+            self.room_number_friday_pax_3 = self.pax_3
+            self.room_number_friday_pax_4 = self.pax_4
+            self.room_number_friday_pax_5 = self.pax_5
+            self.room_number_friday_pax_6 = self.pax_6
+
+    @api.onchange('saturday_checkbox_rn')
+    def _onchange_saturday_checkbox_rn(self):
+        if self.saturday_checkbox_rn:
+            self.room_number_saturday_pax_1 = self.pax_1
+            self.room_number_saturday_pax_2 = self.pax_2
+            self.room_number_saturday_pax_3 = self.pax_3
+            self.room_number_saturday_pax_4 = self.pax_4
+            self.room_number_saturday_pax_5 = self.pax_5
+            self.room_number_saturday_pax_6 = self.pax_6
+
+    @api.onchange('sunday_checkbox_rn')
+    def _onchange_sunday_checkbox_rn(self):
+        if self.sunday_checkbox_rn:
+            self.room_number_sunday_pax_1 = self.pax_1
+            self.room_number_sunday_pax_2 = self.pax_2
+            self.room_number_sunday_pax_3 = self.pax_3
+            self.room_number_sunday_pax_4 = self.pax_4
+            self.room_number_sunday_pax_5 = self.pax_5
+            self.room_number_sunday_pax_6 = self.pax_6
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(RoomNumberSpecificRate, self).default_get(fields_list)
+        context = self.env.context
+
+        # Get the rate_code_id from context if provided
+        rate_code_id = context.get('default_rate_code_id')
+        if rate_code_id:
+            # Fetch the related rate.detail record
+            rate_detail = self.env['rate.detail'].search([('rate_code_id', '=', rate_code_id)], limit=1)
+            if rate_detail:
+                # Prefill the pax fields and weekday-specific fields with values from rate.detail
+                res.update({
+                    'pax_1': rate_detail.pax_1,
+                    'pax_2': rate_detail.pax_2,
+                    'pax_3': rate_detail.pax_3,
+                    'pax_4': rate_detail.pax_4,
+                    'pax_5': rate_detail.pax_5,
+                    'pax_6': rate_detail.pax_6,
+
+                    'room_number_monday_pax_1': rate_detail.monday_pax_1,
+                    'room_number_monday_pax_2': rate_detail.monday_pax_2,
+                    'room_number_monday_pax_3': rate_detail.monday_pax_3,
+                    'room_number_monday_pax_4': rate_detail.monday_pax_4,
+                    'room_number_monday_pax_5': rate_detail.monday_pax_5,
+                    'room_number_monday_pax_6': rate_detail.monday_pax_6,
+
+                    'room_number_tuesday_pax_1': rate_detail.tuesday_pax_1,
+                    'room_number_tuesday_pax_2': rate_detail.tuesday_pax_2,
+                    'room_number_tuesday_pax_3': rate_detail.tuesday_pax_3,
+                    'room_number_tuesday_pax_4': rate_detail.tuesday_pax_4,
+                    'room_number_tuesday_pax_5': rate_detail.tuesday_pax_5,
+                    'room_number_tuesday_pax_6': rate_detail.tuesday_pax_6,
+
+                    'room_number_wednesday_pax_1': rate_detail.wednesday_pax_1,
+                    'room_number_wednesday_pax_2': rate_detail.wednesday_pax_2,
+                    'room_number_wednesday_pax_3': rate_detail.wednesday_pax_3,
+                    'room_number_wednesday_pax_4': rate_detail.wednesday_pax_4,
+                    'room_number_wednesday_pax_5': rate_detail.wednesday_pax_5,
+                    'room_number_wednesday_pax_6': rate_detail.wednesday_pax_6,
+
+                    'room_number_thursday_pax_1': rate_detail.thursday_pax_1,
+                    'room_number_thursday_pax_2': rate_detail.thursday_pax_2,
+                    'room_number_thursday_pax_3': rate_detail.thursday_pax_3,
+                    'room_number_thursday_pax_4': rate_detail.thursday_pax_4,
+                    'room_number_thursday_pax_5': rate_detail.thursday_pax_5,
+                    'room_number_thursday_pax_6': rate_detail.thursday_pax_6,
+
+                    'room_number_friday_pax_1': rate_detail.friday_pax_1,
+                    'room_number_friday_pax_2': rate_detail.friday_pax_2,
+                    'room_number_friday_pax_3': rate_detail.friday_pax_3,
+                    'room_number_friday_pax_4': rate_detail.friday_pax_4,
+                    'room_number_friday_pax_5': rate_detail.friday_pax_5,
+                    'room_number_friday_pax_6': rate_detail.friday_pax_6,
+
+                    'room_number_saturday_pax_1': rate_detail.saturday_pax_1,
+                    'room_number_saturday_pax_2': rate_detail.saturday_pax_2,
+                    'room_number_saturday_pax_3': rate_detail.saturday_pax_3,
+                    'room_number_saturday_pax_4': rate_detail.saturday_pax_4,
+                    'room_number_saturday_pax_5': rate_detail.saturday_pax_5,
+                    'room_number_saturday_pax_6': rate_detail.saturday_pax_6,
+
+                    'room_number_sunday_pax_1': rate_detail.sunday_pax_1,
+                    'room_number_sunday_pax_2': rate_detail.sunday_pax_2,
+                    'room_number_sunday_pax_3': rate_detail.sunday_pax_3,
+                    'room_number_sunday_pax_4': rate_detail.sunday_pax_4,
+                    'room_number_sunday_pax_5': rate_detail.sunday_pax_5,
+                    'room_number_sunday_pax_6': rate_detail.sunday_pax_6,
+                })
+        return res
+
 
     extra_bed = fields.Float(string="Extra Bed")
     suite_supl = fields.Float(string="Suite Supplement")
     child = fields.Float(string="Child")
     infant = fields.Float(string="Infant")
-
-
 
 
 class RatePromotion(models.Model):
@@ -656,8 +959,8 @@ class CountryRegion(models.Model):
     _name = 'country.region'
     _description = 'Country Region'
 
-    country_id = fields.Many2one('res.country', string="Region", required=True)
-    description = fields.Char(string="Description")
+    country_ids = fields.Many2many('res.country', string="Countries", required=True)
+    Region = fields.Char(string="Region")
     abbreviation = fields.Char(string="Abbreviation")
     user_sort = fields.Integer(string="User Sort", default=0)
 
@@ -742,4 +1045,67 @@ class CountryCode(models.Model):
         for record in self:
             record.country_code = record.country_id.code if record.country_id else ''
             record.phone_code = record.country_id.phone_code if record.country_id else ''
+
+
+class HotelConfiguration(models.Model):
+    _name = 'hotel.configuration'
+    _description = "Hotel Configuration"
+    _rec_name = 'service_name'
+
+    service_name = fields.Char(string="Service Name", required=True)
+    unit_price = fields.Float(string="Service Price", readonly=True)
+    frequency = fields.Selection(
+        [
+            ('one time', 'One Time'),
+            ('daily', 'Daily'),
+        ],
+        string='Frequency',
+        readonly=True,
+    )
+
+    @api.model
+    def _sync_with_service(self, service):
+        """Sync hotel configuration with hotel service"""
+        config = self.search([('service_name', '=', service.name)], limit=1)
+        if config:
+            # Update existing configuration
+            config.write({
+                'unit_price': service.unit_price,
+                'frequency': service.frequency,
+            })
+        else:
+            # Create a new configuration
+            self.create({
+                'service_name': service.name,
+                'unit_price': service.unit_price,
+                'frequency': service.frequency,
+            })
     
+
+class Yearly_geographical_chart(models.Model):
+    _name = 'yearly.geographical.chart'
+    _description = 'Yearly Geographical Chart'
+
+    report_date = fields.Date(string='Report Date', required=True)
+    client_id = fields.Many2one('res.partner', string='Client', required=True)
+    room_type = fields.Char(string='Room Type', required=True)
+    total_rooms = fields.Integer(string='Total Rooms', readonly=True)
+    available = fields.Integer(string='Available', readonly=True)
+    inhouse = fields.Integer(string='In-House', readonly=True)
+    expected_arrivals = fields.Integer(string='Expected Arrivals', readonly=True)
+    expected_departures = fields.Integer(string='Expected Departures', readonly=True)
+    expected_inhouse = fields.Integer(string='Expected In House', readonly=True)
+    reserved = fields.Integer(string='Reserved', readonly=True)
+    expected_occupied_rate = fields.Integer(string='Expected Occupied Rate (%)', readonly=True)
+    out_of_order = fields.Integer(string='Out of Order', readonly=True)
+    overbook = fields.Integer(string='Overbook', readonly=True)
+    free_to_sell = fields.Integer(string='Free to sell', readonly=True)
+    sort_order = fields.Integer(string='Sort Order', readonly=True)
+
+    def action_generate_results(self):
+        # Generate and update room results by client
+        self.run_process_by_room_type()
+
+    def run_process_by_room_type(self):
+        # Execute the SQL query and process the results
+        pass

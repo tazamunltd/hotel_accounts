@@ -35,6 +35,7 @@ class HotelFloor(models.Model):
     
 class FSMLocationInherit(models.Model):
     _inherit = 'fsm.location'
+    _rec_name = 'complete_name'
 
     partner_id = fields.Many2one(required=False)
 

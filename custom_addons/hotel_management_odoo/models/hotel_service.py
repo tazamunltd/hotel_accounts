@@ -1,25 +1,4 @@
-# -*- coding: utf-8 -*-
-###############################################################################
-#
-#    Cybrosys Technologies Pvt. Ltd.
-#
-#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Vishnu K P (odoo@cybrosys.com)
-#
-#    You can modify it under the terms of the GNU LESSER
-#    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU LESSER GENERAL PUBLIC LICENSE (LGPL v3) for more details.
-#
-#    You should have received a copy of the GNU LESSER GENERAL PUBLIC LICENSE
-#    (LGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
-#
-###############################################################################
-from odoo import fields, models
+from odoo import fields, models, api
 
 
 class HotelService(models.Model):
@@ -42,3 +21,39 @@ class HotelService(models.Model):
                                  domain=[('type_tax_use', '=', 'sale')],
                                  default=lambda self:
                                  self.env.company.account_sale_tax_id)
+
+    frequency = fields.Selection(
+        [
+            ('one time', 'One Time'),
+            ('daily', 'Daily'),
+        ],
+        string='Frequency',
+    )
+
+    @api.model
+    def create(self, vals):
+        """Override create to reflect changes in hotel.configuration"""
+        record = super(HotelService, self).create(vals)
+        self.env['hotel.configuration']._sync_with_service(record)
+        return record
+
+    def write(self, vals):
+        """Override write to reflect changes in hotel.configuration"""
+        result = super(HotelService, self).write(vals)
+        for record in self:
+            self.env['hotel.configuration']._sync_with_service(record)
+        return result
+
+    def unlink(self):
+        """Override unlink to remove corresponding records in hotel.configuration"""
+        for record in self:
+            # Find corresponding hotel.configuration record
+            config = self.env['hotel.configuration'].search([('service_name', '=', record.name)])
+            # Remove the hotel.configuration record if it exists
+            config.unlink()
+        return super(HotelService, self).unlink()
+
+    def sync_existing_services(self):
+        """Synchronize existing services with hotel.configuration"""
+        for record in self.search([]):  # Fetch all hotel.service records
+            self.env['hotel.configuration']._sync_with_service(record)

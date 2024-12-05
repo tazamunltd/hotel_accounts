@@ -55,7 +55,7 @@
                                 <field name="arabic_description"/>
                                 <field name="arabic_abbreviation"/>
                                 <field name="unit_price"/>
-                                <field name="category"/>
+                                <field name="dept_category"/>
                                 <field name="user_sort"/>
                             </group>
                             <group string="Function">
@@ -81,11 +81,11 @@
                         </page>
 
                         <!-- GI Accounts Tab -->
-                        <page string="GI Accounts">
+                        <!-- <page string="GI Accounts">
                             <group>
                                 <field name="default_account_id"/>
                             </group>
-                        </page>
+                        </page> -->
                     </notebook>
                 </sheet>
             </form>
@@ -117,17 +117,25 @@
             <form string="Posting Item">
                 <sheet>
                     <group>
-                        <field name="item_code"/>
-                        <field name="description"/>
-                        <field name="abbreviation"/>
-                        <field name="arabic_description"/>
-                        <field name="arabic_abbreviation"/>
-                        <field name="main_department"/>
-                        <field name="default_currency"/>
-                        <field name="default_value"/>
-                        <field name="entry_value_type"/>
-                        <field name="fixed_value"/>
-                        <field name="dummy_room_discount"/>
+                        <group>
+                            <field name="item_code"/>
+                            <field name="description"/>
+                            <field name="abbreviation"/>
+                            <field name="arabic_description"/>
+                            <field name="arabic_abbreviation"/>
+                            <field name="main_department"/>
+                        </group>
+                        <group>
+                            <field name="default_currency"/>
+                            <field name="default_value"/>
+                            <field name="entry_value_type"/>
+                            <field name="fixed_value"/>
+                            <field name="dummy_room_discount"/>
+                            <field name="posting_item_selection" widget='radio'/>
+                            <field name="show_in_website"/>
+                            <field name="website_desc" string="Website Description" invisible="show_in_website==False"/>
+                            <field name="taxes"/>
+                        </group>
                     </group>
 
                     <group string="Default Settings">

@@ -152,53 +152,137 @@
               sequence="1"/>
 
     <!-- Front Desk Menu under Codes -->
+
+     <!-- Parent Menu under Settings -->
+    <menuitem id="menu_hotel_configuration"
+            name="Application Configuration"
+            parent="base.menu_administration"
+            sequence="10"
+            groups="base.group_system"/>
     
     
     <!-- Rate Categories Menu under Reservation -->
-    <menuitem id="sub_menu_rate_categories" 
+    <!-- <menuitem id="sub_menu_rate_categories" 
               name="Rate Categories" 
               parent="sub_menu_reservation"
               action="action_rate_category"
+              /> -->
+
+    <menuitem id="sub_menu_rate_categories" 
+              name="Rate Categories" 
+              action="action_rate_category"
+              parent="menu_hotel_configuration"
+              sequence="1"
+              groups="base.group_system"  
               />
 
+        <!-- Submenu: Market Categories -->
+        <menuitem id="sub_menu_market_categories"
+        name="Market Categories"
+        action="action_market_category"
+        parent="menu_hotel_configuration"
+        sequence="2"
+        groups="base.group_system"/>
+
+    <!-- Submenu: Market Segments -->
+    <menuitem id="sub_menu_market_segments"
+        name="Market Segments"
+        action="action_market_segment"
+        parent="menu_hotel_configuration"
+        sequence="3"
+        groups="base.group_system"/>
+
+    <!-- Submenu: Source of Business -->
+    <menuitem id="sub_menu_source_business"
+        name="Source of Business"
+        action="action_source_business"
+        parent="menu_hotel_configuration"
+        sequence="4"
+        groups="base.group_system"/>
+
+    <!-- Submenu: Country Regions -->
+    <menuitem id="sub_menu_country_region"
+        name="Country Regions"
+        action="action_country_region"
+        parent="menu_hotel_configuration"
+        sequence="5"
+        groups="base.group_system"/>
+
+    <!-- Submenu: Country Codes -->
+    <menuitem id="sub_menu_country_codes"
+        name="Country Codes"
+        action="action_country_code"
+        parent="menu_hotel_configuration"
+        sequence="6"
+        groups="base.group_system"/>
+
+    <!-- Submenu: Reservation Status Codes -->
+    <menuitem id="sub_menu_reservation_status_codes"
+        name="Reservation Status Codes"
+        action="action_reservation_status_code"
+        parent="menu_hotel_configuration"
+        sequence="7"
+        groups="base.group_system"/>
+
+    <!-- Submenu: Allotment Codes -->
+    <menuitem id="sub_menu_allotment_codes"
+        name="Allotment Codes"
+        action="action_allotment_code"
+        parent="menu_hotel_configuration"
+        sequence="8"
+        groups="base.group_system"/>
+
+    <!-- Submenu: Cancellation Codes -->
+    <menuitem id="sub_menu_cancellation_codes"
+        name="Cancellation Codes"
+        action="action_cancellation_code"
+        parent="menu_hotel_configuration"
+        sequence="9"
+        groups="base.group_system"/>
+
+
+
+
     <!-- Rate Code Menu under Reservation -->
-    <menuitem id="sub_menu_rate_code" 
+    <!-- <menuitem id="sub_menu_rate_code" 
               name="Rate Code" 
               parent="sub_menu_reservation"
               action="action_rate_code"
               />
+    
+
 
     <menuitem id="sub_menu_rate_promotion" 
               name="Rate Promotions" 
               parent="sub_menu_reservation"
               action="action_rate_promotion"
-              />
+              /> -->
     
-    <menuitem id="sub_menu_market_categories" 
+    <!-- <menuitem id="sub_menu_market_categories" 
               name="Market Categories" 
               parent="sub_menu_reservation"
               action="action_market_category"
-              />
+              /> -->
 
-    <menuitem id="sub_menu_market_segments" 
+    <!-- <menuitem id="sub_menu_market_segments" 
               name="Market Segments" 
               parent="sub_menu_reservation"
               action="action_market_segment"
-              />
+              /> -->
 
-    <menuitem id="sub_menu_source_business" 
+    <!-- <menuitem id="sub_menu_source_business" 
               name="Source of Business" 
               parent="sub_menu_reservation"
               action="action_source_business"
-              />      
+              />       -->
     
-    <menuitem id="sub_menu_company_category" 
+    <!-- <menuitem id="sub_menu_company_category" 
               name="Company Category" 
               parent="sub_menu_reservation"
               action="action_company_category"
-              />  
+              />   -->
               
-    <menuitem id="sub_menu_country_region" 
+    <!-- <menuitem id="sub_menu_country_region" 
               name="Country Regions" 
               parent="sub_menu_reservation"
               action="action_country_region"
@@ -208,10 +292,10 @@
               name="Country Codes" 
               parent="sub_menu_reservation"
               action="action_country_code"
-              />
+              /> -->
 
     
-    <menuitem id="sub_menu_reservation_status_codes" 
+    <!-- <menuitem id="sub_menu_reservation_status_codes" 
               name="Reservation Status Codes" 
               parent="sub_menu_reservation"
               action="action_reservation_status_code"
@@ -227,5 +311,5 @@
               name="Cancellation Codes" 
               parent="sub_menu_reservation"
               action="action_cancellation_code"
-              />
+              /> -->
 </odoo>

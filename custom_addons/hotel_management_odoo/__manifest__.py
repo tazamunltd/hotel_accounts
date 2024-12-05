@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['account', 'event', 'fleet', 'lunch', 'base'],
+    'depends': ['account', 'event', 'fleet', 'lunch', 'base', 'setup_configuration'],
     'data': [
         'security/hotel_management_odoo_groups.xml',
         # 'security/hotel_management_odoo_security.xml',
@@ -55,6 +55,9 @@
         'wizard/room_booking_detail_views.xml',
         'wizard/sale_order_detail_views.xml',
         'views/reporting_views.xml',
+        'views/report_template.xml',
+        'views/room_result_by_room_type.xml',
+        'views/room_result_byclient_view.xml',
         'report/room_booking_reports.xml',
         'report/sale_order_reports.xml',
         'views/hotel_view.xml',
@@ -65,6 +68,11 @@
         'views/inherited_views.xml',
         'views/maintenance_request_inherit.xml',
         # 'views/fsm_location_views.xml',
+        'views/room_result_view.xml',
+        'views/room_rate_forecast.xml',
+        'views/yearly_geographical_chart_views.xml',
+        # 'data/cron_job.xml',
+        'views/housekeeping_maintenance_inherit.xml',
     ],
     'assets': {
         'web.assets_backend': [

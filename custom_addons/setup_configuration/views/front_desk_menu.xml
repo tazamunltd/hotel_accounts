@@ -64,6 +64,12 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+    <record id="action_house_code" model="ir.actions.act_window">
+        <field name="name">House Codes</field>
+        <field name="res_model">house.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <!-- Action for Safe Deposit Code -->
     <record id="action_safe_deposit_code" model="ir.actions.act_window">
         <field name="name">Safe Deposit Codes</field>
@@ -106,29 +112,83 @@
               action="action_languages_ui"
               sequence="2"/>
     
-    <menuitem id="sub_menu_room_type" 
+    <!-- <menuitem id="sub_menu_room_type" 
               name="Room Type" 
               parent="sub_menu_front_desk"
               action="action_room_type"
+              /> -->
+    <menuitem id="sub_menu_room_type" 
+              name="Room Type" 
+              action="action_room_type"
+              parent="menu_hotel_configuration"
+              sequence="10"
+              groups="base.group_system"
               />
 
-              <menuitem id="sub_menu_room_specification" 
+
+    <menuitem id="sub_menu_meal_pattern"
+              name="Meal Pattern"
+              action="action_meal_pattern"
+              parent="menu_hotel_configuration"
+              sequence="11"
+              groups="base.group_system"/>
+
+    <!-- Submenu: Complimentary Codes -->
+    <menuitem id="sub_menu_complimentary_code"
+              name="Complimentary Codes"
+              action="action_complimentary_code"
+              parent="menu_hotel_configuration"
+              sequence="12"
+              groups="base.group_system"/>
+
+    <!-- Submenu: Out of Order Codes -->
+    <menuitem id="sub_menu_out_order_codes"
+              name="Out of Order Codes"
+              action="action_out_of_order_code"
+              parent="menu_hotel_configuration"
+              sequence="13"
+              groups="base.group_system"/>
+
+    <!-- Submenu: Room On Hold Codes -->
+    <menuitem id="sub_menu_room_hold_codes"
+              name="Room On Hold Codes"
+              action="action_room_on_hold_code"
+              parent="menu_hotel_configuration"
+              sequence="14"
+              groups="base.group_system"/>
+
+    <!-- Submenu: VIP Codes -->
+    <menuitem id="sub_menu_vip_codes"
+              name="VIP Codes"
+              action="action_vip_code"
+              parent="menu_hotel_configuration"
+              sequence="15"
+              groups="base.group_system"/>
+
+    <menuitem id="sub_menu_house_codes"
+              name="House Codes"
+              action="action_house_code"
+              parent="menu_hotel_configuration"
+              groups="base.group_system"/>
+
+
+              <!-- <menuitem id="sub_menu_room_specification" 
               name="Room Specification" 
               parent="sub_menu_front_desk"
               action="action_room_specification"
-              />
+              /> -->
 
-              <menuitem id="sub_menu_meal_codes" 
+              <!-- <menuitem id="sub_menu_meal_codes" 
               name="Meal Codes" 
               parent="sub_menu_front_desk"
               action="action_meal_code"
-              />
+              /> -->
 
-              <menuitem id="sub_menu_meal_pattern" 
+              <!-- <menuitem id="sub_menu_meal_pattern" 
               name="Meal Pattern" 
               parent="sub_menu_front_desk"
               action="action_meal_pattern"
-              />
+              /> -->
 
               <menuitem id="sub_menu_authorization_codes" 
               name="Authorization Codes" 
@@ -136,7 +196,7 @@
               action="action_authorized_code"
               />
 
-              <menuitem id="sub_menu_complimentary_code" 
+              <!-- <menuitem id="sub_menu_complimentary_code" 
               name="Complimentary Codes" 
               parent="sub_menu_front_desk"
               action="action_complimentary_code"
@@ -152,18 +212,18 @@
               name="Room On Hold Codes" 
               parent="sub_menu_front_desk"
               action="action_room_on_hold_code"
-              />
+              /> -->
 
               <menuitem id="sub_menu_house_use_codes" 
               name="House Use Codes" 
               parent="sub_menu_front_desk"
               />
 
-              <menuitem id="sub_menu_vip_codes" 
+              <!-- <menuitem id="sub_menu_vip_codes" 
               name="VIP Codes" 
               parent="sub_menu_front_desk"
               action="action_vip_code"
-              />
+              /> -->
 
               <menuitem id="sub_menu_safe_deposit_box" 
               name="Safe Deposit Box" 
@@ -171,11 +231,11 @@
               action="action_safe_deposit_code"
               />
 
-              <menuitem id="sub_menu_hotel_codes" 
+              <!-- <menuitem id="sub_menu_hotel_codes" 
               name="Hotel Codes" 
               parent="sub_menu_front_desk"
               action="action_hotel_code"
-              />
+              /> -->
 
               <menuitem id="sub_menu_rentable_assest" 
               name="Rentable Assets" 
@@ -183,11 +243,11 @@
               action="action_rentable_asset"
               />
 
-              <menuitem id="sub_menu_telephone_extension" 
+              <!-- <menuitem id="sub_menu_telephone_extension" 
               name="Telephone Extension" 
               parent="sub_menu_front_desk"
               action="action_telephone_extension"
-              />
+              /> -->
 
               <menuitem id="sub_menu_contact_group" 
               name="Contact Group" 

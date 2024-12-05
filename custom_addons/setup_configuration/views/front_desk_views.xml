@@ -185,6 +185,7 @@
                         <field name="abbreviation"/>
                         <field name="meal_posting_item"/>
                         <field name="user_sort"/>
+                        <field name="taxes"/>
                     </group>
                     <group>
                         <field name="arabic_description"/>
@@ -414,6 +415,46 @@
         <field name="model">vip.code</field>
         <field name="arch" type="xml">
             <tree string="VIP Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="level"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for House Code -->
+    <record id="view_vip_code_form" model="ir.ui.view">
+        <field name="name">house.code.form</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <form string="House Code">
+                <group>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="level"/>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for House Code -->
+    <record id="view_vip_code_tree" model="ir.ui.view">
+        <field name="name">house.code.tree</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <tree string="House Codes">
                 <field name="code"/>
                 <field name="description"/>
                 <field name="abbreviation"/>

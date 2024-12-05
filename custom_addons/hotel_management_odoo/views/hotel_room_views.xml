@@ -148,9 +148,86 @@
         <field name="context">{'default_is_room_avail':True}</field>
     </record>
     <!--Room Menu-->
-    <menuitem id="hotel_room_menu"
+    <!-- <menuitem id="hotel_room_menu"
               name="Room"
               action="hotel_room_action"
               parent="hotel_config_menu"
-              sequence="20"/>
+              sequence="20"/> -->
+
+
+    <menuitem id="hotel_codes"
+              name="Codes"
+              parent="hotel_config_menu" sequence="1"/>
+
+    <menuitem id="sub_menu_rate_code" 
+              name="Rate Code" 
+              parent="hotel_codes"
+              action="setup_configuration.action_rate_code"
+              sequence="1"
+              />
+    
+
+    <menuitem id="sub_menu_rate_promotion" 
+              name="Rate Promotions" 
+              parent="hotel_codes"
+              action="setup_configuration.action_rate_promotion"
+              sequence="2"
+              /> 
+
+    <menuitem id="hotel_room_menu"
+              name="Room"
+              action="hotel_room_action"
+              parent="hotel_codes"
+              sequence="3"/>
+
+    <menuitem id="sub_menu_meal_codes" 
+              name="Meal Codes" 
+              parent="hotel_codes"
+              action="setup_configuration.action_meal_code"
+              sequence="4"
+              />
+
+    <menuitem id="sub_menu_telephone_extension" 
+              name="Telephone Extension" 
+              parent="hotel_codes"
+              action="setup_configuration.action_telephone_extension"
+              sequence="5"
+              />
+
+    <menuitem id="sub_menu_department_codes" 
+              name="Department Codes" 
+              parent="hotel_codes"
+              action="setup_configuration.action_department_code"
+              sequence="6"
+              />
+
+    <menuitem id="sub_menu_posting_items" 
+              name="Posting Items" 
+              parent="hotel_codes"
+              action="setup_configuration.action_posting_item"
+              sequence="7"
+              />
+
+    <menuitem id="sub_menu_dummy_room_codes" 
+              name="Dummy Room Codes" 
+              parent="hotel_codes"
+              action="setup_configuration.action_dummy_room_code"
+              sequence="8"
+              />
+
+
+    <menuitem id="sub_menu_budget_entries" 
+              name="Budget Entries" 
+              parent="hotel_codes"
+              action="setup_configuration.action_budget_entry"
+              sequence="9"
+              />
+
+    <menuitem id="sub_menu_cash_box_codes" 
+              name="Cash Box Codes" 
+              parent="hotel_codes"
+              action="setup_configuration.action_cash_box_code"
+              sequence="10"
+              />
+        
 </odoo>

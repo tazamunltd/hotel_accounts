@@ -2,7 +2,7 @@
 <odoo>
     <!--    Main Menu-->
     <menuitem id="hotel_management_menu_root"
-              name="Hotel Management"
+              name="Central Reservation System"
               web_icon="hotel_management_odoo,static/description/icon.png"
               sequence="1"/>
     <!--    Configuration menu-->
@@ -10,6 +10,12 @@
               name="Configuration"
               sequence="110"
               parent="hotel_management_menu_root"/>
+
+    <menuitem id="hotel_transaction_menu"
+              name="Transaction"
+              sequence="120"
+              parent="hotel_management_menu_root"/>
+
     <!--    Food menu-->
     <menuitem id="food_menu"
               name="Food"

@@ -13,15 +13,15 @@
         <field name="view_mode">kanban,tree,form</field>
     </record>
     <!--    Products Menu-->
-    <menuitem id="lunch_product_menu"
+    <!-- <menuitem id="lunch_product_menu"
               name="Products"
               action="lunch_product_action"
               parent="food_menu"
-              sequence="10"/>
+              sequence="10"/> -->
     <!--    Vendors Menu-->
-    <menuitem id="lunch_supplier_menu"
+    <!-- <menuitem id="lunch_supplier_menu"
               name="Vendors"
               action="lunch_supplier_action"
               parent="food_menu"
-              sequence="20"/>
+              sequence="20"/> -->
 </odoo>

@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class HousekeepingManagement(models.Model):
@@ -6,16 +6,31 @@ class HousekeepingManagement(models.Model):
     _description = 'Housekeeping Management'
 
     # Room Information
-    room_number = fields.Char(string="Room Number")
-    # room_type = fields.Selection([
-    #     ('single', 'Single Room'),
-    #     ('double', 'Double Room'),
-    #     ('triple', 'Triple Room'),
-    #     ('suite', 'Suite Room'),
-    # ], string="Room Type")
+    # room_number = fields.Char(string="Room Number")
+    room_fsm_location = fields.Many2one(
+        'fsm.location',
+        string="Location",
+        domain=[('dynamic_selection_id', '=', 4)]
+    )
 
     room_type = fields.Many2one('room.type', string="Room Type")
 
+    room_number = fields.Many2one('room.number.store', string="Room Number", 
+                                  domain="[('fsm_location', '=', room_fsm_location)]")
+
+    @api.onchange('room_fsm_location')
+    def _onchange_room_fsm_location(self):
+        """Reset the room number when the location changes"""
+        self.room_number = False
+        if self.room_fsm_location:
+            # Store the rooms in a custom model if they do not already exist
+            for room in self.env['hotel.room'].search([('fsm_location', '=', self.room_fsm_location.id)]):
+                existing_room = self.env['room.number.store'].search([('name', '=', room.name), ('fsm_location', '=', room.fsm_location.id)], limit=1)
+                if not existing_room:
+                    self.env['room.number.store'].create({
+                        'name': room.name,
+                        'fsm_location': room.fsm_location.id,})
+                    
 
 
     floor_number = fields.Char(string="Floor #")
@@ -89,14 +104,35 @@ class OutOfOrderManagement(models.Model):
     _name = 'out.of.order.management'
     _description = 'Out of Order Management'
 
+    room_fsm_location = fields.Many2one(
+        'fsm.location',
+        string="Location",
+        domain=[('dynamic_selection_id', '=', 4)]
+    )
+
+    room_number = fields.Many2one('room.number.store', string="Room Number", domain="[('fsm_location', '=', room_fsm_location)]")
+
+    @api.onchange('room_fsm_location')
+    def _onchange_room_fsm_location(self):
+        """Reset the room number when the location changes"""
+        self.room_number = False
+        if self.room_fsm_location:
+            # Store the rooms in a custom model if they do not already exist
+            for room in self.env['hotel.room'].search([('fsm_location', '=', self.room_fsm_location.id)]):
+                existing_room = self.env['room.number.store'].search([('name', '=', room.name), ('fsm_location', '=', room.fsm_location.id)], limit=1)
+                if not existing_room:
+                    self.env['room.number.store'].create({
+                        'name': room.name,
+                        'fsm_location': room.fsm_location.id,})
+
     # Room Information
-    room_number = fields.Char(string="Room Number", required=True)
+    # room_number = fields.Char(string="Room Number", required=True)
     from_date = fields.Date(string="From Date", required=True)
     to_date = fields.Date(string="To Date", required=True)
 
     # Codes and Comments
-    out_of_order_code = fields.Char(string="Out of Order Code", required=True)
-    authorization_code = fields.Char(string="Authorization Code", required=True)
+    out_of_order_code = fields.Char(string="Out of Order Code")
+    authorization_code = fields.Char(string="Authorization Code")
     comments = fields.Text(string="Comments")
 
     # Action Methods
@@ -113,14 +149,35 @@ class RoomsOnHoldManagement(models.Model):
     _name = 'rooms.on.hold.management'
     _description = 'Rooms On Hold Management'
 
+    room_fsm_location = fields.Many2one(
+        'fsm.location',
+        string="Location",
+        domain=[('dynamic_selection_id', '=', 4)]
+    )
+
+    room_number = fields.Many2one('room.number.store', string="Room Number", domain="[('fsm_location', '=', room_fsm_location)]")
+
+    @api.onchange('room_fsm_location')
+    def _onchange_room_fsm_location(self):
+        """Reset the room number when the location changes"""
+        self.room_number = False
+        if self.room_fsm_location:
+            # Store the rooms in a custom model if they do not already exist
+            for room in self.env['hotel.room'].search([('fsm_location', '=', self.room_fsm_location.id)]):
+                existing_room = self.env['room.number.store'].search([('name', '=', room.name), ('fsm_location', '=', room.fsm_location.id)], limit=1)
+                if not existing_room:
+                    self.env['room.number.store'].create({
+                        'name': room.name,
+                        'fsm_location': room.fsm_location.id,})
+
     # Room Information
-    room_number = fields.Char(string="Room Number", required=True)
+    # room_number = fields.Char(string="Room Number", required=True)
     from_date = fields.Date(string="From Date", required=True)
     to_date = fields.Date(string="To Date", required=True)
 
     # Codes and Comments
-    roh_code = fields.Char(string="ROH Code", required=True)
-    authorization_code = fields.Char(string="Authorization Code", required=True)
+    roh_code = fields.Char(string="ROH Code")
+    authorization_code = fields.Char(string="Authorization Code")
     comments = fields.Text(string="Comments")
 
     # Action Methods

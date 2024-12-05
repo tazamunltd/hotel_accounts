@@ -1,0 +1,317 @@
+<odoo>
+    <template id="report_consolidated_template">
+        <t t-name="hotel_management_odoo.report_consolidated_template">
+            <t t-foreach="docs" t-as="doc">
+                <main>
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 12px; margin: 20px;">
+
+                        <!-- Report Title -->
+                        <h2 style="text-align: center; margin-bottom: 20px;">Room Booking Report</h2>
+
+                        <!-- Hotel Info (Hijri, Gregorian Dates, Hotel Details) -->
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr>
+                                <td>
+                                    <strong>Hijri Date:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.hijri_date"/>
+                                </td>
+                                <td style="text-align: right;">
+                                    <strong>Gregorian Date:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.gregorian_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Hotel Name:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.company_id.name"/>
+                                </td>
+                                <td style="text-align: right;">
+                                    <strong>Address:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.company_id.street"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Tel:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.company_id.phone"/>
+                                </td>
+                                <td style="text-align: right;">
+                                    <strong>Arrival Date:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.checkin_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Departure Date:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.checkout_date"/>
+                                </td>
+                                <td style="text-align: right;">
+                                    <strong>Arrival (Hijri):</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.hijri_checkin_date"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Departure (Hijri):</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.hijri_checkout_date"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Guest Details -->
+                        <h4 style="margin-top: 20px; border-bottom: 1px solid #000;">Guest Details</h4>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr>
+                                <td>
+                                    <strong>Full Name:</strong>
+                                </td>
+                                <td>
+                                    <t t-if="doc.adult_ids">
+                                        <t t-esc="doc.adult_ids[0].first_name"/>
+                                        <t t-esc="doc.adult_ids[0].last_name"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <strong>Company:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.partner_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Nationality:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.nationality.name"/>
+                                </td>
+                                <td>
+                                    <strong>Mobile No.:</strong>
+                                </td>
+                                <td>
+                                    <t t-if="doc.adult_ids">
+                                        <t t-esc="doc.adult_ids[0].phone_number"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Passport No.:</strong>
+                                </td>
+                                <td>
+                                    <t t-if="doc.adult_ids">
+                                        <t t-esc="doc.adult_ids[0].passport_number"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <strong>ID No.:</strong>
+                                </td>
+                                <td>
+                                    <t t-if="doc.adult_ids">
+                                        <t t-esc="doc.adult_ids[0].id_number"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Booking Details -->
+                        <h4 style="margin-top: 20px; border-bottom: 1px solid #000;">Booking Details</h4>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr>
+                                <td>
+                                    <strong>Number of Pax:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.number_of_pax"/>
+                                </td>
+                                <td>
+                                    <strong>Number of Nights:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.no_of_nights"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Room Number:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.room_id"/>
+                                </td>
+                                <td>
+                                    <strong>Room Type:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.hotel_room_type.room_type"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Rate Code:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.rate_code.code"/>
+                                </td>
+                                <td>
+                                    <strong>Meal Plan:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.meal_pattern.meal_pattern"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Payment Details -->
+                        <h4 style="margin-top: 20px; border-bottom: 1px solid #000;">Payment Details</h4>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                            <tr>
+                                <td>
+                                    <strong> Average Daily Room Rate:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="rate_avg"/>
+                                </td>
+                                <td>
+                                    <strong> Average Daily Meals Rate:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="meals_avg"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Total Amount:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.total_total_forecast"/>
+                                </td>
+                                <td>
+                                    <strong>Payments:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.payments"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Remaining:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.remaining"/>
+                                </td>
+                                <td>
+                                    <strong>VAT:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.vat"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Municipality:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.municipality"/>
+                                </td>
+                                <td>
+                                    <strong>VAT ID:</strong>
+                                </td>
+                                <td>
+                                    <t t-esc="doc.vat_id"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Guest Information -->
+                        <h4 style="margin-top: 20px; border-bottom: 1px solid #000;">Guest Information</h4>
+                        <table style="width: 100%; border-collapse: collapse; border: 1px solid black; text-align: center;">
+                            <thead style="background-color: #f2f2f2; border: 1px solid black;">
+                                <tr>
+                                    <th style="border: 1px solid black; padding: 5px;">Nationality</th>
+                                    <th style="border: 1px solid black; padding: 5px;">Passport No.</th>
+                                    <th style="border: 1px solid black; padding: 5px;">Tel No.</th>
+                                    <th style="border: 1px solid black; padding: 5px;">ID No.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="booking_details" t-as="booking">
+                                    <!-- Loop for Adults -->
+                                    <t t-foreach="booking['adults']" t-as="adult">
+                                        <tr>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="adult['Nationality']"/>
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="adult['Passport NO.']"/>
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="adult['Tel no.']"/>
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="adult['ID Number']"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Loop for Children -->
+                                    <t t-foreach="booking['children']" t-as="child">
+                                        <tr>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="child['Nationality']"/>
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="child['Passport NO.']"/>
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="child['Tel no.']"/>
+                                            </td>
+                                            <td style="border: 1px solid black; padding: 5px;">
+                                                <t t-esc="child['ID Number']"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+
+
+                        <!-- Terms & Conditions -->
+                        <h4 style="margin-top: 20px; border-bottom: 1px solid #000;">Terms &amp; Conditions</h4>
+                        <p style="font-size: 10px; margin-top: 10px;">
+                            Departure at 2:00 PM, in case of late checkout full day rate will be charged.
+                            <br/>
+                            Guests should notify the front desk in case of extension or early checkout.
+                            <br/>
+                            Refund is not applicable after 30 Minutes from signing RC.
+                            <br/>
+                            Administration is not responsible for lost valuables inside the room.
+                            <br/>
+                            In case of damage, appropriate compensation will be charged.
+                            <br/>
+                            In the event of absence, belongings will be moved to the warehouse.
+                            <br/>
+                            Commitment to Islamic instructions and not to disturb others.
+                        </p>
+                    </div>
+                </main>
+            </t>
+        </t>
+    </template>
+</odoo>

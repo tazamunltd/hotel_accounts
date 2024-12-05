@@ -42,3 +42,10 @@ from . import group_booking
 from . import company
 from . import maintenance_request_inherit
 # from . import rate_code
+from . import room_result
+from . import room_rate_forecast
+from . import room_payment
+from . import setting_inherit
+from . import room_result_by_room_type
+from . import room_result_by_client
+from . import yearly_geographical_chart

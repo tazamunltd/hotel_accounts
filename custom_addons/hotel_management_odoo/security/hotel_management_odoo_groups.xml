@@ -51,5 +51,15 @@
                        (4, ref('hotel_group_reception')), ]"/>
     </record>
 
+    <record id="hotel_management_rule_company_restriction" model="ir.rule">
+        <field name="name">Hotel Management: Restrict module data by company</field>
+        <field name="model_id" ref="hotel_management_odoo.model_room_booking"/>
+        <field name="domain_force">[('company_id', '=', company_id),]</field>
+        <field name="global" eval="True"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
 
 </odoo>

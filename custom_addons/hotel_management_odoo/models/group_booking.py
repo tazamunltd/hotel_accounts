@@ -44,9 +44,39 @@ class GroupBooking(models.Model):
     person_ids = fields.One2many('group.booking.person', 'group_booking_id', string="Persons")
 
     # Main fields
-    profile_id = fields.Char(string='Profile ID', required=True)
+    profile_id = fields.Char(string='Profile ID')
     group_name = fields.Char(string='Group Name')
-    company = fields.Char(string='Company')
+    is_grp_company = fields.Boolean(string='Is Company')
+
+    company = fields.Many2one(
+        'res.partner',
+        string='Contact',
+        required=True
+    )
+
+    @api.onchange('company')
+    def _onchange_customer(self):
+        if self.company:
+            self.nationality = self.company.nationality.id
+            self.source_of_business = self.company.source_of_business.id
+            self.rate_code = self.company.rate_code.id
+            self.market_segment = self.company.market_segments.id
+            self.group_meal_pattern = self.company.meal_pattern.id
+            # self.house_use = self.company.house_use.id
+            # self.complementary = self.company.meal_pattern.id
+
+
+    # company = fields.Char(string='Contact')
+
+    @api.onchange('is_grp_company')
+    def _onchange_is_agent(self):
+        self.partner_id = False
+        return {
+            'domain': {
+                'company': [('is_company', '=', self.is_grp_company)]
+            }
+        }
+
     nationality = fields.Many2one('res.country', string='Nationality')
     source_of_business = fields.Many2one('source.business',string='Source of Business')
     status_code = fields.Selection([
@@ -55,8 +85,35 @@ class GroupBooking(models.Model):
         ('canceled', 'Canceled'),
     ], string='Status Code')
 
-    house_use = fields.Boolean(string='House Use')
+    
     complimentary = fields.Boolean(string='Complimentary')
+    complimentary_codes = fields.Many2one('complimentary.code', string='Complimentary')
+    show_complementary_code = fields.Boolean(string="Show Complementary Code", compute="_compute_show_codes", store=True)
+
+    house_use = fields.Boolean(string='House Use')
+    house_use_codes_ = fields.Many2one('house.code', string='House Use Code')
+    show_house_use_code = fields.Boolean(
+        string="Show House Code", compute="_compute_show_house_codes", store=True)
+
+    @api.depends('complimentary')
+    def _compute_show_codes(self):
+        for record in self:
+            record.show_complementary_code = record.complimentary
+
+    @api.onchange('complimentary')
+    def _onchange_codes(self):
+        if not self.complimentary:
+            self.complimentary_codes = False
+    
+    @api.depends('house_use')
+    def _compute_show_house_codes(self):
+        for record in self:
+            record.show_house_use_code = record.house_use
+
+    @api.onchange('house_use')
+    def _onchange_codes(self):
+        if not self.house_use:
+            self.house_use_codes_ = False
 
     # Payment details
     payment_type = fields.Selection([

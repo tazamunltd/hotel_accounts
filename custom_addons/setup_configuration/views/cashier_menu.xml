@@ -18,7 +18,7 @@
     <record id="action_posting_item" model="ir.actions.act_window">
         <field name="name">Posting Items</field>
         <field name="res_model">posting.item</field>
-        <field name="view_mode">form,tree</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Action for Dummy Room Code -->
@@ -55,14 +55,24 @@
               name="Cashier" 
               parent="menu_code"
               sequence="3"/>
-    
+<!--     
     <menuitem id="sub_menu_department_categories" 
               name="Department Categories" 
               parent="sub_menu_cashier"
               action="action_department_category"
+              /> -->
+    
+    <menuitem id="sub_menu_department_categories" 
+              name="Department Categories" 
+              action="action_department_category"
+              parent="menu_hotel_configuration"
+              sequence="15"
+              groups="base.group_system"  
               />
 
-    <menuitem id="sub_menu_department_codes" 
+              
+
+    <!-- <menuitem id="sub_menu_department_codes" 
               name="Department Codes" 
               parent="sub_menu_cashier"
               action="action_department_code"
@@ -78,14 +88,24 @@
               name="Dummy Room Codes" 
               parent="sub_menu_cashier"
               action="action_dummy_room_code"
-              />
+              /> -->
 
-    <menuitem id="sub_menu_currency_codes" 
+    <!-- <menuitem id="sub_menu_currency_codes" 
               name="Currency Codes" 
               parent="sub_menu_cashier"
               action="action_currency_code"
+              /> -->
+
+    <menuitem id="sub_menu_currency_codes" 
+              name="Currency Codes" 
+              action="action_currency_code"
+              parent="menu_hotel_configuration"
+              sequence="15"
+              groups="base.group_system"
               />
 
+              
+<!-- 
     <menuitem id="sub_menu_budget_entries" 
               name="Budget Entries" 
               parent="sub_menu_cashier"
@@ -96,6 +116,6 @@
               name="Cash Box Codes" 
               parent="sub_menu_cashier"
               action="action_cash_box_code"
-              />
+              /> -->
 
 </odoo>

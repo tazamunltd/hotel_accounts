@@ -1,0 +1,103 @@
+<odoo>
+    <!-- Pivot View -->
+    <record id="view_hotel_room_result_pivot" model="ir.ui.view">
+        <field name="name">hotel.room.result.pivot</field>
+        <field name="model">hotel.room.result</field>
+        <field name="arch" type="xml">
+            <pivot string="Hotel Room Results">
+                <field name="report_date" type="row"/>
+                <field name="room_type" type="row"/>
+                <field name="total_rooms" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="inhouse" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_inhouse" type="measure"/>
+                <field name="reserved" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="out_of_order" type="measure"/>
+                <field name="overbook" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_hotel_room_result_graph" model="ir.ui.view">
+        <field name="name">hotel.room.result.graph</field>
+        <field name="model">hotel.room.result</field>
+        <field name="arch" type="xml">
+            <graph string="Hotel Room Results" type="bar">
+                <field name="report_date" type="row"/>
+                <field name="room_type" type="row"/>
+                <field name="total_rooms" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="inhouse" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_inhouse" type="measure"/>
+                <field name="reserved" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="out_of_order" type="measure"/>
+                <field name="overbook" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_hotel_room_result_tree" model="ir.ui.view">
+        <field name="name">hotel.room.result.tree</field>
+        <field name="model">hotel.room.result</field>
+        <field name="arch" type="xml">
+            <tree string="Hotel Room Results">
+                <field name="report_date"/>
+                <field name="room_type"/>
+                <field name="total_rooms"/>
+                <field name="available"/>
+                <field name="inhouse"/>
+                <field name="expected_arrivals"/>
+                <field name="expected_departures"/>
+                <field name="expected_inhouse"/>
+                <field name="reserved"/>
+                <field name="expected_occupied_rate"/>
+                <field name="out_of_order"/>
+                <field name="overbook"/>
+                <field name="free_to_sell"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action Server -->
+    <record id="action_run_process_room_availability" model="ir.actions.server">
+        <field name="name">Run Hotel Room Process</field>
+        <field name="model_id" ref="model_hotel_room_result"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+model.run_process_room_availability()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Hotel Room Results',
+    'res_model': 'hotel.room.result',
+    'view_mode': 'tree,pivot,graph',
+    'views': [
+        (env.ref('hotel_management_odoo.view_hotel_room_result_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_hotel_room_result_pivot').id, 'pivot'),
+        (env.ref('hotel_management_odoo.view_hotel_room_result_graph').id, 'graph'),
+    ],
+    'target': 'current',
+}
+            ]]>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_run_process_room_availability"
+        name="Room Availability"
+        parent="menu_reservation"
+        action="action_run_process_room_availability"
+        sequence="10"
+    />
+</odoo>

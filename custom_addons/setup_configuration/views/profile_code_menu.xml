@@ -51,7 +51,7 @@
     </record>
 
 
-    <menuitem id="sub_menu_profile_codes" 
+    <!-- <menuitem id="sub_menu_profile_codes" 
               name="Profile Codes" 
               parent="menu_code"
               sequence="4"/>
@@ -96,6 +96,6 @@
               name="Note Category" 
               parent="sub_menu_profile_codes"
               action="action_note_category"
-              />
+              /> -->
 
 </odoo>

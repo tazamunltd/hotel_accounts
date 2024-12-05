@@ -73,13 +73,15 @@ class MealCode(models.Model):
 
     _name = 'meal.code'
     _description = 'Meal Code'
+    _rec_name = 'meal_code'
 
     meal_code = fields.Char(string="Meal Code", required=True)
     description = fields.Char(string="Description", required=True)
     abbreviation = fields.Char(string="Abbreviation")
     arabic_description = fields.Char(string="Arabic Description")
     arabic_abbreviation = fields.Char(string="Arabic Abbreviation")
-    posting_item = fields.Char(string="Posting Item")
+    # posting_item = fields.Char(string="Posting Item")
+    posting_item = fields.Many2one('posting.item',string="Posting Item", ondelete="cascade")
     price_pax = fields.Float(string="Price/Pax")
     price_child = fields.Float(string="Price/Child")
     price_infant = fields.Float(string="Price/Infant")
@@ -97,6 +99,7 @@ class MealCode(models.Model):
         ('iftar', 'Iftar'),
         ('sohor', 'Sohor'),
     ], string="Type", default="unspecified")
+    
 
 
 class MealPattern(models.Model):
@@ -109,16 +112,18 @@ class MealPattern(models.Model):
     abbreviation = fields.Char(string="Abbreviation")
     arabic_description = fields.Char(string="Arabic Description")
     arabic_abbreviation = fields.Char(string="Arabic Abbreviation")
-    meal_posting_item = fields.Char(string="Meal Posting Item")
+    # meal_posting_item = fields.Char(string="Meal Posting Item")
+    meal_posting_item = fields.Many2one('posting.item',string="Meal Posting Item",ondelete="cascade")
     user_sort = fields.Integer(string="User Sort")
     meals_list_ids = fields.One2many('meal.list', 'meal_pattern_id', string="Meals List")
+    taxes = fields.Many2one('account.tax', string="Taxes")
 
 class MealList(models.Model):
     _name = 'meal.list'
     _description = 'Meal List'
 
     line = fields.Integer(string="Line", required=True)
-    meal_code = fields.Char(string="Meal Code", required=True)
+    meal_code = fields.Many2one('meal.code', string="Meal Code", required=True)
     name = fields.Char(string="Name")
     quantity = fields.Integer(string="Quantity", default=1)
     apply_on_arrival = fields.Boolean(string="Apply on Arrival", default=False)
@@ -149,6 +154,7 @@ class ComplimentaryCode(models.Model):
     _name = 'complimentary.code'
     _description = 'Complimentary Code'
 
+    _rec_name = 'code'
     code = fields.Char(string="Code", required=True)
     description = fields.Char(string="Description", required=True)
     abbreviation = fields.Char(string="Abbreviation")
@@ -193,6 +199,21 @@ class VipCode(models.Model):
     _name = 'vip.code'
     _description = 'VIP Code'
 
+    _rec_name = 'code'
+    code = fields.Char(string="Code", required=True)
+    description = fields.Char(string="Description", required=True)
+    abbreviation = fields.Char(string="Abbreviation")
+    arabic_description = fields.Char(string="Arabic Description")
+    arabic_abbreviation = fields.Char(string="Arabic Abbreviation")
+    level = fields.Integer(string="Level", default=0)
+    user_sort = fields.Integer(string="User Sort", default=0)
+    obsolete = fields.Boolean(string="Obsolete", default=False)
+
+class HouseCode(models.Model):
+    _name = 'house.code'
+    _description = 'House Code'
+
+    _rec_name = 'code'
     code = fields.Char(string="Code", required=True)
     description = fields.Char(string="Description", required=True)
     abbreviation = fields.Char(string="Abbreviation")

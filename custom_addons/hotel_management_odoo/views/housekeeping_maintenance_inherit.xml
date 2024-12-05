@@ -1,0 +1,116 @@
+<odoo>
+    <record id="maintenance_housekeeping_request_view_inherit" model="ir.ui.view">
+        <field name="name">maintenance_housekeeping.request.form.inherit</field>
+        <field name="model">maintenance_housekeeping.request</field>
+        <field name="inherit_id" ref="maintenance_housekeeping.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+                 <xpath expr="//field[@name='maintenance_type']" position="after">
+                         <field name="hk_activity_type_id"/>
+                 </xpath>
+
+                 <xpath expr="//notebook" position="inside">
+                    <page string="Activity Items">
+                            <field name="activity_item_ids">
+                                    <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="hk_activity_type"/>
+                                    <field name="hk_status"/>
+                                    <field name="hk_reason"/>
+                                    </tree>
+                            </field>
+                    </page>
+            </xpath>
+                 
+        </field>
+     </record>
+
+    <record id="view_hk_activity_type_list_tree" model="ir.ui.view">
+        <field name="name">hk.activity.type.list.tree</field>
+        <field name="model">hk.activity.type.list</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hk_activity_type_list_form" model="ir.ui.view">
+        <field name="name">hk.activity.type.list.form</field>
+        <field name="model">hk.activity.type.list</field>
+        <field name="arch" type="xml">
+            <form string="HK Activity Type List">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="hk_activity_items_ids">
+                            <tree>
+                                <field name="name"/>
+                                <!-- <field name="activity_type"/> -->
+                                <!-- <field name="status"/> -->
+                            </tree>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_activity_item_tree" model="ir.ui.view">
+        <field name="name">hk.activity.item.tree</field>
+        <field name="model">hk.activity.item</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="hk_activity_type"/>
+                <field name="hk_status"/>
+                <field name="hk_reason"/>
+            </tree>
+        </field>
+    </record>
+    
+    <record id="view_activity_item_form" model="ir.ui.view">
+        <field name="name">hk.activity.item.form</field>
+        <field name="model">hk.activity.item</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name"/>
+                    <field name="hk_activity_type"/>
+                    <field name="hk_status"/>
+                    <field name="hk_reason"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+
+
+     <record id="action_activity_item_list_hk" model="ir.actions.act_window">
+        <field name="name">HouseKeeping Activity Type</field>
+        <field name="res_model">hk.activity.type.list</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_activity_item_hk" model="ir.actions.act_window">
+        <field name="name">HouseKeeping Activity Items</field>
+        <field name="res_model">hk.activity.item</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+     <menuitem
+        id="menu_activity_item_list"
+        name="HK Activity Type List"
+        parent="maintenance_housekeeping.menu_maintenance_configuration"
+        action="action_activity_item_list_hk"
+        sequence="25"
+        />
+
+        <menuitem
+        id="menu_activity_type_list"
+        name="HK Activity Items"
+        parent="maintenance_housekeeping.menu_maintenance_configuration"
+        action="action_activity_item_hk"
+        sequence="30"
+        />
+
+</odoo>

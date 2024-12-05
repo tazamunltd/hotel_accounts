@@ -94,7 +94,7 @@
     </record>
 
     <!-- Hotel Menu -->
-    <menuitem id="hotel_menu" name="Hotels" sequence="70"
+    <!-- <menuitem id="hotel_menu" name="Hotels" sequence="70"
               parent="hotel_management_menu_root"
-              action="hotel_action"/>
+              action="hotel_action"/> -->
 </odoo>

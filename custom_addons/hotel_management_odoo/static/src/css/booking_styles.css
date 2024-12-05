@@ -1,3 +1,7 @@
+.o_hidden_column {
+    display: none !important;
+}
+
 .booking-group {
     padding: 20px;
     background-color: #f9f9f9;

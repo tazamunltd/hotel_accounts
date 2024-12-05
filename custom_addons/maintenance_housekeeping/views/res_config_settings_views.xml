@@ -44,6 +44,12 @@
                                     <div class="o_setting_right_pane">
                                         <label for="website_description"/>
                                         <field name="website_description"/>
+                                        <label for="max_room"/>
+                                        <field name="max_room"/>
+                                        <label for="market_segment"/>
+                                        <field name="market_segment"/>
+                                        <label for="source_of_business"/>
+                                        <field name="source_of_business"/>
                                     </div>
                                 </setting>
                             </block>

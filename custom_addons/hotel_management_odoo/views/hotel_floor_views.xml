@@ -69,5 +69,6 @@
     <menuitem id="menu_location_configuration"
               name="Location"
               parent="hotel_config_menu" 
-              action="action_fsm_location_" />
+              action="action_fsm_location_" 
+              sequence="2"/>
 </odoo>
