@@ -605,40 +605,39 @@ class RoomBooking(models.Model):
 
             posting_items = record.posting_item_ids
 
-            custom_date_ranges = []
-            custom_date_value = 0
-            for line in posting_items:
-                if line.posting_item_selection == 'custom_date':
+            # custom_date_ranges = []
+            # custom_date_value = 0
+            # for line in posting_items:
+            #     if line.posting_item_selection == 'custom_date':
                     
-                    if not line.from_date or not line.to_date:
-                        print(f"Skipping validation for line {line.item_code} as dates are not yet filled.")
-                        continue
-                    from_date = fields.Date.from_string(line.from_date)
-                    to_date = fields.Date.from_string(line.to_date)
-                    print('627',line.from_date, line.to_date, type(line.from_date),type(line.to_date))
+            #         if not line.from_date or not line.to_date:
+            #             print(f"Skipping validation for line {line.item_code} as dates are not yet filled.")
+            #             continue
+            #         from_date = fields.Date.from_string(line.from_date)
+            #         to_date = fields.Date.from_string(line.to_date)
+            #         print('627',line.from_date, line.to_date, type(line.from_date),type(line.to_date))
 
-                    # Check if custom_date is within the booking period
-                    if from_date < checkin_date:
-                        raise ValidationError(f"'From Date' for posting item '{line.item_code}' cannot be earlier than the Check-In date.")
+            #         # Check if custom_date is within the booking period
+            #         if from_date < checkin_date:
+            #             raise ValidationError(f"'From Date' for posting item '{line.item_code}' cannot be earlier than the Check-In date.")
 
-                    if from_date > checkout_date:
-                        raise ValidationError(f"'From Date' for posting item '{line.item_code}' cannot be later than the Check-Out date.")
+            #         if from_date > checkout_date:
+            #             raise ValidationError(f"'From Date' for posting item '{line.item_code}' cannot be later than the Check-Out date.")
 
-                    if to_date <= from_date:
-                        raise ValidationError(f"'To Date' for posting item '{line.item_code}' must be greater than 'From Date'.")
+            #         if to_date <= from_date:
+            #             raise ValidationError(f"'To Date' for posting item '{line.item_code}' must be greater than 'From Date'.")
 
-                    if to_date > checkout_date:
-                        raise ValidationError(f"'To Date' for posting item '{line.item_code}' cannot be later than the Check-Out date.")
+            #         if to_date > checkout_date:
+            #             raise ValidationError(f"'To Date' for posting item '{line.item_code}' cannot be later than the Check-Out date.")
 
-                    # custom_date_ranges.append({
-                    #     'from_date': from_date,
-                    #     'to_date': to_date,
-                    #     'default_value': line.default_value
-                    # })
+            #         # custom_date_ranges.append({
+            #         #     'from_date': from_date,
+            #         #     'to_date': to_date,
+            #         #     'default_value': line.default_value
+            #         # })
 
-                    # Sum the default value for the custom_date item
-                    custom_date_value += line.default_value
-                    print('633', custom_date_value)
+            #         # Sum the default value for the custom_date item
+            #         custom_date_value += line.default_value
 
 
             # Initialize variables for calculation
@@ -692,7 +691,9 @@ class RoomBooking(models.Model):
                     if line.posting_item_selection == 'custom_date' and line.from_date and line.to_date:
                         from_date = fields.Date.from_string(line.from_date)
                         to_date = fields.Date.from_string(line.to_date)
-                        
+                        checkin_date = fields.Date.from_string(record.checkin_date)
+                        checkout_date = fields.Date.from_string(record.checkout_date)
+                        print('696', from_date, to_date,checkin_date,checkout_date)
                         # Check if current forecast_date falls within the custom date range
                         if from_date <= forecast_date <= to_date:
                             fixed_post_value += line.default_value * record.room_count
@@ -796,6 +797,12 @@ class RoomBooking(models.Model):
             self.payment_type = self.group_booking.payment_type
             self.complementary_codes = self.group_booking.complimentary_codes.id if self.group_booking.complimentary_codes else False
             self.house_use_codes = self.group_booking.house_use_codes_.id if self.group_booking.house_use_codes_ else False
+            if self.group_booking.company and self.group_booking.company.is_vip:
+                self.vip = True
+                self.vip_code = self.group_booking.company.vip_code.id if self.group_booking.company.vip_code else False
+            else:
+                self.vip = False
+                self.vip_code = False
             # self.meal_pattern = self.group_booking.meal_pattern.id if self.group_booking.meal_pattern else False
             # self.partner_id = self.group_booking.contact.id if self.group_booking.contact else False
 
@@ -848,6 +855,12 @@ class RoomBooking(models.Model):
             self.rate_code = self.partner_id.rate_code.id
             self.market_segment = self.partner_id.market_segments.id
             self.meal_pattern = self.partner_id.meal_pattern.id
+            if self.partner_id.is_vip:
+                self.vip = True
+                self.vip_code = self.partner_id.vip_code.id if self.partner_id.vip_code else False
+            else:
+                self.vip = False
+                self.vip_code = False
 
     @api.onchange('is_agent')
     def _onchange_is_agent(self):
@@ -1976,17 +1989,7 @@ class RoomBooking(models.Model):
     vip_code = fields.Many2one('vip.code', string="VIP Code")
     show_vip_code = fields.Boolean(string="Show VIP Code", compute="_compute_show_vip_code", store=True)
 
-    # @api.depends('vip')
-    # def _compute_show_vip_code(self):
-    #     for record in self:
-    #         record.show_vip_code = record.vip
-
-    # @api.onchange('vip')
-    # def _onchange_vip(self):
-    #     print('VIP Changed')
-    #     if not self.vip:
-    #         self.vip_code = False  # Clear vip_code when VIP is unchecked
-
+    
     complementary = fields.Boolean(string='Complementary')
     complementary_codes = fields.Many2one('complimentary.code', string='Complementary Code')
     show_complementary_code = fields.Boolean(string="Show Complementary Code", compute="_compute_show_codes", store=True)
@@ -2011,62 +2014,51 @@ class RoomBooking(models.Model):
         if not self.house_use:
             self.house_use_codes = False
 
-    # @api.constrains('complementary', 'complementary_codes', 'house_use', 'house_use_codes')
+    # @api.constrains('vip', 'complementary', 'house_use', 'vip_code', 'complementary_codes', 'house_use_codes')
     # def _check_required_codes(self):
+    #     # Skip validation in these cases
+    #     if (self.env.context.get('skip_code_validation') or 
+    #         self._context.get('skip_code_validation') or
+    #         self.env.context.get('no_validation')):
+    #         return
+
     #     for record in self:
+    #         # Also check context at record level
+    #         if (record.env.context.get('skip_code_validation') or 
+    #             record._context.get('skip_code_validation')):
+    #             continue
+                
+    #         if record.vip and not record.vip_code:
+    #             raise ValidationError(_("Please select a VIP Code when VIP is checked."))
     #         if record.complementary and not record.complementary_codes:
     #             raise ValidationError(_("Please select a Complementary Code when Complementary is checked."))
     #         if record.house_use and not record.house_use_codes:
     #             raise ValidationError(_("Please select a House Use Code when House Use is checked."))
+
+    # @api.constrains('vip', 'complementary', 'house_use', 'vip_code', 'complementary_codes', 'house_use_codes')
+    # def _check_required_codes(self):
+    #     if self.env.context.get('skip_code_validation'):
+    #         return
+    #     if self.env.context.get('no_validation'):
+    #         return
+    #     for record in self:
     #         if record.vip and not record.vip_code:
     #             raise ValidationError(_("Please select a VIP Code when VIP is checked."))
-
-    # @api.onchange('complementary', 'house_use', 'vip')
-    # def _onchange_special_status_validation(self):
-    #     if self.complementary and not self.complementary_codes:
-    #         return {'warning': {
-    #             'title': _("Warning"),
-    #             'message': _("Please select a Complementary Code when Complementary is checked.")
-    #         }}
-    #     if self.house_use and not self.house_use_codes:
-    #         return {'warning': {
-    #             'title': _("Warning"),
-    #             'message': _("Please select a House Use Code when House Use is checked.")
-    #         }}
-    #     if self.vip and not self.vip_code:
-    #         return {'warning': {
-    #             'title': _("Warning"),
-    #             'message': _("Please select a VIP Code when VIP is checked.")
-    #         }}
-
-    # vip = fields.Boolean(string='VIP')
-    # vip_code = fields.Many2one('vip.code', string="VIP Code")
-
-    # # Adding a computed boolean field that controls if the vip_code should be visible
-    # show_vip_code = fields.Boolean(
-    #     string="Show VIP Code", compute="_compute_show_vip_code", store=True)
-
-    # @api.depends('vip')
-    # def _compute_show_vip_code(self):
-    #     for record in self:
-    #         record.show_vip_code = record.vip
-
-    # @api.onchange('vip')
-    # def _onchange_vip(self):
-    #     print('VIP Changed')
-    #     if not self.vip:
-    #         self.vip_code = False  # Clear vip_code when VIP is unchecked
-
-    # complementary = fields.Boolean(string='Complementary')
-
+    #         if record.complementary and not record.complementary_codes:
+    #             raise ValidationError(_("Please select a Complementary Code when Complementary is checked."))
+    #         if record.house_use and not record.house_use_codes:
+    #             raise ValidationError(_("Please select a House Use Code when House Use is checked."))
+    
 
 
     payment_type = fields.Selection([
         ('cash', 'Cash Payment'),
+        ('prepaid_credit', 'Pre-Paid / Credit Limit'),
         ('credit_limit', 'Credit Limit (C/L)'),
         ('credit_card', 'Credit Card'),
         ('other', 'Other Payment')
     ], string='Payment Type')
+
 
     def unlink(self):
         for rec in self:
@@ -2940,9 +2932,41 @@ class RoomBooking(models.Model):
     #             }
     #         }
 
+    # def action_block(self):
+    #     for record in self:
+    #         record.state = "block"
     def action_block(self):
         for record in self:
+            # Check if all room_ids are assigned in room_line_ids
+            unassigned_lines = record.room_line_ids.filtered(lambda line: not line.room_id)
+            if unassigned_lines:
+                raise ValidationError(
+                    "All rooms must be assigned in room lines before moving to the 'block' state."
+                )
+            
+            # If all rooms are assigned, allow state change
             record.state = "block"
+            # record.is_room_line_readonly = True
+
+    all_rooms_assigned = fields.Boolean(
+        string="All Rooms Assigned",
+        compute="_compute_all_rooms_assigned",
+        store=True
+    )
+
+    @api.depends('room_line_ids.room_id')
+    def _compute_all_rooms_assigned(self):
+        for record in self:
+            record.all_rooms_assigned = all(line.room_id for line in record.room_line_ids)
+            if record.all_rooms_assigned:
+                record.action_reload_page()
+    
+    def action_reload_page(self):
+        """Reload the current page when all rooms are assigned."""
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     def action_auto_assign_room(self):
         pass
@@ -3788,6 +3812,7 @@ class RoomBooking(models.Model):
 
     def action_assign_all_rooms(self):
         """Assign all available rooms based on Room Type or any available rooms if no type is selected."""
+        # for booking in self.with_context(skip_code_validation=True):
         for booking in self:
             if booking.state != 'confirmed':
                 raise UserError(
@@ -3833,6 +3858,10 @@ class RoomBooking(models.Model):
 
                 assigned_room = available_rooms[ctr]
                 line.room_id = assigned_room.id
+                # line.sudo().with_context(skip_code_validation=True).booking_id.with_context(skip_code_validation=True)
+                # line.sudo().with_context(skip_code_validation=True).write({
+                #     'room_id': assigned_room.id
+                # })
                 assigned_rooms.append(assigned_room.id)
                 ctr += 1
 
@@ -4076,6 +4105,7 @@ class RoomBooking(models.Model):
 
     def action_search_rooms(self):
         for record in self:
+            record._get_forecast_rates()
             # Handle scenarios when group_booking is selected or not
             if record.group_booking and record.room_count >= 1:
                 # If group_booking is selected and room_count > 1, initiate room search automatically
@@ -4474,6 +4504,8 @@ class RoomBooking(models.Model):
 
     @api.onchange('room_line_ids')
     def _onchange_room_id(self):
+        if self.env.context.get('skip_code_validation'):
+            return
         # Populate available rooms in the dropdown list when user clicks the Room field
         if not self.is_button_clicked:
             return {'domain': {'room_id': [('id', 'in', [])]}}
@@ -5037,6 +5069,8 @@ class HotelInventory(models.Model):
     _description = 'Hotel Inventory'
     _table = 'hotel_inventory'  # This should match the database table name
 
+    # image = fields.Image(string="Image", max_width=128, max_height=128)
+    image = fields.Binary(string='Image', attachment=True)
     hotel_name = fields.Integer(string="Hotel Name")
     room_type = fields.Many2one('room.type', string="Room Type")
     total_room_count = fields.Integer(string="Total Room Count")
@@ -5570,6 +5604,59 @@ class RoomBookingPostingItem(models.Model):
     to_date = fields.Datetime(string="To Date")
     default_value = fields.Float(string="Default Value")
 
+    @api.constrains('posting_item_id', 'booking_id')
+    def _check_unique_posting_item(self):
+        """Ensure the same posting_item_id is not selected twice in the same booking."""
+        for record in self:
+            duplicates = self.env['room.booking.posting.item'].search([
+                ('booking_id', '=', record.booking_id.id),
+                ('posting_item_id', '=', record.posting_item_id.id),
+                ('id', '!=', record.id)  # Exclude the current record
+            ])
+            if duplicates:
+                raise ValidationError(
+                    f"The Posting Item '{record.posting_item_id}' is already selected for this booking. "
+                    "Please choose a different Posting Item."
+                )
+
+
+
+    @api.onchange('from_date', 'to_date')
+    def _onchange_dates(self):
+        """Validate that from_date and to_date are within the check-in and check-out date range."""
+        for record in self:
+            if record.booking_id:
+                # Convert check-in, check-out, from_date, and to_date to date only
+                checkin_date = fields.Date.to_date(record.booking_id.checkin_date)
+                checkout_date = fields.Date.to_date(record.booking_id.checkout_date)
+                from_date = fields.Date.to_date(record.from_date) if record.from_date else None
+                to_date = fields.Date.to_date(record.to_date) if record.to_date else None
+
+                # Debugging: Print normalized dates
+                print('Normalized Dates:', {
+                    'from_date': from_date,
+                    'to_date': to_date,
+                    'checkin_date': checkin_date,
+                    'checkout_date': checkout_date
+                })
+
+                # Validate from_date
+                if from_date:
+                    if not (checkin_date <= from_date <= checkout_date):
+                        raise ValidationError(
+                            "The 'From Date' must be between the check-in and check-out dates of the booking."
+                        )
+
+                # Validate to_date
+                if to_date:
+                    if not (from_date <= to_date <= checkout_date):
+                        raise ValidationError(
+                            "The 'To Date' must be greater than or equal to 'From Date' and within the check-out date."
+                        )
+
+
+
+
     @api.onchange('posting_item_id')
     def _onchange_posting_item_id(self):
         """Update related fields when posting_item_id changes."""
@@ -5580,3 +5667,16 @@ class RoomBookingPostingItem(models.Model):
             # self.from_date = self.posting_item_id.from_date
             # self.to_date = self.posting_item_id.to_date
             self.default_value = self.posting_item_id.default_value
+            # if self.booking_id:
+            #     duplicate = self.booking_id.posting_item_ids.filtered(
+            #         lambda item: item.posting_item_id == self.posting_item_id and item.id != self.id
+            #     )
+            #     if duplicate:
+            #         # Reset the posting_item_id field and raise a warning
+            #         self.posting_item_id = False
+            #         return {
+            #             'warning': {
+            #                 'title': "Duplicate Posting Item",
+            #                 'message': "This Posting Item has already been selected for this booking. Please choose another.",
+            #             }
+            #         }

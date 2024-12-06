@@ -7,7 +7,7 @@
                     <!-- Not Confirm -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'not_confirm'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                             <span>Not Confirm (<t t-esc="dashboardData.not_confirm"/>)</span>
                         </a>
                     </div>
@@ -15,7 +15,7 @@
                     <!-- Confirmed -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'confirmed'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                            <span>Confirmed (<t t-esc="dashboardData.confirmed"/>)</span>
                         </a>
                     </div>
@@ -23,7 +23,7 @@
                     <!-- Waiting List -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'waiting'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                            <span>Waiting List (<t t-esc="dashboardData.waiting"/>)</span>
                         </a>
                     </div>
@@ -31,7 +31,7 @@
                     <!-- Cancelled -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'cancelled'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                            <span>Cancelled (<t t-esc="dashboardData.cancelled"/>)</span>
                         </a>
                     </div>
@@ -39,7 +39,7 @@
                     <!-- Blocked -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'blocked'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                             <span>Blocked (<t t-esc="dashboardData.blocked"/>)</span>
                         </a>
                     </div>
@@ -47,7 +47,7 @@
                     <!-- Today's Check-In -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'today_checkin'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                             <span>Today's Check-In (<t t-esc="dashboardData.today_checkin"/>)</span>
                         </a>
                     </div>
@@ -55,7 +55,7 @@
                     <!-- Today's Check-Out -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'today_checkout'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                             <span>Today's Check-Out (<t t-esc="dashboardData.today_checkout"/>)</span>
                         </a>
                     </div>
@@ -63,7 +63,7 @@
                     <!-- Occupied -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'checkin'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                             <span>Occupied (<t t-esc="dashboardData.checkin"/>)</span>
                         </a>
                     </div>
@@ -71,7 +71,7 @@
                     <!-- Vacant -->
                     <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'vacant'">
                         <a href="#" class="btn btn-primary border-0 rounded-0 text-capitalize text-break fw-normal d-flex align-items-center justify-content-center"
-                           style="width: 140px; height: 140px;">
+                           style="width: 100px; height: 100px;">
                             <span>Vacant (<t t-esc="dashboardData.vacant"/>)</span>
                         </a>
                     </div>

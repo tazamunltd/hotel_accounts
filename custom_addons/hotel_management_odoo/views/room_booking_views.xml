@@ -293,6 +293,7 @@
                                 <field name="maintenance_request_sent" invisible="1"/>
                                 <field name="show_group_booking" invisible="1"/>
                                 <field name="rooms_searched" invisible="1"/>
+                                <field name="all_rooms_assigned" invisible="1"/>
                                 <group>
                                     <group>
                                         <field name="is_readonly_group_booking" invisible="1" />
@@ -325,9 +326,9 @@
                                         <field name="rate_code" readonly="allow_profile_change == True and group_booking == True"/>
                                         <field name="room_price"/>
                                         <field name="meal_price"/>
-                                        <field name="vip_code" invisible="vip == False"/>
-                                        <field name="complementary_codes" invisible="complementary == False"/>
-                                        <field name="house_use_codes" invisible="house_use == False"/>
+                                        <field name="vip_code" invisible="vip == False" required="vip == True"/>
+                                        <field name="complementary_codes" invisible="complementary == False" required="complementary == True"/>
+                                        <field name="house_use_codes" invisible="house_use == False" required="house_use == True"/>
                                         <field name="need_service" invisible="1"/>
                                         <field name="need_fleet" invisible="1"/>
                                         <field name="need_food" invisible="1"/>
@@ -690,7 +691,7 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Posting Itmes">
+                        <page string="Fixed Post">
                             <field name="posting_item_ids">
                                 <tree editable="bottom">
                                      <field name="posting_item_id" string="Posting Item"/>
@@ -698,7 +699,7 @@
 
                                     <field name="description"/>
                                     <!-- <field name="posting_item_combined"/> -->
-                                    <field name="posting_item_selection" widget="radio"/>
+                                    <field name="posting_item_selection"/>
                                     <field name="from_date" readonly="posting_item_selection != 'custom_date'"/>
                                     <field name="to_date" readonly="posting_item_selection != 'custom_date'"/> -->
                                     <field name="default_value"/>
@@ -741,38 +742,17 @@
                             <field name="total_people" invisible="1"/>
                             <field name="is_room_line_readonly" invisible="1"/>
                             <field name="room_line_ids" colspan="4" string="Room Lines" readonly="is_room_line_readonly" context="{'default_checkin_date':checkin_date, 'default_checkout_date':checkout_date, 'default_uom_qty':duration, 'default_hotel_room_type': hotel_room_type}">
-
                                 <tree editable="bottom">
                                     <field name="sequence"  readonly="1"/>
                                     <field name="booked_room_ids" optional="hide" invisible="1"/>
                                     <field name="counter" optional="hide" invisible="1"/>
-
                                     <field name="state" optional="show"/>
                                     <field name="room_id" string="Room" options="{'no_open': True, 'no_create': True}" placeholder="Select rooms" optional="show"/>
                                     <field name="hotel_room_type" style="display:none;" optional="show"/>
                                     <field name="housekeeping_status" optional="show"/>
                                     <field name="maintenance_status" optional="show"/>
                                     <field name="housekeeping_staff_status" optional="show"/>
-                                    <!-- <field name="booked_room_ids" invisible="1"/> -->
-                                    <!-- <field name="hotel_room_type" string="Room Type" invisible="1"/>
-                                      -->
-                                    <!-- <field name="hotel_room_type" string="Room Type" invisible="1" modifiers="{'tree_invisible': true, 'invisible': true}"/> -->
-                                    <!-- <field name="room_type_name" readonly="1"/> -->
-                                    <!-- <field name="related_hotel_room_type" style="display:none;"/> -->
-
-
-                                    <!-- <field name="related_hotel_room_type" invisible="1"/> -->
                                     <field name="adult_count" readonly="1" invisible="1" optional="hide"/>
-                                    <!-- <field name="child_count" readonly="1"/> -->
-                                    <!-- <field name="checkin_date"/> -->
-                                    <!-- <field name="booking_line_visible" invisible="1"/> -->
-                                    <!-- <field name="checkout_date"/> -->
-                                    <!-- <field name="uom_qty" string="Duration" force_save="1"/> -->
-                                    <!-- <field name="uom_id" readonly="booking_line_visible == True" string="Unit of Measure" options="{'no_open': True, 'no_create': True}"/> -->
-                                    <!-- <field name="price_unit" readonly="booking_line_visible == True"/> -->
-                                    <!-- <field name="tax_ids" readonly="booking_line_visible == True " options="{'no_create': True}" widget="many2many_tags"/> -->
-                                    <!-- <field name="price_subtotal" widget="monetary" readonly="booking_line_visible == True"/> -->
-                                    <!-- <field groups="account.group_account_manager" name="price_total" widget="monetary" readonly="booking_line_visible == True"/> -->
                                 </tree>
                             </field>
                             <group colspan="2" class="oe_subtotal_footer oe_right">
@@ -1034,6 +1014,7 @@
                             <field name="web_allowed_reservations"/>
                             <field name="overbooking_allowed"/>
                             <field name="overbooking_rooms"/>
+                            <field name="image" widget="image" class="oe_avatar"/>
                         </tree>
                     </field>
                 </page>

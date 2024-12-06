@@ -104,13 +104,31 @@ class RateCode(models.Model):
         }
 
 
+class RateDetailLine(models.Model):
+    _name = 'rate.detail.line'
+    _description = 'Rate Detail Lines'
+
+    parent_id = fields.Many2one('rate.detail', string="Parent", required=True)
+    hotel_services_config = fields.Many2one(
+        'hotel.configuration', string="Hotel Service")
+    packages_posting_item = fields.Many2one('posting.item', string="Posting Item")
+    packages_value = fields.Float(string="Value")
+    packages_rhythm = fields.Selection([
+        ('every_night', 'Every Night'),
+        ('first_night', 'First Night')
+    ], string="Rhythm", default='every_night')
+    packages_value_type = fields.Selection([
+        ('added_value', 'Added Value'),
+        ('per_pax', 'Per Pax')
+    ], string="Value Type", default='added_value')
+
 class RateDetail(models.Model):
     _name = 'rate.detail'
     _description = 'Rate Details'
 
 
     hotel_services_config = fields.Many2one('hotel.configuration', string="Hotel Services")
-    line_ids = fields.One2many('rate.detail', 'parent_id', string="Lines")
+    line_ids = fields.One2many('rate.detail.line', 'parent_id', string="Lines")
     parent_id = fields.Many2one('rate.detail', string="Parent")
 
     def action_add_line(self):
@@ -118,7 +136,7 @@ class RateDetail(models.Model):
         self.write({
             'line_ids': [(0, 0, {
                 'hotel_services_config': self.hotel_services_config.id,
-                'packages_posting_item': self.packages_posting_item,
+                'packages_posting_item': self.packages_posting_item.id,
                 'packages_value': self.packages_value,
                 'packages_rhythm': self.packages_rhythm,
                 'packages_value_type': self.packages_value_type,
@@ -136,7 +154,7 @@ class RateDetail(models.Model):
     infant_meal_rate = fields.Float(string='Infant Rate')
 
     packages_line_number = fields.Integer(string="Line")
-    packages_posting_item = fields.Char(string="Posting Item")
+    packages_posting_item = fields.Many2one('posting.item', string="Posting Item")
     packages_value = fields.Float(string="Value")
     packages_rhythm = fields.Selection([
         ('every_night', 'Every Night'),
@@ -350,7 +368,7 @@ class RateDetail(models.Model):
     rate_meal_pattern = fields.Many2one('meal.pattern', string="Meal Pattern")
 
     packages_line_number = fields.Integer(string="Line")
-    packages_posting_item = fields.Char(string="Posting Item")
+    packages_posting_item = fields.Many2one('posting.item', string="Posting Item")
     packages_value = fields.Float(string="Value")
     packages_rhythm = fields.Selection([
         ('every_night', 'Every Night'),

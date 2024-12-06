@@ -476,6 +476,33 @@ class RoomBookingLine(models.Model):
     #     if self.room_id:
     #         self.state = 'confirmed'
 
+    def unlink(self):
+        """Override unlink to handle cascading deletion of related child records."""
+        for record in self:
+            if record.booking_id:
+                # Find the corresponding child bookings based on sequence or counter
+                child_bookings = self.env['room.booking'].search([
+                    ('parent_booking_id', '=', record.booking_id.id),
+                    ('room_line_ids.counter', '=', record.counter)  # Assuming counter identifies related lines
+                ])
+                
+                # Log details for debugging
+                print(f"Deleting related child bookings: {child_bookings.ids} for record {record.id}")
+                
+                # Delete related child bookings
+                child_bookings.unlink()
+
+        # Call the original unlink method to delete the current record
+        return super(RoomBookingLine, self).unlink()
+
+
+
+    def assign_room_manual(self, room_id):
+        """Method to handle manual room assignments with proper context"""
+        return self.with_context(skip_code_validation=True).write({
+            'room_id': room_id,
+        })
+
     @api.onchange('room_id')
     def _onchange_room_id(self):
         """Update booking state based on room_id value and log changes."""
@@ -487,6 +514,7 @@ class RoomBookingLine(models.Model):
                 # Reset the field and raise a warning
                 raise ValidationError(
                     "This room is already assigned to the current booking. Please select a different room.")
+            
             if self.room_id is None:
                 # self.booking_id.state = 'not_confirmed'
                 print(f"Room ID cleared. Booking state updated to 'not_confirmed' for booking ID {self.booking_id.id}.")
@@ -556,9 +584,15 @@ class RoomBookingLine(models.Model):
                         # super(RoomBookingLine, affected_line).write({'room_id': self.room_id.id, 'counter': counter_value, 'id':numeric_id})
                 else:
                     print(f"New room_line created with Room ID {self.room_id.id}.")
+
                 
             self.booking_id.state = 'confirmed'
             print(f"Room ID assigned. Booking state updated to 'confirmed' for booking ID {self.booking_id.id}.")
+        if not self.room_id and not self.booking_id.parent_booking_id:
+            print("Line 498")
+            self._delete_child_booking_records(self.counter, self.booking_id)
+            self.booking_id.write({'state': 'not_confirmed'})
+            return
 
 
     @api.onchange('room_line_ids')
@@ -897,6 +931,13 @@ class RoomBookingLine(models.Model):
                                 })]
                             })
                             # print(f"Reassigned room_id {new_room_id} for child booking {child_booking.id}.")
+                    
+                    # Check if all rooms are assigned in the parent booking
+                    # all_rooms_assigned = all(line.room_id for line in parent_booking.room_line_ids)
+                    # if all_rooms_assigned:
+                    #     parent_bookings_to_update.append((parent_booking, {
+                    #         'is_room_line_readonly': True
+                    #     }))
 
                 # If room_id is not provided, move to 'not_confirmed' state
                 if not room_id:
@@ -978,8 +1019,8 @@ class RoomBookingLine(models.Model):
                             'room_line_ids': [(0, 0, {
                                 'sequence':record.sequence,
                                 'room_id': room_id,
-                                'checkin_date': record.checkin_date,
-                                'checkout_date': record.checkout_date,
+                                'checkin_date': parent_booking.checkin_date,
+                                'checkout_date': parent_booking.checkout_date,
                                 'uom_qty': 1,
                                 'adult_count': record.adult_count,
                                 'child_count': record.child_count,
@@ -988,11 +1029,11 @@ class RoomBookingLine(models.Model):
                                 'counter': counter
                             })],
                             'posting_item_ids': [(6, 0, parent_booking.posting_item_ids.ids)],
-                            'checkin_date': record.checkin_date,
-                            'checkout_date': record.checkout_date,
+                            'checkin_date': parent_booking.checkin_date,
+                            'checkout_date': parent_booking.checkout_date,
                             'state': 'block',
                             'group_booking': parent_booking.group_booking.id,
-                            'is_room_line_readonly': False,
+                            # 'is_room_line_readonly': True,
                         }
 
 
@@ -1027,3 +1068,46 @@ class RoomBookingLine(models.Model):
         return super(RoomBookingLine, self).write(vals)
     
     
+    def _delete_child_booking_records(self, counter, parent_booking):
+        """Helper function to delete child booking records."""
+        # Find all child bookings related to this parent booking
+        child_bookings = self.env['room.booking'].search([
+            ('parent_booking_id', '=', parent_booking.id)
+        ])
+        
+        for child_booking in child_bookings:
+            # Find matching room lines in child booking based on counter
+            matching_lines = child_booking.room_line_ids.filtered(
+                lambda line: line.counter == counter
+            )
+            
+            if matching_lines:
+                # Set state to cancel before deletion
+                matching_lines.sudo().write({'state': 'cancel'})
+                # Delete matching lines
+                matching_lines.sudo().unlink()
+                
+                # If no room lines left, set booking to cancel and delete
+                if not child_booking.room_line_ids:
+                    child_booking.sudo().write({
+                        'show_in_tree': False,
+                        'state': 'cancel'
+                    })
+                    child_booking.sudo().unlink()
+
+    def unlink(self):
+        """Handle deletion of room booking lines."""
+        for record in self:
+            if record.booking_id and not record.booking_id.parent_booking_id:
+                # Set state to cancel before deletion
+                record.write({'state': 'cancel'})
+                self._delete_child_booking_records(record.counter, record.booking_id)
+                
+                # Update parent booking state if needed
+                remaining_lines = record.booking_id.room_line_ids - record
+                if not remaining_lines:
+                    record.booking_id.write({
+                        'state': 'cancel'
+                    })
+        
+        return super(RoomBookingLine, self).unlink()
