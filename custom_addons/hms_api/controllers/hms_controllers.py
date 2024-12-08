@@ -1,3 +1,5 @@
+from email.policy import default
+
 from decorator import append
 
 from odoo import http, fields
@@ -123,21 +125,21 @@ class WebAppController(http.Controller):
 
         redis_keys = ["hotels", "services", "meals"]
         redis_client = self.get_redis_connections()
-        print("REDIS CLIENT", redis_client)
+        # print("REDIS CLIENT", redis_client)
 
         if redis_client:
             try:
                 redis_data = {"status": "success"}
                 for key in redis_keys:
-                    print("KEY", key)
+                    # print("KEY", key)
                     cached_data = redis_client.get(f"{key}_data")
-                    print("CACHE DATA", cached_data)
+                    # print("CACHE DATA", cached_data)
                     if cached_data:
-                        print("Data found in Redis")
+                        # print("Data found in Redis")
                         redis_data[key] = json.loads(cached_data)
                         # return json.loads(cached_data)
 
-                print("LENGTH REDIS", redis_data.keys())
+                # print("LENGTH REDIS", redis_data.keys())
                 if len(redis_data.keys()) == 4:
                     return redis_data
 
@@ -145,10 +147,10 @@ class WebAppController(http.Controller):
                 pass
 
         companies = request.env['res.company'].sudo().search([])
-        print("COMPANIES", companies)
-        print("INVENTORY", len(companies.inventory_ids))
+        # print("COMPANIES", companies)
+        # print("INVENTORY", len(companies.inventory_ids))
         room_types = self.get_model_data('room.type')
-        print("ROOM TYPES", room_types)
+        # print("ROOM TYPES", room_types)
 
         try:
             check_in = fields.Date.from_string(check_in_date)
@@ -178,12 +180,13 @@ class WebAppController(http.Controller):
                 "location": hotel.web_hotel_location,
                 "discount": hotel.web_discount,
                 "review": hotel.web_review,
-                "total_available_rooms": 0
+                "total_available_rooms": 0,
+                "payment": hotel.web_payment
             }
 
             all_rooms = []
             for room_type in room_types:
-                print("CHECK", room_type.description)
+                # print("CHECK", room_type.description)
                 available_rooms_dict = {}
                 # available_rooms = request.env[
                 #     'room.booking'].sudo().check_room_availability_all_hotels_split_across_type(
@@ -193,10 +196,13 @@ class WebAppController(http.Controller):
                 #     person_count,
                 #     room_type.id
                 # )
-                available_rooms = request.env['room.booking'].sudo()._get_available_rooms(check_in, check_out,
-                                                                                          room_type.id,
-                                                                                          room_count, True)
-                # print("AV", len(available_rooms), available_rooms)
+                available_rooms = request.env['room.booking'].sudo().get_available_rooms_for_hotel_api(check_in,
+                                                                                                       check_out,
+                                                                                                       room_type.id,
+                                                                                                       room_count, True,
+                                                                                                       hotel.id)
+
+                # print("AV", len(available_rooms), room_type.description, hotel.name)
                 available_rooms_dict['id'] = room_type.id
                 available_rooms_dict['type'] = room_type.description
                 available_rooms_dict['pax'] = person_count
@@ -283,14 +289,14 @@ class WebAppController(http.Controller):
             try:
                 redis_data = {"status": "success"}
                 for key in redis_keys:
-                    print("KEY", key)
+                    # print("KEY", key)
                     cached_data = redis_client.get(f"{key}_data")
-                    print("CACHE DATA", cached_data)
+                    # print("CACHE DATA", cached_data)
                     if cached_data:
-                        print("Data found in Redis")
+                        # print("Data found in Redis")
                         redis_data[key] = json.loads(cached_data)
 
-                print("LENGTH REDIS", redis_data.keys())
+                # print("LENGTH REDIS", redis_data.keys())
                 if len(redis_data.keys()) == 4:
                     return redis_data
 
@@ -330,17 +336,18 @@ class WebAppController(http.Controller):
             "location": hotel.web_hotel_location,
             "discount": hotel.web_discount,
             "review": hotel.web_review,
-            "total_available_rooms": 0
+            "total_available_rooms": 0,
+            "payment": hotel.web_payment
         }
 
         all_rooms = []
         for room_type in room_types:
-            print("CHECK", room_type.description)
+            # print("CHECK", room_type.description)
             available_rooms_dict = {}
             available_rooms = request.env['room.booking'].sudo()._get_available_rooms(check_in, check_out,
                                                                                       room_type.id,
                                                                                       room_count, True)
-            print("AV", len(available_rooms), available_rooms)
+            # print("AV", len(available_rooms), available_rooms)
             available_rooms_dict['id'] = room_type.id
             available_rooms_dict['type'] = room_type.description
             available_rooms_dict['pax'] = person_count
@@ -378,9 +385,11 @@ class WebAppController(http.Controller):
                 "rhythm": service_line['packages_rhythm'],
             })
 
-        for posting_item in posting_items:
-            if not posting_item["show_in_website"]:
-                posting_items.remove(posting_item)
+        # for posting_item in posting_items:
+        #     if not posting_item["show_in_website"]:
+        #         posting_items.remove(posting_item)
+
+        posting_items = [item for item in posting_items if item["show_in_website"]]
 
         if redis_client:
             try:
@@ -447,10 +456,10 @@ class WebAppController(http.Controller):
         # room_type_specific_rates = request.env['room.type.specific.rate'].sudo().search([])
         # print(room_type_specific_rates)
 
-        print("RC", len(rate_codes))
-        for rate in rate_codes:
-            print("RCI", rate.id)
-            # rate_details = request.env['rate.detail'].sudo().search([('rate_code_id', '=', rate.id)])
+        # print("RC", len(rate_codes))
+        # for rate in rate_codes:
+        #     print("RCI", rate.id)
+        # rate_details = request.env['rate.detail'].sudo().search([('rate_code_id', '=', rate.id)])
 
         room_types = request.env['room.type'].sudo().search([])
         all_hotels_data = []
@@ -459,7 +468,7 @@ class WebAppController(http.Controller):
 
             all_rooms = []
             for room_type in room_types:
-                print("CHECK", room_type.description)
+                # print("CHECK", room_type.description)
                 available_rooms_dict = {}
                 available_rooms = request.env[
                     'room.booking'].sudo().check_room_availability_all_hotels_split_across_type(
@@ -513,9 +522,12 @@ class WebAppController(http.Controller):
     @http.route('/api/room_availability_multiple', type='json', auth='public', methods=['POST'], csrf=False)
     def check_multiple_room_availability(self, **kwargs):
         hotel_id = kwargs.get('hotel_id')
+        person_id = kwargs.get('person_id', '')
+        person_email = kwargs.get('person_email', '')
         check_in_date = kwargs.get('check_in_date')
         check_out_date = kwargs.get('check_out_date')
         pax_data = kwargs.get('data')
+
         # redis_key = f"data:{hotel_id}:{check_in_date}:{check_out_date}:{person_count}:{room_count}"
 
         # redis_client = self.get_redis_connections()
@@ -548,14 +560,24 @@ class WebAppController(http.Controller):
             days.append(current_date.strftime('%A').lower())
             current_date += timedelta(days=1)
 
-        print("D", days)
+        # print("D", days)
 
         if hotel_id == 0:
             companies = request.env['res.company'].sudo().search([])
         else:
             companies = request.env['res.company'].sudo().search([('id', '=', hotel_id)])
 
-        print("H", companies, pax_data)
+        default_rate_code = request.env['rate.code'].sudo().search([('id', '=', 12)])
+
+        partner_rate_code = None
+        partner_domain = [('email', '=', person_email)] if person_email else [
+            ('id', '=', person_id)] if person_id else []
+        # print("PARTNER DOMAIN", partner_domain, len(partner_domain))
+        if len(partner_domain) > 0:
+            partner = request.env['res.partner'].sudo().search(partner_domain, limit=1)
+            partner_rate_code = partner.rate_code
+
+        # print("H", companies, pax_data)
 
         # room_types = request.env['room.type'].sudo().search([])
         # all_hotels_data = []
@@ -627,19 +649,24 @@ class WebAppController(http.Controller):
         all_hotels_data = []
 
         for hotel in companies:
-            hotel_data = {}
-            hotel_data["hotel_id"] = hotel.id
-            hotel_data["age_threshold"] = hotel.age_threshold
+            if partner_rate_code:
+                rate_code = partner_rate_code
+            elif hotel.rate_code:
+                rate_code = hotel.rate_code
+            else:
+                rate_code = default_rate_code
+
+            hotel_data = {"hotel_id": hotel.id, "age_threshold": hotel.age_threshold}
 
             room_types_data = []
             for room_type in room_types:
                 # todo: check singleton room type specific rates
                 room_type_specific_rates = request.env['room.type.specific.rate'].sudo().search(
                     [('room_type_id', '=', room_type.id)])
-                rate_details = request.env['rate.detail'].sudo().search(
-                    [('id', '=', '4')])
+                # rate_details = request.env['rate.detail'].sudo().search([('id', '=', '4')])
+                rate_details = request.env['rate.detail'].sudo().search([('rate_code_id', '=', rate_code.id)])
 
-                print("room_type_specific_rates", room_type_specific_rates, room_type.id)
+                # print("room_type_specific_rates", room_type_specific_rates, room_type.id)
                 room_type_data = {
                     "id": room_type.id,
                     "type": room_type.description,
@@ -651,21 +678,26 @@ class WebAppController(http.Controller):
                     child_price = 0
 
                     for day in days:
-                        # _var = f"room_type_{day}_pax_1"
-                        _var = f"{day}_pax_1"
+                        _var1 = f"{day}_pax_1"
+                        _var2 = f"room_type_{day}_pax_1"
                         if len(rate_details) >= 1:
                             # adult_price += room_type_specific_rates[0][_var] * pax["person_count"]
-                            adult_price += rate_details[_var] * pax["person_count"]
+                            # adult_price += rate_details[_var1] * pax["person_count"]
+                            adult_price += rate_details[0][_var1] * pax["person_count"]
                         # child_price += room_type_specific_rates.child * pax["room_count"]
 
+                        if room_type_specific_rates:
+                            # adult_price += room_type_specific_rates[_var2] * pax["person_count"]
+                            adult_price += room_type_specific_rates[0][_var2] * pax["person_count"]
+
                     available_rooms = request.env['room.booking'].sudo().get_available_rooms_for_api(
-                        check_in, check_out, room_type.id, pax["room_count"], True, pax["person_count"]
+                        check_in, check_out, room_type.id, pax["room_count"], True, pax["person_count"], hotel.id
                     )
 
                     room_data = {
                         "room_count": len(available_rooms),
                         "adult": adult_price,
-                        "child": 0,
+                        # "child": 0,
                         "pax": pax["person_count"]
                     }
 
@@ -703,11 +735,11 @@ class WebAppController(http.Controller):
             days.append(current_date.strftime('%A').lower())
             current_date += timedelta(days=1)
 
-        print("D", days)
+        # print("D", days)
 
         room_type_specific_rates = request.env['room.type.specific.rate'].sudo().search(
             [('room_type_id', '=', room_type_id)])
-        print(room_type_specific_rates)
+        # print(room_type_specific_rates)
         adult_price = 0
         child_price = 0
 
@@ -716,10 +748,10 @@ class WebAppController(http.Controller):
             adult_price += room_type_specific_rates[_var] * total_person_count
             child_price += room_type_specific_rates.child * total_child_count
 
-            print("room_type_specific_rates[_var]", room_type_specific_rates[_var])
+            # print("room_type_specific_rates[_var]", room_type_specific_rates[_var])
 
         price = {"adult": adult_price, "child": child_price}
-        print(price)
+        # print(price)
 
         result = []
         for rate in room_type_specific_rates:
@@ -766,17 +798,17 @@ class WebAppController(http.Controller):
 
         try:
             rate_code = partner.rate_code
-            print("RATE CODE ID", rate_code.id)
+            # print("RATE CODE ID", rate_code.id)
             if not rate_code.id:
                 rate_code = request.env['rate.code'].sudo().search([
                     ('id', '=', 12)
                 ])
-                print("RATECODE ID", rate_code.id)
+                # print("RATECODE ID", rate_code.id)
         except Exception as e:
             rate_code = request.env['rate.code'].sudo().search([
                 ('id', '=', 12)
             ])
-        print("RATE CODE")
+        # print("RATE CODE")
         _adult_count = 0
         _child_count = 0
         availability_results_data = []
@@ -835,7 +867,7 @@ class WebAppController(http.Controller):
                 'show_in_tree': True,
                 'group_booking': partner_group_id,
             })
-            print("RATE CODE", rate_code)
+            # print("RATE CODE", rate_code)
 
             new_booking.action_split_rooms()
             created_booking_ids.append(new_booking.id)
@@ -852,7 +884,7 @@ class WebAppController(http.Controller):
                     ('first_name', '=', ''),
                     ('room_type_id', '!=', ''),
                 ], limit=1)
-                print('existing_adult', existing_adult)
+                # print('existing_adult', existing_adult)
 
                 adult_data = {
                     'room_sequence': 1,
@@ -875,7 +907,7 @@ class WebAppController(http.Controller):
                 # nationality = request.env['res.country'].sudo().search([
                 #     ('name', '=', child.get('nationality', '')),
                 # ])
-                print("CHILD", child)
+                # print("CHILD", child)
 
                 existing_child = request.env['reservation.child'].sudo().search([
                     ('reservation_id', '=', new_booking.id),
@@ -901,7 +933,7 @@ class WebAppController(http.Controller):
                     existing_child.write(child_data)
                 else:
                     request.env['reservation.child'].sudo().create(child_data)
-                print("DONE", child_data)
+                # print("DONE", child_data)
 
             posting_item_ids = []
             for item in services:
@@ -998,7 +1030,7 @@ class WebAppController(http.Controller):
         partner_email = kwargs.get('partner_email')
         partner_id = kwargs.get('partner_id')
 
-        print("Partner", partner_id, partner_email)
+        # print("Partner", partner_id, partner_email)
 
         if partner_id:
             partner = request.env['res.partner'].sudo().search([('id', '=', partner_id)])
@@ -1008,15 +1040,47 @@ class WebAppController(http.Controller):
             return {"status": "error", "message": "provide Partner email or Partner ID"}
 
         partner_group = request.env['group.booking'].sudo().search([('company', '=', partner.id)])
+        all_bookings = request.env['room.booking'].sudo().search([])
         group_bookings_data = []
+        group_booking_id_list = []
+
         for group in partner_group:
             # Get the bookings for the current group
-            group_bookings = request.env['room.booking'].sudo().search([('group_booking', '=', group.id)])
+            # group_bookings = request.env['group.booking'].sudo().search([('group_booking', '=', group.id)])
 
             # Loop through each booking for the current group
-            for booking in group_bookings:
-                group_bookings_data.append({
+            for booking in all_bookings:
+                if group.id == booking.group_booking.id:
+                    group_booking_id_list.append(booking.id)
+                    group_bookings_data.append({
+                        "booking_id": booking.id,
+                        "company_id": booking.company_id.id if booking.company_id else None,
+                        "partner_name": booking.partner_id.name if booking.partner_id else None,
+                        "room_count": booking.room_count,
+                        "state": booking.state,
+                        "adult_count": booking.adult_count,
+                        "child_count": booking.child_count,
+                        "checkin_date": booking.checkin_date,
+                        "checkout_date": booking.checkout_date,
+                        "parent_booking_name": booking.parent_booking_name if booking.parent_booking_name else None,
+                        "room_line_ids": [{
+                            "id": result.id,
+                            "room_type": result.hotel_room_type.description if result.hotel_room_type.description else None,
+                            "state": result.state,
+                            "room": result.room_id.name if result.room_id.name else None,
+                            "house_keeping_status": result.housekeeping_status.display_name if result.housekeeping_status.display_name else None,
+                        } for result in booking.room_line_ids]
+                    })
+
+        # Retrieve individual bookings
+        bookings = request.env['room.booking'].sudo().search([('partner_id', '=', partner.id)])
+        bookings_data = []
+
+        for booking in bookings:
+            if booking.id not in group_booking_id_list:
+                booking_entry = {
                     "booking_id": booking.id,
+                    "booking_name": booking.name,
                     "company_id": booking.company_id.id if booking.company_id else None,
                     "partner_name": booking.partner_id.name if booking.partner_id else None,
                     "room_count": booking.room_count,
@@ -1026,37 +1090,41 @@ class WebAppController(http.Controller):
                     "checkin_date": booking.checkin_date,
                     "checkout_date": booking.checkout_date,
                     "parent_booking_name": booking.parent_booking_name if booking.parent_booking_name else None,
-                    "room_line_ids": [{
+                    "room_line_ids": []
+                }
+
+                for result in booking.room_line_ids:
+                    room_line_entry = {
                         "id": result.id,
                         "room_type": result.hotel_room_type.description if result.hotel_room_type.description else None,
                         "state": result.state,
                         "room": result.room_id.name if result.room_id.name else None,
                         "house_keeping_status": result.housekeeping_status.display_name if result.housekeeping_status.display_name else None,
-                    } for result in booking.room_line_ids]
-                })
+                    }
+                    booking_entry["room_line_ids"].append(room_line_entry)
 
-        # Retrieve individual bookings
-        bookings = request.env['room.booking'].sudo().search([('partner_id', '=', partner.id)])
-        bookings_data = [{
-            "booking_id": booking.id,
-            "booking_name": booking.name,
-            "company_id": booking.company_id.id if booking.company_id else None,
-            "partner_name": booking.partner_id.name if booking.partner_id else None,
-            "room_count": booking.room_count,
-            "state": booking.state,
-            "adult_count": booking.adult_count,
-            "child_count": booking.child_count,
-            "checkin_date": booking.checkin_date,
-            "checkout_date": booking.checkout_date,
-            "parent_booking_name": booking.parent_booking_name if booking.parent_booking_name else None,
-            "room_line_ids": [{
-                "id": result.id,
-                "room_type": result.hotel_room_type.description if result.hotel_room_type.description else None,
-                "state": result.state,
-                "room": result.room_id.name if result.room_id.name else None,
-                "house_keeping_status": result.housekeeping_status.display_name if result.housekeeping_status.display_name else None,
-            } for result in booking.room_line_ids]
-        } for booking in bookings]
+                bookings_data.append(booking_entry)
+
+        # bookings_data = [{
+        #     "booking_id": booking.id,
+        #     "booking_name": booking.name,
+        #     "company_id": booking.company_id.id if booking.company_id else None,
+        #     "partner_name": booking.partner_id.name if booking.partner_id else None,
+        #     "room_count": booking.room_count,
+        #     "state": booking.state,
+        #     "adult_count": booking.adult_count,
+        #     "child_count": booking.child_count,
+        #     "checkin_date": booking.checkin_date,
+        #     "checkout_date": booking.checkout_date,
+        #     "parent_booking_name": booking.parent_booking_name if booking.parent_booking_name else None,
+        #     "room_line_ids": [{
+        #         "id": result.id,
+        #         "room_type": result.hotel_room_type.description if result.hotel_room_type.description else None,
+        #         "state": result.state,
+        #         "room": result.room_id.name if result.room_id.name else None,
+        #         "house_keeping_status": result.housekeeping_status.display_name if result.housekeeping_status.display_name else None,
+        #     } for result in booking.room_line_ids]
+        # } for booking in bookings]
 
         # group_booking_ids = {entry['booking_id'] for entry in group_bookings_data}
         # booking_ids = {entry['booking_id'] for entry in bookings_data}
@@ -1065,12 +1133,12 @@ class WebAppController(http.Controller):
         #
         # unique_group_bookings_data = [entry for entry in group_bookings_data if entry['booking_id'] not in common_ids]
         # unique_bookings_data = [entry for entry in bookings_data if entry['booking_id'] not in common_ids]
-        print("LENGTH", len(bookings_data), len(group_bookings_data))
+        # print("LENGTH", len(bookings_data), len(group_bookings_data))
 
         return {
             "status": "success",
             "bookings": bookings_data,
-            # "group_bookings": unique_group_bookings_data
+            "group_bookings": group_bookings_data
         }
 
     @http.route('/api/cancel_room_booking', type='json', auth='public', methods=['POST'], csrf=False)

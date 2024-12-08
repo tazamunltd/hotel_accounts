@@ -298,7 +298,7 @@
                                     <group>
                                         <field name="is_readonly_group_booking" invisible="1" />
                                         <field name="company_id" placeholder="Select Hotel"/>
-                                        <field name="parent_booking"/>
+                                        <!-- <field name="parent_booking"/> -->
                                         <!-- <field name="no_show_" widget="boolean_toggle"/> -->
                                         <!-- invisible="show_group_booking == False"  -->
                                         <field name="group_booking" />
@@ -656,7 +656,7 @@
                                 <tree string="Adults" editable="top" create="false">
                                     <field name="room_sequence"/>
                                     <field name="room_type_id"/>
-                                    <field name="room_id"/>
+                                    <field name="room_id" readonly="1"/>
                                     <field name="first_name"/>
                                     <field name="last_name"/>
                                     <field name="profile"/>
@@ -676,7 +676,7 @@
                                 <tree string="Children" editable="top" create="false">
                                     <field name="room_sequence"/>
                                     <field name="room_type_id"/>
-                                    <field name="room_id"/>
+                                    <field name="room_id" readonly="1"/>
                                     <field name="first_name"/>
                                     <field name="last_name"/>
                                     <field name="profile"/>
@@ -867,6 +867,45 @@
         </field>
     </record>
 
+    <record id="view_room_booking_update_wizard" model="ir.ui.view">
+        <field name="name">room.booking.update.wizard.form</field>
+        <field name="model">room.booking.update.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update Check-In and Check-Out Dates">
+                <group>
+                    <!-- <field name="checkin_date"/>
+                    <field name="checkout_date"/> -->
+                    <field name="readonly_meal_pattern" invisible="1"/>
+                    <field name="readonly_rate_code" invisible="1"/>
+                    <field name="readonly_nationality" invisible="1"/>
+                    <field name="readonly_checkin_date" invisible="1"/>
+                    <field name="readonly_checkout_date" invisible="1"/>
+                    <!-- <field name="readonly_source_of_business" invisible="1"/> -->
+                    <!-- <field name="readonly_market_segment" invisible="1"/> -->
+                    <field name="meal_pattern" readonly="readonly_meal_pattern == True"/>
+                    <field name="rate_code" readonly="readonly_rate_code == True"/>
+                    <field name="nationality" readonly="readonly_nationality == True"/>
+                    <field name="checkin_date" readonly="readonly_checkin_date == True"/>
+                    <field name="checkout_date" readonly="readonly_checkout_date == True"/>
+                    <!-- <field name="source_of_business" readonly="readonly_source_of_business == True"/> -->
+                    <!-- <field name="market_segment" readonly="readonly_market_segment == True"/> -->
+                </group>
+                <footer>
+                    <button name="action_update_selected_bookings" string="Update Data" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_room_booking_update_wizard" model="ir.actions.act_window">
+        <field name="name">Update Check-In and Check-Out Dates</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">room.booking.update.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'active_ids': active_ids}</field>
+    </record>
 
     <!--     Room Booking Tree view -->
     <record id="room_booking_view_tree" model="ir.ui.view">
@@ -879,7 +918,8 @@
                     <button name="action_cancel_booking" string="Cancel" type="object" class="btn-danger"/>
                     <button name="action_checkin_booking" string="Check-in" type="object" class="btn-primary"/>
                     <button name="action_checkout_booking" string="Check-out" type="object" class="btn-primary"/>
-                    <button name="no_show" string="No Show" class="btn-danger" type="object"/>
+                    <button name="action_no_show_tree" string="No Show" class="btn-danger" type="object"/>
+                    <button name="%(action_open_room_booking_update_wizard)d" string="Open Form" type="action" class="oe_highlight"/>
                 </header>
                 <field name="name" optional="show"/>
                 <field name="room_ids_display" string="Room Name" optional="show"/>
@@ -1030,6 +1070,7 @@
                         <field name="web_review" string="Review"/>
                         <field name="web_description" string="Description"/>
                         <field name="rate_code" string="Rate Codes"/>
+                        <field name="web_payment" string="Payment"/>
                     </group>
                 </page>
             </xpath>

@@ -49,3 +49,5 @@ from . import setting_inherit
 from . import room_result_by_room_type
 from . import room_result_by_client
 from . import yearly_geographical_chart
+from . import monthly_allotment_charts
+# from . import date_utils

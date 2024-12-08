@@ -71,8 +71,10 @@
         'views/room_result_view.xml',
         'views/room_rate_forecast.xml',
         'views/yearly_geographical_chart_views.xml',
+        'views/monthly_allotment_charts_views.xml',
         # 'data/cron_job.xml',
         'views/housekeeping_maintenance_inherit.xml',
+        # 'security/hotel_security.xml',
     ],
     'assets': {
         'web.assets_backend': [

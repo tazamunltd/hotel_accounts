@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_monthly_allotment_charts_tree" model="ir.ui.view">
+        <field name="name">monthly.allotment.charts.tree</field>
+        <field name="model">monthly.allotment.charts</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="report_date"/>
+                <field name="total_rooms"/>
+                <field name="out_of_order"/>
+                <field name="available"/>
+                <field name="inhouse"/>
+                <field name="expected_arrivals"/>
+                <field name="expected_departures"/>
+                <field name="expected_inhouse"/>
+                <field name="expected_occupied_rate"/>
+                <field name="overbook"/>
+                <field name="free_to_sell"/>
+                <field name="reserved"/>
+                <field name="source_of_business"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_monthly_allotment_charts_graph" model="ir.ui.view">
+        <field name="name">monthly.allotment.charts.graph</field>
+        <field name="model">monthly.allotment.charts</field>
+        <field name="arch" type="xml">
+            <graph string="Room Results by Room Type" type="bar">
+                <field name="report_date" type="row"/>
+                <field name="room_type" type="row"/>
+                <field name="source_of_business" type="row"/>
+                <field name="total_rooms" type="measure"/>
+                <field name="out_of_order" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="inhouse" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_inhouse" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="overbook" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+                <field name="reserved" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_monthly_allotment_charts_pivot" model="ir.ui.view">
+        <field name="name">monthly.allotment.charts.pivot</field>
+        <field name="model">monthly.allotment.charts</field>
+        <field name="arch" type="xml">
+            <pivot string="Room Results by Room Type">
+                <field name="report_date" type="row"/>
+                <field name="room_type" type="row"/>
+                <field name="source_of_business" type="row"/>
+                <field name="total_rooms" type="measure"/>
+                <field name="out_of_order" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="inhouse" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_inhouse" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="overbook" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+                <field name="reserved" type="measure"/>
+                <!-- Add more measures as required -->
+            </pivot>
+        </field>
+    </record>
+
+
+
+    <record id="action_run_process_by_monthly_allotment" model="ir.actions.server">
+        <field name="name">Run Monthly Allotment process</field>
+        <field name="model_id" ref="model_monthly_allotment_charts"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+model.run_process_by_monthly_allotment()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Monthly Allotment Chart',
+    'res_model': 'monthly.allotment.charts',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_monthly_allotment_charts_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_monthly_allotment_charts_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_monthly_allotment_charts_pivot').id, 'pivot'),
+    ],
+    'target': 'current',
+}
+            ]]>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_monthly_allotment_charts"
+              name="Monthly Allotment Charts"
+              action="action_run_process_by_monthly_allotment"
+              parent="menu_reservation"
+              sequence="50"/>
+</odoo>
