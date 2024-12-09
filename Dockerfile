@@ -68,8 +68,8 @@ USER root
 # Odoo configuration
 COPY odoo.conf /opt/odoo-tazamun/odoo.conf
 
-RUN pip install redis
-RUN pip install bcrypt
+# RUN pip install redis
+# RUN pip install bcrypt
 
 # Expose Odoo port
 EXPOSE 8069 8071
