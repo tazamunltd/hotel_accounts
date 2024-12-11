@@ -164,8 +164,31 @@ class WebAppController(http.Controller):
             days.append(current_date.strftime('%A'))
             current_date += timedelta(days=1)
 
+        default_rate_code = request.env['rate.code'].sudo().search([('id', '=', 12)])
+
         all_hotels_data = []
         for hotel in companies:
+            if hotel.rate_code:
+                rate_code = hotel.rate_code
+                print("HOTEL RATE CODE", rate_code.code)
+            else:
+                rate_code = default_rate_code
+                print("DEFAULT RATE CODE", rate_code.code)
+
+            rate_details = request.env['rate.detail'].sudo().search([
+                ('rate_code_id', '=', rate_code.id),
+                ('from_date', '<=', check_in),
+                ('to_date', '>=', check_in)
+            ])
+
+            if len(rate_details) == 0:
+                print("DATE RANGE NOT FOUND, TAKING THE DEFAULT RATE CODE")
+                rate_details = request.env['rate.detail'].sudo().search([
+                    ('rate_code_id', '=', rate_code.id)
+                ])
+
+            rate_detail = rate_details[0]
+
             hotel_data = {
                 "id": hotel.id,
                 "name": hotel.name,
@@ -181,7 +204,10 @@ class WebAppController(http.Controller):
                 "discount": hotel.web_discount,
                 "review": hotel.web_review,
                 "total_available_rooms": 0,
-                "payment": hotel.web_payment
+                # "payment": hotel.web_payment,
+                "payment": rate_detail.rate_detail_dicsount,
+                "amount_payment": rate_detail.is_amount,
+                "percent_payment": rate_detail.is_percentage,
             }
 
             all_rooms = []
@@ -304,6 +330,7 @@ class WebAppController(http.Controller):
                 pass
 
         hotel = request.env['res.company'].sudo().search([('id', '=', hotel_id)], limit=1)
+        default_rate_code = request.env['rate.code'].sudo().search([('id', '=', 12)])
 
         if not hotel:
             return {"status": "error", "message": "Hotel not found"}
@@ -321,6 +348,26 @@ class WebAppController(http.Controller):
             current_date += timedelta(days=1)
 
         room_types = self.get_model_data('room.type')
+        if hotel.rate_code:
+            rate_code = hotel.rate_code
+            print("HOTEL RATE CODE", rate_code.code)
+        else:
+            rate_code = default_rate_code
+            print("DEFAULT RATE CODE", rate_code.code)
+
+        rate_details = request.env['rate.detail'].sudo().search([
+            ('rate_code_id', '=', rate_code.id),
+            ('from_date', '<=', check_in),
+            ('to_date', '>=', check_in)
+        ])
+
+        if len(rate_details) == 0:
+            print("DATE RANGE NOT FOUND, TAKING THE DEFAULT RATE CODE")
+            rate_details = request.env['rate.detail'].sudo().search([
+                ('rate_code_id', '=', rate_code.id)
+            ])
+
+        rate_detail = rate_details[0]
 
         hotel_data = {
             "id": hotel.id,
@@ -337,7 +384,9 @@ class WebAppController(http.Controller):
             "discount": hotel.web_discount,
             "review": hotel.web_review,
             "total_available_rooms": 0,
-            "payment": hotel.web_payment
+            "payment": rate_detail.rate_detail_dicsount,
+            "amount_payment": rate_detail.is_amount,
+            "percent_payment": rate_detail.is_percentage,
         }
 
         all_rooms = []
@@ -362,28 +411,54 @@ class WebAppController(http.Controller):
                                              'show_in_website', 'website_desc'])
         # services_data = self.get_model_data('hotel.service', ['id', 'name', 'unit_price'])
         # meal_data = self.get_model_data('meal.pattern', ['id', 'meal_pattern', 'description', 'abbreviation'])
+
         meal_data = []
-        services_data = []
-        try:
-            rate_details = request.env['rate.detail'].sudo().search([('rate_code_id', '=', hotel.rate_code.id)])[0]
-        except Exception as e:
-            rate_details = request.env['rate.detail'].sudo().search([('rate_code_id', '=', 12)])[0]
-
-        for meal_line in rate_details['meal_pattern_id']['meals_list_ids']:
+        meal_data_ids = set()
+        for meal_line in rate_details.meal_pattern_id.meals_list_ids:
+            meal = meal_line.meal_code
             meal_data.append({
-                "id": meal_line['meal_code']['id'],
-                "meal_pattern": meal_line['meal_code']['meal_code'],
-                "description": meal_line['meal_code']['description'],
-                "unit_price": meal_line['meal_code']['price_pax'],
+                "id": meal.id,
+                "meal_pattern": meal.meal_code,
+                "description": meal.description,
+                "unit_price": meal.price_pax,
+                "posting_item": meal.posting_item.id,
+                "default": True,
+                "child_price": meal.price_child,
+                "meal_type": meal.type
             })
+            meal_data_ids.add(meal.id)
 
-        for service_line in rate_details['line_ids']:
-            services_data.append({
-                "id": service_line['id'],
-                "name": service_line['hotel_services_config']['display_name'],
-                "unit_price": service_line['packages_value'],
-                "rhythm": service_line['packages_rhythm'],
-            })
+        # Add additional meals not in rate details
+        all_meals = self.get_model_data('meal.code', ['id', 'meal_pattern', 'description', 'posting_item', 'price_pax',
+                                                      'price_child', 'type'])
+        for meal in all_meals:
+            # print("MEAL", meal)
+            if meal['id'] not in meal_data_ids:
+                meal_data.append({
+                    "id": meal['id'],
+                    "meal_pattern": meal['meal_pattern'],
+                    "description": meal['description'],
+                    "unit_price": meal['price_pax'],
+                    "posting_item": meal['posting_item'].id,
+                    "child_price": meal['price_child'],
+                    "meal_type": meal['type'],
+                    "default": False
+                })
+
+        hotel_data['meals'] = meal_data
+
+        # Fetch services
+        services_data = [
+            {
+                "id": line.id,
+                "name": line.hotel_services_config.display_name,
+                "unit_price": line.packages_value,
+                "rhythm": line.packages_rhythm,
+            }
+            for line in rate_details.line_ids
+        ]
+
+        hotel_data['services'] = services_data
 
         # for posting_item in posting_items:
         #     if not posting_item["show_in_website"]:
@@ -526,7 +601,7 @@ class WebAppController(http.Controller):
         person_email = kwargs.get('person_email', '')
         check_in_date = kwargs.get('check_in_date')
         check_out_date = kwargs.get('check_out_date')
-        pax_data = kwargs.get('data')
+        pax_data = kwargs.get('options')
 
         # redis_key = f"data:{hotel_id}:{check_in_date}:{check_out_date}:{person_count}:{room_count}"
 
@@ -645,26 +720,102 @@ class WebAppController(http.Controller):
         #         self.dump_data_to_redis(redis_key, {"status": "success", "data": all_hotels_data})
         #     except Exception as e:
         #         pass
+
+        posting_items_data = self.get_model_data('posting.item',
+                                                 ['id', 'description', 'default_value', 'posting_item_selection',
+                                                  'show_in_website', 'website_desc'])
+
+        posting_items = [item for item in posting_items_data if item["show_in_website"]]
+
         room_types = request.env['room.type'].sudo().search([])
         all_hotels_data = []
 
         for hotel in companies:
             if partner_rate_code:
                 rate_code = partner_rate_code
+                print("PARTNER RATE CODE", rate_code.code)
             elif hotel.rate_code:
                 rate_code = hotel.rate_code
+                print("HOTEL RATE CODE", rate_code.code)
             else:
                 rate_code = default_rate_code
+                print("DEFAULT RATE CODE", rate_code.code)
 
             hotel_data = {"hotel_id": hotel.id, "age_threshold": hotel.age_threshold}
+
+            rate_details = request.env['rate.detail'].sudo().search([
+                ('rate_code_id', '=', rate_code.id),
+                ('from_date', '<=', check_in),
+                ('to_date', '>=', check_in)
+            ])
+
+            if len(rate_details) == 0:
+                print("DATE RANGE NOT FOUND, TAKING THE DEFAULT RATE CODE")
+                rate_details = request.env['rate.detail'].sudo().search([
+                    ('rate_code_id', '=', rate_code.id)
+                ])
+
+            rate_detail = rate_details[0]
+            # print("RATE DETAILS", rate_detail)
+            # print("DETAILS", rate_detail.rate_detail_dicsount, rate_detail.is_amount, rate_detail.is_percentage)
+            # hotel_data['rate_discount'] = rate_detail.rate_detail_dicsount
+            # hotel_data['is_amount'] = rate_detail.is_amount
+            # hotel_data['is_percentage'] = rate_detail.is_percentage
+
+            meal_data = []
+            meal_data_ids = []
+            services_data = []
+
+            for meal_line in rate_detail['meal_pattern_id']['meals_list_ids']:
+                meal_data.append({
+                    "id": meal_line['meal_code']['id'],
+                    "meal_pattern": meal_line['meal_code']['meal_code'],
+                    "description": meal_line['meal_code']['description'],
+                    "unit_price": meal_line['meal_code']['price_pax'],
+                    "default": True,
+                    "child_price": meal_line['meal_code']['price_child'],
+                    "meal_type": meal_line['meal_code']['type']
+                })
+                meal_data_ids.append(meal_line['meal_code']['id'])
+
+            all_meal_data = self.get_model_data('meal.code',
+                                                ['id', 'description', 'meal_pattern', 'posting_item', 'price_pax',
+                                                 'price_child', 'price_infant', 'type'])
+
+            for meal in all_meal_data:
+                if meal['id'] not in meal_data_ids:
+                    meal_data.append({
+                        "id": meal['id'],
+                        "meal_pattern": meal['meal_pattern'],
+                        "description": meal['description'],
+                        "unit_price": meal['price_pax'],
+                        "posting_item": meal['posting_item'].id,
+                        "child_price": meal['price_child'],
+                        "meal_type": meal['type'],
+                        "default": False
+                    })
+
+            hotel_data['meals'] = meal_data
+
+            for service_line in rate_detail['line_ids']:
+                services_data.append({
+                    "id": service_line['id'],
+                    "name": service_line['hotel_services_config']['display_name'],
+                    "unit_price": service_line['packages_value'],
+                    "rhythm": service_line['packages_rhythm'],
+                    "value_type": service_line['packages_value_type'],
+                })
+
+            hotel_data['services'] = services_data
+            hotel_data['posting_item'] = posting_items
 
             room_types_data = []
             for room_type in room_types:
                 # todo: check singleton room type specific rates
-                room_type_specific_rates = request.env['room.type.specific.rate'].sudo().search(
-                    [('room_type_id', '=', room_type.id)])
+                # room_type_specific_rates = request.env['room.type.specific.rate'].sudo().search(
+                #     [('room_type_id', '=', room_type.id)])
+                # print("ROOM TYPE SPECIFIC RATE", room_type_specific_rates)
                 # rate_details = request.env['rate.detail'].sudo().search([('id', '=', '4')])
-                rate_details = request.env['rate.detail'].sudo().search([('rate_code_id', '=', rate_code.id)])
 
                 # print("room_type_specific_rates", room_type_specific_rates, room_type.id)
                 room_type_data = {
@@ -678,17 +829,23 @@ class WebAppController(http.Controller):
                     child_price = 0
 
                     for day in days:
-                        _var1 = f"{day}_pax_1"
-                        _var2 = f"room_type_{day}_pax_1"
-                        if len(rate_details) >= 1:
-                            # adult_price += room_type_specific_rates[0][_var] * pax["person_count"]
-                            # adult_price += rate_details[_var1] * pax["person_count"]
-                            adult_price += rate_details[0][_var1] * pax["person_count"]
-                        # child_price += room_type_specific_rates.child * pax["room_count"]
+                        # print("DAY PAX", day, pax['person_count'])
+                        if pax["person_count"] < 6:
+                            _var1 = f"{day}_pax_{pax['person_count']}"
+                            # _var2 = f"room_type_{day}_pax_1"
+                            adult_price += rate_detail[_var1]
+                        else:
+                            _var1 = f"{day}_pax_1"
+                            adult_price += rate_detail[_var1] * pax["person_count"]
+                        # if len(rate_details) >= 1:
+                        #     # adult_price += room_type_specific_rates[0][_var] * pax["person_count"]
+                        #     # adult_price += rate_details[_var1] * pax["person_count"]
+                        #     adult_price += rate_details[0][_var1] * pax["person_count"]
+                        # # child_price += room_type_specific_rates.child * pax["room_count"]
 
-                        if room_type_specific_rates:
-                            # adult_price += room_type_specific_rates[_var2] * pax["person_count"]
-                            adult_price += room_type_specific_rates[0][_var2] * pax["person_count"]
+                        # if room_type_specific_rates:
+                        #     # adult_price += room_type_specific_rates[_var2] * pax["person_count"]
+                        #     adult_price += room_type_specific_rates[0][_var2] * pax["person_count"]
 
                     available_rooms = request.env['room.booking'].sudo().get_available_rooms_for_api(
                         check_in, check_out, room_type.id, pax["room_count"], True, pax["person_count"], hotel.id
@@ -935,22 +1092,28 @@ class WebAppController(http.Controller):
                     request.env['reservation.child'].sudo().create(child_data)
                 # print("DONE", child_data)
 
-            posting_item_ids = []
             for item in services:
                 # print("ITEM", item)
                 if item.get('type', 0) == 1:
-                    posting_item = request.env['posting.item'].sudo().search([('item_code', '=', item['title'])],
-                                                                             limit=1)
-                    # print("POSTING ITEM", posting_item, item['title'], item['option'])
-                    if posting_item:
-                        posting_item_ids.append(posting_item.id)
+                    posting_item = request.env['posting.item'].sudo().search([
+                        '|',
+                        ('item_code', '=', item['title']),
+                        ('description', '=', item['title'])
+                    ], limit=1)
+                    # print("Posting Item", posting_item)
 
-            if posting_item_ids:
-                new_booking.sudo().write({
-                    'posting_item_ids': [(6, 0, posting_item_ids)]
-                })
-
-            # print("POSTING ITEM IDS", posting_item_ids)
+                    if posting_item.exists():
+                        # print("list entry", posting_item.id)
+                        request.env['room.booking.posting.item'].sudo().create({
+                            'booking_id': new_booking.id,
+                            'posting_item_id': posting_item.id,
+                            'item_code': posting_item.item_code,
+                            'description': posting_item.description,
+                            'posting_item_selection': item['option'],
+                            'default_value': posting_item.default_value,
+                        })
+                    else:
+                        print(f"No posting item found for title: {item['title']}")
 
         return {
             "status": "success",
@@ -1185,9 +1348,9 @@ class WebAppController(http.Controller):
             return {"status": "error", "message": f"Room payment record with ID {record_id} does not exist"}
 
         # Search for room.booking record
-        booking_record = request.env['room.booking'].sudo().search([('id', '=', booking_id)], limit=1)
-        if not booking_record:
-            return {"status": "error", "message": f"Room booking record with ID {booking_id} does not exist"}
+        # booking_record = request.env['room.booking'].sudo().search([('id', '=', booking_id)], limit=1)
+        # if not booking_record:
+        #     return {"status": "error", "message": f"Room booking record with ID {booking_id} does not exist"}
 
         # Update room.payment record
         try:
@@ -1201,7 +1364,8 @@ class WebAppController(http.Controller):
         # Update room.booking record
         try:
             booking_record.sudo().write({
-                'state': state
+                'state': state,
+                'payment_type': 'prepaid_credit'
             })
         except Exception as e:
             return {"status": "error", "message": f"Failed to update room.booking: {str(e)}"}

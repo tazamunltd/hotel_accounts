@@ -3,6 +3,7 @@ from odoo import models, fields, api
 class GroupBooking(models.Model):
     _name = 'group.booking'
     _description = 'Group Booking'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     reservation_ids = fields.One2many(
         'room.booking',  # The target model (e.g., reservations)
@@ -36,22 +37,24 @@ class GroupBooking(models.Model):
         return defaults
 
 
-    partner_id = fields.Many2one('res.partner', string='Contact')
+    partner_id = fields.Many2one('res.partner', string='Contact', tracking=True)
 
-    name = fields.Char(string='Booking Reference', required=True)
-    address = fields.Char(string="Address", help="Address of the Agent")
+    name = fields.Char(string='Booking Reference', required=True,tracking=True)
+    address = fields.Char(string="Address", help="Address of the Agent", tracking=True)
     image = fields.Binary(string="Document", help="Document of the Person")
-    person_ids = fields.One2many('group.booking.person', 'group_booking_id', string="Persons")
+    document_name = fields.Char(string="Document Name", tracking=True)
+    person_ids = fields.One2many('group.booking.person', 'group_booking_id', string="Persons",tracking=True)
 
     # Main fields
-    profile_id = fields.Char(string='Profile ID')
-    group_name = fields.Char(string='Group Name')
-    is_grp_company = fields.Boolean(string='Is Company')
+    profile_id = fields.Char(string='Profile ID',tracking=True)
+    group_name = fields.Char(string='Group Name',tracking=True)
+    is_grp_company = fields.Boolean(string='Is Company',tracking=True)
 
     company = fields.Many2one(
         'res.partner',
         string='Contact',
-        required=True
+        required=True,
+        tracking=True
     )
 
     @api.onchange('company')
@@ -77,23 +80,23 @@ class GroupBooking(models.Model):
             }
         }
 
-    nationality = fields.Many2one('res.country', string='Nationality')
-    source_of_business = fields.Many2one('source.business',string='Source of Business')
+    nationality = fields.Many2one('res.country', string='Nationality',tracking=True)
+    source_of_business = fields.Many2one('source.business',string='Source of Business',tracking=True)
     status_code = fields.Selection([
         ('confirmed', 'Confirmed'),
         ('pending', 'Pending'),
         ('canceled', 'Canceled'),
-    ], string='Status Code')
+    ], string='Status Code',tracking=True)
 
     
-    complimentary = fields.Boolean(string='Complimentary')
-    complimentary_codes = fields.Many2one('complimentary.code', string='Complimentary')
-    show_complementary_code = fields.Boolean(string="Show Complementary Code", compute="_compute_show_codes", store=True)
+    complimentary = fields.Boolean(string='Complimentary',tracking=True)
+    complimentary_codes = fields.Many2one('complimentary.code', string='Complimentary',tracking=True)
+    show_complementary_code = fields.Boolean(string="Show Complementary Code", compute="_compute_show_codes", store=True,tracking=True)
 
-    house_use = fields.Boolean(string='House Use')
-    house_use_codes_ = fields.Many2one('house.code', string='House Use Code')
+    house_use = fields.Boolean(string='House Use',tracking=True)
+    house_use_codes_ = fields.Many2one('house.code', string='House Use Code',tracking=True)
     show_house_use_code = fields.Boolean(
-        string="Show House Code", compute="_compute_show_house_codes", store=True)
+        string="Show House Code", compute="_compute_show_house_codes", store=True,tracking=True)
 
     @api.depends('complimentary')
     def _compute_show_codes(self):
@@ -122,61 +125,61 @@ class GroupBooking(models.Model):
         ('credit_limit', 'Credit (C/L)'),
         ('credit_card', 'Credit Card'),
         ('other', 'Other Payment'),
-    ], string='Payment Type')
+    ], string='Payment Type',tracking=True)
 
-    master_folio_limit = fields.Float(string='Master Folio C. Limit')
+    master_folio_limit = fields.Float(string='Master Folio C. Limit',tracking=True)
 
     # Rate and Market details
-    rate_code = fields.Many2one('rate.code',string='Rate Code')
+    rate_code = fields.Many2one('rate.code',string='Rate Code',tracking=True)
     meal_pattern = fields.Selection([
         ('ro', 'Room Only'),
         ('bb', 'Bed & Breakfast'),
         ('hb', 'Half Board'),
         ('fb', 'Full Board'),
-    ], string='Meal Pattern')
+    ], string='Meal Pattern',tracking=True)
 
-    group_meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern')
-    market_segment = fields.Many2one('market.segment',string='Market Segment')
+    group_meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern',tracking=True)
+    market_segment = fields.Many2one('market.segment',string='Market Segment',tracking=True)
 
     # Reference details
-    reference = fields.Char(string='Reference')
-    allotment = fields.Char(string='Allotment')
+    reference = fields.Char(string='Reference',tracking=True)
+    allotment = fields.Char(string='Allotment',tracking=True)
 
     # Additional fields
-    allow_profile_change = fields.Boolean(string='Allow changing profile data in the reservation form?')
-    country_id = fields.Many2one('res.country', string='Country')
-    street = fields.Char(string='Street')
-    city = fields.Char(string='City')
-    zip_code = fields.Char(string='Zip Code')
-    billing_address = fields.Char(string='Billing Address')
+    allow_profile_change = fields.Boolean(string='Allow changing profile data in the reservation form?',tracking=True)
+    country_id = fields.Many2one('res.country', string='Country',tracking=True)
+    street = fields.Char(string='Street',tracking=True)
+    city = fields.Char(string='City',tracking=True)
+    zip_code = fields.Char(string='Zip Code',tracking=True)
+    billing_address = fields.Char(string='Billing Address',tracking=True)
     
-    contact_leader = fields.Many2one('res.partner', string='Contact / Leader')
-    phone_1 = fields.Char(string='Phone 1')
-    phone_2 = fields.Char(string='Phone 2')
-    mobile = fields.Char(string='Mobile')
-    email_address = fields.Char(string='E-Mail Address')
+    contact_leader = fields.Many2one('res.partner', string='Contact / Leader',tracking=True)
+    phone_1 = fields.Char(string='Phone 1',tracking=True)
+    phone_2 = fields.Char(string='Phone 2',tracking=True)
+    mobile = fields.Char(string='Mobile',tracking=True)
+    email_address = fields.Char(string='E-Mail Address',tracking=True)
 
 
-    expected_rooms = fields.Integer(string='Expected Rooms')
-    user_sort = fields.Char(string='User Sort')
-    comments = fields.Text(string='Comments')
+    expected_rooms = fields.Integer(string='Expected Rooms',tracking=True)
+    user_sort = fields.Char(string='User Sort',tracking=True)
+    comments = fields.Text(string='Comments',tracking=True)
 
     # Statistics fields
-    first_visit = fields.Date(string='First Visit')
-    last_visit = fields.Date(string='Last Visit')
-    last_rate = fields.Float(string='Last Rate')
-    total_stays = fields.Integer(string='Total Stays')
-    total_nights = fields.Integer(string='Total Nights')
-    total_cancellations = fields.Integer(string='Total Cancellations')
-    total_no_shows = fields.Integer(string='Total No Shows')
-    total_revenue = fields.Float(string='Total Revenue')
+    first_visit = fields.Date(string='First Visit',tracking=True)
+    last_visit = fields.Date(string='Last Visit',tracking=True)
+    last_rate = fields.Float(string='Last Rate',tracking=True)
+    total_stays = fields.Integer(string='Total Stays',tracking=True)
+    total_nights = fields.Integer(string='Total Nights',tracking=True)
+    total_cancellations = fields.Integer(string='Total Cancellations',tracking=True)
+    total_no_shows = fields.Integer(string='Total No Shows',tracking=True)
+    total_revenue = fields.Float(string='Total Revenue',tracking=True)
 
 class GroupBookingPerson(models.Model):
     _name = 'group.booking.person'
     _description = 'Group Booking Person'
 
-    name = fields.Char(string='Name', required=True)
+    name = fields.Char(string='Name', required=True,tracking=True)
     age = fields.Integer(string='Age', required=True)
-    address = fields.Char(string='Address', required=True)
-    image = fields.Binary(string="Document", help="Document of the Person")
-    group_booking_id = fields.Many2one('group.booking', string='Group Booking', required=True, ondelete='cascade')
+    address = fields.Char(string='Address', required=True,tracking=True)
+    image = fields.Binary(string="Document", help="Document of the Person",tracking=True)
+    group_booking_id = fields.Many2one('group.booking', string='Group Booking', required=True, ondelete='cascade',tracking=True)

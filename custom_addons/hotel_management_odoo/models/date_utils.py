@@ -5,7 +5,12 @@ import pytz
 def get_sa_datetime():
     """Get current datetime in Saudi Arabia timezone"""
     sa_tz = pytz.timezone('Asia/Riyadh')
-    utc_dt = datetime.now(pytz.UTC)
+    # Create datetime with user's timezone
+    user_tz = pytz.timezone('Asia/Kolkata')  # Your timezone is +05:30
+    local_dt = user_tz.localize(datetime.now())
+    # Convert to UTC first
+    utc_dt = local_dt.astimezone(pytz.UTC)
+    # Then convert to Saudi timezone
     return utc_dt.astimezone(sa_tz)
 
 class RoomBookingDatetime(models.Model):
@@ -26,17 +31,23 @@ class RoomBookingDatetime(models.Model):
     def create(self, vals):
         """Override create to ensure dates are in Saudi Arabia timezone"""
         if 'checkin_date' in vals:
-            sa_tz = pytz.timezone('Asia/Riyadh')
             checkin_dt = fields.Datetime.from_string(vals['checkin_date'])
             if checkin_dt.tzinfo is None:
-                checkin_dt = pytz.UTC.localize(checkin_dt)
+                # If no timezone info, assume it's in user's timezone (Asia/Kolkata)
+                user_tz = pytz.timezone('Asia/Kolkata')
+                checkin_dt = user_tz.localize(checkin_dt)
+            # Convert to Saudi timezone
+            sa_tz = pytz.timezone('Asia/Riyadh')
             vals['checkin_date'] = fields.Datetime.to_string(checkin_dt.astimezone(sa_tz))
             
         if 'checkout_date' in vals:
-            sa_tz = pytz.timezone('Asia/Riyadh')
             checkout_dt = fields.Datetime.from_string(vals['checkout_date'])
             if checkout_dt.tzinfo is None:
-                checkout_dt = pytz.UTC.localize(checkout_dt)
+                # If no timezone info, assume it's in user's timezone (Asia/Kolkata)
+                user_tz = pytz.timezone('Asia/Kolkata')
+                checkout_dt = user_tz.localize(checkout_dt)
+            # Convert to Saudi timezone
+            sa_tz = pytz.timezone('Asia/Riyadh')
             vals['checkout_date'] = fields.Datetime.to_string(checkout_dt.astimezone(sa_tz))
             
         return super(RoomBookingDatetime, self).create(vals)
@@ -44,17 +55,23 @@ class RoomBookingDatetime(models.Model):
     def write(self, vals):
         """Override write to ensure dates are in Saudi Arabia timezone"""
         if 'checkin_date' in vals:
-            sa_tz = pytz.timezone('Asia/Riyadh')
             checkin_dt = fields.Datetime.from_string(vals['checkin_date'])
             if checkin_dt.tzinfo is None:
-                checkin_dt = pytz.UTC.localize(checkin_dt)
+                # If no timezone info, assume it's in user's timezone (Asia/Kolkata)
+                user_tz = pytz.timezone('Asia/Kolkata')
+                checkin_dt = user_tz.localize(checkin_dt)
+            # Convert to Saudi timezone
+            sa_tz = pytz.timezone('Asia/Riyadh')
             vals['checkin_date'] = fields.Datetime.to_string(checkin_dt.astimezone(sa_tz))
             
         if 'checkout_date' in vals:
-            sa_tz = pytz.timezone('Asia/Riyadh')
             checkout_dt = fields.Datetime.from_string(vals['checkout_date'])
             if checkout_dt.tzinfo is None:
-                checkout_dt = pytz.UTC.localize(checkout_dt)
+                # If no timezone info, assume it's in user's timezone (Asia/Kolkata)
+                user_tz = pytz.timezone('Asia/Kolkata')
+                checkout_dt = user_tz.localize(checkout_dt)
+            # Convert to Saudi timezone
+            sa_tz = pytz.timezone('Asia/Riyadh')
             vals['checkout_date'] = fields.Datetime.to_string(checkout_dt.astimezone(sa_tz))
             
         return super(RoomBookingDatetime, self).write(vals)

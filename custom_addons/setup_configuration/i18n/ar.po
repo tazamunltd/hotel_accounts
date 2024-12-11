@@ -1,0 +1,2949 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* setup_configuration
+#
+msgid ""
+msgstr "ترجمة"
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-09 17:25+0000\n"
+"PO-Revision-Date: 2024-12-09 17:25+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "1 Pax"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "2 Pax"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "3 Pax"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "4 Pax"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "5 Pax"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "6 Pax"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Actions"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__status__active
+msgid "Active"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Add Attributes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Add Line"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__packages_value_type__added_value
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail_line__packages_value_type__added_value
+msgid "Added Value"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_additional_attribute
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_additional_attribute_form
+msgid "Additional Attribute"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_additional_attribute
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_additional_attributes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_additional_attribute_tree
+msgid "Additional Attributes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
+msgid "Additions"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Address"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_address_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_address_type_form
+msgid "Address Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_address_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_address_type_tree
+msgid "Address Types"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__function_type__adjustment
+msgid "Adjustment Payments"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Adults"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_code__rhythm__after_change_date
+msgid "After Change Date"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__travel_method__air
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_walkin_main__travel_method__air
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__travel_method__air
+msgid "Air"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__all_sources
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__all_sources
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__all_sources
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__all_sources
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__all_sources
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "All Sources"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Allotment"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_allotment_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_allotment_code_form
+msgid "Allotment Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_allotment_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_allotment_codes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_allotment_code_tree
+msgid "Allotment Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_allotment_room_type
+msgid "Allotment Room Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_availability__always
+#: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_statistics__always
+msgid "Always"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Amend Record"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__card_type__amex
+msgid "Amex"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_dummy_room_code_form
+msgid "Applicable Taxes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.menu_hotel_configuration
+msgid "Application Configuration"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__template__language__arabic
+msgid "Arabic"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+msgid "Arrival Date"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__arrival_queue
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_arrival_queue
+msgid "Arrival Queue"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__arrivals
+msgid "Arrivals"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_additional_attribute_form
+msgid "Attribute Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Attributes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_authorization_codes
+msgid "Authorization Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_authorized_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_authorized_code_form
+msgid "Authorized Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_authorized_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_authorized_code_tree
+msgid "Authorized Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__rhythm__auto_check_in
+msgid "Automatically Activated by Check In"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__meal_pattern__bb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__meal_pattern__bb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__meal_pattern__bb
+msgid "Bed & Breakfast"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__return_check__before_cashier
+msgid "Before Cashier Check Out"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__return_check__before_room
+msgid "Before Room Check Out"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__category__beverage_charge
+msgid "Beverage Charge"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__address_type__address_type__billing
+msgid "Billing Address"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__status__black_list
+msgid "Black List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__complimentary_code__type__both
+msgid "Both"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__breakfast
+msgid "Breakfast"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__brunch
+msgid "Brunch"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_budget_entry
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_budget_entry_tree
+msgid "Budget Entries"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_budget_entry
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_budget_entry_form
+msgid "Budget Entry"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__travel_method__bus
+msgid "Bus"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__visit_reason__business
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_walkin_main__visit_reason__business
+#: model:ir.model.fields.selection,name:setup_configuration.selection__membership_card_type__card_type__business
+#: model:ir.model.fields.selection,name:setup_configuration.selection__profile_category__profile_type__business
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__visit_reason__business
+msgid "Business"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_authorized_code_form
+msgid "Can Authorize"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__guest_locator__status__canceled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__status_code__canceled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__status_code__canceled
+msgid "Canceled"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_cancellation_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_cancellation_code_form
+msgid "Cancellation Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_cancellation_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_cancellation_codes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_cancellation_code_tree
+msgid "Cancellation Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__status__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__status__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__guest_message__status__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__status__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__status__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__status__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__status__cancelled
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_record__status__cancelled
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Cancelled"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__travel_method__car
+msgid "Car"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_credit_card_type_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_membership_card_type_form
+msgid "Card Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_cash_box_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_cash_box_code_form
+msgid "Cash Box Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_cash_box_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_cash_box_code_tree
+msgid "Cash Box Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_cash_box_reset_value
+msgid "Cash Box Reset Value"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__payment_type__cash
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_walkin_main__payment_type__cash
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__payment_type__cash
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__payment_type__cash
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__payment_type__cash
+msgid "Cash Payment"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__cashier
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__cashier
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__cashier
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__cashier
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__cashier
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__cashier
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__cashier
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_cashier
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "Cashier"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Change All List To Clean"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Change All List To In Service"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Change All List To Occupied"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Change All List To Out of Service"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Change All List To Unclean"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Change All List To Vacant"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__changed_rooms
+msgid "Changed Rooms"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
+msgid "Charges"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Child"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Children"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Click to Open Calendar"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.actions.act_window,help:setup_configuration.action_market_category
+msgid "Click to create a new market category."
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.actions.act_window,help:setup_configuration.action_market_segment
+msgid "Click to create a new market segment."
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__cash_box_code__status__closed
+msgid "Closed"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__additional_attribute__type__code
+msgid "Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.menu_code
+msgid "Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_comment_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_comment_category_tree
+msgid "Comment Categories"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_comment_category
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_comment_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_comment_category_form
+msgid "Comment Category"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_guest_comments_guest_comments_tree
+msgid "Comment ID"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_budget_entry_form
+msgid "Companies"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Companions"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Company"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_company_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_company_category_tree
+msgid "Company Categories"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_company_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_company_category_form
+msgid "Company Category"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__guest_locator__status__completed
+msgid "Completed"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_complimentary_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_complimentary_code_form
+msgid "Complimentary Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_complimentary_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_complimentary_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_complimentary_code_tree
+msgid "Complimentary Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__concierge
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__concierge
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "Concierge"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_concierge_traces
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_concierge_traces
+msgid "Concierge Traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_concierge_traces
+msgid "Concierge traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__confirmed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__status_code__confirmed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__status_code__confirmed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__confirmed
+msgid "Confirmed"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+msgid "Contact / Leader"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_contact_group
+msgid "Contact Group"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_contact_list
+msgid "Contact List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Contact Method"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_contact_method_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_contact_method_type_form
+msgid "Contact Method Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_contact_method_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_contact_method_type_tree
+msgid "Contact Method Types"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid "Count in Availability"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid "Count in Statistics"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_country_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_code_form
+msgid "Country Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_country_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_country_codes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_code_tree
+msgid "Country Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_country_region
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_region_form
+msgid "Country Region"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_country_region
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_country_region
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_region_tree
+msgid "Country Regions"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_template_form
+msgid "Create Template"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.actions.act_window,help:setup_configuration.action_reservation_reservation_main
+msgid "Create your first reservation"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.actions.act_window,help:setup_configuration.action_reservation_group_profile
+msgid "Create your first reservation group profile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__default_sign__credit
+msgid "Credit"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__payment_type__credit
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_walkin_main__payment_type__credit
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__payment_type__credit_limit
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__payment_type__credit_limit
+msgid "Credit (C/L)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__payment_type__credit_card
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__payment_type__credit_card
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__payment_type__credit_card
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Credit Card"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_credit_card_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_credit_card_type_form
+msgid "Credit Card Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_credit_card_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_credit_card_type_tree
+msgid "Credit Card Types"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__payment_type__credit_limit
+msgid "Credit Limit (C/L)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_currency_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_currency_code_form
+msgid "Currency Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_currency_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_currency_codes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_currency_code_tree
+msgid "Currency Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__customize_meal__customize
+msgid "Customize Meal"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__hotel_configuration__frequency__daily
+msgid "Daily"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__additional_attribute__type__date
+msgid "Date"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Day"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__default_sign__debit
+msgid "Debit"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__default
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Default"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
+msgid "Default Settings"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_department_category
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_department_categories
+msgid "Department Categories"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_department_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_category_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_category_tree
+msgid "Department Category"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_department_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
+msgid "Department Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_department_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_tree
+msgid "Department Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_budget_entry_form
+msgid "Departments"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+msgid "Departure Date"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__departures
+msgid "Departures"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
+msgid "Description"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__card_type__diners
+msgid "Diners"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__dinner
+msgid "Dinner"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__dirty_co
+msgid "Dirty Check-out"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__dirty_occupied
+msgid "Dirty Occupied"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__dirty_rooms
+msgid "Dirty Rooms"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__dirty_vacant
+msgid "Dirty Vacant"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "Discount on Meals (%)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "Discount on Rate (%)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Discounts"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__reason__do_not_disturb
+msgid "Do Not Disturb"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_document_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_document_type_form
+msgid "Document Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_document_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_document_type_tree
+msgid "Document Types"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__room_type__double
+msgid "Double"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Due Date"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_dummy_room_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_dummy_room_code_form
+msgid "Dummy Room Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_dummy_room_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_dummy_room_code_tree
+msgid "Dummy Room Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_credit_card_type_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_membership_card_type_form
+msgid "Duplicate Check"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__email
+msgid "E-Mail"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_form
+msgid "Edit Details"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "End Date"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "End of Day"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__template__language__english
+msgid "English"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__check_duplicate__error
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__check_expiry__error
+#: model:ir.model.fields.selection,name:setup_configuration.selection__membership_card_type__check_duplicate__error
+#: model:ir.model.fields.selection,name:setup_configuration.selection__membership_card_type__check_expiry__error
+msgid "Error"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__posting_item_selection__every_night
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_code__rhythm__every_night
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__packages_rhythm__every_night
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail_line__packages_rhythm__every_night
+msgid "Every Night"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_hotel_competition_entry_form
+msgid "Exit"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__exp_arr_clean
+msgid "Exp Arrival Clean"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__exp_arr_dirty
+msgid "Exp Arrival Dirty"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__expected
+msgid "Expected"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__expected_arr
+msgid "Expected Arrival"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_credit_card_type_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_membership_card_type_form
+msgid "Expiry Check"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Export HTML"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_template_form
+msgid "Export Html"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Extra Bed"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Extra Beds"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__complimentary_code__type__fb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__fnb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__f_b
+msgid "F & B"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__fnb
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "F&B"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_fnb_traces
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_f_and_b_traces
+msgid "F&B Traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_fnb_traces
+msgid "F&B traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__fax
+msgid "Fax"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__gender__female
+msgid "Female"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_fsm_location
+msgid "Field Service Location"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__filter
+msgid "Filter"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+msgid "First Name"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_code__exchange_rate__fixed
+msgid "Fixed (As it was on arrival)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__default_type__fixed_rent
+msgid "Fixed/Rent Time (e.g. Ballroom)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__additional_attribute__type__flag
+msgid "Flag"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid "Floor Plan"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__category__food_charge
+msgid "Food Charge"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Friday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_concierge_traces_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_fnb_traces_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_traces_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_it_traces_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_maintenance_traces_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "From"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_record__from_department__front_desk
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_record__target__front_desk
+#: model:ir.ui.menu,name:setup_configuration.menu_front_desk
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_front_desk
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "Front Desk"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "Front Desk Walk-in"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_frontdesk_walkin_main
+msgid "Front Desk Walk-in Main"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_frontdesk_walkin
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+msgid "Front Desk Walk-ins"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__meal_pattern__fb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__meal_pattern__fb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__meal_pattern__fb
+msgid "Full Board"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
+msgid "Function"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_cash_box_code_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_profile_category_form
+msgid "General"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Get Passport Info"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__entry_value_type__gross
+msgid "Gross"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_group_profile
+msgid "Group Profile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Group and Room Information"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Guest"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_guest_comments_window
+#: model:ir.ui.menu,name:setup_configuration.menu_guest_comments_list
+#: model_terms:ir.ui.view,arch_db:setup_configuration.guest_comments_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_guest_comments_guest_comments_tree
+msgid "Guest Comments"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+msgid "Guest ID"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "Guest ID#"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_guest_locator_window
+#: model:ir.model,name:setup_configuration.model_guest_locator
+#: model:ir.ui.menu,name:setup_configuration.menu_guest_locator
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_guest_locator_tree
+msgid "Guest Locator"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_guest_message_form
+msgid "Guest Message"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_guest_message
+#: model:ir.model,name:setup_configuration.model_guest_message
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_guest_message_tree
+msgid "Guest Messages"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__profile_category__profile_type__guest_profile
+msgid "Guest Profile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_guest_messages
+msgid "Guests Messages"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__hr
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "H/R"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__hr
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__hr
+msgid "HR"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "HTML"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__meal_pattern__hb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__meal_pattern__hb
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__meal_pattern__hb
+msgid "Half Board"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__address_type__address_type__home
+msgid "Home Address"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_hotel_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_hotel_code_form
+msgid "Hotel Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_hotel_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_hotel_code_tree
+msgid "Hotel Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_hotel_competion_entry
+msgid "Hotel Competion Entry"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_hotel_competition_entry
+#: model:ir.model,name:setup_configuration.model_hotel_competition_entry
+msgid "Hotel Competition Entry"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_hotel_configuration
+msgid "Hotel Configuration"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_system_configuration
+#: model:ir.model,name:setup_configuration.model_system_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_system_configuration_form
+msgid "Hotel Details"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Hotel Service"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_house_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_vip_code_form
+msgid "House Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_house_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_house_codes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_vip_code_tree
+msgid "House Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__house_keeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__house_keeping
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_house_keeping
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "House Keeping"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__how_taken__house_use
+msgid "House Use"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_house_use_codes
+msgid "House Use Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__housekeeping
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__housekeeping
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Housekeeping"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Housekeeping Information"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_housekeeping_management
+#: model:ir.model,name:setup_configuration.model_housekeeping_management
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_tree
+msgid "Housekeeping Management"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_tree
+msgid "Housekeeping Status"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_housekeeping_traces
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_housekeeping_traces
+msgid "Housekeeping Traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_housekeeping_traces
+msgid "Housekeeping Traces "
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_trace_tree
+msgid "ID"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "ID#"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__it
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__it
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "IT"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_it_traces
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_it_traces
+msgid "IT Traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_it_traces
+msgid "IT traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__iftar
+msgid "Iftar"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Image"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_template_form
+msgid "Import Template"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__status__in_process
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__status__in_process
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__status__in_process
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__status__in_process
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__status__in_process
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__status__in_process
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_record__status__in_process
+msgid "In Process"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__guest_locator__status__in_progress
+msgid "In Progress"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_frontdesk_inhouse_guest_main
+msgid "In-House Guest"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_frontdesk_inhouse_guest
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_inhouse_guest
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+msgid "In-House Guests"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__inhouse
+msgid "In-house"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__membership_card_type__card_type__individual
+#: model:ir.model.fields.selection,name:setup_configuration.selection__profile_category__profile_type__individual
+msgid "Individual"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Infant"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Infants"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid "Information"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__default_type__inside_room
+msgid "Inside Room - Managed by HK (e.g. VCR)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__template__language__default
+msgid "Interface Default"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__profile_category__profile_type__internal
+msgid "Internal"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_languages_ui
+#: model:ir.model,name:setup_configuration.model_system_languages_ui
+msgid "Languages and UI"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+msgid "Last Name"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__visit_reason__leisure
+msgid "Leisure"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__amount_selection__line_wise
+msgid "Line Wise"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "Linked Profile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Linked Profiles"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid "Location"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_locators_predefined_text
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_kocators_predefined_text
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_locators_predefined_text_form
+msgid "Locators Predefined Text"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_locators_predefined_text
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_locators_predefined_text_tree
+msgid "Locators Predefined Texts"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__lunch
+msgid "Lunch"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__address_type__address_type__mailing
+msgid "Mailing Address"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_additional_attribute_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid "Main"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_maintenance_traces
+msgid "Maintenanace Traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__maintenance
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__maintenance
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "Maintenance"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_maintenance_traces
+msgid "Maintenance Traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_maintenance_traces
+msgid "Maintenance traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__from_department__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__from_department__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__from_department__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__from_department__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__management
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__management
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "Management"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_document_type_form
+msgid "Mandatory"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_market_category
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_market_categories
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_category_tree
+msgid "Market Categories"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_market_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_category_form
+msgid "Market Category"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_market_segment
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_form
+msgid "Market Segment"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_market_segment
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_market_segments
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_tree
+msgid "Market Segments"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__card_type__master
+msgid "Master"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_meal_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_form
+msgid "Meal Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_meal_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_tree
+msgid "Meal Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_meal_list
+msgid "Meal List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_meal_pattern
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_meal_pattern
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_form
+msgid "Meal Pattern"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_meal_pattern
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_tree
+msgid "Meal Patterns"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Meals"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_form
+msgid "Meals List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+msgid "Meals Value"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__document_type__doc_type__media
+msgid "Media"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Membership"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_membership_card_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_membership_card_type_form
+msgid "Membership Card Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_membership_card_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_membership_card_type_tree
+msgid "Membership Card Types"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_trace_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Message"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_message_predefined_text
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_message_predefined_text
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_message_predefined_text_form
+msgid "Message Predefined Text"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_message_predefined_text
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_message_predefined_text_tree
+msgid "Message Predefined Texts"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.menu_misc
+msgid "Misc"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__mobile
+msgid "Mobile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Monday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__additional_attribute__type__money
+msgid "Money"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Name"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+msgid "Nationality"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__entry_value_type__net
+msgid "Net"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_availability__never
+#: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_statistics__never
+msgid "Never"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__status__new
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__status__new
+#: model:ir.model.fields.selection,name:setup_configuration.selection__guest_message__status__new
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__status__new
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__status__new
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__status__new
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__status__new
+msgid "New"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__check_duplicate__no
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__check_expiry__no
+#: model:ir.model.fields.selection,name:setup_configuration.selection__membership_card_type__check_duplicate__no
+#: model:ir.model.fields.selection,name:setup_configuration.selection__membership_card_type__check_expiry__no
+msgid "No"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__return_check__no_check
+msgid "No Check"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "No Smoking"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "No. of Rooms"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__quantity_type__none
+msgid "None"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__not_confirmed
+msgid "Not Confirmed"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__cash_box_code__status__not_used
+msgid "Not Used"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__reason__not_finished
+msgid "Not finished"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_note_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_note_category_tree
+msgid "Note Categories"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_note_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_note_category_form
+msgid "Note Category"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Notes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__additional_attribute__type__number
+msgid "Number"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__cash_box_code__status__obsolete
+msgid "Obsolete"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__room_status__occupied
+msgid "Occupied"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__document_type__doc_type__office
+msgid "Office"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_hotel_competition_entry_form
+msgid "Ok"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__quantity_type__one_value
+msgid "One Value"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_availability__only_occupied
+#: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_statistics__only_occupied
+msgid "Only Occupied"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__cash_box_code__status__open
+#: model:ir.model.fields.selection,name:setup_configuration.selection__guest_message__status__open
+msgid "Open"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Opened On"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Optional"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
+msgid "Options"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__other
+#: model:ir.model.fields.selection,name:setup_configuration.selection__template__usage__other
+msgid "Other"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__payment_type__other
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_walkin_main__payment_type__other
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__payment_type__other
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__payment_type__other
+msgid "Other Payment"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__category__other
+msgid "Other Payments"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_out_of_order
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_out_of_order_management_form
+msgid "Out of Order"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_out_of_order_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_out_of_order_code_form
+msgid "Out of Order Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_out_of_order_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_out_order_codes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_out_of_order_code_tree
+msgid "Out of Order Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_out_of_order_management_tree
+msgid "Out of Order List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_out_of_order_management
+#: model:ir.model,name:setup_configuration.model_out_of_order_management
+msgid "Out of Order Management"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__default_type__outside_light
+msgid "Outside Room - Light (e.g. Towel Cards)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__default_type__outside_managed
+msgid "Outside Room - Managed (e.g. Boats)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Packages"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__pager
+msgid "Pager"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__profile_category__profile_type__party_group
+msgid "Party Group"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Pax/Room"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+msgid "Payment Details"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Payment Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
+msgid "Payments"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__quantity_type__per_person
+msgid "Per Person"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__phone
+msgid "Phone"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__document_type__doc_type__picture
+msgid "Picture"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__user_text__please_add_baby_cot
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__user_text__please_add_baby_cot
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__user_text__please_add_baby_cot
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__user_text__please_add_baby_cot
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__user_text__please_add_baby_cot
+msgid "Please add baby cot"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__user_text__please_add_extra_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__user_text__please_add_extra_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__user_text__please_add_extra_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__user_text__please_add_extra_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__user_text__please_add_extra_bed
+msgid "Please add extra bed"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__user_text__please_free_upgrade_to_nile_view
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__user_text__please_free_upgrade_to_nile_view
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__user_text__please_free_upgrade_to_nile_view
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__user_text__please_free_upgrade_to_nile_view
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__user_text__please_free_upgrade_to_nile_view
+msgid "Please free upgrade to nile view"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__user_text__please_king_size_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__user_text__please_king_size_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__user_text__please_king_size_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__user_text__please_king_size_bed
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__user_text__please_king_size_bed
+msgid "Please king size bed"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__user_text__please_note_birthday
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__user_text__please_note_birthday
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__user_text__please_note_birthday
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__user_text__please_note_birthday
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__user_text__please_note_birthday
+msgid "Please note birthday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_posting_item
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Posting Item"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_posting_item_addition
+msgid "Posting Item Addition"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_posting_item
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_tree
+msgid "Posting Items"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Prices"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+msgid "Print Rooming List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__additional_attribute__entity_target__profile
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_profile
+msgid "Profile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_profile_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_profile_category_tree
+msgid "Profile Categories"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_profile_category
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_profile_category_form
+msgid "Profile Category"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Profile ID"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Profile Tree"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Profiles"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "Profiles/Infants"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Promotions"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__room_type__quad
+msgid "Quadruple"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
+msgid "Quantity"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__queue
+msgid "Queue"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_rate_categories
+msgid "Rate Categories"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_rate_category
+#: model:ir.model,name:setup_configuration.model_rate_category
+msgid "Rate Category"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_rate_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_form
+msgid "Rate Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_rate_code_details
+msgid "Rate Code Details"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_rate_code
+msgid "Rate Code Management"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_tree
+msgid "Rate Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_rate_detail_line
+msgid "Rate Detail Lines"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_rate_detail
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_tree
+msgid "Rate Details"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+msgid "Rate Forecast"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__price_type__rate_only
+msgid "Rate Only"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_rate_promotion
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_promotion_form
+msgid "Rate Promotion"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_rate_promotion
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_promotion_tree
+msgid "Rate Promotions"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+msgid "Rate Value"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+msgid "Rate and Market Details"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__price_type__rate_meals
+msgid "Rate and Meals Price"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_currency_code_form
+msgid "Rates"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Reason"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Recurring Daily"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_form
+msgid "Ref."
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Reference"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__reason__refused_service
+msgid "Refused Service"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__room_type__regular
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_walkin_main__room_type__regular
+msgid "Regular"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__release
+msgid "Release"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Remarks"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_rentable_asset
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
+msgid "Rentable Asset"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_rentable_asset
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_rentable_assest
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_tree
+msgid "Rentable Assets"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_profile_category_form
+msgid "Required Documents"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__reservation
+#: model:ir.model.fields.selection,name:setup_configuration.selection__fnb_traces__target__reservation
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_traces__target__reservation
+#: model:ir.model.fields.selection,name:setup_configuration.selection__it_traces__target__reservation
+#: model:ir.model.fields.selection,name:setup_configuration.selection__maintenance_traces__target__reservation
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__reservation
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__reservation
+#: model:ir.ui.menu,name:setup_configuration.menu_reservation_system
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_reservation
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Reservation"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_adults
+msgid "Reservation Adult"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_childs
+msgid "Reservation Child"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_group_profile
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+msgid "Reservation Group Profile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_reservation_group_profile
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_tree
+msgid "Reservation Group Profiles"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_infants
+msgid "Reservation Infant"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Reservation List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_profile
+#: model:ir.model,name:setup_configuration.model_reservation_reservations_profile
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Reservation Profile"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_profile_main
+msgid "Reservation Profile Main"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_reservation_profile
+msgid "Reservation Profiles"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_reservation_profile_main
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_main_tree
+msgid "Reservation Profiles Main"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_reservation_main
+msgid "Reservation Reservation Main"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_status_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_status_code_form
+msgid "Reservation Status Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_reservation_status_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_reservation_status_codes
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_status_code_tree
+msgid "Reservation Status Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_trace
+msgid "Reservation Trace"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_trace_log
+msgid "Reservation Trace Log"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_reservation_reservation_main
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_reservations
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_tree
+msgid "Reservations"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_cash_box_code_form
+msgid "Reset Values"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_childs__type__resident
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_infants__type__resident
+msgid "Resident"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Resolved"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
+msgid "Return Check"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Rhythm"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__travel_method__road
+#: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_walkin_main__travel_method__road
+msgid "Road"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__category__room_charge
+msgid "Room Charge"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Room Information"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_walkin_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Room Number"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_room_number_specific_rate
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+msgid "Room Number Specific Rate"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_tree
+msgid "Room Number Specific Rates"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_room_number_store
+msgid "Room Number Store"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_room_on_hold
+msgid "Room On Hold"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_room_hold_codes
+msgid "Room On Hold Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Room Prices"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_room_specification
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid "Room Specification"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_room_specification
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_tree
+msgid "Room Specifications"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
+msgid "Room Status"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_room_type
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_room_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_form
+msgid "Room Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_room_type_specific_rate
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Room Type Specific Rate"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_tree
+msgid "Room Type Specific Rates"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_room_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_tree
+msgid "Room Types"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_room_on_hold_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_on_hold_code_form
+msgid "Room on Hold Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_room_on_hold_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_on_hold_code_tree
+msgid "Room on Hold Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rooms_on_hold_management_form
+msgid "Rooms On Hold"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rooms_on_hold_management_tree
+msgid "Rooms On Hold List"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_rooms_on_hold_management
+#: model:ir.model,name:setup_configuration.model_rooms_on_hold_management
+msgid "Rooms On Hold Management"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Safe Box Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_safe_deposit_box
+msgid "Safe Deposit Box"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_safe_deposit_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_safe_deposit_code_form
+msgid "Safe Deposit Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_safe_deposit_code
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_safe_deposit_code_tree
+msgid "Safe Deposit Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Saturday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__trace_predefined_text__department__security
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "Security"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Select"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+msgid "Serie (Fixed Arrivals)"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Service Lines"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Set Room Number Specific Rate"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Set Room Type Specific Rate"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.menu_setup_and_configuration
+msgid "Setup and Configuration"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "Show Passport"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__room_type__single
+msgid "Single"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__room_status__slept_out
+msgid "Slept Out"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__snack
+msgid "Snack"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__sohor
+msgid "Sohor"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_source_business
+#: model:ir.model,name:setup_configuration.model_source_business
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_source_business
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_tree
+msgid "Source of Business"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Statistics"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
+msgid "Status"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Status Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Suite Supplement"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Sunday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__meal_code__type__supper
+msgid "Supper"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_system_config
+#: model:ir.model,name:setup_configuration.model_system_config
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_system_config_form
+msgid "System Configuration"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_trace_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Target"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
+msgid "Taxes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_telephone_extension
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_telephone_extension_form
+msgid "Telephone Extension"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_telephone_extension
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_telephone_extension_tree
+msgid "Telephone Extensions"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_template
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_template_form
+msgid "Template"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_template
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_templates
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_template_tree
+msgid "Templates"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__tentative
+msgid "Tentative"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Thursday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Total Children"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
+msgid "Total Infants"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_trace_predefined_text
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_trace_predefined_text
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_predefined_text_form
+msgid "Trace Predefined Text"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_trace_predefined_text
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_predefined_text_tree
+msgid "Trace Predefined Texts"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_trace_record
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "Trace Record"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_reservation_trace
+#: model:ir.actions.act_window,name:setup_configuration.action_trace_record
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_trace
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_traces
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_trace_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_trace_tree
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_kanban
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_tree
+msgid "Traces"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__function_type__transfer
+msgid "Transfer"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Tuesday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_complimentary_code_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_contact_method_type_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_profile_category_form
+msgid "Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
+msgid "Unresolved Only"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__address_type__address_type__unspecified
+#: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__unspecified
+#: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__card_type__unspecified
+#: model:ir.model.fields.selection,name:setup_configuration.selection__document_type__doc_type__unspecified
+msgid "Unspecified"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_comment_category_form
+msgid "Usage"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
+msgid "User ID"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_vip_code
+msgid "VIP Code"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_vip_code
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_vip_codes
+msgid "VIP Codes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Value"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+msgid "Value Type"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__document_type__doc_type__video
+msgid "Video"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
+msgid "View Changes"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__address_type__address_type__visitors
+msgid "Visitors Address"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_walk_in
+msgid "Walk In"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
+msgid "Website Description"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
+msgid "Wednesday"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_yearly_geographical_chart
+msgid "Yearly Geographical Chart"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__housekeeping_management__housekeeping_status__default
+msgid "[Default]"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_guest_comments_guest_comments
+msgid "guest_comments.guest_comments"
+msgstr "ترجمة"
+
+#. module: setup_configuration
+#: model:ir.model,name:setup_configuration.model_reservation_infant
+msgid "reservation.infant"
+msgstr "ترجمة"

@@ -87,7 +87,8 @@
             # 'hotel_management_odoo/static/src/xml/room_booking_buttons.xml',
             'hotel_management_odoo/static/src/views/*.js',
             'hotel_management_odoo/static/src/**/*.xml',
-            'hotel_management_odoo/static/css/hotel_booking_styles.css'
+            'hotel_management_odoo/static/css/hotel_booking_styles.css',
+            'hotel_management_odoo/static/src/css/disable.css',
         ],
     },
     'images': ['static/description/banner.jpg'],

@@ -1,0 +1,2333 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* hotel_management_odoo
+#
+msgid ""
+msgstr "ترجمة مفقودة"
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-09 16:03+0000\n"
+"PO-Revision-Date: 2024-12-09 16:03+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "--&gt;"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__10
+msgid "10"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__11
+msgid "11"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__12
+msgid "12"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__13
+msgid "13"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__14
+msgid "14"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__15
+msgid "15"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__16
+msgid "16"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_child_age__age__17
+msgid "17"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_detail_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.sale_order_detail_view_form
+msgid ""
+"<i class=\"fa fa-download mr-2\"/>\n"
+"                        Download PDF"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_detail_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.sale_order_detail_view_form
+msgid ""
+"<i class=\"fa fa-download mr-2\"/>\n"
+"                        Download XLS"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Check-in Date: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Check-out Date: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Date of Order: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Group Booking: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Guest: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Parent Booking: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Remaining Room Count: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Room Name: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Room Type: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
+msgid "<span>Status: </span>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong> Average Daily Meals Rate:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong> Average Daily Room Rate:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Address:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Arrival (Hijri):</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Arrival Date:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Company:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Departure (Hijri):</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Departure Date:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Full Name:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Gregorian Date:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Hijri Date:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Hotel Name:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>ID No.:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Meal Plan:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Mobile No.:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Municipality:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Nationality:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Number of Nights:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Number of Pax:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Passport No.:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Payments:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Rate Code:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Remaining:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Room Number:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Room Type:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Tel:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>Total Amount:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>VAT ID:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "<strong>VAT:</strong>"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.maintenance_housekeeping_request_view_inherit
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.maintenance_request_view_inherit
+msgid "Activity Items"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_activity_item_list
+msgid "Activity List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_activity_type_list
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_activity_type_list_form
+msgid "Activity Type List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Address"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:res.groups,name:hotel_management_odoo.hotel_group_admin
+msgid "Admin"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Adults"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_agent_agent
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_hotel
+msgid "Agent"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_hotel
+msgid "Agent Name"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_res_partner_filter_inherit_hotel
+msgid "Agents"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "All Draft RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "All Late RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "All RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "All Waiting RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Allotted KM"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Amenities"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.hotel_amenity_action
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_amenity_menu
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_amenity_view_form
+msgid "Amenity"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
+msgid "Amount Total"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__activity_item__status__assign
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hk_activity_item__hk_status__assign
+msgid "Assign"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Assign All Rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
+msgid "Assign Support"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
+msgid "Assign To"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__state__assign
+msgid "Assigned"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_room__status__available
+msgid "Available"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#, python-format
+msgid "Available Room"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Available Rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Available Vehicle"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "Avg Order Value"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_type__bank_transfer
+msgid "Bank Transfer"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__meal_pattern__bb
+msgid "Bed & Breakfast"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__block
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__block
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Block"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Blocked ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "Booking Details"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_booking_posting_item
+msgid "Booking Posting Item"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_budget_entries
+msgid "Budget Entries"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__activity_item__status__cancel
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hk_activity_item__hk_status__cancel
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_detail_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.sale_order_detail_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_availability_wizard
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_update_wizard
+msgid "Cancel"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__status_code__canceled
+msgid "Canceled"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__reservation_status_count_as__cancelled
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__cancel
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__cancel
+msgid "Cancelled"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Cancelled ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_type__card
+msgid "Card"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_type__cash
+msgid "Cash"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_cash_box_codes
+msgid "Cash Box Codes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__payment_type__cash
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__payment_type__cash
+msgid "Cash Payment"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_management_menu_root
+msgid "Central Reservation System"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__check_in
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__check_in
+#, python-format
+msgid "Check In"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__check_out
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__check_out
+msgid "Check Out"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_room_booking
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#, python-format
+msgid "Check-In"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_room_booking
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Check-Out"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Check-in"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_booking_checkin_wizard
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_booking_checkin_wizard_form
+msgid "Check-in Confirmation"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_booking_checkin_wizard
+msgid "Check-in Confirmation Wizard"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/wizard/room_booking_detail.py:0
+#: code:addons/hotel_management_odoo/wizard/sale_order_detail.py:0
+#, python-format
+msgid "Check-in date should be less than Check-out date"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Check-out"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking_line.py:0
+#, python-format
+msgid "Checkout must be greater or equal checkin date"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Children"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_hotel_child_age
+msgid "Children Age"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__state__ongoing
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_config_menu_cleaning
+msgid "Cleaning"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.cleaning_request_action
+#: model:ir.model,name:hotel_management_odoo.model_cleaning_request
+#: model:ir.ui.menu,name:hotel_management_odoo.cleaning_request_menu
+msgid "Cleaning Request"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.cleaning_team_action
+#: model:ir.model,name:hotel_management_odoo.model_cleaning_team
+#: model:ir.ui.menu,name:hotel_management_odoo.cleaning_team_menu
+msgid "Cleaning Team"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:res.groups,name:hotel_management_odoo.cleaning_team_group_head
+msgid "Cleaning Team Head"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:res.groups,name:hotel_management_odoo.cleaning_team_group_user
+msgid "Cleaning Team User"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Clear All Rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_codes
+msgid "Codes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_res_company
+msgid "Companies"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__activity_item__status__completed
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__state__done
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hk_activity_item__hk_status__completed
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
+msgid "Completed"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_res_config_settings
+msgid "Config Settings"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_config_menu
+msgid "Configuration"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Confirm"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__status_code__confirmed
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__reservation_status_count_as__confirmed
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__confirmed
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__confirmed
+msgid "Confirmed"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Confirmed ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.report,name:hotel_management_odoo.action_report_consolidated
+#: model:ir.model,name:hotel_management_odoo.model_report_hotel_management_odoo_report_consolidated_template
+msgid "Consolidated Room Booking Report"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_res_partner
+msgid "Contact"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Contact / Leader"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Create Invoice"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__payment_type__credit_limit
+msgid "Credit (C/L)"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__payment_type__credit_card
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__payment_type__credit_card
+msgid "Credit Card"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__payment_type__credit_limit
+msgid "Credit Limit (C/L)"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_posting_item__posting_item_selection__custom_date
+msgid "Custom Date"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_search
+msgid "Customer"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Customer Taxes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_amenity__frequency__daily
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_service__frequency__daily
+msgid "Daily"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.client,name:hotel_management_odoo.hotel_dashboard_action
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_dashboard_menu
+msgid "Dashboard"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "Days"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_move_form_posting_item
+msgid "Default Value"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Delete Records"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_department_codes
+msgid "Department Codes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid ""
+"Departure at 2:00 PM, in case of late checkout full day rate will be charged.\n"
+"                            <br/>\n"
+"                            Guests should notify the front desk in case of extension or early checkout.\n"
+"                            <br/>\n"
+"                            Refund is not applicable after 30 Minutes from signing RC.\n"
+"                            <br/>\n"
+"                            Administration is not responsible for lost valuables inside the room.\n"
+"                            <br/>\n"
+"                            In case of damage, appropriate compensation will be charged.\n"
+"                            <br/>\n"
+"                            In the event of absence, belongings will be moved to the warehouse.\n"
+"                            <br/>\n"
+"                            Commitment to Islamic instructions and not to disturb others."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_move_form_posting_item
+msgid "Description"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Descriptions"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Discount"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Discount Grand Total"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__done
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__done
+msgid "Done"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_room__room_type__dormitory
+msgid "Dormitory"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_room__room_type__double
+msgid "Double"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__state__draft
+msgid "Draft"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_dummy_room_codes
+msgid "Dummy Room Codes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_dynamic_selection
+msgid "Dynamic Selection for Floor, Hotel, Block"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Enter End Line"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Enter Start Line"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__account_move_line__product_type__event
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Event"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Event Lines"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Events"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__booking_posting_item__posting_item_selection__every_night
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_posting_item__posting_item_selection__every_night
+msgid "Every Night"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_fsm_location
+msgid "Field Service Location"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Fixed Post"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__account_move_line__product_type__fleet
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Fleet"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Fleet Lines"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_hotel_floor
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Floor"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.hotel_floor_action
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_floor_menu
+msgid "Floors"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_search
+msgid "Folio Number"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__account_move_line__product_type__food
+#: model:ir.ui.menu,name:hotel_management_odoo.food_menu
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Food"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Food Items"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Food Lines"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Food Orders"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "From Record"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__meal_pattern__fb
+msgid "Full Board"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__res_company__web_kaaba_view__full_kaaba_view
+msgid "Full Kaaba View"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Generate Report"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Grand Total"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.group_reservation_menu
+msgid "Group"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.group_booking_action
+#: model:ir.model,name:hotel_management_odoo.model_group_booking
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Group Booking"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_group_booking_person
+msgid "Group Booking Person"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_tree
+msgid "Group Bookings"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "Guest Details"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "Guest Information"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_room_booking
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
+msgid "Guest Name"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_activity_type_list
+msgid "HK Activity Items"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_activity_item_list
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hk_activity_type_list_form
+msgid "HK Activity Type List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_administration_companies_inherit
+msgid "HOTELS"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__meal_pattern__hb
+msgid "Half Board"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_hotel_hotel
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__cleaning_type__hotel
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_fsm_location_form_inherit
+msgid "Hotel"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.module.category,description:hotel_management_odoo.module_category_hotel_management
+msgid "Hotel Access Groups"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_hotel_amenity
+msgid "Hotel Amenity"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Hotel Booking"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_event_booking_line
+msgid "Hotel Event Line"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_fleet_booking_line
+msgid "Hotel Fleet Line"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_booking_line
+msgid "Hotel Folio Line"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_food_booking_line
+msgid "Hotel Food Line"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Hotel Information"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_hotel_inventory
+msgid "Hotel Inventory"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.module.category,name:hotel_management_odoo.module_category_hotel_management
+msgid "Hotel Management"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_view_tree
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Hotel Name"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Hotel Room"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_payment
+msgid "Hotel Room Payment"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_booking
+msgid "Hotel Room Reservation"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_hotel_room_result
+msgid "Hotel Room Result"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_graph
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_pivot
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_tree
+msgid "Hotel Room Results"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_hotel_service
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
+msgid "Hotel Service"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Hotel location"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_service_booking_line
+msgid "Hotel service Line"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.hotel_action
+msgid "Hotels"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_activity_item_hk
+msgid "HouseKeeping Activity Items"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_activity_item_list_hk
+msgid "HouseKeeping Activity Type"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__activity_item__activity_type__housekeeping
+msgid "Housekeeping"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_housekeeping_staff_status
+msgid "Housekeeping Staff Status"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_housekeeping_status
+#: model:ir.model,name:hotel_management_odoo.model_maintenance_status
+msgid "Housekeeping Status"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "ID No."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__activity_item__status__in_progress
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hk_activity_item__hk_status__in_progress
+msgid "In Progress"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_hotel
+msgid "Individual"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Information"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Inventory"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__invoice_status__invoiced
+msgid "Invoiced"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Invoices"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_hotel
+msgid "Is an Agent?"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_activity_item
+#: model:ir.model,name:hotel_management_odoo.model_hk_activity_item
+msgid "Item List for Housekeeping and Maintenance"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_account_move
+msgid "Journal Entry"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_account_move_line
+msgid "Journal Item"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Kaaba view"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "Late"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "Lead Time to Purchase"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_location_configuration
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_view_tree
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit
+msgid "Location"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_fsm_location_form_inherit
+msgid "Location Type"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Main"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
+msgid "Maintain Request"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_activity_type_list
+#: model:ir.model,name:hotel_management_odoo.model_hk_activity_type_list
+msgid "Maintenance Activity Type List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_maintenance_housekeeping_request
+#: model:ir.model,name:hotel_management_odoo.model_maintenance_request
+msgid "Maintenance Request"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:res.groups,name:hotel_management_odoo.maintenance_team_group_leader
+msgid "Maintenance Team Leader"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:res.groups,name:hotel_management_odoo.maintenance_team_group_user
+msgid "Maintenance Team User"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.fleet_vehicle_model_brand_action
+msgid "Manufacturers"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_meal_codes
+msgid "Meal Codes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_team_view_form
+msgid "Members"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_fleet_vehicle_model
+msgid "Model of a vehicle"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_monthly_allotment_charts
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_monthly_allotment_charts
+msgid "Monthly Allotment Charts"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "My Draft RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "My Late RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "My RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "My Waiting RFQs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_vip
+msgid "Nationality"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_booking_checkin_wizard_form
+msgid "No"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__res_company__web_kaaba_view__no_kaaba_view
+msgid "No Kaaba View"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__no_show
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__no_show
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "No Show"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid ""
+"No bookings were confirmed. Please ensure the state is 'not_confirmed' "
+"before confirming."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Not Confirm ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__reservation_status_count_as__not_confirmed
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__not_confirmed
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__not_confirmed
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Not Confirmed"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__invoice_status__no_invoice
+msgid "Nothing To Invoice"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_waiting_list__state__notified
+msgid "Notified"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_room__status__occupied
+msgid "Occupied"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Occupied ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__hotel_policy__manual
+msgid "On Check In"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__hotel_policy__picking
+msgid "On Checkout"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Open Form"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Optional"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__reservation_status_count_as__other
+msgid "Other"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__payment_type__other
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__payment_type__other
+msgid "Other Payment"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_status__paid
+msgid "Paid"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "Passport No."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Payment"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Payment Details"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Payment Type"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Pending Events"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Pending Payment"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/maintenance_request.py:0
+#, python-format
+msgid "Please Add remark"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#, python-format
+msgid "Please Enter Room Details"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#, python-format
+msgid "Please Enter time zone in user settings."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/maintenance_request.py:0
+#, python-format
+msgid "Please assign a Team"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/maintenance_request.py:0
+#, python-format
+msgid "Please assign a User"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/cleaning_request.py:0
+#, python-format
+msgid "Please choose a support"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/maintenance_request.py:0
+#, python-format
+msgid "Please choose support"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/cleaning_request.py:0
+#: code:addons/hotel_management_odoo/models/maintenance_request.py:0
+#, python-format
+msgid "Please enter the reason"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_move_form_posting_item
+msgid "Posting Item"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_posting_items
+msgid "Posting Items"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_product_pricelist
+msgid "Pricelist"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Product"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.lunch_product_action
+msgid "Products"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "Purchased Last 7 Days"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Qty"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "RFQs Sent Last 7 Days"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_rate_code
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_vip
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_product_pricelist_custom
+msgid "Rate Code"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_rate_code
+msgid "Rate Code Management"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_product_pricelist_custom
+msgid "Rate Codes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Rate Details"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_rate_promotion
+msgid "Rate Promotions"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Rate and Market Details"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:res.groups,name:hotel_management_odoo.hotel_group_reception
+msgid "Receptionist"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_room_booking
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
+msgid "Reference No."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__reservation_status_count_as__release
+msgid "Release"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Rent"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Repairs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_reporting_menu
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_reporting
+msgid "Reporting"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
+msgid "Request Support"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.individual_reservation_menu
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_reservation
+#: model:ir.ui.menu,name:hotel_management_odoo.room_booking_menu
+msgid "Reservation"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_reservation_adult
+msgid "Reservation Adult"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_reservation_child
+msgid "Reservation Child"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Reservation List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__reserved
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__reserved
+msgid "Reserved"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__reservation_child__type__resident
+msgid "Resident"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Review"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__account_move_line__product_type__room
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__cleaning_type__room
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_room_menu
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Room"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#, python-format
+msgid "Room Already Reserved."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Room Amenities"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_run_process_room_availability
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_availability_wizard
+msgid "Room Availability"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_availability_result
+msgid "Room Availability Result"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Room Availability Results"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_room_availability_wizard
+#: model:ir.model,name:hotel_management_odoo.model_room_availability_wizard
+msgid "Room Availability Wizard"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.room_booking_action
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_room_booking
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_search
+msgid "Room Booking"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_booking_detail
+#: model:ir.model,name:hotel_management_odoo.model_sale_order_detail
+msgid "Room Booking Details"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_booking_line_status
+msgid "Room Booking Line Status"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.report,name:hotel_management_odoo.action_report_room_booking
+msgid "Room Booking Order"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.room_booking_detail_action
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "Room Booking Report"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_calendar
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_graph
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Room Bookings"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_pivot
+msgid "Room Count"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Room Detail"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#, python-format
+msgid "Room Entry Duplicates Found!, You Cannot Book \"%s\" Room More Than Once!"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Room Lines"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+msgid "Room Manager"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_search_view
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_tree
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Room Name"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_room_booking
+msgid "Room No."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_rate_forecast
+msgid "Room Rate Forecast"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_result_by_client
+msgid "Room Result By Client"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_result_by_room_type
+msgid "Room Result by Room Type"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_room_result_by_client
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_client_graph
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_client_pivot
+msgid "Room Results By Client"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_monthly_allotment_charts_graph
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_monthly_allotment_charts_pivot
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_room_type_graph
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_room_type_pivot
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_room_type_tree
+msgid "Room Results by Room Type"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_search_view
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_tree
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Room Type"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_waiting_list
+msgid "Room Waiting List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/hotel_room.py:0
+#, python-format
+msgid "Room capacity must be more than 0"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: model:ir.actions.act_window,name:hotel_management_odoo.hotel_room_action
+#: model:ir.model,name:hotel_management_odoo.model_hotel_room
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#, python-format
+msgid "Rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_room_availability
+msgid "Run Hotel Room Process"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_monthly_allotment
+msgid "Run Monthly Allotment process"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_room_type
+msgid "Run Room Process"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_Region
+msgid "Run Yearly Geographical Process"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.report,name:hotel_management_odoo.action_report_sale_order
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
+msgid "Sale Order"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.sale_order_detail_action
+msgid "Sale Order Report"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Search Result"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Search Rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Select Hotel"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Select Room Type"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Select check-in date"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Select check-out date"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Select rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_availability_wizard
+msgid "Send to Waiting List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Service"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Service Lines"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_fsm_location_
+msgid "Service Locations"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.hotel_service_action
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_service_menu
+msgid "Services"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Set as Done"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_room_booking
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
+msgid "Sl No."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_vip
+msgid "Source of Business"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Split All Rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Split Rooms"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Star rating"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
+msgid "Start"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+msgid "Statistics"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "Tel No."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_telephone_extension
+msgid "Telephone Extension"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_consolidated_template
+msgid "Terms &amp; Conditions"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_booking_checkin_wizard_form
+msgid ""
+"The check-in date is in the future. Do you want to change the check-in date "
+"to today?"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Ticket"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Title"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "To Record"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "To Send"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Today's Check Out"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Today's Check-In ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#, python-format
+msgid "Today's Check-Out"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Today's Check-Out ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Today's Events"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Today's Revenue"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Total Events"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Fixed Pst."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Meals"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Packages"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Rate"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Total Reservations"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Total Revenue"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Total Room"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Total Staff"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#, python-format
+msgid "Total Staffs"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
+#, python-format
+msgid "Total Vehicle"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/dashboard_action.js:0
+#, python-format
+msgid "Total Vehicles"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Total amount"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.hotel_transaction_menu
+msgid "Transaction"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Unit of Measure"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Untaxed amount"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Untaxed amount for Event"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Untaxed amount for Fleet"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Untaxed amount for Food"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Untaxed amount for Room"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Untaxed amount for Service"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.action_open_room_booking_update_wizard
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_update_wizard
+msgid "Update Check-In and Check-Out Dates"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_update_wizard
+msgid "Update Data"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_vip
+msgid "VIP"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Vacant ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.fleet_vehicle_menu
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Vehicle"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.fleet_vehicle_model_action
+msgid "Vehicles"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.act_window,name:hotel_management_odoo.lunch_supplier_action
+msgid "Vendors"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
+#, python-format
+msgid "Waiting"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Waiting List"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
+#, python-format
+msgid "Waiting List ("
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Web"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_config_settings_form_inherit_website
+msgid "Website"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_booking_update_wizard
+msgid "Wizard to Update Check-In and Check-Out Dates"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.yearly_geographical_chart_graph_view
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.yearly_geographical_chart_pivot_view
+msgid "Yearly Geographical Analysis"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_yearly_geographical_chart
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_yearly_geographical_chart
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.yearly_geographical_chart_tree_view
+msgid "Yearly Geographical Chart"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_run_process
+msgid "Yearly Reservation Chart"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.ui.menu,name:hotel_management_odoo.menu_run_process_by_room_type
+msgid "Yearly Room Types Chart"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_booking_checkin_wizard_form
+msgid "Yes"
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking_bak.py:0
+#, python-format
+msgid "Your Invoice is Due for Payment."
+msgstr "ترجمة مفقودة"
+
+#. module: hotel_management_odoo
+#: model:ir.model,name:hotel_management_odoo.model_room_booking_posting_item
+msgid "room.booking.posting.item"
+msgstr "ترجمة مفقودة"

@@ -1,0 +1,10 @@
+.o_form_sheet {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure the form takes the full viewport height */
+}
+
+.o_form_sheet .oe_chatter {
+    margin-top: auto; /* Push the chatter to the bottom */
+    width: 100%;      /* Make the chatter span the full width */
+}

@@ -34,7 +34,7 @@
                     <group>
                         <div style="display: flex; align-items: center; gap: 100px; width: max-content;">
                             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
-                                <label for="total_rate_forecast" string="Total Rate"/>
+                                <label for="total_rate_forecast" string="Total Room Rate"/>
                                 <field name="total_rate_forecast" readonly="1"/>
                             </div>
                             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">

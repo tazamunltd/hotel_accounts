@@ -1,4 +1,5 @@
 from odoo import _, api, models, fields
+from odoo.exceptions import ValidationError
 
 class HotelDetails(models.Model):
     _name = 'system.configuration'
@@ -143,6 +144,8 @@ class RateDetail(models.Model):
             })]
         })
 
+    
+
 
     # taxes = fields.Many2one('account.tax', string="Taxes")
     customize_meal = fields.Selection([
@@ -168,9 +171,56 @@ class RateDetail(models.Model):
 
     from_date = fields.Date(string="From Date")
     to_date = fields.Date(string="To Date")
+    @api.constrains('from_date', 'to_date')
+    def _check_date_overlap(self):
+        for record in self:
+            if record.to_date <= record.from_date:
+                raise ValidationError("The 'To Date' must be greater than the 'From Date'.")
+
+            # Search for overlapping records
+            overlapping_records = self.search([
+                ('id', '!=', record.id),  # Exclude the current record (for updates)
+                ('rate_code_id', '=', record.rate_code_id.id),  # Match the same rate_code
+                '|',
+                '&', ('from_date', '<=', record.to_date), ('to_date', '>=', record.from_date),
+                '&', ('from_date', '>=', record.from_date), ('from_date', '<=', record.to_date),
+            ])
+            print('187', overlapping_records)
+
+            if overlapping_records:
+                # Collect details of all overlapping records
+                overlap_details = "\n".join(
+                    f"ID: {overlap.id}, From Date: {overlap.from_date}, To Date: {overlap.to_date}"
+                    for overlap in overlapping_records
+                )
+
+                # Raise the validation error with all overlapping records
+                raise ValidationError(
+                    f"The date range from '{record.from_date}' to '{record.to_date}' overlaps with the following records:\n\n{overlap_details}"
+                )
     rate_detail_dicsount = fields.Float(string="Discount")
     is_amount = fields.Boolean(string="Amount", default=True)
     is_percentage = fields.Boolean(string="Percentage", default=False)
+
+    # @api.constrains('from_date', 'to_date')
+    # def _check_date_overlap(self):
+    #     for record in self:
+    #         if record.from_date > record.to_date:
+    #             raise ValidationError("From Date cannot be after To Date.")
+
+    #         # Search for any existing records with overlapping dates
+    #         overlapping_records = self.env['rate.detail'].search([
+    #             ('id', '!=', record.id),
+    #             '|',
+    #             '&', ('from_date', '<=', record.to_date.strftime('%Y-%m-%d')),
+    #                  ('to_date', '>=', record.from_date.strftime('%Y-%m-%d'))
+    #         ])
+
+    #         if overlapping_records:
+    #             raise ValidationError(
+    #                 f"The dates overlap with an existing record (From Date: {overlapping_records[0].from_date}, "
+    #                 f"To Date: {overlapping_records[0].to_date}). Please choose different dates."
+    #             )
 
     @api.onchange('is_amount')
     def _onchange_is_amount(self):

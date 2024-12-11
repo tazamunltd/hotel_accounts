@@ -43,8 +43,8 @@ class RoomBooking(models.Model):
     adult_ids = fields.One2many('room.booking.adult', 'booking_id', string="Adults")
     child_ids = fields.One2many('room.booking.child', 'booking_id', string="Children")
     web_cancel = fields.Boolean(string="Web cancel", default=False, help="Reservation cancelled by website")
-    web_cancel_time = fields.Datetime(string="Web Cancel Time", compute="_compute_web_cancel_time", store=True,
-                                      readonly=True)
+    web_cancel_time = fields.Datetime(string="Web Cancel Time", compute="_compute_web_cancel_time", store=True, readonly=True)
+    ref_id_bk = fields.Integer(string="Ref. ID(booking.com)")
 
     @api.depends('web_cancel')
     def _compute_web_cancel_time(self):
@@ -589,9 +589,9 @@ class RoomBooking(models.Model):
     @api.depends('adult_count', 'room_count', 'checkin_date', 'checkout_date', 'meal_pattern', 'rate_code','room_price', 'meal_price', 'posting_item_ids')
     def _get_forecast_rates(self):
         for record in self:
-            # if record.id is not int or record.id is not str:
-            #     return
-            # Parse check-in and check-out dates
+            if not record.checkin_date or not record.checkout_date:
+                record.rate_forecast_ids = []
+                continue        
             checkin_date = fields.Date.from_string(record.checkin_date)
             checkout_date = fields.Date.from_string(record.checkout_date)
             total_days = (checkout_date - checkin_date).days
@@ -763,6 +763,11 @@ class RoomBooking(models.Model):
         for record in self:
             record.is_readonly_group_booking = bool(record.group_booking)
 
+    # @api.depends('group_booking')
+    # def _compute_is_readonly_group_booking(self):
+    #     for record in self:
+    #         record.is_readonly_group_booking = bool(record.group_booking)
+
     group_booking = fields.Many2one(
         'group.booking', string="Group Booking", help="Group associated with this booking")
 
@@ -808,8 +813,27 @@ class RoomBooking(models.Model):
                             help="Agent associated with this booking")
     is_vip = fields.Boolean(related='partner_id.is_vip',
                             string="VIP", store=True)
-    allow_profile_change = fields.Boolean(related='group_booking.allow_profile_change',
-                                          string='Allow changing profile data in the reservation form?', readonly=True)
+
+    allow_profile_change = fields.Boolean(
+            related='group_booking.allow_profile_change',
+            string='Allow changing profile data in the reservation form?',
+            readonly=True
+        )
+
+
+    # @api.depends('group_booking', 'group_booking.allow_profile_change')
+    # def _compute_is_readonly_group_booking(self):
+    #     for record in self:
+    #         if record.group_booking:
+    #             # Fields are read-only if allow_profile_change is False
+    #             record.allow_profile_change = not record.group_booking.allow_profile_change
+    #         else:
+    #             # Fields are editable when no group_booking is selected
+    #             record.allow_profile_change = False
+
+    # allow_profile_change = fields.Boolean(related='group_booking.allow_profile_change', ☻string='Allow changing profile data in the reservation form?', readonly=True)
+
+
     company_id = fields.Many2one('res.company', string="Hotel",
                                  help="Choose the Hotel",
                                  index=True,
@@ -827,13 +851,13 @@ class RoomBooking(models.Model):
 
     )
 
-    reference_contact = fields.Many2one(
-        'res.partner',
-        string='Contact Reference'
+    # reference_contact = fields.Many2one(
+    #     'res.partner',
+    #     string='Contact Reference'
 
-    )
+    # )
 
-    reference_contact_ = fields.Char(string='Contact Reference')
+    reference_contact_ = fields.Char(string=_('Contact Reference'))
 
     # @api.onchange('partner_id')
     # def _onchange_customer(self):
@@ -887,17 +911,21 @@ class RoomBooking(models.Model):
     
 
     def write(self, vals):
+        if 'checkin_date' in vals and not vals['checkin_date']:
+            raise ValidationError(_("Check-In Date is required and cannot be empty."))
+
         if 'date_order' not in vals:
             system_date = self.env['res.company'].search(
                 [], limit=1).system_date
             if system_date:
                 vals['date_order'] = system_date
-        
+        print("in write for testing", vals)        
         # Determine if 'state' is being updated
         state_changed = 'state' in vals and vals['state'] != self.state
 
         # Perform the write operation
         res = super(RoomBooking, self).write(vals)
+        print("in write vals1",state_changed)
 
         if state_changed:
             new_state = vals.get('state')
@@ -921,6 +949,7 @@ class RoomBooking(models.Model):
                                               help="sets to True if the "
                                                    "maintenance request send "
                                                    "once")
+                                                   
     checkin_date = fields.Datetime(string="Check In",
                                    default=lambda self: fields.Datetime.now(),
                                    help="Date of Checkin", required=True)
@@ -928,32 +957,95 @@ class RoomBooking(models.Model):
     checkout_date = fields.Datetime(string="Check Out",
                                     help="Date of Checkout", required=True)
 
+    
+
     # @api.onchange('checkin_date')
     # def _onchange_checkin_date(self):
-    #     if self.checkin_date and self.checkin_date < fields.Datetime.now():
-    #         raise UserError("Check-In Date cannot be in the past. Please select a valid date.")
+    #     current_time = fields.Datetime.now() - timedelta(minutes=10)  # 10-minute buffer
+    #     if self.checkin_date and self.checkin_date < current_time:
+    #         raise UserError(
+    #             "Check-In Date cannot be more than 10 minutes in the past. Please select a valid time.")
 
-    # default=fields.Datetime.now() + timedelta(
-    #     hours=23, minutes=59, seconds=59)
+    #     if self.checkin_date:
+    #         # Set checkout_date to the end of the checkin_date
+    #         self.checkout_date = self.checkin_date + timedelta(hours=23, minutes=59, seconds=59)
 
     @api.onchange('checkin_date')
     def _onchange_checkin_date(self):
-        current_time = fields.Datetime.now() - timedelta(minutes=10)  # 10-minute buffer
-        if self.checkin_date and self.checkin_date < current_time:
-            raise UserError(
-                "Check-In Date cannot be more than 10 minutes in the past. Please select a valid time.")
-
         if self.checkin_date:
-            # Set checkout_date to the end of the checkin_date
+            # Convert current time to user's timezone
+            current_time = fields.Datetime.context_timestamp(self, fields.Datetime.now())
+            buffer_time = current_time - timedelta(minutes=10)
+            
+            # Convert checkin_date to user's timezone for comparison
+            checkin_user_tz = fields.Datetime.context_timestamp(self, self.checkin_date)
+            
+            if checkin_user_tz < buffer_time:
+                # Reset to current time if invalid
+                self.checkin_date = fields.Datetime.to_string(current_time)
+                return {
+                    'warning': {
+                        'title': 'Invalid Date',
+                        'message': "Check-In Date cannot be in the Past."
+                    }
+                }
+
+            # Set checkout_date to next day same time
+            # end_of_day = checkin_user_tz.replace(hour=23, minute=59, second=59)
             self.checkout_date = self.checkin_date + timedelta(hours=23, minutes=59, seconds=59)
 
-    @api.onchange('checkout_date')
-    def _onchange_checkout_date(self):
-        if self.checkout_date and self.checkin_date:
-            if self.checkout_date <= self.checkin_date:
-                raise UserError(
-                    "Check-Out Date must be greater than Check-In Date. Please select a valid date."
-                )
+
+    def _adjust_checkout_date(self):
+        """Adjust checkout_date to one day after checkin_date if invalid."""
+        if self.checkin_date:
+            self.checkout_date = self.checkin_date + timedelta(days=1)
+
+    # @api.constrains('checkout_date')
+    # def _onchange_checkout_date(self):
+        
+    #     if self.checkout_date and self.checkin_date:
+    #         # Compare dates without converting to the user's timezone
+    #         if self.checkout_date <= self.checkin_date:
+    #             # Set checkout_date to one day after checkin_date
+                
+    #             # self.checkout_date = False
+    #             # self.checkout_date = self.checkin_date + timedelta(days=1)
+    #             # raise UserError(
+    #             #     "Check-Out Date must be after Check-In Date. It has been adjusted accordingly.")
+
+    #             self._adjust_checkout_date()
+
+    #             # Show a warning message
+    #             return {
+    #                 'warning': {
+    #                     'title': 'Invalid Date',
+    #                     'message': "Check-Out Date must be after Check-In Date. It has been set to one day after the Check-In Date."
+    #                 }
+    #             }
+                
+
+    # @api.onchange('checkout_date')
+    # def _onchange_checkout_date(self):
+    #     if self.checkout_date and self.checkin_date and self.checkout_date <= self.checkin_date:
+    #         self.checkout_date = self.checkin_date + timedelta(days=1)
+    #         # Raise a UserError (modal popup) to alert the user each time.
+    #         raise UserError("Check-Out Date must be after Check-In Date. It has been adjusted accordingly.")
+
+    # @api.onchange('checkout_date')
+    # def _onchange_checkout_date(self):
+    #     if self.checkout_date and self.checkin_date:
+    #         if self.checkout_date <= self.checkin_date:
+    #             next_day = fields.Datetime.from_string(self.checkin_date) + timedelta(days=1)
+    #             self.checkout_date = fields.Datetime.to_string(next_day)
+    #             return {
+    #             'warning': {
+    #                 'title': 'Invalid Date',
+    #                 'message': "Check-Out Date must be greater than Check-In Date. "
+    #             }
+    #         }
+                # raise UserError(
+                #     "Check-Out Date must be greater than Check-In Date. Please select a valid date."
+                # )
 
     @api.constrains('checkin_date', 'checkout_date')
     def _check_dates(self):
@@ -1084,17 +1176,26 @@ class RoomBooking(models.Model):
             'no_show': 'confirmed',
             'check_in': 'confirmed',
             'check_out': 'confirmed',
-            'done': 'other',
+            'done': 'confirmed',
             'cancel': 'cancelled',
             'reserved': 'wait_list',
         }
-
         for record in self:
             # First, map based on state.
-            state_based_value = state_mapping.get(record.state, 'other')
+            state_based_value = state_mapping.get(record.state, 'confirmed')  # Default to 'confirmed'
 
             # Then, prioritize the related reservation status if it exists.
-            record.reservation_status_count_as = record.reservation_status_id.count_as or state_based_value
+            if record.reservation_status_id and record.reservation_status_id.count_as:
+                record.reservation_status_count_as = record.reservation_status_id.count_as
+            else:
+                record.reservation_status_count_as = state_based_value
+
+        # for record in self:
+        #     # First, map based on state.
+        #     state_based_value = state_mapping.get(record.state, 'other')
+
+        #     # Then, prioritize the related reservation status if it exists.
+        #     record.reservation_status_count_as = record.reservation_status_id.count_as or state_based_value
 
     @api.onchange('no_show_')
     def _onchange_no_show(self):
@@ -1124,8 +1225,8 @@ class RoomBooking(models.Model):
         state_changed = False  # Flag to track if any state was changed to 'confirmed'
 
         for booking in self:
-            if not booking.availability_results:
-                raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
+            # if not booking.availability_results:
+            #     raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
             # If the booking is a parent, process its children
             child_bookings = self.search(
                 [('parent_booking_name', '=', booking.name)])
@@ -1499,8 +1600,12 @@ class RoomBooking(models.Model):
 
     def action_confirm(self):
         for record in self:
-            if not record.availability_results:
-                raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
+            print("Line 1598", record.parent_booking_name)
+            if not record.parent_booking_name:
+                if not record.availability_results:
+                    raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
+            # if not record.availability_results:
+            #     raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
             
             if not record.room_line_ids:
                 record.action_split_rooms()
@@ -1513,6 +1618,8 @@ class RoomBooking(models.Model):
 
     def action_waiting(self):
         for record in self:
+            if not record.availability_results:
+                raise UserError("You have to Search room first then you can Send to Waiting List.")
             record.state = 'waiting'
 
 # The above code snippet is a Python method that seems to be part of a larger system or application.
@@ -2270,6 +2377,8 @@ class RoomBooking(models.Model):
 
     @api.model
     def create(self, vals_list):
+        if not vals_list.get('checkin_date'):
+            raise ValidationError(_("Check-In Date is required and cannot be empty."))
         # Fetch the company_id from vals_list or default to the current user's company
         company_id = vals_list.get('company_id', self.env.user.company_id.id)
         company = self.env['res.company'].browse(company_id)
@@ -2737,23 +2846,32 @@ class RoomBooking(models.Model):
                     if line.room_id:
                         print("Processing Room Line ID:", line.id)
 
-                        # Update the available rooms count and reduce rooms_reserved count
-                        availability_result = self.env['room.availability.result'].search([
+                        # Retrieve all availability results linked to the parent booking
+                        availability_results = self.env['room.availability.result'].search([
                             ('room_booking_id', '=', parent_booking_id)
-                        ], limit=1)
+                        ])
 
-                        print("Availability Result:", availability_result)
+                        for availability_result in availability_results:
+                            print("Availability Result:", availability_result)
 
-                        if availability_result:
-                            # Use room count from the room line or a calculated value
-                            reserved_rooms = line.room_count if hasattr(line, 'room_count') else 1
+                            # Use a fixed count of 1 for each line or determine from another field if available
+                            reserved_rooms = 1
 
-                            # Increase available_rooms and decrease rooms_reserved
-                            availability_result.available_rooms += reserved_rooms
-                            availability_result.rooms_reserved -= reserved_rooms
+                            # Debug print to verify the reserved rooms count
+                            print(f"Reserved Rooms Count: {reserved_rooms}")
+
+                            # Safeguard to prevent negative available rooms
+                            if availability_result.rooms_reserved >= reserved_rooms:
+                                availability_result.available_rooms += reserved_rooms
+                                availability_result.rooms_reserved -= reserved_rooms
+                            else:
+                                print("Warning: Attempt to reduce more rooms than reserved.")
+                                availability_result.available_rooms += availability_result.rooms_reserved
+                                availability_result.rooms_reserved = 0
 
             # Update the booking state to 'cancel'
-            record.state = 'cancel'
+            record.write({'state': 'cancel'})
+            print(f"Booking ID {record.id} has been canceled.")
 
     # def action_cancel(self):
     #     for record in self:
@@ -2827,17 +2945,103 @@ class RoomBooking(models.Model):
 
     def action_checkout(self):
         today = fields.Date.context_today(self)
-        if fields.Date.to_date(self.checkout_date) != today:
+        print(f"Debug: action_checkout called for Booking ID: {self.id}")
+        print(f"Debug: Today's date = {today}")
+        print(f"Debug: checkout_date = {self.checkout_date}")
+
+        # If checkout_date is not set or is in the future, prompt for early check-out confirmation
+        if not self.checkout_date or fields.Date.to_date(self.checkout_date) > today:
+            return {
+                'name': _('Confirm Early Check-Out'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'confirm.early.checkout.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {'default_booking_id': self.id},
+            }
+
+        # Convert checkout_date to date and compare
+        checkout_date = fields.Date.to_date(self.checkout_date)
+        print(f"Debug: Converted checkout_date = {checkout_date}")
+
+        # If checkout_date is not today, raise a validation error
+        if checkout_date != today:
+            print("Debug: Validation error triggered.")
             raise ValidationError(
-                _("You can only check out on the reservation's check-out date, which should be today."))
-        """Button action_heck_out function"""
+                _("You can only check out on the reservation's check-out date, which should be today.")
+            )
+
+        # Change booking state to 'check_out'
         self.write({"state": "check_out"})
-        for room in self.room_line_ids:
-            room.room_id.write({
-                'status': 'available',
-                'is_room_avail': True
-            })
-            room.write({'checkout_date': datetime.today()})
+        print(f"Debug: State after write operation = {self.state}")
+
+        # Return success notification
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'success',
+                'message': _("Booking Checked Out Successfully!"),
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
+        }
+
+    # def action_checkout(self):
+    #     today = fields.Date.context_today(self)
+
+    #     # If checkout_date is not set, prompt for early check-out confirmation
+    #     if not self.checkout_date or fields.Date.to_date(self.checkout_date) > today:
+    #         return {
+    #             'name': _('Confirm Early Check-Out'),
+    #             'type': 'ir.actions.act_window',
+    #             'res_model': 'confirm.early.checkout.wizard',
+    #             'view_mode': 'form',
+    #             'target': 'new',
+    #             'context': {'booking_id': self.id},
+    #         }
+
+    #     # Convert checkout_date to date and compare
+    #     checkout_date = fields.Date.to_date(self.checkout_date)
+
+    #     # If check-out date is today, proceed with check-out
+    #     if checkout_date != today:
+    #         raise ValidationError(
+    #             _("You can only check out on the reservation's check-out date, which should be today.")
+    #         )
+
+    #     # Proceed with normal check-out process
+    #     self.write({"state": "check_out"})
+    #     for room in self.room_line_ids:
+    #         room.room_id.write({
+    #             'status': 'available',
+    #             'is_room_avail': True
+    #         })
+    #         room.write({'checkout_date': today})
+
+    #     return {
+    #         'type': 'ir.actions.client',
+    #         'tag': 'display_notification',
+    #         'params': {
+    #             'type': 'success',
+    #             'message': _("Booking Checked Out Successfully!"),
+    #             'next': {'type': 'ir.actions.act_window_close'},
+    #         }
+    #     }  
+
+    #working
+    # def action_checkout(self):
+    #     today = fields.Date.context_today(self)
+    #     if fields.Date.to_date(self.checkout_date) != today:
+    #         raise ValidationError(
+    #             _("You can only check out on the reservation's check-out date, which should be today."))
+    #     """Button action_heck_out function"""
+    #     self.write({"state": "check_out"})
+    #     for room in self.room_line_ids:
+    #         room.room_id.write({
+    #             'status': 'available',
+    #             'is_room_avail': True
+    #         })
+    #         room.write({'checkout_date': datetime.today()})
 
     def action_invoice(self):
         """Method for creating invoice"""
@@ -3001,7 +3205,7 @@ class RoomBooking(models.Model):
         """ This method is called when the user confirms to change the check-in date """
         record = self.browse(record_id)
         if record.exists():
-            record.checkin_date = fields.Date.context_today(self)
+            record.checkin_date = datetime.now()
             return record._perform_checkin()
         return False
 
@@ -3205,6 +3409,12 @@ class RoomBooking(models.Model):
                 raise ValidationError("Kindly select at least one room for room booking.")
 
     adult_count = fields.Integer(string='Adults', default=1)
+
+    # @api.onchange('adult_count')
+    # def _onchange_adult_count(self):
+    #     if self.adult_count == 0:
+    #         raise ValidationError('Adult count cannot be zero. Please enter a valid number of adults.')
+
     child_count = fields.Integer(string='Children', default=0)
     child_ages = fields.One2many(
         'hotel.child.age', 'booking_id', string='Children Ages')
@@ -3212,8 +3422,7 @@ class RoomBooking(models.Model):
         string='Total People', compute='_compute_total_people', store=True)
     rooms_to_add = fields.Integer(string='Rooms to Add', default=0)
 
-    room_ids_display = fields.Char(
-        string="Room Names", compute="_compute_room_ids_display")
+    room_ids_display = fields.Char(string="Room Names", compute="_compute_room_ids_display",search="_search_room_ids_display",)
     room_type_display = fields.Char(
         string="Room Types", compute="_compute_room_type_display")
 
@@ -3227,6 +3436,12 @@ class RoomBooking(models.Model):
         for record in self:
             room_names = record.room_line_ids.mapped('room_id.name')  # Get all room names
             record.room_ids_display = ", ".join(room_names) if room_names else "Room Not Assigned"
+            
+
+    def _search_room_ids_display(self, operator, value):
+        # Implement a custom search domain
+        # For example, search for room_line_ids that have a room_id name matching the value:
+        return [('room_line_ids.room_id.name', operator, value)]
 
     @api.depends('room_line_ids')
     def _compute_room_type_display(self):
@@ -3986,6 +4201,7 @@ class RoomBooking(models.Model):
 
                 assigned_room = available_rooms[ctr]
                 line.room_id = assigned_room.id
+                # line.state = 'block'
                 # line.sudo().with_context(skip_code_validation=True).booking_id.with_context(skip_code_validation=True)
                 # line.sudo().with_context(skip_code_validation=True).write({
                 #     'room_id': assigned_room.id
@@ -3995,11 +4211,25 @@ class RoomBooking(models.Model):
 
             if not assigned_rooms:
                 raise UserError("No rooms assigned.")
+
+            # Force recomputation of the state_ field
+            booking.room_line_ids._compute_state()
             
             # Update Adults Page with Assigned Rooms
             self._update_adults_with_assigned_rooms(booking)
 
             booking._compute_show_in_tree()
+            # child_bookings_ = self.env['room.booking'].search([
+            #     ('parent_booking_id', '=', booking.id)
+            # ])
+            # print('child_booking__', child_bookings_)
+            # if child_bookings_:
+            #     matching_line = self.env['room.booking.line'].search([
+            #         ('booking_id', 'in', child_bookings_.ids),
+            #     ])
+            #     for line in matching_line:
+            #         line.write({'state_':'block'})
+            # booking.state = 'block'
 
     def _update_adults_with_assigned_rooms(self, booking):
         """Update Adults with the assigned rooms from room_line_ids and set room sequence."""
@@ -4234,27 +4464,34 @@ class RoomBooking(models.Model):
     def action_search_rooms(self):
         for record in self:
             record._get_forecast_rates()
+            result = record.check_room_availability_all_hotels_split_across_type(
+                    record.checkin_date,
+                    record.checkout_date,
+                    record.room_count,
+                    record.adult_count,
+                    record.hotel_room_type.id if record.hotel_room_type else None
+                )
             # Handle scenarios when group_booking is selected or not
-            if record.group_booking and record.room_count >= 1:
-                # If group_booking is selected and room_count > 1, initiate room search automatically
-                result = record.check_room_availability_all_hotels_split_across_type(
-                    record.checkin_date,
-                    record.checkout_date,
-                    record.room_count,
-                    record.adult_count,
-                    record.hotel_room_type.id if record.hotel_room_type else None
-                )
-            elif not record.group_booking and record.room_count == 1:
-                # If room_count is 1 and group_booking is not selected, proceed with room search
-                result = record.check_room_availability_all_hotels_split_across_type(
-                    record.checkin_date,
-                    record.checkout_date,
-                    record.room_count,
-                    record.adult_count,
-                    record.hotel_room_type.id if record.hotel_room_type else None
-                )
-            else:
-                raise ValidationError("Please create a group booking first before searching for multiple rooms.")
+            # if record.group_booking and record.room_count >= 1:
+            #     # If group_booking is selected and room_count > 1, initiate room search automatically
+            #     result = record.check_room_availability_all_hotels_split_across_type(
+            #         record.checkin_date,
+            #         record.checkout_date,
+            #         record.room_count,
+            #         record.adult_count,
+            #         record.hotel_room_type.id if record.hotel_room_type else None
+            #     )
+            # elif not record.group_booking and record.room_count == 1:
+            #     # If room_count is 1 and group_booking is not selected, proceed with room search
+            #     result = record.check_room_availability_all_hotels_split_across_type(
+            #         record.checkin_date,
+            #         record.checkout_date,
+            #         record.room_count,
+            #         record.adult_count,
+            #         record.hotel_room_type.id if record.hotel_room_type else None
+            #     )
+            # else:
+            #     raise ValidationError("Please create a group booking first before searching for multiple rooms.")
 
             # If result is a tuple, unpack it
             if isinstance(result, tuple) and len(result) == 2:
@@ -4820,6 +5057,8 @@ class RoomBooking(models.Model):
 
     @api.onchange('adult_count')
     def _onchange_adult_count(self):
+        if self.adult_count <= 0:
+            raise ValidationError('Adult count cannot be zero. Please enter a valid number of adults.')
         # Clear existing adult records
         self.adult_ids = [(5, 0, 0)]  # Removes all current related records
 
@@ -4910,7 +5149,7 @@ class RoomBooking(models.Model):
 
     def decrease_room_count(self):
         for record in self:
-            if record.room_count > 0:
+            if record.room_count > 1:
                 record.room_count -= 1
 
     def action_remove_room(self):
@@ -4936,7 +5175,7 @@ class RoomBooking(models.Model):
 
     def decrease_adult_count(self):
         for record in self:
-            if record.adult_count > 0:
+            if record.adult_count > 1:
                 if record.adult_ids:
                     last_adult = record.adult_ids[-1]
                     last_adult.unlink()  # Remove last adult record
@@ -5158,6 +5397,35 @@ class RateCodeInherit(models.Model):
 
 class SystemDate(models.Model):
     _inherit = 'res.company'
+
+    @api.model
+    def create(self, vals):
+        # Print the input values for the company
+        print("Creating company with values:", vals)
+        
+        # Create the company record
+        company = super(SystemDate, self).create(vals)
+        
+        # Prepare sequence data
+        sequence_data = {
+            'name': f"{company.name}",
+            'code': f"room.booking",
+            'company_id': company.id,
+            'prefix': '',
+            'padding': 5,
+            'number_increment': 1,
+        }
+        
+        # Print the sequence data before creation
+        print("Creating sequence with values:", sequence_data)
+        
+        # Create a sequence for the new company
+        self.env['ir.sequence'].create(sequence_data)
+        
+        # Print confirmation after sequence creation
+        print(f"Sequence created for company {company.name} (ID: {company.id})")
+
+        return company
 
     system_date = fields.Datetime(string="System Date")
     inventory_ids = fields.One2many(
@@ -5477,7 +5745,7 @@ class RoomAvailabilityResult(models.Model):
                             'room_sequence': room_idx + 1,
                             'first_name': '',
                             'last_name': '',
-                            'age': 0,
+                            # 'age': 0,
                             'relation': '',
                         })
 
@@ -5610,6 +5878,8 @@ class RoomAvailabilityWizard(models.TransientModel):
         self.room_booking_id.state = 'waiting'
 
 
+
+
 class BookingCheckinWizard(models.TransientModel):
     _name = 'booking.checkin.wizard'
     _description = 'Check-in Confirmation Wizard'
@@ -5700,6 +5970,18 @@ class RoomBookingReport(models.AbstractModel):
             'meals_avg': meals_avg,  # Average meal rate
         }
 
+
+class ConfirmEarlyCheckoutWizard(models.TransientModel):
+    _name = 'confirm.early.checkout.wizard'
+    _description = 'Confirm Early Check-Out Wizard'
+
+    booking_id = fields.Many2one('room.booking', string='Booking')
+   
+    def action_confirm_checkout(self):
+        """Set checkout_date to today and proceed with check-out"""
+        self.booking_id.write({'checkout_date': datetime.now()})
+        print(f"Debug: In wizard, booking_id = {self.booking_id.id}")
+        self.booking_id.action_checkout()
 
 class BookingPostingItem(models.Model):
     _name = 'booking.posting.item'
@@ -5986,96 +6268,117 @@ class RoomBookingUpdateWizard(models.TransientModel):
 
         if active_ids:
             bookings = self.env['room.booking'].browse(active_ids)
-            meal_patterns = bookings.mapped('meal_pattern.id')
 
-            # Check if all selected bookings have the same meal_pattern
-            if len(set(meal_patterns)) > 1:
-                res['readonly_meal_pattern'] = True
-                # raise UserError("Please select bookings with the same meal pattern.")
-            else:
-                res['meal_pattern'] = meal_patterns[0] if meal_patterns else False
-            
-            rate_codes = bookings.mapped('rate_code.id')
-            if len(set(rate_codes)) > 1:
-                res['readonly_rate_code'] = True
-                # raise UserError("Please select bookings with the same rate code.")
-            else:
-                res['rate_code'] = rate_codes[0] if rate_codes else False
-            
-            nationalities = bookings.mapped('nationality.id')
-            if len(set(nationalities)) > 1:
-                res['readonly_nationality'] = True
-                # raise UserError("Please select bookings with the same nationality.")
-            else:
-                res['nationality'] = nationalities[0] if nationalities else False
-            
-            checkin_dates = bookings.mapped('checkin_date')
-            if len(set(checkin_dates)) > 1:
-                res['readonly_checkin_date'] = True
-                # raise UserError("Please select bookings with the same check-in date.")
-            else:
-                res['checkin_date'] = checkin_dates[0] if checkin_dates else False
-
-            # Check checkout_date values
-            checkout_dates = bookings.mapped('checkout_date')
-            if len(set(checkout_dates)) > 1:
-                res['readonly_checkout_date'] = True
-                # raise UserError("Please select bookings with the same check-out date.")
-            else:
-                res['checkout_date'] = checkout_dates[0] if checkout_dates else False
             
             if res.get('checkin_date') and res.get('checkout_date'):
                 if res['checkout_date'] <= res['checkin_date']:
                     raise UserError("Check-Out Date must be greater than Check-In Date.")
             
             
-            
-            # source_of_business = bookings.mapped('source_of_business.id')
-            # if len(set(source_of_business)) > 1:
-            #     res['readonly_source_of_business'] = True
-            #     # raise UserError("Please select bookings with the same nationality.")
-            # else:
-            #     res['source_of_business'] = nationalities[0] if nationalities else False
-            
-            # market_segments = bookings.mapped('market_segment.id')
-            # if len(set(market_segments)) > 1:
-            #     res['readonly_market_segment'] = True
-            #     # raise UserError("Please select bookings with the same nationality.")
-            # else:
-            #     res['market_segment'] = nationalities[0] if nationalities else False
-
         return res
-
+    
     def action_update_selected_bookings(self):
         active_ids = self.env.context.get('active_ids', [])
-        if active_ids:
-            bookings = self.env['room.booking'].browse(active_ids)
+        if not active_ids:
+            return {'type': 'ir.actions.act_window_close'}
+
+        bookings = self.env['room.booking'].browse(active_ids)
+        grouped_data = {}
+
+        # Group room names by their room types
+        for booking in bookings:
+            for line in booking.room_line_ids:
+                room_name = line.room_id.name
+                room_type = line.hotel_room_type.room_type
+
+                if room_type:
+                    grouped_data.setdefault(room_type, []).append(room_name)
+
+        # Check for overlapping bookings for each room
+        for room_type, room_names in grouped_data.items():
+            for room_name in room_names:
+                if not room_name:
+                    continue  # Skip undefined rooms
+
+                overlapping_bookings = self.env['room.booking.line'].search([
+                    ('room_id', '=', room_name),
+                    ('booking_id.state', 'in', ['block', 'check_in']),
+                    '|',
+                    '&', ('checkin_date', '<=', self.checkout_date), ('checkout_date', '>=', self.checkin_date),
+                    '&', ('checkin_date', '>=', self.checkin_date), ('checkin_date', '<=', self.checkout_date),
+                ])
+                
+
+                if overlapping_bookings:
+                    raise ValidationError(
+                        f"Room '{room_name}' of type '{room_type}' is not available for "
+                        f"check-in on {self.checkin_date} and check-out on {self.checkout_date} "
+                        f"because it is already booked in 'block' or 'check-in' state."
+                    )
+                    
+        # If no overlapping bookings, update the selected bookings
+        bookings.write({
+            'checkin_date': self.checkin_date,
+            'checkout_date': self.checkout_date,
+            'meal_pattern': self.meal_pattern.id,
+            'nationality': self.nationality.id,
+            'rate_code': self.rate_code.id,
+            'source_of_business':self.source_of_business.id,
+            'market_segment':self.market_segment.id,
+        })
+
+        # Close the window after a successful update
+        return {'type': 'ir.actions.act_window_close'}
+
+    #working
+    # def action_update_selected_bookings(self):
+    #     active_ids = self.env.context.get('active_ids', [])
+    #     if active_ids:
+    #         bookings = self.env['room.booking'].browse(active_ids)
             
-            # Initialize the values to update
-            update_vals = {}
+    #         grouped_data = {}
+    #         for booking in bookings:
+    #             for line in booking.room_line_ids:
+    #                 room_name = line.room_id.name
+    #                 room_type = line.hotel_room_type.room_type
+    #                 if room_type:
+    #                     if room_type not in grouped_data:
+    #                         grouped_data[room_type] = []
+    #                     grouped_data[room_type].append(room_name)
 
-            # Conditionally add fields to update if not readonly
-            if not self.readonly_meal_pattern:
-                update_vals['meal_pattern'] = self.meal_pattern.id
+    #         # Print the grouped data for debugging
+    #         print("Grouped Room Names by Room Types:")
+    #         for room_type, room_ids in grouped_data.items():
+    #             print(f"Room Type: {room_type}, Room Names: {room_ids}")
+    #             for room in room_ids:
+    #                 print('6370', room, room_ids)
+    #                 if not room:
+    #                     continue  # Skip if the room is not defined
 
-            if not self.readonly_rate_code:
-                update_vals['rate_code'] = self.rate_code.id
+    #                 # Search for bookings where this room is in 'block' or 'check_in' state and dates overlap
+    #                 print('6375', self.checkout_date )
+    #                 overlapping_bookings = self.env['room.booking.line'].search([
+    #                     ('room_id', '=', room),
+    #                     ('booking_id.state', 'in', ['block', 'check_in']),
+    #                     '|',
+    #                     '&', ('checkin_date', '<=', self.checkout_date), ('checkout_date', '>=', self.checkin_date),
+    #                     '&', ('checkin_date', '>=', self.checkin_date), ('checkin_date', '<=', self.checkout_date),
+    #                 ])
 
-            if not self.readonly_nationality:
-                update_vals['nationality'] = self.nationality.id
+    #                 if overlapping_bookings:
+    #                     raise ValidationError(
+    #                         f"Room '{room}' of type '{room_type}' is not available for "
+    #                         f"check-in on {self.checkin_date} and check-out on {self.checkout_date} "
+    #                         f"because it is already booked in 'block' or 'check-in' state."
+    #                     )
 
-            if not self.readonly_checkin_date:
-                update_vals['checkin_date'] = self.checkin_date
-
-            if not self.readonly_checkout_date:
-                update_vals['checkout_date'] = self.checkout_date
-
-            # if not self.readonly_source_of_business:
-            #     update_vals['source_of_business'] = self.source_of_business.id
-
-            # if not self.readonly_market_segment:
-            #     update_vals['market_segment'] = self.market_segment.id
-
-            # Perform the write operation if there are fields to update
-            if update_vals:
-                bookings.write(update_vals)
+    #         # If all rooms are available
+    #         print("All rooms are available for the new check-in and check-out dates.")
+    #         bookings.write({
+    #             'checkin_date': self.checkin_date,
+    #             'checkout_date': self.checkout_date,
+    #             'meal_pattern': self.meal_pattern.id,
+    #             'nationality':self.nationality,
+    #             'rate_code':self.rate_code
+    #         })
+            

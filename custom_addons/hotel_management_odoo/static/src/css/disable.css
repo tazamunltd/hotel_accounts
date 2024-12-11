@@ -1,0 +1,5 @@
+.o_readonly_modifier .o_form_uri {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+}
