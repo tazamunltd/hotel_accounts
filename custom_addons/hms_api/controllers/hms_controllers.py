@@ -55,6 +55,37 @@ class WebAppController(http.Controller):
 
         return data
 
+    def get_posting_items(self):
+        posting_items_data = self.get_model_data('posting.item',
+                                                 ['id', 'description', 'default_value', 'posting_item_selection',
+                                                  'show_in_website', 'website_desc'])
+
+        posting_items = [item for item in posting_items_data if item["show_in_website"]]
+        meal_data = self.get_model_data('meal.code',
+                                        ['id', 'posting_item', 'description', 'price_pax', 'price_child',
+                                         'price_infant', 'type'])
+
+        # print("POSTING ITEM", posting_items)
+        # print("MEAL DATA", meal_data)
+
+        # Extract posting_item IDs from meal_data
+        meal_posting_item_ids = {meal['posting_item']['id'] for meal in meal_data if 'posting_item' in meal}
+
+        # Filter posting_items to exclude items whose id is in meal_posting_item_ids
+        filtered_posting_items = [item for item in posting_items if item['id'] not in meal_posting_item_ids]
+
+        posting_item_ids = {item["id"] for item in posting_items if item["show_in_website"]}
+        # print("POSTING ITEM IDS", posting_item_ids)
+
+        filtered_meals = [
+            meal for meal in meal_data
+            if 'posting_item' not in meal or meal['posting_item']['id'] in posting_item_ids
+        ]
+
+        # Print the filtered posting items
+        # print("FILTERED POSTING ITEMS", filtered_posting_items, len(filtered_posting_items))
+        return filtered_posting_items, filtered_meals
+
     @http.route('/api/signup', type='json', auth='public', methods=['POST'], csrf=False)
     def custom_web_singup(self, **kwargs):
         email = kwargs.get('email')
@@ -251,9 +282,7 @@ class WebAppController(http.Controller):
             all_hotels_data.append(hotel_data)
 
         services_data = self.get_model_data('hotel.service', ['id', 'name', 'unit_price'])
-        posting_items = self.get_model_data('posting.item',
-                                            ['id', 'description', 'default_value', 'posting_item_selection',
-                                             'show_in_website', 'website_desc'])
+        posting_items, meals = self.get_posting_items()
         meal_data = self.get_model_data('meal.pattern', ['id', 'meal_pattern', 'description', 'abbreviation'])
 
         for meal in meal_data:
@@ -282,7 +311,7 @@ class WebAppController(http.Controller):
         #     if not posting_item["show_in_website"]:
         #         posting_items.remove(posting_item)
 
-        posting_items = [item for item in posting_items if item["show_in_website"]]
+        # posting_items = [item for item in posting_items if item["show_in_website"]]
 
         if redis_client:
             try:
@@ -406,9 +435,7 @@ class WebAppController(http.Controller):
 
         hotel_data['room_types'] = all_rooms
 
-        posting_items = self.get_model_data('posting.item',
-                                            ['id', 'description', 'default_value', 'posting_item_selection',
-                                             'show_in_website', 'website_desc'])
+        posting_items, meal_data2 = self.get_posting_items()
         # services_data = self.get_model_data('hotel.service', ['id', 'name', 'unit_price'])
         # meal_data = self.get_model_data('meal.pattern', ['id', 'meal_pattern', 'description', 'abbreviation'])
 
@@ -418,7 +445,7 @@ class WebAppController(http.Controller):
             meal = meal_line.meal_code
             meal_data.append({
                 "id": meal.id,
-                "meal_pattern": meal.meal_code,
+                # "meal_pattern": meal.meal_code,
                 "description": meal.description,
                 "unit_price": meal.price_pax,
                 "posting_item": meal.posting_item.id,
@@ -429,14 +456,14 @@ class WebAppController(http.Controller):
             meal_data_ids.add(meal.id)
 
         # Add additional meals not in rate details
-        all_meals = self.get_model_data('meal.code', ['id', 'meal_pattern', 'description', 'posting_item', 'price_pax',
-                                                      'price_child', 'type'])
-        for meal in all_meals:
+        # all_meals = self.get_model_data('meal.code', ['id', 'meal_pattern', 'description', 'posting_item', 'price_pax',
+        #                                               'price_child', 'type'])
+        for meal in meal_data2:
             # print("MEAL", meal)
             if meal['id'] not in meal_data_ids:
                 meal_data.append({
                     "id": meal['id'],
-                    "meal_pattern": meal['meal_pattern'],
+                    # "meal_pattern": meal['meal_pattern'],
                     "description": meal['description'],
                     "unit_price": meal['price_pax'],
                     "posting_item": meal['posting_item'].id,
@@ -721,11 +748,12 @@ class WebAppController(http.Controller):
         #     except Exception as e:
         #         pass
 
-        posting_items_data = self.get_model_data('posting.item',
-                                                 ['id', 'description', 'default_value', 'posting_item_selection',
-                                                  'show_in_website', 'website_desc'])
-
-        posting_items = [item for item in posting_items_data if item["show_in_website"]]
+        # posting_items_data = self.get_model_data('posting.item',
+        #                                          ['id', 'description', 'default_value', 'posting_item_selection',
+        #                                           'show_in_website', 'website_desc'])
+        #
+        # posting_items = [item for item in posting_items_data if item["show_in_website"]]
+        posting_items, meal_data2 = self.get_posting_items()
 
         room_types = request.env['room.type'].sudo().search([])
         all_hotels_data = []
@@ -769,7 +797,7 @@ class WebAppController(http.Controller):
             for meal_line in rate_detail['meal_pattern_id']['meals_list_ids']:
                 meal_data.append({
                     "id": meal_line['meal_code']['id'],
-                    "meal_pattern": meal_line['meal_code']['meal_code'],
+                    # "meal_pattern": meal_line['meal_code']['meal_code'],
                     "description": meal_line['meal_code']['description'],
                     "unit_price": meal_line['meal_code']['price_pax'],
                     "default": True,
@@ -778,15 +806,16 @@ class WebAppController(http.Controller):
                 })
                 meal_data_ids.append(meal_line['meal_code']['id'])
 
-            all_meal_data = self.get_model_data('meal.code',
-                                                ['id', 'description', 'meal_pattern', 'posting_item', 'price_pax',
-                                                 'price_child', 'price_infant', 'type'])
+            # all_meal_data = self.get_model_data('meal.code',
+            #                                     ['id', 'description', 'meal_pattern', 'posting_item', 'price_pax',
+            #                                      'price_child', 'price_infant', 'type'])
+            print("MEAL DATA 2", meal_data2)
 
-            for meal in all_meal_data:
+            for meal in meal_data2:
                 if meal['id'] not in meal_data_ids:
                     meal_data.append({
                         "id": meal['id'],
-                        "meal_pattern": meal['meal_pattern'],
+                        # "meal_pattern": meal['meal_pattern'],
                         "description": meal['description'],
                         "unit_price": meal['price_pax'],
                         "posting_item": meal['posting_item'].id,
