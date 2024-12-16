@@ -190,7 +190,7 @@ class RateDetail(models.Model):
             if overlapping_records:
                 # Collect details of all overlapping records
                 overlap_details = "\n".join(
-                    f"ID: {overlap.id}, From Date: {overlap.from_date}, To Date: {overlap.to_date}"
+                    f"From Date: {overlap.from_date}, To Date: {overlap.to_date}"
                     for overlap in overlapping_records
                 )
 

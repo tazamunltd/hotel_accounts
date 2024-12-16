@@ -4,13 +4,12 @@
             <div class="col-12 d-flex flex-row align-items-center gap-2 flex-wrap-xxl-nowrap">
 
                 <!-- Not Confirm -->
-                <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'not_confirm'">
+               <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'not_confirm'">
                     <a href="#"
-                        class="btn btn-warning border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
-                        style="width: 110px; height: 110px;">
-                        <i class="fa fa-clock-o fa-2x mb-1 text-dark"></i>
-                        <span class="text-dark fw-bold">Not Confirm (<t
-                                t-esc="dashboardData.not_confirm" />)</span>
+                        class="btn rounded-3 d-flex flex-column align-items-center justify-content-center"
+                        style="width: 110px; height: 110px; background-color:#FF6600; ">
+                         <i class="fa fa-clock-o fa-2x mb-1 text-muted text-white"></i>
+                         <span class="text-secondary">Not Confirm (<t t-esc="dashboardData.not_confirm"/>)</span>
                     </a>
                 </div>
 
@@ -29,7 +28,7 @@
                     <a href="#"
                         class="btn btn-warning border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px;">
-                        <i class="fa fa-hourglass-half fa-2x mb-1 text-dark"></i>
+                        <i class="fa fa-hourglass-half fa-2x mb-1 text-dark text-white"></i>
                         <span class="text-dark">Waiting List (<t t-esc="dashboardData.waiting" />)</span>
                     </a>
                 </div>
@@ -44,15 +43,22 @@
                     </a>
                 </div>
 
-                <!-- Blocked -->
-                <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'blocked'">
-                    <a href="#"
-                        class="btn btn-secondary border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
-                        style="width: 110px; height: 110px;">
+                <!-- Blocked black color-->
+                <!-- <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'blocked'">
+                    <a href="#" class="btn btn-dark border-0 rounded-3 d-flex flex-column align-items-center justify-content-center" style="width: 110px; height: 110px;">
                         <i class="fa fa-ban fa-2x mb-1 text-white"></i>
-                        <span class="text-white">Blocked (<t t-esc="dashboardData.blocked" />)</span>
+                        <span class="text-white">Blocked (<t t-esc="dashboardData.blocked"/>)</span>
+                    </a>
+                </div> -->
+                <!-- Blocked dark grey color-->
+                <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'blocked'">
+                    <a href="#" class="btn border-0 rounded-3 d-flex flex-column align-items-center justify-content-center" 
+                    style="width: 110px; height: 110px; background-color: #9D9B9B;">
+                        <i class="fa fa-ban fa-2x mb-1 text-white"></i>
+                        <span class="text-white">Blocked (<t t-esc="dashboardData.blocked"/>)</span>
                     </a>
                 </div>
+
 
                 <!-- Today's Check-In -->
                 <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'today_checkin'">
@@ -76,6 +82,33 @@
                     </a>
                 </div>
 
+                <!-- Vacant -->
+                <!-- <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'vacant'">
+                    <a href="#"
+                        class="btn btn-light border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
+                        style="width: 110px; height: 110px; border: 2px solid black;">
+                        <i class="fa fa-home fa-2x mb-1 text-dark"></i>
+                        <span class="text-dark">Vacant (<t t-esc="dashboardData.vacant" />)</span>
+                    </a>
+                </div> -->
+
+                <!-- Vacant -->
+                <div class="p-0">
+                    <a href="#"
+                    class="btn btn-light border border-2 border-dark rounded-3 d-flex flex-column align-items-center justify-content-center"
+                    style="width: 110px; height: 110px;">
+                        <i class="fa fa-home fa-2x mb-1 text-dark"></i>
+                        <span class="text-dark">Vacant (<t t-esc="dashboardData.vacant" />)</span>
+                    </a>
+                </div>
+                 <!-- <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'vacant'">
+                    <a href="#" class="btn btn-light border-0 rounded-3 d-flex flex-column align-items-center justify-content-center" style="width: 110px; height: 110px;">
+                        <i class="fa fa-home fa-2x mb-1 text-dark"></i>
+                        <span class="text-dark">Vacant (<t t-esc="dashboardData.vacant"/>)</span>
+                    </a>
+                </div> -->
+
+
                 <!-- Occupied -->
                 <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'checkin'">
                     <a href="#"
@@ -85,14 +118,20 @@
                         <span class="text-white">Occupied (<t t-esc="dashboardData.checkin" />)</span>
                     </a>
                 </div>
-
-                <!-- Vacant -->
-                <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'vacant'">
+                  <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'actual_checkin'">
                     <a href="#"
-                        class="btn btn-light border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
+                        class="btn btn-info border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px;">
-                        <i class="fa fa-home fa-2x mb-1 text-dark"></i>
-                        <span class="text-dark">Vacant (<t t-esc="dashboardData.vacant" />)</span>
+                        <i class="fa fa-sign-in fa-2x mb-1 text-white"></i>
+                        <span class="text-white fw-bold">Actual Check-In (<t t-esc="dashboardData.actual_checkin_count" />)</span>
+                    </a>
+                </div>
+                 <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'actual_checkout'">
+                    <a href="#"
+                        class="btn border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
+                        style="width: 110px; height: 110px; background-color: #6f42c1;">
+                        <i class="fa fa-sign-out fa-2x mb-1 text-white"></i>
+                        <span class="text-white fw-bold">Actual Check-Out (<t t-esc="dashboardData.actual_checkout_count" />)</span>
                     </a>
                 </div>
 

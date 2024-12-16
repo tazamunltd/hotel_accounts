@@ -235,7 +235,7 @@ class WebAppController(http.Controller):
                 "discount": hotel.web_discount,
                 "review": hotel.web_review,
                 "total_available_rooms": 0,
-                # "payment": hotel.web_payment,
+                "min_pay": hotel.web_payment,
                 "payment": rate_detail.rate_detail_dicsount,
                 "amount_payment": rate_detail.is_amount,
                 "percent_payment": rate_detail.is_percentage,
@@ -413,6 +413,7 @@ class WebAppController(http.Controller):
             "discount": hotel.web_discount,
             "review": hotel.web_review,
             "total_available_rooms": 0,
+            "min_pay": hotel.web_payment,
             "payment": rate_detail.rate_detail_dicsount,
             "amount_payment": rate_detail.is_amount,
             "percent_payment": rate_detail.is_percentage,
@@ -1123,11 +1124,11 @@ class WebAppController(http.Controller):
 
             for item in services:
                 # print("ITEM", item)
-                if item.get('type', 0) == 1:
+                if item.get('type', 0) == 1 or item.get('type', 0) == 3:
                     posting_item = request.env['posting.item'].sudo().search([
                         '|',
                         ('item_code', '=', item['title']),
-                        ('description', '=', item['title'])
+                        ('website_desc', '=', item['title'])
                     ], limit=1)
                     # print("Posting Item", posting_item)
 

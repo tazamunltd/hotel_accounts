@@ -52,7 +52,7 @@
 
     <menuitem id="menu_setup_and_configuration"
               name="Setup and Configuration"
-              sequence="1"/>
+              sequence="2"/>
 
     <!-- Child Menu: Hotel Details -->
     <menuitem id="menu_front_desk"

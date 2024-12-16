@@ -73,6 +73,7 @@
         'views/yearly_geographical_chart_views.xml',
         'views/monthly_allotment_charts_views.xml',
         # 'data/cron_job.xml',
+        'data/room_booking_cron.xml',
         'views/housekeeping_maintenance_inherit.xml',
         # 'security/hotel_security.xml',
     ],

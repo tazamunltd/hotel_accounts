@@ -19,6 +19,9 @@ export class ReservationDashBoard extends Component {
             cancelled: 0,
             checkin: 0,
             checkout: 0,
+            actual_checkin_count: 0,
+            actual_checkout_count: 0,
+            vacant: 0,  // Add this line
             result_booking:[],
             selectedIds:[],
         });
@@ -286,16 +289,34 @@ addToSelected(bookingName) {
             domain = [
                 ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
                 ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
-                ['state', '=', 'block']
+                ['state', '=', 'block'],
+//                ['parent_booking_name', '!=', false]
             ];
             actionName = 'Today Check-Ins';
         } else if (filter_name === "today_checkout") {
             domain = [
                 ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
                 ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
-                ['state', '=', 'check_out']
+                ['state', '=', 'check_in'],
+//                ['parent_booking_name', '!=', false]
             ];
             actionName = 'Today Check-Outs';
+        }else if (filter_name === "actual_checkin") {
+            domain = [
+                ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
+                ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
+                ['state', '=', 'check_in'],
+//                ['parent_booking_name', '!=', false]
+            ];
+            actionName = 'Actual Check-Ins';
+        }else if (filter_name === "actual_checkout") {
+            domain = [
+                ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
+                ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
+                ['state', '=', 'check_out'],
+//                ['parent_booking_name', '!=', false]
+            ];
+            actionName = 'Actual Check-Outs';
         } else if (filter_name === "not_confirm") {
             domain = [['state', '=', 'not_confirmed']];
             actionName = 'Not Confirmed';

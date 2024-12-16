@@ -90,11 +90,11 @@ class GroupBooking(models.Model):
 
     
     complimentary = fields.Boolean(string='Complimentary',tracking=True)
-    complimentary_codes = fields.Many2one('complimentary.code', string='Complimentary',tracking=True)
+    complimentary_codes = fields.Many2one('complimentary.code', string='Complimentary',required=True,tracking=True)
     show_complementary_code = fields.Boolean(string="Show Complementary Code", compute="_compute_show_codes", store=True,tracking=True)
 
     house_use = fields.Boolean(string='House Use',tracking=True)
-    house_use_codes_ = fields.Many2one('house.code', string='House Use Code',tracking=True)
+    house_use_codes_ = fields.Many2one('house.code', string='House Use Code',tracking=True,required=True)
     show_house_use_code = fields.Boolean(
         string="Show House Code", compute="_compute_show_house_codes", store=True,tracking=True)
 

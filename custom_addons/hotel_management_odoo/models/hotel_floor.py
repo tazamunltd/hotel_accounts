@@ -35,7 +35,7 @@ class HotelFloor(models.Model):
     
 class FSMLocationInherit(models.Model):
     _inherit = 'fsm.location'
-    _rec_name = 'complete_name'
+    _rec_name = 'description'
 
     partner_id = fields.Many2one(required=False)
 
@@ -43,5 +43,6 @@ class FSMLocationInherit(models.Model):
         'dynamic.selection',
         string="Location Type"
     )
+    description = fields.Char(required=True)
 
     company_id = fields.Many2one('res.company', string="Hotel", )

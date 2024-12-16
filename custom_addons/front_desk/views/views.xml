@@ -1,0 +1,114 @@
+<odoo>
+  <data>
+
+    <record id="view_out_of_order_management_tree" model="ir.ui.view">
+        <field name="name">out.of.order.management.fron.desk.tree</field>
+        <field name="model">out.of.order.management.fron.desk</field>
+        <field name="arch" type="xml">
+            <tree string="Out of Order List">
+                <field name="room_fsm_location"/>
+                <field name="room_number"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <field name="comments"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_out_of_order_management_form" model="ir.ui.view">
+        <field name="name">out.of.order.management.fron.desk.form</field>
+        <field name="model">out.of.order.management.fron.desk</field>
+        <field name="arch" type="xml">
+            <form string="Out of Order">
+                <sheet>
+                    <group>
+                        <!-- Room Information -->
+                        <group>
+                            <field name="room_fsm_location"/>
+                            <field name="room_number"/>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                        </group>
+
+                        <group>
+                            <field name="comments"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_room_on_hold_tree" model="ir.ui.view">
+        <field name="name">rooms.on.hold.management.front.desk.tree</field>
+        <field name="model">rooms.on.hold.management.front.desk</field>
+        <field name="arch" type="xml">
+            <tree string="Out of Order List">
+                <field name="room_fsm_location"/>
+                <field name="room_number"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <field name="comments"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_room_on_hold_form" model="ir.ui.view">
+        <field name="name">rooms.on.hold.management.front.desk.form</field>
+        <field name="model">rooms.on.hold.management.front.desk</field>
+        <field name="arch" type="xml">
+            <form string="Out of Order">
+                <sheet>
+                    <group>
+                        <!-- Room Information -->
+                        <group>
+                            <field name="room_fsm_location"/>
+                            <field name="room_number"/>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                        </group>
+
+                        <group>
+                            <field name="comments"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+      <record id="action_out_of_order_management" model="ir.actions.act_window">
+        <field name="name">Out of Order Management</field>
+        <field name="res_model">out.of.order.management.fron.desk</field>
+        <field name="view_mode">tree,form</field>
+      </record>
+
+      <record id="action_room_on_hold" model="ir.actions.act_window">
+        <field name="name">Room on Hold</field>
+        <field name="res_model">rooms.on.hold.management.front.desk</field>
+        <field name="view_mode">tree,form</field>
+      </record>
+
+      <menuitem id="menu_front_desk"
+              name="Front Desk"
+              sequence="3"/>
+
+      <menuitem id="menu_misc_fron_desk"
+              name="Misc"
+              parent="menu_front_desk"
+              sequence="1"/>
+
+      <menuitem id="sub_menu_out_of_order_fron_desk"
+              name="Out of Order"
+              parent="menu_misc_fron_desk"
+              action="action_out_of_order_management"
+              sequence="1"/>
+
+      <menuitem id="sub_menu_room_on_hold_fron_desk"
+              name="Room on Hold"
+              parent="menu_misc_fron_desk"
+              action="action_room_on_hold"
+              sequence="2"/>
+
+  </data>
+</odoo>

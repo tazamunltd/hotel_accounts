@@ -51,7 +51,7 @@
                        (4, ref('hotel_group_reception')), ]"/>
     </record>
 
-    <record id="hotel_management_rule_company_restriction" model="ir.rule">
+    <record id="hotel_management_rule_company_restriction_" model="ir.rule">
         <field name="name">Hotel Management: Restrict module data by company</field>
         <field name="model_id" ref="hotel_management_odoo.model_room_booking"/>
         <field name="domain_force">[('company_id', '=', company_id),]</field>
@@ -61,7 +61,7 @@
         <field name="perm_unlink" eval="1"/>
     </record>
 
-    <record id="hotel_management_rule_company_hotel_room" model="ir.rule">
+    <record id="hotel_management_rule_company_hotel_rooms" model="ir.rule">
         <field name="name">Hotel Management: Restrict module data by company</field>
         <field name="model_id" ref="hotel_management_odoo.model_hotel_room" />
         <field name="domain_force">[('company_id', '=', company_id),]</field>
@@ -69,6 +69,16 @@
         <field name="perm_read" eval="1" />
         <field name="perm_create" eval="1" />
         <field name="perm_unlink" eval="1" />
+    </record>
+    <record id="hotel_management_rule_company_fsm_location" model="ir.rule">
+        <field name="name">Hotel Management: Restrict FSM Location data by company</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="global" eval="True"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
     </record>
 
 

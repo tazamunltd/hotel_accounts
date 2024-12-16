@@ -30,6 +30,55 @@ class RoomBooking(models.Model):
     _description = "Hotel Room Reservation"
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    previous_state = fields.Char(string="Previous State")
+
+    # def action_back(self):
+    #     # Ensure there is a previous state to revert to
+    #     if not self.previous_state:
+    #         raise UserError("No previous state found for this booking.")
+
+    #     current_state = self.state
+
+    #     # Revert the booking's state to the previous state
+    #     self.write({'state': self.previous_state})
+
+    #     # Update previous_state to the state before the change
+    #     self.previous_state = current_state
+
+    def move_to_no_show(self):
+        # Get the current date and subtract one day to get yesterday's date
+        yesterday = (datetime.now() - timedelta(days=1)).date()
+        
+        # Find bookings with checkin_date equal to yesterday and in the specified states
+        bookings = self.search([
+            ('state', 'in', ['not_confirmed', 'confirmed', 'block']),
+            ('checkin_date', '=', yesterday),
+        ])
+        
+        print(f"Running cron job: Found {len(bookings)} bookings to update to 'no_show'")
+        
+        # Update the state to 'no_show'
+        for booking in bookings:
+            booking.write({'state': 'no_show'})
+            print(f"Updated booking ID {booking.id} to 'no_show'")
+
+    #working
+    # def move_to_no_show(self):
+    #     # Get current datetime
+    #     now = datetime.now()
+        
+    #     # Find bookings with checkin_date before now and in the specified states
+    #     bookings = self.search([
+    #         ('state', 'in', ['not_confirmed', 'confirmed', 'block']),
+    #         ('checkin_date', '<', now),
+    #     ])
+    #     print(f"Running cron job: Found {len(bookings)} bookings to update to 'no_show'")
+        
+    #     # Update the state to 'no_show'
+    #     for booking in bookings:
+    #         booking.write({'state': 'no_show'})
+    #         print(f"Updated booking ID {booking.id} to 'no_show'")
+
     start_line = fields.Integer(string="Start Record", default=1)
     end_line = fields.Integer(string="End Record", default=1)
     
@@ -44,7 +93,7 @@ class RoomBooking(models.Model):
     child_ids = fields.One2many('room.booking.child', 'booking_id', string="Children")
     web_cancel = fields.Boolean(string="Web cancel", default=False, help="Reservation cancelled by website")
     web_cancel_time = fields.Datetime(string="Web Cancel Time", compute="_compute_web_cancel_time", store=True, readonly=True)
-    ref_id_bk = fields.Integer(string="Ref. ID(booking.com)")
+    ref_id_bk = fields.Char(string="Ref. ID(booking.com)")
 
     @api.depends('web_cancel')
     def _compute_web_cancel_time(self):
@@ -269,7 +318,8 @@ class RoomBooking(models.Model):
 
     @api.model
     def get_today_checkin_domain(self):
-        today = fields.Date.context_today(self)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        print("this is calling")
         return [
             ('checkin_date', '>=', today),
             ('checkin_date', '<', today + timedelta(days=1)),
@@ -278,7 +328,7 @@ class RoomBooking(models.Model):
 
     @api.model
     def get_today_checkout_domain(self):
-        today = fields.Date.context_today(self)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         return [
             ('checkout_date', '>=', today),
             ('checkout_date', '<', today + timedelta(days=1)),
@@ -290,17 +340,46 @@ class RoomBooking(models.Model):
         # self.delete_zero_room_count_records()
         self.env.cr.commit()
         # Today's check-in and check-out counts
-        today = fields.Date.context_today(self)
+        # today = fields.Date.context_today(self)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # Get tomorrow's date with time 00:00:00 (end of today)
+        # today_end = today + timedelta(days=1)
+        print("today", today, today + timedelta(days=1))
+        # today = datetime.now()
+        actual_checkin_count = self.search_count([
+            ('checkin_date', '>=', today),
+            ('checkin_date', '<', today + timedelta(days=1)),
+            ('state', '=', 'check_in'),
+            # ('parent_booking_name', '!=', False)
+
+        ])
+        print("Actual Check-In Count:", actual_checkin_count)
+
+        actual_checkout_count = self.search_count([
+            ('checkout_date', '>=', today),
+            ('checkout_date', '<', today + timedelta(days=1)),
+            ('state', '=', 'check_out'),
+            # ('parent_booking_name', '!=', False)
+
+        ])
+        print("Actual Check-Out Count:", actual_checkout_count)
+        
         today_checkin_count = self.search_count([
             ('checkin_date', '>=', today),
             ('checkin_date', '<', today + timedelta(days=1)),
-            ('state', '=', 'block')
+            ('state', '=', 'block'),
+            # ('parent_booking_name', '!=', False)
+
         ])
         today_checkout_count = self.search_count([
             ('checkout_date', '>=', today),
             ('checkout_date', '<', today + timedelta(days=1)),
-            ('state', '=', 'check_out')
+            ('state', '=', 'check_in'),
+            # ('parent_booking_name', '!=', False)
+
         ])
+        
 
         # Counts for each specific booking state
         not_confirm_count = self.env['room.booking'].search_count(
@@ -315,7 +394,13 @@ class RoomBooking(models.Model):
             [('state', '=', 'cancel')])
         checkin_count = self.search_count([('state', '=', 'check_in')])
         checkout_count = self.search_count([('state', '=', 'check_out')])
+        
+        total_rooms_count = self.env['hotel.room'].search_count([])
+        print('393', total_rooms_count)
 
+        # Calculate vacant count
+        vacant_count = total_rooms_count - actual_checkin_count
+        print('397', vacant_count)
         # Return all counts
         result = {
             'today_checkin': today_checkin_count,
@@ -327,6 +412,9 @@ class RoomBooking(models.Model):
             'cancelled': cancelled_count,
             'checkin': checkin_count,
             'checkout': checkout_count,
+            'actual_checkin_count':actual_checkin_count,
+            'actual_checkout_count':actual_checkout_count,
+            'vacant':vacant_count
         }
         return result
 
@@ -911,6 +999,17 @@ class RoomBooking(models.Model):
     
 
     def write(self, vals):
+        # print('937', vals)
+        # if 'state' in vals:
+        #     for record in self:
+        #         # Set 'previous_state' to the current state before changing it
+        #         if record.state != vals['state']:
+        #             vals['previous_state'] = record.state
+        if 'room_count' in vals and vals['room_count'] <= 0:
+            raise ValidationError("Room count cannot be zero or less. Please select at least one room.")
+        
+        if 'adult_count' in vals and vals['adult_count'] <= 0:
+            raise ValidationError("Adult count cannot be zero or less. Please select at least one adult.")
         if 'checkin_date' in vals and not vals['checkin_date']:
             raise ValidationError(_("Check-In Date is required and cannot be empty."))
 
@@ -936,7 +1035,45 @@ class RoomBooking(models.Model):
                         'status': new_state,
                         'change_time': fields.Datetime.now(),
                     })
+        room_line_count = self.env['room.booking.line'].search_count([
+            ('booking_id', '=', self.id)  # Replace with the correct relation field for room lines
+        ])
+        if 'state' in vals and 'parent_booking_id' in vals and 'parent_booking_name' in vals and room_line_count > 1:
+            # Check if there is more than one room line and remove the others
+            room_lines = self.env['room.booking.line'].search([
+                ('booking_id', '=', vals.get('parent_booking_id'))  # Correct relation field
+            ], order='counter asc')
+            print('1046', room_lines)
+            room_line_count = len(room_lines)  # Get the count of the lines in the sorted order
+            final_room_line = room_lines[room_line_count-1]
+            if room_line_count > 1:
+                # Unlink all but the last record
+                for ctr in range(room_line_count - 1):  # Iterate over all but the last record
+                    room_lines[ctr].unlink()
+                # vals['room_count'] = 1
+                res = super(RoomBooking, self).write({'room_count':1})
+                print(final_room_line,"this is final")
+                adult_lines = self.env['reservation.adult'].search([
+                    ('reservation_id', '=', vals.get('parent_booking_id'))  # Correct relation field
+                ], order='room_sequence asc')
+                adult_count = len(adult_lines)
+                if adult_count > 1:
+                    for ctr in range(1 * self.adult_count, adult_count):
+                        adult_lines[ctr].unlink()
 
+                child_lines = self.env['reservation.child'].search([
+                    ('reservation_id', '=', vals.get('parent_booking_id'))  # Correct relation field
+                ], order='room_sequence asc')
+                child_count = len(child_lines)
+                if child_count>1:
+                    for ctr in range(1* self.child_count, child_count):
+                        child_lines[ctr].unlink()
+
+                # Return window action to refresh the view
+                return {
+                        'type': 'ir.actions.client',
+                        'tag': 'reload',
+                }
         return res
 
         # return super(RoomBooking, self).write(vals)
@@ -1432,66 +1569,89 @@ class RoomBooking(models.Model):
             }
         }
 
-
+    
     def action_checkin_booking(self):
-        today = fields.Date.context_today(self)
-        state_changed = False  # Flag to track if any state was changed to 'check_in'
+        today = datetime.now().date()
+        all_bookings = self
+        
 
-        for booking in self:
-            # If the booking is a parent, process its children
-            child_bookings = self.search([('parent_booking_name', '=', booking.name)])
+        for booking in all_bookings:
+            print("Line 1465", booking)
+            if len(booking.room_line_ids) > 1:
+                continue
+            if booking.state != 'block':
+                raise ValidationError(_("All selected bookings must be in the 'block' state to proceed with check-in."))
+            if booking.checkin_date.date() < today:
+                raise ValidationError(_("You cannot check-in  booking with a check-in date in the past."))
 
-            # Process child bookings
-            for child in child_bookings:
-                if child.state == 'block':
-                    # Ensure check-in date is today
-                    if fields.Date.to_date(child.checkin_date) != today:
-                        raise ValidationError(
-                            _("You can only check in on the reservation's check-in date, which should be today.")
-                        )
+        future_bookings = all_bookings.filtered(lambda b: fields.Date.to_date(b.checkin_date) > today)
+        print("Line 1470", future_bookings)
 
-                    # Validate that room details are provided
-                    if not child.room_line_ids:
-                        raise ValidationError(_("Please Enter Room Details"))
+        if future_bookings:
+            # Return wizard if any booking is in the future
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'booking.checkin.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_booking_ids':  future_bookings.mapped('id'),
+                }
+            }
 
-                    # Set each room's status to 'occupied' and mark it as unavailable
-                    for room in child.room_line_ids:
-                        room.room_id.write({
-                            'status': 'occupied',
-                        })
-                        room.room_id.is_room_avail = False
+        # If no future bookings, continue directly
+        # return self._perform_bulk_checkin(all_bookings, today)
+        self._perform_bulk_checkin(all_bookings, today)
+        self.env.cr.commit()
 
-                    # Update the child booking state to 'check_in'
-                    child.write({"state": "check_in"})
-                    state_changed = True
-                    print(f"Child Booking ID {child.id} checked in and rooms updated to occupied.")
+        # Update the dashboard after the function completes
+        # self.retrieve_dashboard()
+        # return result
+        return {
+        'type': 'ir.actions.act_window',
+        'name': 'Room Booking',
+        'res_model': 'room.booking',
+        'view_mode': 'tree,form',
+        'target': 'current',
+        }
+        
 
-            # If the current booking is not a parent, process it directly
-            if not child_bookings and booking.state == 'block':
-                if fields.Date.to_date(booking.checkin_date) != today:
-                    raise ValidationError(
-                        _("You can only check in on the reservation's check-in date, which should be today.")
-                    )
+    def _perform_bulk_checkin(self, all_bookings, today):
+        today = datetime.now() 
+        print("Line 1486", all_bookings)
+        print("Line 1486 - Bookings to check in:", all_bookings.mapped('id'))
+        state_changed = False
+        for booking in all_bookings:
+            print("Line 1472", booking)
+            if len(booking.room_line_ids) > 1:
+                continue
 
-                if not booking.room_line_ids:
-                    raise ValidationError(_("Please Enter Room Details"))
+            room_availability = booking.check_room_availability_all_hotels_split_across_type(
+                checkin_date=today,
+                checkout_date=today + timedelta(days=1),
+                room_count=len(booking.room_line_ids),
+                adult_count=sum(booking.room_line_ids.mapped('adult_count')),
+                hotel_room_type_id=booking.room_line_ids.mapped('hotel_room_type').id if booking.room_line_ids else None
+            )
+            print("Line 1503", room_availability)
 
-                for room in booking.room_line_ids:
-                    room.room_id.write({
-                        'status': 'occupied',
-                    })
-                    room.room_id.is_room_avail = False
+            # Check if room_availability indicates no available rooms
+            if not room_availability or isinstance(room_availability, dict):
+                raise ValidationError(_("No rooms are available for today's date. Please select a different date."))
 
-                booking.write({"state": "check_in"})
-                state_changed = True
-                print(f"Booking ID {booking.id} checked in and rooms updated to occupied.")
+            room_availability_list = room_availability[1]
+            total_available_rooms = sum(int(res.get('available_rooms', 0)) for res in room_availability_list)
 
-        # Only retrieve dashboard counts and display the notification if the state changed to 'check_in'
+            if total_available_rooms <= 0:
+                raise ValidationError(_("No rooms are available for the selected date. Please select a different date."))
+
+            # If the check-in date is today and rooms are available, proceed with check-in
+            booking._perform_checkin()
+            state_changed = True
+
+        # Only retrieve dashboard counts and display notification if state changed
         if state_changed:
             dashboard_data = self.retrieve_dashboard()
-            print("Updated dashboard data after check-in action:", dashboard_data)
-
-            # Display success notification with updated dashboard data
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -1503,63 +1663,185 @@ class RoomBooking(models.Model):
                 }
             }
         else:
-            # If no state was changed, do not show a success message
             raise ValidationError(_("No bookings were checked in. Please ensure the state is 'block' before checking in."))
+
+    
+    #working
+    # def action_checkin_booking(self):
+    #     today = datetime.now().date()      
+    #     state_changed = False  # Flag to track if any state was changed to 'check_in'
+
+    #     for booking in self:
+    #         # If the booking is a parent, process its children
+    #         child_bookings = self.search([('parent_booking_name', '=', booking.name)])
+
+    #         # Process child bookings
+    #         for child in child_bookings:
+    #             if child.state == 'block':
+    #                 # Ensure check-in date is today
+    #                 if fields.Date.to_date(child.checkin_date.date()) != today:
+    #                     raise ValidationError(
+    #                         _("You can only check in on the reservation's check-in date, which should be today.")
+    #                     )
+
+    #                 # Validate that room details are provided
+    #                 if not child.room_line_ids:
+    #                     raise ValidationError(_("Please Enter Room Details"))
+
+    #                 # Set each room's status to 'occupied' and mark it as unavailable
+    #                 for room in child.room_line_ids:
+    #                     room.room_id.write({
+    #                         'status': 'occupied',
+    #                     })
+    #                     room.room_id.is_room_avail = False
+
+    #                 # Update the child booking state to 'check_in'
+    #                 child.write({"state": "check_in"})
+    #                 state_changed = True
+    #                 print(f"Child Booking ID {child.id} checked in and rooms updated to occupied.")
+
+    #         # If the current booking is not a parent, process it directly
+    #         if not child_bookings and booking.state == 'block':
+    #             if fields.Date.to_date(booking.checkin_date.date()) != today:
+    #                 raise ValidationError(
+    #                     _("You can only check in on the reservation's check-in date, which should be today.")
+    #                 )
+
+    #             if not booking.room_line_ids:
+    #                 raise ValidationError(_("Please Enter Room Details"))
+
+    #             for room in booking.room_line_ids:
+    #                 room.room_id.write({
+    #                     'status': 'occupied',
+    #                 })
+    #                 room.room_id.is_room_avail = False
+
+    #             booking.write({"state": "check_in"})
+    #             state_changed = True
+    #             print(f"Booking ID {booking.id} checked in and rooms updated to occupied.")
+
+    #     # Only retrieve dashboard counts and display the notification if the state changed to 'check_in'
+    #     if state_changed:
+    #         dashboard_data = self.retrieve_dashboard()
+    #         print("Updated dashboard data after check-in action:", dashboard_data)
+
+    #         # Display success notification with updated dashboard data
+    #         return {
+    #             'type': 'ir.actions.client',
+    #             'tag': 'display_notification',
+    #             'params': {
+    #                 'type': 'success',
+    #                 'message': "Booking Checked In Successfully!",
+    #                 'next': {'type': 'ir.actions.act_window_close'},
+    #                 'dashboard_data': dashboard_data,
+    #             }
+    #         }
+    #     else:
+    #         # If no state was changed, do not show a success message
+    #         raise ValidationError(_("No bookings were checked in. Please ensure the state is 'block' before checking in."))
     
 
+    #working 14 dec
+    def _perform_checkout(self):
+        """Helper method to perform check-out and update room availability."""
+        parent_booking_id = self.parent_booking_id.id if self.parent_booking_id else self.id
+        print("Line 1727 Parent Booking ID:", parent_booking_id)
+
+        # Loop through each room in the room_line_ids
+        for room in self.room_line_ids:
+            # Update room status to 'available'
+            room.room_id.write({
+                'status': 'available',
+            })
+            room.room_id.is_room_avail = True
+
+            # Update the available rooms count and increase rooms_reserved count
+            if room.room_id:
+                availability_result = self.env['room.availability.result'].search([
+                    ('room_booking_id', '=', parent_booking_id)
+                ], limit=1)
+
+
+                if availability_result:
+                    # Use room count from the room line or a default value of 1
+                    reserved_rooms = room.room_count if hasattr(room, 'room_count') else 1
+
+                    # Increase available_rooms and decrease rooms_reserved
+                    availability_result.available_rooms += reserved_rooms
+                    availability_result.rooms_reserved -= reserved_rooms
+
+        # Update the booking state to 'check_out'
+        self.write({"state": "check_out", "checkout_date": datetime.now()})
+
+        # Return success notification
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'success',
+                'message': "Booking Checked Out Successfully!",
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
+        }
+
     def action_checkout_booking(self):
-        today = fields.Date.context_today(self)
-        state_changed = False  # Flag to track if any state was changed to 'check_out'
+        today = datetime.now().date()
+        all_bookings = self
 
-        for booking in self:
-            # If the booking is a parent, process its children
-            child_bookings = self.search([('parent_booking_name', '=', booking.name)])
+        # Filter out bookings with more than one room line
+        eligible_bookings = all_bookings.filtered(lambda b: len(b.room_line_ids) <= 1)
 
-            # Process child bookings
-            for child in child_bookings:
-                if child.state == 'check_in':
-                    if fields.Date.to_date(child.checkin_date) != today:
-                        raise ValidationError(
-                            _("You can only check out on the reservation's check-out date, which should be today.")
-                        )
-                    # Update child booking state to 'check_out'
-                    child.write({"state": "check_out"})
+        for booking in eligible_bookings:
+            print("Line 1465", booking)
+            if booking.state != 'check_in':
+                raise ValidationError(_("All selected bookings must be in the 'check_in' state to proceed with check-out."))
 
-                    # Set each room's status to 'available' and mark it as available
-                    for room in child.room_line_ids:
-                        room.room_id.write({
-                            'status': 'available',
-                            'is_room_avail': True
-                        })
-                        # Update the checkout date to today's date for each room
-                        room.write({'checkout_date': datetime.today()})
+        # Filter bookings with future checkout dates
+        future_bookings = eligible_bookings.filtered(lambda b: fields.Date.to_date(b.checkout_date) > today)
+        print("Line 1470", future_bookings)
 
-                    state_changed = True
-                    print(f"Child Booking ID {child.id} checked out and rooms updated to available.")
+        if future_bookings:
+            # Return wizard if any booking has a future checkout date
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'confirm.early.checkout.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_booking_ids': future_bookings.mapped('id'),
+                }
+            }
 
-            # If the current booking is not a parent, process it directly
-            if not child_bookings and booking.state == 'check_in':
-                # Update booking state to 'check_out'
-                booking.write({"state": "check_out"})
+        # If no future bookings, continue directly with checkout
+        # return self._perform_bulk_checkout(eligible_bookings, today)
+        self._perform_bulk_checkout(eligible_bookings, today)
 
-                # Set each room's status to 'available' and mark it as available
-                for room in booking.room_line_ids:
-                    room.room_id.write({
-                        'status': 'available',
-                        'is_room_avail': True
-                    })
-                    # Update the checkout date to today's date for each room
-                    room.write({'checkout_date': datetime.today()})
+        # Update the dashboard after the function completes
+        self.env.cr.commit()
+        # self.retrieve_dashboard()
+        return {
+        'type': 'ir.actions.act_window',
+        'name': 'Room Booking',
+        'res_model': 'room.booking',
+        'view_mode': 'tree,form',
+        'target': 'current',
+        }
+    
+    def _perform_bulk_checkout(self, all_bookings, today):
+        print("Line 1486 - Bookings to check out:", all_bookings.mapped('id'))
+        state_changed = False
 
-                state_changed = True
-                print(f"Booking ID {booking.id} checked out and rooms updated to available.")
+        for booking in all_bookings:
+            print("Line 1472", booking)
+            if len(booking.room_line_ids) > 1:
+                continue
 
-        # Only retrieve dashboard counts and display the notification if the state changed to 'check_out'
+            booking._perform_checkout()
+            state_changed = True
+
+        # Display notification if any state changed
         if state_changed:
             dashboard_data = self.retrieve_dashboard()
-            print("Updated dashboard data after check-out action:", dashboard_data)
-
-            # Display success notification with updated dashboard data
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -1571,8 +1853,114 @@ class RoomBooking(models.Model):
                 }
             }
         else:
-            # If no state was changed, do not show a success message
             raise ValidationError(_("No bookings were checked out. Please ensure the state is 'check_in' before checking out."))
+
+
+    #working 14 dec
+    # def action_checkout_booking(self):
+    #     today = datetime.now().date()
+    #     state_changed = False  # Flag to track if any state was changed to 'check_out'
+
+    #     # Ensure all selected bookings are in the 'check_in' state
+    #     for booking in self:
+    #         if len(booking.room_line_ids) > 1:
+    #             continue
+    #         if booking.state != 'check_in':
+    #             raise ValidationError(_("All selected bookings must be in the 'check_in' state to proceed with check-out."))
+            
+    #         booking._perform_checkout()
+    #         state_changed = True 
+
+    #     if state_changed:
+    #         # If checkout performed directly (no wizard needed)
+    #         dashboard_data = self.retrieve_dashboard()
+    #         return {
+    #             'type': 'ir.actions.client',
+    #             'tag': 'display_notification',
+    #             'params': {
+    #                 'type': 'success',
+    #                 'message': "Booking Checked Out Successfully!",
+    #                 'next': {'type': 'ir.actions.act_window_close'},
+    #                 'dashboard_data': dashboard_data,
+    #             }
+    #         }
+
+    
+    #working
+    # def action_checkout_booking(self):
+    #     today = datetime.now().date()
+    #     state_changed = False  # Flag to track if any state was changed to 'check_out'
+
+    #     for booking in self:
+    #         # If the booking is a parent, process its children
+    #         child_bookings = self.search([('parent_booking_name', '=', booking.name)])
+
+    #         # Process child bookings
+    #         for child in child_bookings:
+    #             if child.state == 'check_in':
+    #                 # Validate that today's date matches the child's checkout date
+    #                 if child.checkout_date.date() != today:
+    #                     raise ValidationError(
+    #                         _("You can only check out on the reservation's check-out date, which should be today.")
+    #                     )
+
+    #                 # Update child booking state to 'check_out'
+    #                 child.write({"state": "check_out"})
+
+    #                 # Set each room's status to 'available' and mark it as available
+    #                 for room in child.room_line_ids:
+    #                     room.room_id.write({
+    #                         'status': 'available',
+    #                         'is_room_avail': True
+    #                     })
+    #                     # Update the checkout date to today's date for each room
+    #                     room.write({'checkout_date': fields.Datetime.now()})
+
+    #                 state_changed = True
+    #                 print(f"Child Booking ID {child.id} checked out and rooms updated to available.")
+
+    #         # If the current booking is not a parent, process it directly
+    #         if not child_bookings and booking.state == 'check_in':
+    #             # Validate that today's date matches the booking's checkout date
+    #             if booking.checkout_date.date() != today:
+    #                 raise ValidationError(
+    #                     _("You can only check out on the reservation's check-out date, which should be today.")
+    #                 )
+
+    #             # Update booking state to 'check_out'
+    #             booking.write({"state": "check_out"})
+
+    #             # Set each room's status to 'available' and mark it as available
+    #             for room in booking.room_line_ids:
+    #                 room.room_id.write({
+    #                     'status': 'available',
+    #                     'is_room_avail': True
+    #                 })
+    #                 # Update the checkout date to today's date for each room
+    #                 room.write({'checkout_date': fields.Datetime.now()})
+
+    #             state_changed = True
+    #             print(f"Booking ID {booking.id} checked out and rooms updated to available.")
+
+    #     # Only retrieve dashboard counts and display the notification if the state changed to 'check_out'
+    #     if state_changed:
+    #         dashboard_data = self.retrieve_dashboard()
+    #         print("Updated dashboard data after check-out action:", dashboard_data)
+
+    #         # Display success notification with updated dashboard data
+    #         return {
+    #             'type': 'ir.actions.client',
+    #             'tag': 'display_notification',
+    #             'params': {
+    #                 'type': 'success',
+    #                 'message': _("Booking Checked Out Successfully!"),
+    #                 'next': {'type': 'ir.actions.act_window_close'},
+    #                 'dashboard_data': dashboard_data,
+    #             }
+    #         }
+    #     else:
+    #         # If no state was changed, do not show a success message
+    #         raise ValidationError(_("No bookings were checked out. Please ensure the state is 'check_in' before checking out."))
 
     visible_states = fields.Char(compute='_compute_visible_states')
 
@@ -1599,8 +1987,12 @@ class RoomBooking(models.Model):
     #         record.state = 'confirmed'
 
     def action_confirm(self):
+        today = datetime.now().date()
         for record in self:
             print("Line 1598", record.parent_booking_name)
+            if record.checkin_date and record.checkin_date.date() < today:
+                raise ValidationError(_("You cannot confirm a booking with a check-in date in the past."))
+                
             if not record.parent_booking_name:
                 if not record.availability_results:
                     raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
@@ -1610,14 +2002,23 @@ class RoomBooking(models.Model):
             if not record.room_line_ids:
                 record.action_split_rooms()
 
+            record.state = "confirmed"
                 
             for search_result in record.availability_results:
                 search_result.available_rooms -= search_result.rooms_reserved
+
                 # self._hotel_inventory_room_count(record.company_id.id, record.adult_count, search_result.room_type.id, "subtract")
-            record.state = "confirmed"
+
+            # Update the state_ field in related room.booking.line records to 'confirmed'
+            for line in record.room_line_ids:
+                line.state_ = 'confirmed'
+                line.room_id = False
 
     def action_waiting(self):
+        today = datetime.now().date()
         for record in self:
+            if record.checkin_date and record.checkin_date.date() < today:
+                raise ValidationError(_("You cannot sent a booking to Waiting List with a check-in date in the past."))
             if not record.availability_results:
                 raise UserError("You have to Search room first then you can Send to Waiting List.")
             record.state = 'waiting'
@@ -2377,6 +2778,15 @@ class RoomBooking(models.Model):
 
     @api.model
     def create(self, vals_list):
+        # print('2427', vals_list)
+        # if 'state' not in vals_list:
+        #     vals_list['state'] = 'not_confirmed'
+        # vals_list['previous_state'] = vals_list.get('state', 'not_confirmed')
+        if 'room_count' in vals_list and vals_list['room_count'] <= 0:
+            raise ValidationError("Room count cannot be zero or less. Please select at least one room.")
+        
+        if 'adult_count' in vals_list and vals_list['adult_count'] <= 0:
+            raise ValidationError("Adult count cannot be zero or less. Please select at least one adult.")
         if not vals_list.get('checkin_date'):
             raise ValidationError(_("Check-In Date is required and cannot be empty."))
         # Fetch the company_id from vals_list or default to the current user's company
@@ -2922,26 +3332,61 @@ class RoomBooking(models.Model):
     #             }
     #         }
     #     raise ValidationError(_("Please Enter Room Details"))
-
+    
     def action_done(self):
-        """Button action_confirm function"""
-        for rec in self.env['account.move'].search(
-                [('ref', '=', self.name)]):
-            if rec.payment_state != 'not_paid':
-                self.write({"state": "done"})
-                self.is_checkin = False
-                if self.room_line_ids:
-                    return {
-                        'type': 'ir.actions.client',
-                        'tag': 'display_notification',
-                        'params': {
-                            'type': 'success',
-                            'message': "Booking Checked Out Successfully!",
-                            'next': {'type': 'ir.actions.act_window_close'},
-                        }
-                    }
-            raise ValidationError(_('Your Invoice is Due for Payment.'))
-        self.write({"state": "done"})
+        """Method for creating invoice"""
+        if not self.room_line_ids:
+            raise ValidationError(_("Please Enter Room Details"))
+        booking_list = self._compute_amount_untaxed(True)
+        if booking_list:
+            account_move = self.env["account.move"].create([{
+                'move_type': 'out_invoice',
+                'invoice_date': fields.Date.today(),
+                'partner_id': self.partner_id.id,
+                'ref': self.name,
+            }])
+            for rec in booking_list:
+                account_move.invoice_line_ids.create([{
+                    'name': rec['name'],
+                    'quantity': rec['quantity'],
+                    'price_unit': rec['price_unit'],
+                    'move_id': account_move.id,
+                    'price_subtotal': rec['quantity'] * rec['price_unit'],
+                    'product_type': rec['product_type'],
+                }])
+            self.write({'invoice_status': "invoiced"})
+            self.invoice_button_visible = True
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Invoices',
+                'view_mode': 'form',
+                'view_type': 'form',
+                'res_model': 'account.move',
+                'view_id': self.env.ref('account.view_move_form').id,
+                'res_id': account_move.id,
+                'context': "{'create': False}"
+            }
+    
+    #working
+    # def action_done(self):
+    #     """Button action_confirm function"""
+    #     for rec in self.env['account.move'].search(
+    #             [('ref', '=', self.name)]):
+    #         if rec.payment_state != 'not_paid':
+    #             self.write({"state": "done"})
+    #             self.is_checkin = False
+    #             if self.room_line_ids:
+    #                 return {
+    #                     'type': 'ir.actions.client',
+    #                     'tag': 'display_notification',
+    #                     'params': {
+    #                         'type': 'success',
+    #                         'message': "Booking Checked Out Successfully!",
+    #                         'next': {'type': 'ir.actions.act_window_close'},
+    #                     }
+    #                 }
+    #         raise ValidationError(_('Your Invoice is Due for Payment.'))
+    #     self.write({"state": "done"})
 
     def action_checkout(self):
         today = fields.Date.context_today(self)
@@ -2957,7 +3402,7 @@ class RoomBooking(models.Model):
                 'res_model': 'confirm.early.checkout.wizard',
                 'view_mode': 'form',
                 'target': 'new',
-                'context': {'default_booking_id': self.id},
+                'context': {'default_booking_ids': self.ids},
             }
 
         # Convert checkout_date to date and compare
@@ -3043,39 +3488,39 @@ class RoomBooking(models.Model):
     #         })
     #         room.write({'checkout_date': datetime.today()})
 
-    def action_invoice(self):
-        """Method for creating invoice"""
-        if not self.room_line_ids:
-            raise ValidationError(_("Please Enter Room Details"))
-        booking_list = self._compute_amount_untaxed(True)
-        if booking_list:
-            account_move = self.env["account.move"].create([{
-                'move_type': 'out_invoice',
-                'invoice_date': fields.Date.today(),
-                'partner_id': self.partner_id.id,
-                'ref': self.name,
-            }])
-            for rec in booking_list:
-                account_move.invoice_line_ids.create([{
-                    'name': rec['name'],
-                    'quantity': rec['quantity'],
-                    'price_unit': rec['price_unit'],
-                    'move_id': account_move.id,
-                    'price_subtotal': rec['quantity'] * rec['price_unit'],
-                    'product_type': rec['product_type'],
-                }])
-            self.write({'invoice_status': "invoiced"})
-            self.invoice_button_visible = True
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'Invoices',
-                'view_mode': 'form',
-                'view_type': 'form',
-                'res_model': 'account.move',
-                'view_id': self.env.ref('account.view_move_form').id,
-                'res_id': account_move.id,
-                'context': "{'create': False}"
-            }
+    # def action_invoice(self):
+    #     """Method for creating invoice"""
+    #     if not self.room_line_ids:
+    #         raise ValidationError(_("Please Enter Room Details"))
+    #     booking_list = self._compute_amount_untaxed(True)
+    #     if booking_list:
+    #         account_move = self.env["account.move"].create([{
+    #             'move_type': 'out_invoice',
+    #             'invoice_date': fields.Date.today(),
+    #             'partner_id': self.partner_id.id,
+    #             'ref': self.name,
+    #         }])
+    #         for rec in booking_list:
+    #             account_move.invoice_line_ids.create([{
+    #                 'name': rec['name'],
+    #                 'quantity': rec['quantity'],
+    #                 'price_unit': rec['price_unit'],
+    #                 'move_id': account_move.id,
+    #                 'price_subtotal': rec['quantity'] * rec['price_unit'],
+    #                 'product_type': rec['product_type'],
+    #             }])
+    #         self.write({'invoice_status': "invoiced"})
+    #         self.invoice_button_visible = True
+    #         return {
+    #             'type': 'ir.actions.act_window',
+    #             'name': 'Invoices',
+    #             'view_mode': 'form',
+    #             'view_type': 'form',
+    #             'res_model': 'account.move',
+    #             'view_id': self.env.ref('account.view_move_form').id,
+    #             'res_id': account_move.id,
+    #             'context': "{'create': False}"
+    #         }
 
     def action_view_invoices(self):
         """Method for Returning invoice View"""
@@ -3090,6 +3535,10 @@ class RoomBooking(models.Model):
         }
 
     def action_checkin(self):
+        today = datetime.now().date()
+        for record in self:
+            if record.checkin_date and record.checkin_date.date() < today:
+                raise ValidationError(_("You cannot check-in  booking with a check-in date in the past."))
         """ Handles the check-in action by asking for confirmation if check-in is in the future or showing unavailability """
         today = fields.Date.context_today(self)
 
@@ -3133,7 +3582,7 @@ class RoomBooking(models.Model):
                 'view_mode': 'form',
                 'target': 'new',
                 'context': {
-                    'default_booking_id': self.id,
+                    'default_booking_ids': self.ids,
                 }
             }
 
@@ -3249,7 +3698,10 @@ class RoomBooking(models.Model):
     #     for record in self:
     #         record.state = "block"
     def action_block(self):
+        today = datetime.now().date()
         for record in self:
+            if record.checkin_date and record.checkin_date.date() < today:
+                raise ValidationError(_("You cannot block  booking with a check-in date in the past."))
             # Check if all room_ids are assigned in room_line_ids
             unassigned_lines = record.room_line_ids.filtered(lambda line: not line.room_id)
             if unassigned_lines:
@@ -3400,15 +3852,16 @@ class RoomBooking(models.Model):
             raise ValidationError(
                 _("Please Enter time zone in user settings."))
 
-    room_count = fields.Integer(string='Rooms', default=1)
+    room_count = fields.Integer(string='Rooms')
 
     @api.onchange('room_count')
     def _check_room_count(self):
         for record in self:
-            if record.room_count < 1:
-                raise ValidationError("Kindly select at least one room for room booking.")
+            if record.room_count < 0:
+                pass
+                # raise ValidationError("Kindly select at least one room for room booking.")
 
-    adult_count = fields.Integer(string='Adults', default=1)
+    adult_count = fields.Integer(string='Adults')
 
     # @api.onchange('adult_count')
     # def _onchange_adult_count(self):
@@ -4462,7 +4915,10 @@ class RoomBooking(models.Model):
     
 
     def action_search_rooms(self):
+        
         for record in self:
+            if record.room_count <= 0 or record.adult_count <= 0:
+                raise ValidationError("Room count and adult count cannot be zero or less. Please select at least one room and one adult.")
             record._get_forecast_rates()
             result = record.check_room_availability_all_hotels_split_across_type(
                     record.checkin_date,
@@ -5031,6 +5487,8 @@ class RoomBooking(models.Model):
 
     @api.onchange('child_count')
     def _onchange_child_count(self):
+        if self.adult_count < 0:
+            raise ValidationError('Child count cannot be zero. Please enter a valid number of adults.')
         # Clear existing adult records
         self.child_ids = [(5, 0, 0)]  # Removes all current related records
 
@@ -5057,8 +5515,9 @@ class RoomBooking(models.Model):
 
     @api.onchange('adult_count')
     def _onchange_adult_count(self):
-        if self.adult_count <= 0:
-            raise ValidationError('Adult count cannot be zero. Please enter a valid number of adults.')
+        if self.adult_count < 0:
+            pass
+            # raise ValidationError('Adult count cannot be zero. Please enter a valid number of adults.')
         # Clear existing adult records
         self.adult_ids = [(5, 0, 0)]  # Removes all current related records
 
@@ -5091,8 +5550,9 @@ class RoomBooking(models.Model):
     @api.onchange('room_count', 'adult_count', 'child_count')
     def _onchange_room_or_adult_count(self):
         for record in self:
-            if record.room_count < 1:
-                raise ValidationError("Kindly select at least one room for room booking.")
+            if record.room_count < 0:
+                pass
+                # raise ValidationError("Kindly select at least one room for room booking.")
 
             # Calculate the required number of adults and children
             total_adults_needed = record.room_count * record.adult_count
@@ -5884,12 +6344,37 @@ class BookingCheckinWizard(models.TransientModel):
     _name = 'booking.checkin.wizard'
     _description = 'Check-in Confirmation Wizard'
 
-    booking_id = fields.Many2one('room.booking', string='Booking', required=True)
+    booking_ids = fields.Many2many('room.booking', string='Booking', required=True)
 
     def action_confirm_checkin(self):
-        """ Action to confirm the check-in and change the check-in date to today """
-        self.booking_id.checkin_date = fields.Date.context_today(self)
-        self.booking_id._perform_checkin()
+        """ Action to confirm check-in for all selected bookings and set check-in date to today """
+        # today = fields.Date.context_today(self)
+        today = datetime.now()
+        print("perform checkin is called", self.booking_ids)
+        for booking in self.booking_ids:
+
+            # Skip if the booking has more than one room line
+            if len(booking.room_line_ids) > 1:
+                continue
+            
+            # Set the check-in date and perform the check-in
+            booking.checkin_date = today
+            booking._perform_checkin()
+
+    # def action_confirm_checkin(self):
+    #     for booking in self.booking_ids:
+    #         booking._perform_checkin()
+    #     """ Action to confirm the check-in and change the check-in date to today """
+    #     self.booking_id.checkin_date = fields.Date.context_today(self)
+    #     self.booking_id._perform_checkin()
+    
+    @api.model
+    def default_get(self, fields_list):
+        res = super(BookingCheckinWizard, self).default_get(fields_list)
+        booking_ids = self._context.get('default_booking_ids')
+        if booking_ids:
+            res['booking_ids'] = [(6, 0, booking_ids)]
+        return res
 
     def action_cancel(self):
         """ Action to cancel the check-in """
@@ -5975,13 +6460,33 @@ class ConfirmEarlyCheckoutWizard(models.TransientModel):
     _name = 'confirm.early.checkout.wizard'
     _description = 'Confirm Early Check-Out Wizard'
 
-    booking_id = fields.Many2one('room.booking', string='Booking')
-   
+    booking_ids = fields.Many2many('room.booking', string='Booking')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(ConfirmEarlyCheckoutWizard, self).default_get(fields_list)
+        booking_ids = self._context.get('default_booking_ids')
+        if booking_ids:
+            res['booking_ids'] = [(6, 0, booking_ids)]
+        return res
+    
     def action_confirm_checkout(self):
-        """Set checkout_date to today and proceed with check-out"""
-        self.booking_id.write({'checkout_date': datetime.now()})
-        print(f"Debug: In wizard, booking_id = {self.booking_id.id}")
-        self.booking_id.action_checkout()
+        """Set checkout_date to today and proceed with check-out for all selected bookings"""
+        # today = fields.Date.context_today(self)
+        today = datetime.now()
+        for booking in self.booking_ids:
+            if len(booking.room_line_ids) > 1:
+                continue
+                # raise ValidationError(_("This booking has multiple room lines and cannot be checked out through early checkout."))
+
+            booking.checkout_date = today
+            booking._perform_checkout()
+
+    # def action_confirm_checkout(self):
+    #     """Set checkout_date to today and proceed with check-out"""
+    #     self.booking_id.write({'checkout_date': datetime.now()})
+    #     print(f"Debug: In wizard, booking_id = {self.booking_id.id}")
+    #     self.booking_id.action_checkout()
 
 class BookingPostingItem(models.Model):
     _name = 'booking.posting.item'
