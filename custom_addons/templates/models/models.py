@@ -5,10 +5,11 @@ from odoo import models, fields, api
 class templates(models.Model):
     _name = 'templates.templates'
     _description = 'templates.templates'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    template_id = fields.Char(string='Template ID', readonly=True, copy=False, default='TMP') 
-    description = fields.Char(string='Description', required=True)
-    user_sort = fields.Integer(string='User Sort', default=0)
+    template_id = fields.Char(string='Template ID', readonly=True, copy=False, default='TMP',tracking=True) 
+    description = fields.Char(string='Description', required=True,tracking=True)
+    user_sort = fields.Integer(string='User Sort', default=0,tracking=True)
 
     @api.model
     def create(self, vals):

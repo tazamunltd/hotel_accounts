@@ -7,20 +7,12 @@
         <field name="arch" type="xml">
             <tree string="Yearly Geographical Chart">
                 <field name="report_date"/>
-                <field name="client_id"/>
                 <field name="room_type"/>
-                <field name="total_rooms"/>
-                <field name="available"/>
-                <field name="inhouse"/>
-                <field name="expected_arrivals"/>
-                <field name="expected_departures"/>
+                <field name="company_id"/>
+                <field name="nationality"/>
+                <field name= "region"/>
                 <field name="expected_inhouse"/>
-                <field name="reserved"/>
-                <field name="expected_occupied_rate"/>
-                <field name="out_of_order"/>
-                <field name="overbook"/>
-                <field name="free_to_sell"/>
-                <field name="sort_order"/>
+                
             </tree>
         </field>
     </record>
@@ -30,12 +22,13 @@
         <field name="name">yearly.geographical.chart.graph</field>
         <field name="model">yearly.geographical.chart</field>
         <field name="arch" type="xml">
-            <graph string="Yearly Geographical Analysis" type="bar">
+            <graph string="Yearly Geographical Analysis">
+                <field name="report_date" type="row"/>
                 <field name="room_type"/>
-                <field name="total_rooms" type="measure"/>
-                <field name="available" type="measure"/>
-                <field name="inhouse" type="measure"/>
-                <field name="expected_occupied_rate" type="measure"/>
+                <field name="company_id"/>
+                <field name="nationality" type="row"/>
+                <field name= "region" type="row"/>
+                <field name="expected_inhouse" type="measure"/>
             </graph>
         </field>
     </record>
@@ -46,14 +39,12 @@
         <field name="model">yearly.geographical.chart</field>
         <field name="arch" type="xml">
             <pivot string="Yearly Geographical Analysis">
-                <field name="room_type" type="row"/>
-                <field name="report_date" type="col"/>
-                <field name="total_rooms" type="measure"/>
-                <field name="available" type="measure"/>
-                <field name="inhouse" type="measure"/>
-                <field name="expected_occupied_rate" type="measure"/>
-                <field name="reserved" type="measure"/>
-                <field name="free_to_sell" type="measure"/>
+                <field name="report_date" type="row"/>
+                <field name="room_type"/>
+                <field name="company_id"/>
+                <field name="nationality" type="row"/>
+                <field name= "region" type="row"/>
+                <field name="expected_inhouse" type="measure"/>
             </pivot>
         </field>
     </record>

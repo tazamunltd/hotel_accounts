@@ -6,19 +6,11 @@
         <field name="model">monthly.allotment.charts</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="report_date"/>
-                <field name="total_rooms"/>
-                <field name="out_of_order"/>
-                <field name="available"/>
-                <field name="inhouse"/>
-                <field name="expected_arrivals"/>
-                <field name="expected_departures"/>
-                <field name="expected_inhouse"/>
-                <field name="expected_occupied_rate"/>
-                <field name="overbook"/>
-                <field name="free_to_sell"/>
-                <field name="reserved"/>
-                <field name="source_of_business"/>
+                <field name="report_date" optional="show"/>
+                <field name="room_type" optional="show"/>
+                <field name="source_of_business" optional="show"/>
+                <field name="inhouse" optional="show"/>
+                <field name="expected_inhouse" optional="show"/>
             </tree>
         </field>
     </record>
@@ -32,17 +24,8 @@
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="source_of_business" type="row"/>
-                <field name="total_rooms" type="measure"/>
-                <field name="out_of_order" type="measure"/>
-                <field name="available" type="measure"/>
                 <field name="inhouse" type="measure"/>
-                <field name="expected_arrivals" type="measure"/>
-                <field name="expected_departures" type="measure"/>
                 <field name="expected_inhouse" type="measure"/>
-                <field name="expected_occupied_rate" type="measure"/>
-                <field name="overbook" type="measure"/>
-                <field name="free_to_sell" type="measure"/>
-                <field name="reserved" type="measure"/>
             </graph>
         </field>
     </record>
@@ -56,18 +39,8 @@
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="source_of_business" type="row"/>
-                <field name="total_rooms" type="measure"/>
-                <field name="out_of_order" type="measure"/>
-                <field name="available" type="measure"/>
                 <field name="inhouse" type="measure"/>
-                <field name="expected_arrivals" type="measure"/>
-                <field name="expected_departures" type="measure"/>
                 <field name="expected_inhouse" type="measure"/>
-                <field name="expected_occupied_rate" type="measure"/>
-                <field name="overbook" type="measure"/>
-                <field name="free_to_sell" type="measure"/>
-                <field name="reserved" type="measure"/>
-                <!-- Add more measures as required -->
             </pivot>
         </field>
     </record>

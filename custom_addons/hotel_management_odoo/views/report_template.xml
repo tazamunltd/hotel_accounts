@@ -1,9 +1,26 @@
 <odoo>
     <template id="report_consolidated_template">
         <t t-name="hotel_management_odoo.report_consolidated_template">
+            <style>
+                * {
+                    font-family: 'DejaVu Sans', 'Arial', 'Noto Sans Arabic', sans-serif;
+                    font-size: 12px;
+                }
+
+                td, th {
+                    padding: 5px;
+                }
+
+                .rtl {
+                    direction: rtl;
+                    text-align: right;
+                }
+            </style>
+
             <t t-foreach="docs" t-as="doc">
                 <main>
-                    <div class="page" style="font-family: Arial, sans-serif; font-size: 12px; margin: 20px;">
+                    <div class="page"
+                         style="font-family: DejaVu Sans, Arial, Noto Sans Arabic, sans-serif; font-size: 12px; margin: 20px;">
 
                         <!-- Report Title -->
                         <h2 style="text-align: center; margin-bottom: 20px;">Room Booking Report</h2>
@@ -17,11 +34,17 @@
                                 <td>
                                     <t t-esc="doc.hijri_date"/>
                                 </td>
+                                <td style="direction: rtl; text-align: right;">
+                                    <strong>التاريخ الهجري:</strong>
+                                </td>
                                 <td style="text-align: right;">
                                     <strong>Gregorian Date:</strong>
                                 </td>
                                 <td>
                                     <t t-esc="doc.gregorian_date"/>
+                                </td>
+                                <td style="direction: rtl; text-align: right;">
+                                    <strong>التاريخ الميلادي:</strong>
                                 </td>
                             </tr>
                             <tr>
@@ -140,7 +163,7 @@
                                     <strong>Number of Pax:</strong>
                                 </td>
                                 <td>
-                                    <t t-esc="doc.number_of_pax"/>
+                                    <t t-esc="doc.adult_count"/>
                                 </td>
                                 <td>
                                     <strong>Number of Nights:</strong>
@@ -154,7 +177,7 @@
                                     <strong>Room Number:</strong>
                                 </td>
                                 <td>
-                                    <t t-esc="doc.room_id"/>
+                                    <t t-esc="doc.room_ids_display"/>
                                 </td>
                                 <td>
                                     <strong>Room Type:</strong>
@@ -184,13 +207,13 @@
                         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                             <tr>
                                 <td>
-                                    <strong> Average Daily Room Rate:</strong>
+                                    <strong>Average Daily Room Rate:</strong>
                                 </td>
                                 <td>
                                     <t t-esc="rate_avg"/>
                                 </td>
                                 <td>
-                                    <strong> Average Daily Meals Rate:</strong>
+                                    <strong>Average Daily Meals Rate:</strong>
                                 </td>
                                 <td>
                                     <t t-esc="meals_avg"/>

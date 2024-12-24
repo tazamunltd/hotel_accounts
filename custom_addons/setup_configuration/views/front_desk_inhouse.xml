@@ -177,6 +177,11 @@
                         </page>
                     </notebook>
                 </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -228,6 +233,11 @@
                 <field name="status"/>
             </group>
         </sheet>
+        <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
         </form>
     </field>
     </record>
@@ -280,6 +290,11 @@
                         <button name="action_amend" string="Amend Record" type="object" class="btn" />
                     </footer>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -370,6 +385,11 @@
                         <field name="status"/>
                     </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -401,6 +421,11 @@
                         <button string="Exit" type="object" class="btn-secondary" name="exit_entry"/>
                     </footer>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>

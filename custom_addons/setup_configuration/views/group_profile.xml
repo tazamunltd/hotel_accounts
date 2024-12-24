@@ -14,7 +14,6 @@
                         <button name="action_rate_forecast" string="Rate Forecast" type="object" class="btn-secondary"/>
                     </header>
                     <sheet>
-                        
                         <notebook>
                             <page string="Main">
                                 <group>
@@ -55,7 +54,7 @@
                                     <field name="allow_profile_change"/>
                                 </group>
                             </page>
-                            <page string= "Optional">
+                            <page string="Optional">
                                 <group string="Address">
                                     <group>
                                         <field name="country_id"/>
@@ -118,6 +117,7 @@
                             </page>
                         </notebook>
                     </sheet>
+                    
                 </form>
             </field>
         </record>

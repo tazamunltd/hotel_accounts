@@ -23,10 +23,20 @@
                 <field name="dynamic_selection_id" string="Location Type"/>
             </field>
             <field name="fsm_parent_id" position="before">
-                <field name="company_id" string="Hotel"/>
+                <field name="company_id" string="Hotel" />
             </field>
         </field>
     </record>
+    <record id="view_fsm_location_tree_inherit" model="ir.ui.view">
+    <field name="name">fsm.location.tree.inherit</field>
+    <field name="model">fsm.location</field>
+    <field name="inherit_id" ref="fieldservice.fsm_location_tree_view"/>
+    <field name="arch" type="xml">
+        <field name="complete_name" position="after">
+            <field name="description" string="Description"/>
+        </field>
+    </field>
+</record>
     
 
     <!--Hotel Floor Tree View-->

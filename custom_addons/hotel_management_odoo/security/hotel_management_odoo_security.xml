@@ -64,6 +64,7 @@
                eval="[(4, ref('hotel_management_odoo.hotel_group_admin'))]"/>
         <field name="domain_force">[(1, '=', 1)]</field>
     </record>
+    
 
 
 </odoo>

@@ -4,28 +4,31 @@ from odoo.exceptions import ValidationError
 class HotelDetails(models.Model):
     _name = 'system.configuration'
     _description = 'Hotel Details'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    hotel_name = fields.Char('Hotel Name')
-    address = fields.Char(string='Address')
-    contact_info = fields.Char(string='Contact Info')
+    hotel_name = fields.Char('Hotel Name',tracking=True)
+    address = fields.Char(string='Address',tracking=True)
+    contact_info = fields.Char(string='Contact Info',tracking=True)
 
 
 class SystemConfig(models.Model):
     _name = 'system.config'
     _description = 'System Configuration'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    system_configuration_id = fields.Char('System Configuration ID')
-    pms_integration_id = fields.Char('PMS Integration ID')
-    accounting_integration_id = fields.Char('Accounting Integration ID')
-    booking_integration_id = fields.Char('Booking.com Integration ID')
+    system_configuration_id = fields.Char('System Configuration ID',tracking=True)
+    pms_integration_id = fields.Char('PMS Integration ID',tracking=True)
+    accounting_integration_id = fields.Char('Accounting Integration ID',tracking=True)
+    booking_integration_id = fields.Char('Booking.com Integration ID',tracking=True)
 
 
 class SystemLanguagesUI(models.Model):
     _name = 'system.languages.ui'
     _description = 'Languages and UI'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    language_id = fields.Many2one('res.lang', string='Language')
-    ui_theme = fields.Char('UI Theme')
+    language_id = fields.Many2one('res.lang', string='Language',tracking=True)
+    ui_theme = fields.Char('UI Theme',tracking=True)
 
 
 # class SystemPaymentCurrencies(models.Model):
@@ -45,33 +48,35 @@ class SystemLanguagesUI(models.Model):
 class RateCategory(models.Model):
     _name = 'rate.category'
     _description = 'Rate Category'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'category'
-    category = fields.Char(string='Category', required=True)
-    description = fields.Char(string='Description', required=True)
-    abbreviation = fields.Char(string='Abbreviation', required=True)
-    user_sort = fields.Integer(string='User Sort', default=0)
+    category = fields.Char(string='Category', required=True,tracking=True)
+    description = fields.Char(string='Description', required=True,tracking=True)
+    abbreviation = fields.Char(string='Abbreviation', required=True,tracking=True)
+    user_sort = fields.Integer(string='User Sort', default=0,tracking=True)
 
 class RateCode(models.Model):
     _name = 'rate.code'
     _description = 'Rate Code Management'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    rate_detail_ids = fields.One2many('rate.detail', 'rate_code_id', string="Rate Details")
+    rate_detail_ids = fields.One2many('rate.detail', 'rate_code_id', string="Rate Details") #
 
     _rec_name = 'code'
-    code = fields.Char(string='Rate Code', required=True)
-    description = fields.Char(string='Description', required=True)
-    abbreviation = fields.Char(string='Abbreviation')
-    arabic_desc = fields.Char(string='Arabic Description')
-    arabic_abbr = fields.Char(string='Arabic Abbreviation')
-    rate_code_category_id = fields.Many2one('rate.category', string='Category', required=True)
-    rate_posting_item = fields.Many2one('posting.item', string='Rate Posting Item')
-    currency_id = fields.Many2one('res.currency', string='Currency')
-    include_meals = fields.Boolean(string='Include Meals in Posting Item')
-    user_sort = fields.Integer(string='User Sort', default=0)
-    obsolete = fields.Boolean(string='Obsolete')
+    code = fields.Char(string='Rate Code', required=True,tracking=True)
+    description = fields.Char(string='Description', required=True,tracking=True)
+    abbreviation = fields.Char(string='Abbreviation',tracking=True)
+    arabic_desc = fields.Char(string='Arabic Description',tracking=True)
+    arabic_abbr = fields.Char(string='Arabic Abbreviation',tracking=True)
+    rate_code_category_id = fields.Many2one('rate.category', string='Category', required=True,tracking=True)
+    rate_posting_item = fields.Many2one('posting.item', string='Rate Posting Item',tracking=True)
+    currency_id = fields.Many2one('res.currency', string='Currency',tracking=True)
+    include_meals = fields.Boolean(string='Include Meals in Posting Item',tracking=True)
+    user_sort = fields.Integer(string='User Sort', default=0,tracking=True)
+    obsolete = fields.Boolean(string='Obsolete',tracking=True)
 
-    room_type_id = fields.Many2one('room.type', string="Room Type")
+    room_type_id = fields.Many2one('room.type', string="Room Type",tracking=True)
     
 
     rhythm = fields.Selection([
@@ -86,7 +91,7 @@ class RateCode(models.Model):
     ], string="Exchange Rate")
 
     # Date fields for rate details
-    rate_details = fields.One2many('rate.detail', 'rate_code_id', string="Rate Details")
+    rate_details = fields.One2many('rate.detail', 'rate_code_id', string="Rate Details")#
 
 
         # Method for "Edit Details" button
@@ -108,29 +113,31 @@ class RateCode(models.Model):
 class RateDetailLine(models.Model):
     _name = 'rate.detail.line'
     _description = 'Rate Detail Lines'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    parent_id = fields.Many2one('rate.detail', string="Parent", required=True)
+    parent_id = fields.Many2one('rate.detail', string="Parent", required=True,tracking=True)
     hotel_services_config = fields.Many2one(
-        'hotel.configuration', string="Hotel Service")
-    packages_posting_item = fields.Many2one('posting.item', string="Posting Item")
-    packages_value = fields.Float(string="Value")
+        'hotel.configuration', string="Hotel Service",tracking=True)
+    packages_posting_item = fields.Many2one('posting.item', string="Posting Item",tracking=True)
+    packages_value = fields.Float(string="Value",tracking=True)
     packages_rhythm = fields.Selection([
         ('every_night', 'Every Night'),
         ('first_night', 'First Night')
-    ], string="Rhythm", default='every_night')
+    ], string="Rhythm", default='every_night',tracking=True)
     packages_value_type = fields.Selection([
         ('added_value', 'Added Value'),
         ('per_pax', 'Per Pax')
-    ], string="Value Type", default='added_value')
+    ], string="Value Type", default='added_value',tracking=True)
 
 class RateDetail(models.Model):
     _name = 'rate.detail'
     _description = 'Rate Details'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
 
-    hotel_services_config = fields.Many2one('hotel.configuration', string="Hotel Services")
-    line_ids = fields.One2many('rate.detail.line', 'parent_id', string="Lines")
-    parent_id = fields.Many2one('rate.detail', string="Parent")
+    hotel_services_config = fields.Many2one('hotel.configuration', string="Hotel Services",tracking=True)
+    line_ids = fields.One2many('rate.detail.line', 'parent_id', string="Lines")#
+    parent_id = fields.Many2one('rate.detail', string="Parent",tracking=True)
 
     def action_add_line(self):
         """Add a line with the current field values to the table below."""
@@ -169,8 +176,8 @@ class RateDetail(models.Model):
         ('per_pax', 'Per Pax')
     ], string="Value Type", default='added_value')
 
-    from_date = fields.Date(string="From Date")
-    to_date = fields.Date(string="To Date")
+    from_date = fields.Date(string="From Date", required=True)
+    to_date = fields.Date(string="To Date", required=True)
     @api.constrains('from_date', 'to_date')
     def _check_date_overlap(self):
         for record in self:
@@ -1066,7 +1073,7 @@ class AllotmentCode(models.Model):
     to_date = fields.Date(string="To Date")
     release_date = fields.Date(string="Release Date")
     release_period = fields.Integer(string="Release Period")
-    room_type_ids = fields.One2many('allotment.room.type', 'allotment_id', string="Room Types")
+    room_type_ids = fields.One2many('allotment.room.type', 'allotment_id', string="Room Types")#
     user_sort = fields.Integer(string="User Sort", default=0)
     obsolete = fields.Boolean(string="Obsolete", default=False)
 

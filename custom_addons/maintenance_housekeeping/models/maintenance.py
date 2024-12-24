@@ -14,17 +14,19 @@ class MaintenanceStageHouseKeeping(models.Model):
     _name = 'maintenance_housekeeping.stage'
     _description = 'Maintenance HouseKeeping Stage'
     _order = 'sequence, id'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char('Name', required=True, translate=True)
-    sequence = fields.Integer('Sequence', default=20)
-    fold = fields.Boolean('Folded in Maintenance Pipe')
-    done = fields.Boolean('Request Done')
+    name = fields.Char('Name', required=True, translate=True,tracking=True)
+    sequence = fields.Integer('Sequence', default=20,tracking=True)
+    fold = fields.Boolean('Folded in Maintenance Pipe',tracking=True)
+    done = fields.Boolean('Request Done',tracking=True)
 
 
 class MaintenanceEquipmentHouseKeepingCategoryHouseKeeping(models.Model):
     _name = 'maintenance_housekeeping.equipment.category'
     _inherit = ['mail.alias.mixin', 'mail.thread']
     _description = 'Maintenance Equipment Category'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     @api.depends('equipment_ids')
     def _compute_fold(self):
@@ -34,20 +36,20 @@ class MaintenanceEquipmentHouseKeepingCategoryHouseKeeping(models.Model):
         for category in self:
             category.fold = False if category.equipment_count else True
 
-    name = fields.Char('Category Name', required=True, translate=True)
+    name = fields.Char('Category Name', required=True, translate=True,tracking=True)
     company_id = fields.Many2one('res.company', string='Company',
-        default=lambda self: self.env.company)
-    technician_user_id = fields.Many2one('res.users', 'Responsible', tracking=True, default=lambda self: self.env.uid)
-    color = fields.Integer('Color Index')
-    note = fields.Html('Comments', translate=True)
-    equipment_ids = fields.One2many('maintenance_housekeeping.equipment', 'category_id', string='Equipment', copy=False)
-    equipment_count = fields.Integer(string="Equipment Count", compute='_compute_equipment_count')
-    maintenance_ids = fields.One2many('maintenance_housekeeping.request', 'category_id', copy=False)
-    maintenance_count = fields.Integer(string="Maintenance Count", compute='_compute_maintenance_count')
-    maintenance_open_count = fields.Integer(string="Current Maintenance", compute='_compute_maintenance_count')
+        default=lambda self: self.env.company,tracking=True)
+    technician_user_id = fields.Many2one('res.users', 'Responsible',  default=lambda self: self.env.uid,tracking=True)
+    color = fields.Integer('Color Index',tracking=True)
+    note = fields.Html('Comments', translate=True,tracking=True)
+    equipment_ids = fields.One2many('maintenance_housekeeping.equipment', 'category_id', string='Equipment', copy=False) #
+    equipment_count = fields.Integer(string="Equipment Count", compute='_compute_equipment_count',tracking=True)
+    maintenance_ids = fields.One2many('maintenance_housekeeping.request', 'category_id', copy=False) #
+    maintenance_count = fields.Integer(string="Maintenance Count", compute='_compute_maintenance_count',tracking=True)
+    maintenance_open_count = fields.Integer(string="Current Maintenance", compute='_compute_maintenance_count',tracking=True)
     alias_id = fields.Many2one(help="Email alias for this equipment category. New emails will automatically "
-        "create a new equipment under this category.")
-    fold = fields.Boolean(string='Folded in Maintenance Pipe', compute='_compute_fold', store=True)
+        "create a new equipment under this category.",tracking=True)
+    fold = fields.Boolean(string='Folded in Maintenance Pipe', compute='_compute_fold', store=True,tracking=True)
 
     def _compute_equipment_count(self):
         equipment_data = self.env['maintenance_housekeeping.equipment']._read_group([('category_id', 'in', self.ids)], ['category_id'], ['__count'])
@@ -83,18 +85,18 @@ class MaintenanceMixinHouseKeeping(models.AbstractModel):
     _description = 'Maintenance Maintained Item'
 
     company_id = fields.Many2one('res.company', string='Company',
-        default=lambda self: self.env.company)
-    effective_date = fields.Date('Effective Date', default=fields.Date.context_today, required=True, help="This date will be used to compute the Mean Time Between Failure.")
-    maintenance_team_id = fields.Many2one('maintenance_housekeeping.team', string='Maintenance Team', compute='_compute_maintenance_team_id', store=True, readonly=False, check_company=True)
+        default=lambda self: self.env.company,tracking=True)
+    effective_date = fields.Date('Effective Date', default=fields.Date.context_today, required=True, help="This date will be used to compute the Mean Time Between Failure.",tracking=True)
+    maintenance_team_id = fields.Many2one('maintenance_housekeeping.team', string='Maintenance Team', compute='_compute_maintenance_team_id', store=True, readonly=False, check_company=True,tracking=True)
     technician_user_id = fields.Many2one('res.users', string='Technician', tracking=True)
-    maintenance_ids = fields.One2many('maintenance_housekeeping.request')  # needs to be extended in order to specify inverse_name !
-    maintenance_count = fields.Integer(compute='_compute_maintenance_count', string="Maintenance Count", store=True)
-    maintenance_open_count = fields.Integer(compute='_compute_maintenance_count', string="Current Maintenance", store=True)
-    expected_mtbf = fields.Integer(string='Expected MTBF', help='Expected Mean Time Between Failure')
-    mtbf = fields.Integer(compute='_compute_maintenance_request', string='MTBF', help='Mean Time Between Failure, computed based on done corrective maintenances.')
-    mttr = fields.Integer(compute='_compute_maintenance_request', string='MTTR', help='Mean Time To Repair')
-    estimated_next_failure = fields.Date(compute='_compute_maintenance_request', string='Estimated time before next failure (in days)', help='Computed as Latest Failure Date + MTBF')
-    latest_failure_date = fields.Date(compute='_compute_maintenance_request', string='Latest Failure Date')
+    maintenance_ids = fields.One2many('maintenance_housekeeping.request')  # needs to be extended in order to specify inverse_name ! #
+    maintenance_count = fields.Integer(compute='_compute_maintenance_count', string="Maintenance Count", store=True,tracking=True)
+    maintenance_open_count = fields.Integer(compute='_compute_maintenance_count', string="Current Maintenance", store=True,tracking=True)
+    expected_mtbf = fields.Integer(string='Expected MTBF', help='Expected Mean Time Between Failure',tracking=True)
+    mtbf = fields.Integer(compute='_compute_maintenance_request', string='MTBF', help='Mean Time Between Failure, computed based on done corrective maintenances.',tracking=True)
+    mttr = fields.Integer(compute='_compute_maintenance_request', string='MTTR', help='Mean Time To Repair',tracking=True)
+    estimated_next_failure = fields.Date(compute='_compute_maintenance_request', string='Estimated time before next failure (in days)', help='Computed as Latest Failure Date + MTBF',tracking=True)
+    latest_failure_date = fields.Date(compute='_compute_maintenance_request', string='Latest Failure Date',tracking=True)
 
     @api.depends('company_id')
     def _compute_maintenance_team_id(self):
@@ -146,23 +148,23 @@ class MaintenanceEquipmentHouseKeeping(models.Model):
             query = self._search([('name', '=', name)] + domain, limit=limit, order=order)
         return query or super()._name_search(name, domain, operator, limit, order)
 
-    name = fields.Char('Equipment Name', required=True, translate=True)
-    active = fields.Boolean(default=True)
+    name = fields.Char('Equipment Name', required=True, translate=True,tracking=True)
+    active = fields.Boolean(default=True,tracking=True)
     owner_user_id = fields.Many2one('res.users', string='Owner', tracking=True)
     category_id = fields.Many2one('maintenance_housekeeping.equipment.category', string='Equipment Category',
-                                  tracking=True, group_expand='_read_group_category_ids')
-    partner_id = fields.Many2one('res.partner', string='Vendor', check_company=True)
-    partner_ref = fields.Char('Vendor Reference')
-    location = fields.Char('Location')
-    model = fields.Char('Model')
-    serial_no = fields.Char('Serial Number', copy=False)
+                                 group_expand='_read_group_category_ids',tracking=True)
+    partner_id = fields.Many2one('res.partner', string='Vendor', check_company=True,tracking=True)
+    partner_ref = fields.Char('Vendor Reference',tracking=True)
+    location = fields.Char('Location',tracking=True)
+    model = fields.Char('Model',tracking=True)
+    serial_no = fields.Char('Serial Number', copy=False,tracking=True)
     assign_date = fields.Date('Assigned Date', tracking=True)
-    cost = fields.Float('Cost')
-    note = fields.Html('Note')
-    warranty_date = fields.Date('Warranty Expiration Date')
-    color = fields.Integer('Color Index')
-    scrap_date = fields.Date('Scrap Date')
-    maintenance_ids = fields.One2many('maintenance_housekeeping.request', 'equipment_id')
+    cost = fields.Float('Cost',tracking=True)
+    note = fields.Html('Note',tracking=True)
+    warranty_date = fields.Date('Warranty Expiration Date',tracking=True)
+    color = fields.Integer('Color Index',tracking=True)
+    scrap_date = fields.Date('Scrap Date',tracking=True)
+    maintenance_ids = fields.One2many('maintenance_housekeeping.request', 'equipment_id') #
 
     @api.onchange('category_id')
     def _onchange_category_id(self):
@@ -221,52 +223,52 @@ class MaintenanceRequestHouseKeeping(models.Model):
             team = MT.search([], limit=1)
         return team.id
 
-    name = fields.Char('Subjects', required=True)
+    name = fields.Char('Subjects', required=True,tracking=True)
     company_id = fields.Many2one('res.company', string='Company', required=True,
-        default=lambda self: self.env.company)
-    description = fields.Html('Description')
-    request_date = fields.Date('Request Date', tracking=True, default=fields.Date.context_today,
-                               help="Date requested for the maintenance to happen")
-    owner_user_id = fields.Many2one('res.users', string='Created by User', default=lambda s: s.env.uid)
-    category_id = fields.Many2one('maintenance_housekeeping.equipment.category', related='equipment_id.category_id', string='Category', store=True, readonly=True)
+        default=lambda self: self.env.company,tracking=True)
+    description = fields.Html('Description',tracking=True)
+    request_date = fields.Date('Request Date', default=fields.Date.context_today,
+                               help="Date requested for the maintenance to happen",tracking=True)
+    owner_user_id = fields.Many2one('res.users', string='Created by User', default=lambda s: s.env.uid,tracking=True)
+    category_id = fields.Many2one('maintenance_housekeeping.equipment.category', related='equipment_id.category_id', string='Category', store=True, readonly=True,tracking=True)
     equipment_id = fields.Many2one('maintenance_housekeeping.equipment', string='Equipment',
-                                   ondelete='restrict', index=True, check_company=True)
+                                   ondelete='restrict', index=True, check_company=True,tracking=True)
     user_id = fields.Many2one('res.users', string='Technician', compute='_compute_user_id', store=True, readonly=False, tracking=True)
-    stage_id = fields.Many2one('maintenance_housekeeping.stage', string='Stage', ondelete='restrict', tracking=True,
-                               group_expand='_read_group_stage_ids', default=_default_stage, copy=False)
-    priority = fields.Selection([('0', 'Very Low'), ('1', 'Low'), ('2', 'Normal'), ('3', 'High')], string='Priority')
-    color = fields.Integer('Color Index')
-    close_date = fields.Date('Close Date', help="Date the maintenance was finished. ")
+    stage_id = fields.Many2one('maintenance_housekeeping.stage', string='Stage', ondelete='restrict', 
+                               group_expand='_read_group_stage_ids', default=_default_stage, copy=False,tracking=True)
+    priority = fields.Selection([('0', 'Very Low'), ('1', 'Low'), ('2', 'Normal'), ('3', 'High')], string='Priority',tracking=True)
+    color = fields.Integer('Color Index',tracking=True)
+    close_date = fields.Date('Close Date', help="Date the maintenance was finished. ",tracking=True)
     kanban_state = fields.Selection([('normal', 'In Progress'), ('blocked', 'Blocked'), ('done', 'Ready for next stage')],
                                     string='Kanban State', required=True, default='normal', tracking=True)
     # active = fields.Boolean(default=True, help="Set active to false to hide the maintenance request without deleting it.")
-    archive = fields.Boolean(default=False, help="Set archive to true to hide the maintenance request without deleting it.")
-    maintenance_type = fields.Selection([('corrective', 'Corrective'), ('preventive', 'Preventive')], string='Maintenance Type', default="corrective")
-    schedule_date = fields.Datetime('Scheduled Date', help="Date the maintenance team plans the maintenance.  It should not differ much from the Request Date. ")
+    archive = fields.Boolean(default=False, help="Set archive to true to hide the maintenance request without deleting it.",tracking=True)
+    maintenance_type = fields.Selection([('corrective', 'Corrective'), ('preventive', 'Preventive')], string='Maintenance Type', default="corrective",tracking=True)
+    schedule_date = fields.Datetime('Scheduled Date', help="Date the maintenance team plans the maintenance.  It should not differ much from the Request Date. ",tracking=True)
     maintenance_team_id = fields.Many2one('maintenance_housekeeping.team', string='Team', required=True, default=_get_default_team_id,
-                                          compute='_compute_maintenance_team_id', store=True, readonly=False, check_company=True)
-    duration = fields.Float(help="Duration in hours.")
-    done = fields.Boolean(related='stage_id.done')
+                                          compute='_compute_maintenance_team_id', store=True, readonly=False, check_company=True,tracking=True)
+    duration = fields.Float(help="Duration in hours.",tracking=True)
+    done = fields.Boolean(related='stage_id.done',tracking=True)
     instruction_type = fields.Selection([
         ('pdf', 'PDF'), ('google_slide', 'Google Slide'), ('text', 'Text')],
         string="Instruction", default="text"
-    )
-    instruction_pdf = fields.Binary('PDF')
-    instruction_google_slide = fields.Char('Google Slide', help="Paste the url of your Google Slide. Make sure the access to the document is public.")
-    instruction_text = fields.Html('Text')
-    recurring_maintenance = fields.Boolean(string="Recurrent", compute='_compute_recurring_maintenance', store=True, readonly=False)
-    repeat_interval = fields.Integer(string='Repeat Every', default=1)
+    ,tracking=True)
+    instruction_pdf = fields.Binary('PDF',tracking=True)
+    instruction_google_slide = fields.Char('Google Slide', help="Paste the url of your Google Slide. Make sure the access to the document is public.",tracking=True)
+    instruction_text = fields.Html('Text',tracking=True)
+    recurring_maintenance = fields.Boolean(string="Recurrent", compute='_compute_recurring_maintenance', store=True, readonly=False,tracking=True)
+    repeat_interval = fields.Integer(string='Repeat Every', default=1,tracking=True)
     repeat_unit = fields.Selection([
         ('day', 'Days'),
         ('week', 'Weeks'),
         ('month', 'Months'),
         ('year', 'Years'),
-    ], default='week')
+    ], default='week',tracking=True)
     repeat_type = fields.Selection([
         ('forever', 'Forever'),
         ('until', 'Until'),
-    ], default="forever", string="Until")
-    repeat_until = fields.Date(string="End Date")
+    ], default="forever", string="Until",tracking=True)
+    repeat_until = fields.Date(string="End Date",tracking=True)
 
     def archive_equipment_request(self):
         self.write({'archive': True, 'recurring_maintenance': False})
@@ -390,25 +392,26 @@ class MaintenanceRequestHouseKeeping(models.Model):
 class MaintenanceTeamHouseKeeping(models.Model):
     _name = 'maintenance_housekeeping.team'
     _description = 'Maintenance Teams'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char('Team Name', required=True, translate=True)
-    active = fields.Boolean(default=True)
+    name = fields.Char('Team Name', required=True, translate=True,tracking=True)
+    active = fields.Boolean(default=True,tracking=True)
     company_id = fields.Many2one('res.company', string='Company',
-        default=lambda self: self.env.company)
+        default=lambda self: self.env.company,tracking=True)
     member_ids = fields.Many2many(
         'res.users', 'maintenance_housekeping_team_users_rel', string="Team Members",
-        domain="[('company_ids', 'in', company_id)]")
-    color = fields.Integer("Color Index", default=0)
-    request_ids = fields.One2many('maintenance_housekeeping.request', 'maintenance_team_id', copy=False)
-    equipment_ids = fields.One2many('maintenance_housekeeping.equipment', 'maintenance_team_id', copy=False)
+        domain="[('company_ids', 'in', company_id)]",tracking=True)
+    color = fields.Integer("Color Index", default=0,tracking=True)
+    request_ids = fields.One2many('maintenance_housekeeping.request', 'maintenance_team_id', copy=False) #
+    equipment_ids = fields.One2many('maintenance_housekeeping.equipment', 'maintenance_team_id', copy=False) #
 
     # For the dashboard only
-    todo_request_ids = fields.One2many('maintenance_housekeeping.request', string="Requests", copy=False, compute='_compute_todo_requests')
-    todo_request_count = fields.Integer(string="Number of Requests", compute='_compute_todo_requests')
-    todo_request_count_date = fields.Integer(string="Number of Requests Scheduled", compute='_compute_todo_requests')
-    todo_request_count_high_priority = fields.Integer(string="Number of Requests in High Priority", compute='_compute_todo_requests')
-    todo_request_count_block = fields.Integer(string="Number of Requests Blocked", compute='_compute_todo_requests')
-    todo_request_count_unscheduled = fields.Integer(string="Number of Requests Unscheduled", compute='_compute_todo_requests')
+    todo_request_ids = fields.One2many('maintenance_housekeeping.request', string="Requests", copy=False, compute='_compute_todo_requests')#
+    todo_request_count = fields.Integer(string="Number of Requests", compute='_compute_todo_requests',tracking=True)
+    todo_request_count_date = fields.Integer(string="Number of Requests Scheduled", compute='_compute_todo_requests',tracking=True)
+    todo_request_count_high_priority = fields.Integer(string="Number of Requests in High Priority", compute='_compute_todo_requests',tracking=True)
+    todo_request_count_block = fields.Integer(string="Number of Requests Blocked", compute='_compute_todo_requests',tracking=True)
+    todo_request_count_unscheduled = fields.Integer(string="Number of Requests Unscheduled", compute='_compute_todo_requests',tracking=True)
 
     @api.depends('request_ids.stage_id.done')
     def _compute_todo_requests(self):

@@ -182,4 +182,8 @@ class GroupBookingPerson(models.Model):
     age = fields.Integer(string='Age', required=True)
     address = fields.Char(string='Address', required=True,tracking=True)
     image = fields.Binary(string="Document", help="Document of the Person",tracking=True)
+    document_name = fields.Char(string="Document Name", tracking=True)
     group_booking_id = fields.Many2one('group.booking', string='Group Booking', required=True, ondelete='cascade',tracking=True)
+
+    
+    

@@ -7,6 +7,7 @@ from odoo import fields, models
 class ResBranch(models.Model):
     _name = "res.branch"
     _description = "branch"
+    
 
     name = fields.Char(required=True)
     partner_id = fields.Many2one("res.partner", string="Branch Manager")

@@ -1,24 +1,4 @@
-# -*- coding: utf-8 -*-
-###############################################################################
-#
-#    Cybrosys Technologies Pvt. Ltd.
-#
-#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Vishnu K P (odoo@cybrosys.com)
-#
-#    You can modify it under the terms of the GNU LESSER
-#    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU LESSER GENERAL PUBLIC LICENSE (LGPL v3) for more details.
-#
-#    You should have received a copy of the GNU LESSER GENERAL PUBLIC LICENSE
-#    (LGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
-#
-###############################################################################
+
 from odoo import api, fields, models
 
 
@@ -27,30 +7,32 @@ class EventBookingLine(models.Model):
     _name = "event.booking.line"
     _description = "Hotel Event Line"
     _rec_name = 'event_id'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
 
     booking_id = fields.Many2one("room.booking", string="Booking",
                                  help="Choose room booking reference",
-                                 ondelete="cascade")
+                                 ondelete="cascade",tracking=True)
     event_id = fields.Many2one('event.event', string="Event",
-                               help="Choose the Event")
+                               help="Choose the Event",tracking=True)
     ticket_id = fields.Many2one('product.product', string="Ticket",
                                 help="Choose the Ticket Type",
-                                domain=[('detailed_type', '=', 'event')])
+                                domain=[('detailed_type', '=', 'event')],tracking=True)
     description = fields.Char(string='Description', help="Detailed "
                                                          "description of the "
                                                          "event",
-                              related='event_id.display_name')
+                              related='event_id.display_name',tracking=True)
     uom_qty = fields.Float(string="Quantity", default=1,
                            help="The quantity converted into the UoM used by "
-                                "the product")
+                                "the product",tracking=True)
     uom_id = fields.Many2one('uom.uom', readonly=True,
                              string="Unit of Measure",
                              related='ticket_id.uom_id', help="This will set "
                                                               "the unit of"
-                                                              " measure used")
+                                                              " measure used",tracking=True)
     price_unit = fields.Float(related='ticket_id.lst_price', string='Price',
                               digits='Product Price',
-                              help="The selling price of the selected ticket.")
+                              help="The selling price of the selected ticket.",tracking=True)
     tax_ids = fields.Many2many('account.tax',
                                'hotel_event_order_line_taxes_rel',
                                'event_id',
@@ -58,22 +40,22 @@ class EventBookingLine(models.Model):
                                string='Taxes',
                                help="Default taxes used when selling the event"
                                     "tickets.",
-                               domain=[('type_tax_use', '=', 'sale')])
+                               domain=[('type_tax_use', '=', 'sale')],tracking=True)
     currency_id = fields.Many2one(
         related='booking_id.pricelist_id.currency_id', string='Currency',
-        help='The currency used', store=True, precompute=True)
+        help='The currency used', store=True, precompute=True,tracking=True)
     price_subtotal = fields.Float(string="Subtotal",
                                   compute='_compute_price_subtotal',
-                                  help="Total Price Excluding Tax", store=True)
+                                  help="Total Price Excluding Tax", store=True,tracking=True)
     price_tax = fields.Float(string="Total Tax",
                              compute='_compute_price_subtotal',
-                             help="Tax Amount", store=True)
+                             help="Tax Amount", store=True,tracking=True)
     price_total = fields.Float(string="Total",
                                compute='_compute_price_subtotal',
-                               help="Total Price Including Tax", store=True)
+                               help="Total Price Including Tax", store=True,tracking=True)
     state = fields.Selection(related='booking_id.state',
                              string="Order Status",
-                             help="State of Room Booking", copy=False)
+                             help="State of Room Booking", copy=False,tracking=True)
 
     @api.depends('uom_qty', 'price_unit', 'tax_ids')
     def _compute_price_subtotal(self):

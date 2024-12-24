@@ -81,5 +81,130 @@
         <field name="perm_unlink" eval="1"/>
     </record>
 
+    <!-- Hotel Management Access Groups Category -->
+    <record id="module_category_hotel_management" model="ir.module.category">
+        <field name="name">Hotel Management</field>
+        <field name="description">Hotel Management Access Groups</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- SYSTEM ADMIN Group -->
+    <record id="system_admin_group" model="res.groups">
+        <field name="name">System Admin</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+        <!-- Inherits full access to settings -->
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+
+    <!-- HOTEL MANAGER Group -->
+    <record id="hotel_manager_group" model="res.groups">
+        <field name="name">Hotel Manager</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+        <!-- Implied access to read-only settings group -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+   
+
+    <!-- REVENUE MANAGER Group -->
+    <record id="revenue_manager_group" model="res.groups">
+        <field name="name">Revenue Manager</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+    </record>
+
+    <!-- FRONTDESK STAFF Group -->
+    <record id="frontdesk_staff_group" model="res.groups">
+        <field name="name">Frontdesk Staff</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+    </record>
+
+    <!-- RESERVATION STAFF Group -->
+    <record id="reservation_staff_group" model="res.groups">
+        <field name="name">Reservation Staff</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+    </record>
+
+    <!-- CONCIERGE STAFF Group -->
+    <record id="concierge_staff_group" model="res.groups">
+        <field name="name">Concierge Staff</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+    </record>
+    <!-- System Admin Group: Full Access -->
+    <record id="access_fsm_location_system_admin" model="ir.model.access">
+        <field name="name">fsm.location Full Access for System Admin</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management_odoo.system_admin_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Revenue Manager Group: Full Access -->
+    <record id="access_fsm_location_revenue_manager" model="ir.model.access">
+        <field name="name">fsm.location Full Access for Revenue Manager</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management_odoo.revenue_manager_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Hotel Manager Group: Read/Write, No Create/Delete -->
+    <record id="access_fsm_location_hotel_manager" model="ir.model.access">
+        <field name="name">fsm.location Read/Write for Hotel Manager</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management_odoo.hotel_manager_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+      <record id="access_fsm_location_frontdesk_reservation_staff" model="ir.model.access">
+        <field name="name">fsm.location Read Only for Frontdesk and Reservation Staff</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management_odoo.reservation_staff_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="access_fsm_location_frontdesk_reservation_staff" model="ir.model.access">
+        <field name="name">fsm.location Read Only for Frontdesk and Reservation Staff</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management_odoo.frontdesk_staff_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="crs_user_group" model="res.groups">
+        <field name="name">CRS User</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+    </record>
+
+    <record id="access_room_booking_crs_user" model="ir.model.access">
+        <field name="name">Room Booking Access for CRS User</field>
+        <field name="model_id" ref="hotel_management_odoo.model_room_booking"/>
+        <field name="group_id" ref="hotel_management_odoo.crs_user_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="crs_admin_group" model="res.groups">
+        <field name="name">CRS Admin</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+    </record>
+
+    <record id="access_room_booking_crs_admin" model="ir.model.access">
+        <field name="name">Room Booking Access for CRS Admin</field>
+        <field name="model_id" ref="hotel_management_odoo.model_room_booking"/>
+        <field name="group_id" ref="hotel_management_odoo.crs_admin_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
 
 </odoo>

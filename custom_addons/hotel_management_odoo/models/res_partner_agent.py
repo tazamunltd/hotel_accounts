@@ -27,8 +27,10 @@ from odoo import models, fields
 class Agent(models.Model):
     _name = 'agent.agent'
     _description = 'Agent'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(string="Agent Name", required=True, help="Name of the Agent")
-    address = fields.Char(string="Address", help="Address of the Agent")
-    image = fields.Binary(string="Agent Image", help="Image of the Agent")
+
+    name = fields.Char(string="Agent Name", required=True, help="Name of the Agent",tracking=True)
+    address = fields.Char(string="Address", help="Address of the Agent",tracking=True)
+    image = fields.Binary(string="Agent Image", help="Image of the Agent",tracking=True)
 

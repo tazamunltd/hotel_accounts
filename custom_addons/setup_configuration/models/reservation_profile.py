@@ -155,143 +155,144 @@ class ReservationProfile(models.Model):
 class ReservationProfileMain(models.Model):
     _name = 'reservation.profile.main'
     _description = 'Reservation Profile Main'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    profile_id = fields.Char(string='Profile ID', required=True)
-    profile_category = fields.Many2one('profile.category',string='Profile Category')
-    last_name = fields.Char(string='Last Name')
-    first_name = fields.Char(string='First Name')
-    passport_number = fields.Char(string='Passport')
-    id_number = fields.Char(string='ID Number')
-    house_use = fields.Boolean(string='House Use')
-    vip = fields.Boolean(string='VIP')
-    complementary = fields.Boolean(string='Complementary')
+    profile_id = fields.Char(string='Profile ID', required=True,tracking=True)
+    profile_category = fields.Many2one('profile.category',string='Profile Category',tracking=True)
+    last_name = fields.Char(string='Last Name',tracking=True)
+    first_name = fields.Char(string='First Name',tracking=True)
+    passport_number = fields.Char(string='Passport',tracking=True)
+    id_number = fields.Char(string='ID Number',tracking=True)
+    house_use = fields.Boolean(string='House Use',tracking=True)
+    vip = fields.Boolean(string='VIP',tracking=True)
+    complementary = fields.Boolean(string='Complementary',tracking=True)
     
     payment_type = fields.Selection([
         ('cash', 'Cash Payment'),
         ('credit_limit', 'Credit Limit (C/L)'),
         ('credit_card', 'Credit Card'),
         ('other', 'Other Payment')
-    ], string='Payment Type')
+    ], string='Payment Type',tracking=True)
 
-    nationality = fields.Many2one('res.country', string='Nationality')
-    source_of_business = fields.Many2one('source.business', string='Source of Business')
-    market_segment = fields.Many2one('market.segment', string='Market Segment')
+    nationality = fields.Many2one('res.country', string='Nationality',tracking=True)
+    source_of_business = fields.Many2one('source.business', string='Source of Business',tracking=True)
+    market_segment = fields.Many2one('market.segment', string='Market Segment',tracking=True)
     meal_pattern = fields.Selection([
         ('ro', 'Room Only'),
         ('bb', 'Bed & Breakfast'),
         ('hb', 'Half Board'),
         ('fb', 'Full Board')
-    ], string='Meal Pattern')
-    reservation_meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern')
+    ], string='Meal Pattern',tracking=True)
+    reservation_meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern',tracking=True)
     
-    rate_code = fields.Many2one('rate.code',string='Rate Code')
+    rate_code = fields.Many2one('rate.code',string='Rate Code',tracking=True)
 
     status = fields.Selection([
         ('active', 'Active'),
         ('black_list', 'Black List'),
         ('obsolete', 'Obsolete')
-    ], string='Status', default='active')
+    ], string='Status', default='active',tracking=True)
 
     # Related buttons for additional actions
-    documents = fields.Binary(string='Documents')
-    guest_comments = fields.Text(string='Guest Comments')
-    job_title = fields.Char(string='Job Title')
-    employer_company = fields.Many2one('res.company', string='Employer/Company')
-    position = fields.Char(string='Position')
-    salutation = fields.Char(string='Salutation')
-    currency = fields.Many2one('res.currency', string='Currency')
-    spouse_name = fields.Char(string='Spouse Name')
-    language = fields.Many2one('res.lang', string='Language')
-    rank = fields.Char(string='Rank')
-    birthday = fields.Date(string='Birthday')
-    birth_place = fields.Char(string='Birth Place')
-    gender = fields.Selection([('male', 'Male'), ('female', 'Female')], string='Gender')
-    spouse_birthday = fields.Date(string='Spouse Birthday')
-    documents = fields.Binary(string='Documents')
-    guest_comments = fields.Text(string='Guest Comments')
+    documents = fields.Binary(string='Documents',tracking=True)
+    guest_comments = fields.Text(string='Guest Comments',tracking=True)
+    job_title = fields.Char(string='Job Title',tracking=True)
+    employer_company = fields.Many2one('res.company', string='Employer/Company',tracking=True)
+    position = fields.Char(string='Position',tracking=True)
+    salutation = fields.Char(string='Salutation',tracking=True)
+    currency = fields.Many2one('res.currency', string='Currency',tracking=True)
+    spouse_name = fields.Char(string='Spouse Name',tracking=True)
+    language = fields.Many2one('res.lang', string='Language',tracking=True)
+    rank = fields.Char(string='Rank',tracking=True)
+    birthday = fields.Date(string='Birthday',tracking=True)
+    birth_place = fields.Char(string='Birth Place',tracking=True)
+    gender = fields.Selection([('male', 'Male'), ('female', 'Female')], string='Gender',tracking=True)
+    spouse_birthday = fields.Date(string='Spouse Birthday',tracking=True)
+    documents = fields.Binary(string='Documents',tracking=True)
+    guest_comments = fields.Text(string='Guest Comments',tracking=True)
 
     # Fields for the Information page
-    special_rate = fields.Char(string='Special Rate')
-    extra_features = fields.Char(string='Extra Features')
-    preferred_room_type = fields.Char(string='Preferred Room Type')
-    preferred_room = fields.Char(string='Preferred Room')
-    expected_room = fields.Char(string='Expected Room')
-    comments = fields.Text(string='Comments')
-    total_points = fields.Integer(string='Total Points')
-    user_sort = fields.Char(string='User Sort')
+    special_rate = fields.Char(string='Special Rate',tracking=True)
+    extra_features = fields.Char(string='Extra Features',tracking=True)
+    preferred_room_type = fields.Char(string='Preferred Room Type',tracking=True)
+    preferred_room = fields.Char(string='Preferred Room',tracking=True)
+    expected_room = fields.Char(string='Expected Room',tracking=True)
+    comments = fields.Text(string='Comments',tracking=True)
+    total_points = fields.Integer(string='Total Points',tracking=True)
+    user_sort = fields.Char(string='User Sort',tracking=True)
 
-    first_visit = fields.Date(string='First Visit')
-    last_visit = fields.Date(string='Last Visit')
-    last_rate = fields.Char(string='Last Rate')
-    last_room = fields.Char(string='Last Room')
-    booking_rate = fields.Char(string='Booking Rate')
-    total_stays = fields.Integer(string='Total Stays')
-    total_nights = fields.Integer(string='Total Nights')
-    total_cancellations = fields.Integer(string='Total Cancellations')
-    total_no_shows = fields.Integer(string='Total No Shows')
-    total_revenue = fields.Float(string='Total Revenue')
+    first_visit = fields.Date(string='First Visit',tracking=True)
+    last_visit = fields.Date(string='Last Visit',tracking=True)
+    last_rate = fields.Char(string='Last Rate',tracking=True)
+    last_room = fields.Char(string='Last Room',tracking=True)
+    booking_rate = fields.Char(string='Booking Rate',tracking=True)
+    total_stays = fields.Integer(string='Total Stays',tracking=True)
+    total_nights = fields.Integer(string='Total Nights',tracking=True)
+    total_cancellations = fields.Integer(string='Total Cancellations',tracking=True)
+    total_no_shows = fields.Integer(string='Total No Shows',tracking=True)
+    total_revenue = fields.Float(string='Total Revenue',tracking=True)
 
     # Address Information from res.company
-    address_ids = fields.One2many('res.partner', 'company_id', string='Profile Address')
-    country_id = fields.Many2one('res.country', string='Country', related='address_ids.country_id', readonly=False)
-    state_id = fields.Many2one('res.country.state', string='State', related='address_ids.state_id', readonly=False)
-    city = fields.Char(related='address_ids.city', string='City', readonly=False)
-    zip_code = fields.Char(related='address_ids.zip', string='Zip Code', readonly=False)
-    street = fields.Char(related='address_ids.street', string='Street', readonly=False)
-    address_type = fields.Char(string='Address Type')
-    user_sort = fields.Char(string='User Sort')
-    is_obsolete = fields.Boolean(string='Obsolete')
-    is_primary = fields.Boolean(string='Primary')
-    comments = fields.Text(string='Comments')
+    address_ids = fields.One2many('res.partner', 'company_id', string='Profile Address') #
+    country_id = fields.Many2one('res.country', string='Country', related='address_ids.country_id', readonly=False,tracking=True)
+    state_id = fields.Many2one('res.country.state', string='State', related='address_ids.state_id', readonly=False,tracking=True)
+    city = fields.Char(related='address_ids.city', string='City', readonly=False,tracking=True)
+    zip_code = fields.Char(related='address_ids.zip', string='Zip Code', readonly=False,tracking=True)
+    street = fields.Char(related='address_ids.street', string='Street', readonly=False,tracking=True)
+    address_type = fields.Char(string='Address Type',tracking=True)
+    user_sort = fields.Char(string='User Sort',tracking=True)
+    is_obsolete = fields.Boolean(string='Obsolete',tracking=True)
+    is_primary = fields.Boolean(string='Primary',tracking=True)
+    comments = fields.Text(string='Comments',tracking=True)
 
     _rec_name = 'profile_id'
-    profile_id = fields.Char(string='Profile ID', required=True)
-    method_type = fields.Char(string='Method Type')
-    description = fields.Text(string='Description')
-    user_sort = fields.Char(string='User Sort')
-    is_primary = fields.Boolean(string='Primary')
-    is_obsolete = fields.Boolean(string='Obsolete')
+    profile_id = fields.Char(string='Profile ID', required=True,tracking=True)
+    method_type = fields.Char(string='Method Type',tracking=True)
+    description = fields.Text(string='Description',tracking=True)
+    user_sort = fields.Char(string='User Sort',tracking=True)
+    is_primary = fields.Boolean(string='Primary',tracking=True)
+    is_obsolete = fields.Boolean(string='Obsolete',tracking=True)
 
-    contact_method_type = fields.Char(string='Method Type')
-    contact_method_description = fields.Text(string='Description')
-    contact_method_user_sort = fields.Char(string='User Sort')
-    contact_method_is_primary = fields.Boolean(string='Primary')
-    contact_method_is_obsolete = fields.Boolean(string='Obsolete')
+    contact_method_type = fields.Char(string='Method Type',tracking=True)
+    contact_method_description = fields.Text(string='Description',tracking=True)
+    contact_method_user_sort = fields.Char(string='User Sort',tracking=True)
+    contact_method_is_primary = fields.Boolean(string='Primary',tracking=True)
+    contact_method_is_obsolete = fields.Boolean(string='Obsolete',tracking=True)
 
     # Image field for the "Image" page
-    image = fields.Binary(string="Profile Picture")
+    image = fields.Binary(string="Profile Picture",tracking=True)
 
     # Credit Card fields
-    card_type = fields.Char(string='Card Type')
-    card_number = fields.Char(string='Card Number')
-    card_holder_name = fields.Char(string='Holder Name')
-    card_expiry_date = fields.Date(string='Expiry Date')
+    card_type = fields.Char(string='Card Type',tracking=True)
+    card_number = fields.Char(string='Card Number',tracking=True)
+    card_holder_name = fields.Char(string='Holder Name',tracking=True)
+    card_expiry_date = fields.Date(string='Expiry Date',tracking=True)
 
     # Linked Profiles fields
-    linked_profile_id = fields.Char(string='Linked Profile ID')
-    linked_profile_description = fields.Text(string='Description')
+    linked_profile_id = fields.Char(string='Linked Profile ID',tracking=True)
+    linked_profile_description = fields.Text(string='Description',tracking=True)
 
     # Membership Card fields
-    membership_type = fields.Char(string='Membership Type')
-    membership_card_number = fields.Char(string='Card Number')
-    membership_description = fields.Text(string='Description')
-    membership_expiry_date = fields.Date(string='Expiry Date')
+    membership_type = fields.Char(string='Membership Type',tracking=True)
+    membership_card_number = fields.Char(string='Card Number',tracking=True)
+    membership_description = fields.Text(string='Description',tracking=True)
+    membership_expiry_date = fields.Date(string='Expiry Date',tracking=True)
 
     # Notes fields
-    note_category = fields.Char(string='Note Category')
-    note_description = fields.Text(string='Description')
-    note_expiry_date = fields.Datetime(string='Expiry Date')
-    note_created_by = fields.Many2one('res.users', string='Created By', default=lambda self: self.env.user.id)
-    note_not_for_guest = fields.Boolean(string='Not For Guest')
+    note_category = fields.Char(string='Note Category',tracking=True)
+    note_description = fields.Text(string='Description',tracking=True)
+    note_expiry_date = fields.Datetime(string='Expiry Date',tracking=True)
+    note_created_by = fields.Many2one('res.users', string='Created By', default=lambda self: self.env.user.id,tracking=True)
+    note_not_for_guest = fields.Boolean(string='Not For Guest',tracking=True)
 
     # Profile Tree field
-    profile_tree_description = fields.Text(string='Profile Tree')
+    profile_tree_description = fields.Text(string='Profile Tree',tracking=True)
 
     # Add Attributes field
-    additional_attributes = fields.Text(string='Additional Attributes')
+    additional_attributes = fields.Text(string='Additional Attributes',tracking=True)
 
     # HTML Content field
-    html_content = fields.Html(string='HTML Content')
+    html_content = fields.Html(string='HTML Content',tracking=True)
 
     def export_html(self):
         """Placeholder for export HTML action."""
@@ -317,19 +318,19 @@ class ReservationGroupProfile(models.Model):
         pass
 
     # Main fields
-    profile_id = fields.Char(string='Profile ID', required=True)
-    group_name = fields.Char(string='Group Name')
-    company = fields.Char(string='Company')
-    nationality = fields.Many2one('res.country', string='Nationality')
-    source_of_business = fields.Char(string='Source of Business')
+    profile_id = fields.Char(string='Profile ID', required=True,tracking=True)
+    group_name = fields.Char(string='Group Name',tracking=True)
+    company = fields.Char(string='Company',tracking=True)
+    nationality = fields.Many2one('res.country', string='Nationality',tracking=True)
+    source_of_business = fields.Char(string='Source of Business',tracking=True)
     status_code = fields.Selection([
         ('confirmed', 'Confirmed'),
         ('pending', 'Pending'),
         ('canceled', 'Canceled'),
-    ], string='Status Code')
+    ], string='Status Code',tracking=True)
 
-    house_use = fields.Boolean(string='House Use')
-    complimentary = fields.Boolean(string='Complimentary')
+    house_use = fields.Boolean(string='House Use',tracking=True)
+    complimentary = fields.Boolean(string='Complimentary',tracking=True)
 
     # Payment details
     payment_type = fields.Selection([
@@ -338,52 +339,52 @@ class ReservationGroupProfile(models.Model):
         ('credit_limit', 'Credit (C/L)'),
         ('credit_card', 'Credit Card'),
         ('other', 'Other Payment'),
-    ], string='Payment Type')
+    ], string='Payment Type',tracking=True)
 
-    master_folio_limit = fields.Float(string='Master Folio C. Limit')
+    master_folio_limit = fields.Float(string='Master Folio C. Limit',tracking=True)
 
     # Rate and Market details
-    rate_code = fields.Char(string='Rate Code')
+    rate_code = fields.Char(string='Rate Code',tracking=True)
     meal_pattern = fields.Selection([
         ('ro', 'Room Only'),
         ('bb', 'Bed & Breakfast'),
         ('hb', 'Half Board'),
         ('fb', 'Full Board'),
-    ], string='Meal Pattern')
-    market_segment = fields.Char(string='Market Segment')
+    ], string='Meal Pattern',tracking=True)
+    market_segment = fields.Char(string='Market Segment',tracking=True)
 
     # Reference details
-    reference = fields.Char(string='Reference')
-    allotment = fields.Char(string='Allotment')
+    reference = fields.Char(string='Reference',tracking=True)
+    allotment = fields.Char(string='Allotment',tracking=True)
 
     # Additional fields
-    allow_profile_change = fields.Boolean(string='Allow changing profile data in the reservation form?')
-    country_id = fields.Many2one('res.country', string='Country')
-    street = fields.Char(string='Street')
-    city = fields.Char(string='City')
-    zip_code = fields.Char(string='Zip Code')
-    billing_address = fields.Char(string='Billing Address')
+    allow_profile_change = fields.Boolean(string='Allow changing profile data in the reservation form?',tracking=True)
+    country_id = fields.Many2one('res.country', string='Country',tracking=True)
+    street = fields.Char(string='Street',tracking=True)
+    city = fields.Char(string='City',tracking=True)
+    zip_code = fields.Char(string='Zip Code',tracking=True)
+    billing_address = fields.Char(string='Billing Address',tracking=True)
     
-    contact_leader = fields.Char(string='Contact / Leader')
-    phone_1 = fields.Char(string='Phone 1')
-    phone_2 = fields.Char(string='Phone 2')
-    mobile = fields.Char(string='Mobile')
-    email_address = fields.Char(string='E-Mail Address')
+    contact_leader = fields.Char(string='Contact / Leader',tracking=True)
+    phone_1 = fields.Char(string='Phone 1',tracking=True)
+    phone_2 = fields.Char(string='Phone 2',tracking=True)
+    mobile = fields.Char(string='Mobile',tracking=True)
+    email_address = fields.Char(string='E-Mail Address',tracking=True)
 
 
-    expected_rooms = fields.Integer(string='Expected Rooms')
-    user_sort = fields.Char(string='User Sort')
-    comments = fields.Text(string='Comments')
+    expected_rooms = fields.Integer(string='Expected Rooms',tracking=True)
+    user_sort = fields.Char(string='User Sort',tracking=True)
+    comments = fields.Text(string='Comments',tracking=True)
 
     # Statistics fields
-    first_visit = fields.Date(string='First Visit')
-    last_visit = fields.Date(string='Last Visit')
-    last_rate = fields.Float(string='Last Rate')
-    total_stays = fields.Integer(string='Total Stays')
-    total_nights = fields.Integer(string='Total Nights')
-    total_cancellations = fields.Integer(string='Total Cancellations')
-    total_no_shows = fields.Integer(string='Total No Shows')
-    total_revenue = fields.Float(string='Total Revenue')
+    first_visit = fields.Date(string='First Visit',tracking=True)
+    last_visit = fields.Date(string='Last Visit',tracking=True)
+    last_rate = fields.Float(string='Last Rate',tracking=True)
+    total_stays = fields.Integer(string='Total Stays',tracking=True)
+    total_nights = fields.Integer(string='Total Nights',tracking=True)
+    total_cancellations = fields.Integer(string='Total Cancellations',tracking=True)
+    total_no_shows = fields.Integer(string='Total No Shows',tracking=True)
+    total_revenue = fields.Float(string='Total Revenue',tracking=True)
 
     # reservation_ids = fields.One2many('reservation.group.line', 'profile_id', string='Reservations')
 
@@ -393,93 +394,93 @@ class ReservationReservationMain(models.Model):
     _description = 'Reservation Reservation Main'
 
     # One2many relation for Adults
-    adult_ids = fields.One2many('reservation.adults', 'reservation_id', string='Adults')
-    child_ids = fields.One2many('reservation.childs', 'reservation_id', string='Children')
-    infant_ids = fields.One2many('reservation.infants', 'reservation_id', string='Infants')
+    adult_ids = fields.One2many('reservation.adults', 'reservation_id', string='Adults')#
+    child_ids = fields.One2many('reservation.childs', 'reservation_id', string='Children')#
+    infant_ids = fields.One2many('reservation.infants', 'reservation_id', string='Infants')#
 
-    linked_profile_id = fields.Many2one('reservation.profile.main', string='Linked Profile ID')
+    linked_profile_id = fields.Many2one('reservation.profile.main', string='Linked Profile ID',tracking=True)
 
     # One2many relation for Profiles
-    profile_ids = fields.One2many('reservation.reservations.profile', 'profile_reservation_id', string='Profiles')
+    profile_ids = fields.One2many('reservation.reservations.profile', 'profile_reservation_id', string='Profiles')#
 
     # Guest details
-    guest_id = fields.Char(string='Guest ID', required=True)
-    last_name = fields.Char(string='Last Name')
-    first_name = fields.Char(string='First Name')
-    room_number = fields.Char(string='Room Number')
-    no_of_rooms = fields.Integer(string='No. of Rooms')
-    pax_per_room = fields.Integer(string='Pax/Room')
-    suite = fields.Boolean(string='Suite')
-    no_smoking = fields.Boolean(string='No Smoking')
+    guest_id = fields.Char(string='Guest ID', required=True,tracking=True)
+    last_name = fields.Char(string='Last Name',tracking=True)
+    first_name = fields.Char(string='First Name',tracking=True)
+    room_number = fields.Char(string='Room Number',tracking=True)
+    no_of_rooms = fields.Integer(string='No. of Rooms',tracking=True)
+    pax_per_room = fields.Integer(string='Pax/Room',tracking=True)
+    suite = fields.Boolean(string='Suite',tracking=True)
+    no_smoking = fields.Boolean(string='No Smoking',tracking=True)
 
     # Date fields
-    arrival_date = fields.Datetime(string='Arrival Date')
-    nights = fields.Integer(string='Nights')
-    departure_date = fields.Datetime(string='Departure Date')
+    arrival_date = fields.Datetime(string='Arrival Date',tracking=True)
+    nights = fields.Integer(string='Nights',tracking=True)
+    departure_date = fields.Datetime(string='Departure Date',tracking=True)
 
     # Reservation details
-    rate_code = fields.Char(string='Rate Code')
+    rate_code = fields.Char(string='Rate Code',tracking=True)
     meal_pattern = fields.Selection([
         ('ro', 'Room Only'),
         ('bb', 'Bed & Breakfast'),
         ('hb', 'Half Board'),
         ('fb', 'Full Board'),
-    ], string='Meal Pattern')
+    ], string='Meal Pattern',tracking=True)
     status_code = fields.Selection([
         ('confirmed', 'Confirmed'),
         ('pending', 'Pending'),
         ('canceled', 'Canceled'),
-    ], string='Status Code')
-    company = fields.Char(string='Company')
-    nationality = fields.Many2one('res.country', string='Nationality')
+    ], string='Status Code',tracking=True)
+    company = fields.Char(string='Company',tracking=True)
+    nationality = fields.Many2one('res.country', string='Nationality',tracking=True)
 
     # Group information and room allocation
-    group_profile_id = fields.Many2one('reservation.group.profile', string='Group Profile ID')
-    default_profile_id = fields.Many2one('reservation.profile.main', string='Default Profile ID')
+    group_profile_id = fields.Many2one('reservation.group.profile', string='Group Profile ID',tracking=True)
+    default_profile_id = fields.Many2one('reservation.profile.main', string='Default Profile ID',tracking=True)
     room_type = fields.Selection([
         ('single', 'Single'),
         ('double', 'Double'),
         ('suite', 'Suite'),
         ('quad', 'Quadruple'),
-    ], string='Room Type')
-    total_children = fields.Integer(string='Total Children')
-    total_infants = fields.Integer(string='Total Infants')
-    total_extra_beds = fields.Integer(string='Extra Beds')
-    companions = fields.Char(string='Companions')
+    ], string='Room Type',tracking=True)
+    total_children = fields.Integer(string='Total Children',tracking=True)
+    total_infants = fields.Integer(string='Total Infants',tracking=True)
+    total_extra_beds = fields.Integer(string='Extra Beds',tracking=True)
+    companions = fields.Char(string='Companions',tracking=True)
 
     # Allotment and financials
-    allotment_value = fields.Float(string='Allotment Value')
-    rate_value = fields.Float(string='Rate Value')
-    meal_value = fields.Float(string='Meal Value')
-    release_date = fields.Date(string='Release Date')
-    discount_rate = fields.Float(string='Discount % of Rate')
-    discount_meals = fields.Float(string='Discount % of Meals')
+    allotment_value = fields.Float(string='Allotment Value',tracking=True)
+    rate_value = fields.Float(string='Rate Value',tracking=True)
+    meal_value = fields.Float(string='Meal Value',tracking=True)
+    release_date = fields.Date(string='Release Date',tracking=True)
+    discount_rate = fields.Float(string='Discount % of Rate',tracking=True)
+    discount_meals = fields.Float(string='Discount % of Meals',tracking=True)
 
     # Source and segment
-    source_of_business = fields.Char(string='Source of Business')
-    market_segment = fields.Char(string='Market Segment')
+    source_of_business = fields.Char(string='Source of Business',tracking=True)
+    market_segment = fields.Char(string='Market Segment',tracking=True)
 
     # Additional remarks
-    remarks = fields.Text(string='Remarks')
-    group_comments = fields.Text(string='Group Comments')
+    remarks = fields.Text(string='Remarks',tracking=True)
+    group_comments = fields.Text(string='Group Comments',tracking=True)
 
 
     # Fields for Optionals Page
-    how_taken = fields.Char(string='How Taken')
+    how_taken = fields.Char(string='How Taken',tracking=True)
     travel_method = fields.Selection([
         ('air', 'Air'),
         ('train', 'Train'),
         ('car', 'Car'),
         ('bus', 'Bus'),
-    ], string='Travel Method')
+    ], string='Travel Method',tracking=True)
     visit_reason = fields.Selection([
         ('business', 'Business'),
         ('leisure', 'Leisure'),
         ('medical', 'Medical'),
-    ], string='Visit Reason')
-    house_use = fields.Boolean(string='House Use')
-    complimentary = fields.Boolean(string='Complimentary')
-    stay_as_vip = fields.Boolean(string='Stay as VIP')
+    ], string='Visit Reason',tracking=True)
+    house_use = fields.Boolean(string='House Use',tracking=True)
+    complimentary = fields.Boolean(string='Complimentary',tracking=True)
+    stay_as_vip = fields.Boolean(string='Stay as VIP',tracking=True)
 
     # Payment details
     payment_type = fields.Selection([
@@ -488,21 +489,21 @@ class ReservationReservationMain(models.Model):
         ('credit_limit', 'Credit (C/L)'),
         ('credit_card', 'Credit Card'),
         ('other', 'Other Payment'),
-    ], string='Payment Type')
-    credit_limit_value = fields.Float(string='Credit Limit Value')
+    ], string='Payment Type',tracking=True)
+    credit_limit_value = fields.Float(string='Credit Limit Value',tracking=True)
 
     # Safe Box Information
-    safe_box_code = fields.Char(string='Safe Box Code')
-    police_bill_number = fields.Char(string='Police # (Bill #)')
-    voucher_received = fields.Boolean(string='Voucher Received?')
-    deposit = fields.Float(string='Deposit')
-    sponsor = fields.Char(string='Sponsor')
-    reserved_by = fields.Char(string='Reserved By')
+    safe_box_code = fields.Char(string='Safe Box Code',tracking=True)
+    police_bill_number = fields.Char(string='Police # (Bill #)',tracking=True)
+    voucher_received = fields.Boolean(string='Voucher Received?',tracking=True)
+    deposit = fields.Float(string='Deposit',tracking=True)
+    sponsor = fields.Char(string='Sponsor',tracking=True)
+    reserved_by = fields.Char(string='Reserved By',tracking=True)
 
     # Additional comments
-    comments = fields.Text(string='Comments')
+    comments = fields.Text(string='Comments',tracking=True)
 
-    reservation_attributes = fields.Text(string='Attributes')
+    reservation_attributes = fields.Text(string='Attributes',tracking=True)
 
     # profile = fields.One2many('reservation.profile.main', string='Adults')
 
@@ -521,62 +522,65 @@ class ReservationReservationMain(models.Model):
 class ReservationAdult(models.Model):
     _name = 'reservation.adults'
     _description = 'Reservation Adult'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    first_name = fields.Char(string='First Name')
-    last_name = fields.Char(string='Last Name')
-    profile = fields.Char(string='Profile')
-    nationality = fields.Many2one('res.country', string='Nationality')
-    birth_date = fields.Date(string='Birth Date')
-    passport_number = fields.Char(string='Passport No.')
-    id_number = fields.Char(string='ID Number')
-    visa_number = fields.Char(string='Visa Number')
-    id_type = fields.Char(string='ID Type')
-    phone_number = fields.Char(string='Phone Number')
-    relation = fields.Char(string='Relation')
+    first_name = fields.Char(string='First Name',tracking=True)
+    last_name = fields.Char(string='Last Name',tracking=True)
+    profile = fields.Char(string='Profile',tracking=True)
+    nationality = fields.Many2one('res.country', string='Nationality',tracking=True)
+    birth_date = fields.Date(string='Birth Date',tracking=True)
+    passport_number = fields.Char(string='Passport No.',tracking=True)
+    id_number = fields.Char(string='ID Number',tracking=True)
+    visa_number = fields.Char(string='Visa Number',tracking=True)
+    id_type = fields.Char(string='ID Type',tracking=True)
+    phone_number = fields.Char(string='Phone Number',tracking=True)
+    relation = fields.Char(string='Relation',tracking=True)
 
     # Link to the main reservation
-    reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation')
+    reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation',tracking=True)
 
 class ReservationChild(models.Model):
     _name = 'reservation.childs'
     _description = 'Reservation Child'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    first_name = fields.Char(string='First Name')
-    last_name = fields.Char(string='Last Name')
-    profile = fields.Char(string='Profile')
-    nationality = fields.Many2one('res.country', string='Nationality')
-    birth_date = fields.Date(string='Birth Date')
-    passport_number = fields.Char(string='Passport No.')
-    id_type = fields.Char(string='ID Type')
-    id_number = fields.Char(string='ID Number')
-    visa_number = fields.Char(string='Visa Number')
-    type = fields.Selection([('visitor', 'Visitor'), ('resident', 'Resident')], string='Type')
-    phone_number = fields.Char(string='Phone Number')
-    relation = fields.Char(string='Relation')
+    first_name = fields.Char(string='First Name',tracking=True)
+    last_name = fields.Char(string='Last Name',tracking=True)
+    profile = fields.Char(string='Profile',tracking=True)
+    nationality = fields.Many2one('res.country', string='Nationality',tracking=True)
+    birth_date = fields.Date(string='Birth Date',tracking=True)
+    passport_number = fields.Char(string='Passport No.',tracking=True)
+    id_type = fields.Char(string='ID Type',tracking=True)
+    id_number = fields.Char(string='ID Number',tracking=True)
+    visa_number = fields.Char(string='Visa Number',tracking=True)
+    type = fields.Selection([('visitor', 'Visitor'), ('resident', 'Resident')], string='Type',tracking=True)
+    phone_number = fields.Char(string='Phone Number',tracking=True)
+    relation = fields.Char(string='Relation',tracking=True)
 
     # Link to the main reservation
-    reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation')
+    reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation',tracking=True)
     
 
 class ReservationInfant(models.Model):
     _name = 'reservation.infants'
     _description = 'Reservation Infant'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    first_name = fields.Char(string='First Name')
-    last_name = fields.Char(string='Last Name')
-    profile = fields.Char(string='Profile')
-    nationality = fields.Many2one('res.country', string='Nationality')
-    birth_date = fields.Date(string='Birth Date')
-    passport_number = fields.Char(string='Passport No.')
-    id_type = fields.Char(string='ID Type')
-    id_number = fields.Char(string='ID Number')
-    visa_number = fields.Char(string='Visa Number')
-    type = fields.Selection([('visitor', 'Visitor'), ('resident', 'Resident')], string='Type')
-    phone_number = fields.Char(string='Phone Number')
-    relation = fields.Char(string='Relation')
+    first_name = fields.Char(string='First Name',tracking=True)
+    last_name = fields.Char(string='Last Name',tracking=True)
+    profile = fields.Char(string='Profile',tracking=True)
+    nationality = fields.Many2one('res.country', string='Nationality',tracking=True)
+    birth_date = fields.Date(string='Birth Date',tracking=True)
+    passport_number = fields.Char(string='Passport No.',tracking=True)
+    id_type = fields.Char(string='ID Type',tracking=True)
+    id_number = fields.Char(string='ID Number',tracking=True)
+    visa_number = fields.Char(string='Visa Number',tracking=True)
+    type = fields.Selection([('visitor', 'Visitor'), ('resident', 'Resident')], string='Type',tracking=True)
+    phone_number = fields.Char(string='Phone Number',tracking=True)
+    relation = fields.Char(string='Relation',tracking=True)
 
     # Link to the main reservation
-    reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation')
+    reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation',tracking=True)
 
 class ReservationInfant(models.Model):
     _name = 'reservation.infant'
@@ -599,8 +603,9 @@ class ReservationProfile(models.Model):
 class ReservationTrace(models.Model):
     _name = 'reservation.trace'
     _description = 'Reservation Trace'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    trace_id = fields.Char(string='ID', required=True)
+    trace_id = fields.Char(string='ID', required=True,tracking=True)
     target = fields.Selection([
         ('front_desk', 'Front Desk'),
         ('reservation', 'Reservation'),
@@ -613,19 +618,19 @@ class ReservationTrace(models.Model):
         ('hr', 'HR'),
         ('security', 'Security'),
         ('management', 'Management'),
-    ], string='Target', required=True)
+    ], string='Target', required=True,tracking=True)
 
-    room_number = fields.Char(string='Room Number')
-    user_text = fields.Text(string='User Text')
-    user_id = fields.Many2one('res.users', string='User ID')
-    message = fields.Text(string='Message')
+    room_number = fields.Char(string='Room Number',tracking=True)
+    user_text = fields.Text(string='User Text',tracking=True)
+    user_id = fields.Many2one('res.users', string='User ID',tracking=True)
+    message = fields.Text(string='Message',tracking=True)
 
     # Date fields
-    due_date = fields.Datetime(string='Due Date')
-    end_date = fields.Datetime(string='End Date')
-    start_of_day = fields.Boolean(string='Start of Day')
-    end_of_day = fields.Boolean(string='End of Day')
-    recurring_daily = fields.Boolean(string='Recurring Daily')
+    due_date = fields.Datetime(string='Due Date',tracking=True)
+    end_date = fields.Datetime(string='End Date',tracking=True)
+    start_of_day = fields.Boolean(string='Start of Day',tracking=True)
+    end_of_day = fields.Boolean(string='End of Day',tracking=True)
+    recurring_daily = fields.Boolean(string='Recurring Daily',tracking=True)
 
     # Status
     status = fields.Selection([
@@ -633,13 +638,14 @@ class ReservationTrace(models.Model):
         ('in_process', 'In Process'),
         ('resolved', 'Resolved'),
         ('cancelled', 'Cancelled'),
-    ], string='Status', default='new')
+    ], string='Status', default='new',tracking=True)
 
 
 class ReservationTraceLog(models.Model):
     _name = 'reservation.trace.log'
     _description = 'Reservation Trace Log'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    trace_id = fields.Many2one('reservation.trace', string='Trace')
-    message = fields.Text(string='Message')
-    date = fields.Datetime(string='Date')
+    trace_id = fields.Many2one('reservation.trace', string='Trace',tracking=True)
+    message = fields.Text(string='Message',tracking=True)
+    date = fields.Datetime(string='Date',tracking=True)

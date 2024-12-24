@@ -1,24 +1,4 @@
-# -*- coding: utf-8 -*-
-###############################################################################
-#
-#    Cybrosys Technologies Pvt. Ltd.
-#
-#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Vishnu K P (odoo@cybrosys.com)
-#
-#    You can modify it under the terms of the GNU LESSER
-#    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU LESSER GENERAL PUBLIC LICENSE (LGPL v3) for more details.
-#
-#    You should have received a copy of the GNU LESSER GENERAL PUBLIC LICENSE
-#    (LGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
-#
-###############################################################################
+
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import ValidationError
 
@@ -29,41 +9,41 @@ class HotelRoom(models.Model):
     _description = 'Rooms'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    housekeeping_status = fields.Many2one('housekeeping.status', string="HouseKeeping Status")
-    maintenance_status = fields.Many2one('maintenance.status', string="Maintenance Status")
-    housekeeping_staff_status = fields.Many2one('housekeeping.staff.status', string="HouseKeeping Staff Status")
+    housekeeping_status = fields.Many2one('housekeeping.status', string="HouseKeeping Status",tracking=True)
+    maintenance_status = fields.Many2one('maintenance.status', string="Maintenance Status",tracking=True)
+    housekeeping_staff_status = fields.Many2one('housekeeping.staff.status', string="HouseKeeping Staff Status",tracking=True)
 
-    door_sign = fields.Char(string="Door Sign")
-    suite = fields.Boolean(string="Suite")
-    connected_room = fields.Char(string="Connected Room")
-    type_of_bed = fields.Char(string="Type of Bed")
-    type_of_bath = fields.Char(string="Type of Bath")
-    block = fields.Integer(string="Block")
-    building = fields.Char(string="Building")
-    user_sort = fields.Integer(string="User Sort", compute="_compute_user_sort")
+    door_sign = fields.Char(string="Door Sign",tracking=True)
+    suite = fields.Boolean(string="Suite",tracking=True)
+    connected_room = fields.Char(string="Connected Room",tracking=True)
+    type_of_bed = fields.Char(string="Type of Bed",tracking=True)
+    type_of_bath = fields.Char(string="Type of Bath",tracking=True)
+    block = fields.Integer(string="Block",tracking=True)
+    building = fields.Char(string="Building",tracking=True)
+    user_sort = fields.Integer(string="User Sort", compute="_compute_user_sort",tracking=True)
 
     # New fields for the Information tab
-    pending_repairs = fields.Char(string="Pending Repairs")
-    last_repairs = fields.Date(string="Last Repairs")
-    room_description = fields.Text(string="Room Description")
-    notes = fields.Text(string="Notes")
+    pending_repairs = fields.Char(string="Pending Repairs",tracking=True)
+    last_repairs = fields.Date(string="Last Repairs",tracking=True)
+    room_description = fields.Text(string="Room Description",tracking=True)
+    notes = fields.Text(string="Notes",tracking=True)
 
-    obsolete = fields.Boolean(string="Obsolete", default=False)
-    no_smoking = fields.Boolean(string="No Smoking", default=False)
-    max_pax = fields.Integer(string="Max Pax")
-    section_hk = fields.Char(string="Section (H.K.)")
-    telephone_ext = fields.Char(string="Telephone Ext.")
-    disability_features = fields.Char(string="Disability Features")
-    extra_features = fields.Char(string="Extra Features")
-    rate_code = fields.Many2one('rate.code',string="Rate Code")
-    rate_posting_item = fields.Char(string="Rate Posting Item")
+    obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
+    no_smoking = fields.Boolean(string="No Smoking", default=False,tracking=True)
+    max_pax = fields.Integer(string="Max Pax",tracking=True)
+    section_hk = fields.Char(string="Section (H.K.,tracking=True)",tracking=True)
+    telephone_ext = fields.Char(string="Telephone Ext.",tracking=True)
+    disability_features = fields.Char(string="Disability Features",tracking=True)
+    extra_features = fields.Char(string="Extra Features",tracking=True)
+    rate_code = fields.Many2one('rate.code',string="Rate Code",tracking=True)
+    rate_posting_item = fields.Char(string="Rate Posting Item",tracking=True)
 
     @tools.ormcache()
     def _get_default_uom_id(self):
         """Method for getting the default uom id"""
         return self.env.ref('uom.product_uom_unit')
 
-    name = fields.Char(string='Name', help="Name of the Room", index='trigram')
+    name = fields.Char(string='Name', help="Name of the Room", index='trigram', required=True)
     room_type_name = fields.Many2one('room.type', string='Room Type')
 
     @api.depends('room_type_name')
@@ -72,7 +52,7 @@ class HotelRoom(models.Model):
         for room in self:
             room.user_sort = room.room_type_name.user_sort if room.room_type_name else 0
 
-    hotel_id = fields.Many2one('hotel.hotel', string="Hotel", help="Hotel associated with this booking")
+    hotel_id = fields.Many2one('hotel.hotel', string="Hotel", help="Hotel associated with this booking",tracking=True)
     status = fields.Selection([("available", "Available"),
                                ("reserved", "Reserved"),
                                ("occupied", "Occupied")],
@@ -80,15 +60,15 @@ class HotelRoom(models.Model):
                               help="Status of The Room",
                               tracking=True)
     is_room_avail = fields.Boolean(default=True, string="Available",
-                                   help="Check if the room is available")
+                                   help="Check if the room is available",tracking=True)
     list_price = fields.Float(string='Rent', digits='Product Price',
-                              help="The rent of the room.")
+                              help="The rent of the room.",tracking=True)
     uom_id = fields.Many2one('uom.uom', string='Unit of Measure',
                              default=_get_default_uom_id, required=True,
                              help="Default unit of measure used for all stock"
-                                  " operations.")
+                                  " operations.",tracking=True)
     room_image = fields.Image(string="Room Image", max_width=1920,
-                              max_height=1920, help='Image of the room')
+                              max_height=1920, help='Image of the room',tracking=True)
     taxes_ids = fields.Many2many('account.tax',
                                  'hotel_room_taxes_rel',
                                  'room_id', 'tax_id',
@@ -96,10 +76,10 @@ class HotelRoom(models.Model):
                                       " room.", string='Customer Taxes',
                                  domain=[('type_tax_use', '=', 'sale')],
                                  default=lambda self: self.env.company.
-                                 account_sale_tax_id)
+                                 account_sale_tax_id,tracking=True)
     room_amenities_ids = fields.Many2many("hotel.amenity",
                                           string="Room Amenities",
-                                          help="List of room amenities.")
+                                          help="List of room amenities.",tracking=True)
     floor_id = fields.Many2one('hotel.floor', string='Floor',
                                help="Automatically selects the Floor",
                                tracking=True)
@@ -119,12 +99,18 @@ class HotelRoom(models.Model):
                                 help="Automatically chooses the No. of Persons",
                                 tracking=True)
     description = fields.Html(string='Description', help="Add description",
-                              translate=True)
-    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, required=True)
+                              translate=True,tracking=True)
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, required=True,tracking=True)
 
-    fsm_location = fields.Many2one('fsm.location', string='Location')
+    fsm_location = fields.Many2one('fsm.location', string='Location',tracking=True)
+    # @api.onchange('fsm_location')
+    # def _onchange_fsm_location(self):
+    #     if self.fsm_location:
+    #         print(f"Selected Location: {self.fsm_location.complete_name}")
+    #     else:
+    #         print("No location selected.")
 
-    is_room_avail = fields.Boolean(string='Is Available', default=True)
+    is_room_avail = fields.Boolean(string='Is Available', default=True,tracking=True)
 
 
     @api.model
@@ -171,26 +157,29 @@ class HotelRoom(models.Model):
 class HouseKeepingStatus(models.Model):
     _name = 'housekeeping.status'
     _description = 'Housekeeping Status'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'house_keeping_status'
-    house_keeping_status = fields.Char(string="HouseKeeping Status")
+    house_keeping_status = fields.Char(string="HouseKeeping Status",tracking=True)
 
 
 class MaintenanceStatus(models.Model):
     _name = 'maintenance.status'
     _description = 'Housekeeping Status'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'maintenance_status'
-    maintenance_status = fields.Char(string="Maintenance Status")
+    maintenance_status = fields.Char(string="Maintenance Status",tracking=True)
 
 
 class HouseKeepingStaffStatus(models.Model):
     _name = 'housekeeping.staff.status'
     _description = 'Housekeeping Staff Status'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
 
     _rec_name = 'housekeeping_staff_status'
-    housekeeping_staff_status = fields.Char(string="HouseKeeping Staff Status")
+    housekeeping_staff_status = fields.Char(string="HouseKeeping Staff Status",tracking=True)
 
 
 

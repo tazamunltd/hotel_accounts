@@ -4,7 +4,7 @@ class DynamicSelection(models.Model):
     _name = 'dynamic.selection'
     _description = 'Dynamic Selection for Floor, Hotel, Block'
 
-    name = fields.Char(string='Value', required=True)
+    name = fields.Char(string='Location Type Name', required=True)
 
 class MaintenanceRequest(models.Model):
 

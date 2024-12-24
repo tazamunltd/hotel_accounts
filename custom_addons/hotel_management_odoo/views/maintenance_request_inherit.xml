@@ -132,6 +132,46 @@
                 </field>
             </record>
 
+     <record id="view_dynamic_selection_tree" model="ir.ui.view">
+        <field name="name">dynamic.selection.tree</field>
+        <field name="model">dynamic.selection</field>
+        <field name="arch" type="xml">
+            <tree string="Dynamic Selections">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Dynamic Selection -->
+    <record id="view_dynamic_selection_form" model="ir.ui.view">
+        <field name="name">dynamic.selection.form</field>
+        <field name="model">dynamic.selection</field>
+        <field name="arch" type="xml">
+            <form string="Dynamic Selection">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_dynamic_selection" model="ir.actions.act_window">
+        <field name="name">Dynamic Selections</field>
+        <field name="res_model">dynamic.selection</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your dynamic selections here.
+            </p>
+        </field>
+    </record>
+   <menuitem id="hotel_location_type"
+              name="Location Type"
+              action="action_dynamic_selection"
+              parent="hotel_config_menu"
+              sequence="60"/>
+
     <menuitem
         id="menu_activity_item_list"
         name="Activity List"

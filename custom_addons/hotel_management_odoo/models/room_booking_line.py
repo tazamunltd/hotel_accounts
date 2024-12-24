@@ -9,9 +9,11 @@ class RoomBookingLine(models.Model):
     _name = "room.booking.line"
     _description = "Hotel Folio Line"
     _rec_name = 'room_id'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
 
     sequence = fields.Integer(
-        string='Sequence', compute='_compute_sequence', store=True)
+        string='Sequence', compute='_compute_sequence', store=True,tracking=True)
 
     # Depends on the field that relates to the records
     @api.depends('booking_id.room_line_ids')
@@ -23,17 +25,17 @@ class RoomBookingLine(models.Model):
                 line.sequence = sequence
                 sequence += 1
 
-    counter = fields.Integer(string="Counter", default=0)
+    counter = fields.Integer(string="Counter", default=0,tracking=True)
 
     housekeeping_status = fields.Many2one(
         'housekeeping.status', string="Housekeeping Status", compute="_compute_room_statuses", store=False
-    )
+    ,tracking=True)
     maintenance_status = fields.Many2one(
         'maintenance.status', string="Maintenance Status", compute="_compute_room_statuses", store=False
-    )
+    ,tracking=True)
     housekeeping_staff_status = fields.Many2one(
         'housekeeping.staff.status', string="Housekeeping Staff Status", compute="_compute_room_statuses", store=False
-    )
+    ,tracking=True)
 
     @api.depends('room_id')
     def _compute_room_statuses(self):
@@ -47,7 +49,7 @@ class RoomBookingLine(models.Model):
                 record.maintenance_status = False
                 record.housekeeping_staff_status = False
 
-    hide_fields = fields.Boolean(string="Hide Fields", default=False)
+    hide_fields = fields.Boolean(string="Hide Fields", default=False,tracking=True)
 
     @tools.ormcache()
     def _set_default_uom_id(self):
@@ -55,7 +57,7 @@ class RoomBookingLine(models.Model):
 
     booking_id = fields.Many2one("room.booking", string="Booking",
                                  help="Indicates the Room",
-                                 ondelete="cascade")
+                                 ondelete="cascade",tracking=True)
 
     state_ = fields.Selection([
         ('not_confirmed', 'Not Confirmed'),
@@ -66,7 +68,7 @@ class RoomBookingLine(models.Model):
         ('check_out', 'Check Out'),
         ('done', 'done'),
         ('cancel', 'Cancel'),
-    ], default='not_confirmed', string="Status", compute='_compute_state', store=True)
+    ], default='not_confirmed', string="Status", compute='_compute_state', store=True,tracking=True)
 
     # @api.depends('booking_id', 'booking_id.state', 'sequence', 'room_id', 'booking_id.room_line_ids')
     # def _compute_state(self):
@@ -150,7 +152,7 @@ class RoomBookingLine(models.Model):
     #         record.state = record.booking_id.state
 
     hide_room_id = fields.Boolean(
-        string='Hide Room Field', compute='_compute_hide_room_id')
+        string='Hide Room Field', compute='_compute_hide_room_id',tracking=True)
 
     @api.depends('booking_id.state')
     def _compute_hide_room_id(self):
@@ -160,22 +162,22 @@ class RoomBookingLine(models.Model):
     room_availability_result_id = fields.Many2one(
         'room.availability.result', string="Room Availability Result",
         readonly=True
-    )
+    ,tracking=True)
 
     checkin_date = fields.Datetime(string="Check In",
                                    help="You can choose the date,"
                                         " Otherwise sets to current Date",
-                                   required=True)
+                                   required=True,tracking=True)
     checkout_date = fields.Datetime(string="Check Out",
                                     help="You can choose the date,"
                                          " Otherwise sets to current Date",
-                                    required=True)
+                                    required=True,tracking=True)
 
     related_hotel_room_type = fields.Many2one(
         related='booking_id.hotel_room_type',
         string="Related Room Type",
         store=True
-    )
+    ,tracking=True)
 
 
 
@@ -195,7 +197,7 @@ class RoomBookingLine(models.Model):
         #     ('company_id', '=', self.env.company.id),
         #     ('id', 'not in', self.booked_room_ids.ids)
         # ],
-        help="Indicates the Room")
+        help="Indicates the Room",tracking=True)
 
     @api.model
     def default_get(self, fields_list):
@@ -203,7 +205,7 @@ class RoomBookingLine(models.Model):
         defaults['current_company_id'] = self.env.company.id
         return defaults
 
-    current_company_id = fields.Many2one('res.company', default=lambda self: self.env.company)
+    current_company_id = fields.Many2one('res.company', default=lambda self: self.env.company,tracking=True)
 
     @api.onchange('hotel_room_type', 'adult_count')
     def _onchange_room_type_or_pax(self):
@@ -215,7 +217,7 @@ class RoomBookingLine(models.Model):
         compute='_compute_booked_room_ids',
         string='Booked Rooms',
         store=False
-    )
+    ,tracking=True)
 
     # @api.depends('checkin_date', 'checkout_date', 'room_id')
     # def _compute_booked_room_ids(self):
@@ -264,7 +266,7 @@ class RoomBookingLine(models.Model):
         'room.type',
         string="Room Type",
         help="Select a room type to filter available rooms."
-    )
+    ,tracking=True)
 
     # @api.onchange('room_id')
     # def _onchange_room_id(self):
@@ -372,20 +374,20 @@ class RoomBookingLine(models.Model):
             domain.append(('room_type_name', '=', self.hotel_room_type.id))
         return domain
 
-    room_type = fields.Many2one('hotel.room', string="Room Type")
+    room_type = fields.Many2one('hotel.room', string="Room Type",tracking=True)
 
     room_type_name = fields.Many2one(
-        'room.type', string="Room Type", related="room_id.room_type_name", readonly=True)
+        'room.type', string="Room Type", related="room_id.room_type_name", readonly=True,tracking=True)
 
-    adult_count = fields.Integer(string="Adults", readonly=True)
+    adult_count = fields.Integer(string="Adults", readonly=True,tracking=True)
     child_count = fields.Integer(
-        string="Children", related="booking_id.child_count", readonly=True)
+        string="Children", related="booking_id.child_count", readonly=True,tracking=True)
 
     uom_qty = fields.Float(string="Duration",
                            compute='_compute_uom_qty',
                            inverse='_inverse_uom_qty',
                            help="The quantity converted into the UoM used by "
-                                "the product")
+                                "the product",tracking=True)
 
     @api.depends('checkin_date', 'checkout_date')
     def _compute_uom_qty(self):
@@ -438,38 +440,38 @@ class RoomBookingLine(models.Model):
                              default=_set_default_uom_id,
                              string="Unit of Measure",
                              help="This will set the unit of measure used",
-                             readonly=True)
+                             readonly=True,tracking=True)
     price_unit = fields.Float(related='room_id.list_price', string='Rent',
                               digits='Product Price',
-                              help="The rent price of the selected room.")
+                              help="The rent price of the selected room.",tracking=True)
     tax_ids = fields.Many2many('account.tax',
                                'hotel_room_order_line_taxes_rel',
                                'room_id', 'tax_id',
                                related='room_id.taxes_ids',
                                string='Taxes',
-                               help="Default taxes used when selling the room.", domain=[('type_tax_use', '=', 'sale')])
+                               help="Default taxes used when selling the room.", domain=[('type_tax_use', '=', 'sale')],tracking=True)
     currency_id = fields.Many2one(string='Currency',
-                                  related='booking_id.pricelist_id.currency_id', help='The currency used')
+                                  related='booking_id.pricelist_id.currency_id', help='The currency used',tracking=True)
     price_subtotal = fields.Float(string="Subtotal",
                                   compute='_compute_price_subtotal',
                                   help="Total Price excluding Tax",
-                                  store=True)
+                                  store=True,tracking=True)
     price_tax = fields.Float(string="Total Tax",
                              compute='_compute_price_subtotal',
                              help="Tax Amount",
-                             store=True)
+                             store=True,tracking=True)
     price_total = fields.Float(string="Total",
                                compute='_compute_price_subtotal',
                                help="Total Price including Tax",
-                               store=True)
+                               store=True,tracking=True)
     state = fields.Selection(related='booking_id.state',
                              string="Order Status",
                              help=" Status of the Order",
-                             copy=False)
+                             copy=False,tracking=True)
     booking_line_visible = fields.Boolean(default=False,
                                           string="Booking Line Visible",
                                           help="If True, then Booking Line "
-                                               "will be visible")
+                                               "will be visible",tracking=True)
 
     @api.onchange("checkin_date", "checkout_date")
     def _onchange_checkin_date(self):
@@ -524,7 +526,7 @@ class RoomBookingLine(models.Model):
         )
 
     is_unassigned = fields.Boolean(string="Is Unassigned", default=True,
-                                   help="Indicates if the room line is unassigned.")
+                                   help="Indicates if the room line is unassigned.",tracking=True)
 
     # @api.onchange('room_id')
     # def _onchange_room_id(self):
@@ -593,6 +595,10 @@ class RoomBookingLine(models.Model):
     @api.onchange('room_id')
     def _onchange_room_id(self):
         """Update booking state based on room_id value and log changes."""
+        # if not self.id:
+        #     return 
+        if not self.id or not self.room_id:
+            return
         if self.booking_id:
             existing_room_ids = self.booking_id.room_line_ids.filtered(
                 lambda line: line.id != self.id).mapped('room_id.id')
@@ -993,7 +999,8 @@ class RoomBookingLine(models.Model):
                 # Move to 'block' state if only one entry exists
                 if len(parent_booking.room_line_ids) == 1:
                     parent_bookings_to_update.append((parent_booking, {
-                        'state': 'block'
+                        'state': 'block',
+                        'hotel_room_type': record.hotel_room_type.id,
                     }))
                     # print(f"Booking {parent_booking.id} moved to 'block' state as it has only one room line.")
                 else:
@@ -1074,7 +1081,8 @@ class RoomBookingLine(models.Model):
                                 'market_segment': parent_booking.market_segment.id,
                                 'rate_code': parent_booking.rate_code.id,
                                 'reference_contact_': parent_booking.reference_contact_,
-                                'hotel_room_type': parent_booking.hotel_room_type.id,
+                                # 'hotel_room_type': parent_booking.hotel_room_type.id,
+                                'hotel_room_type': record.hotel_room_type.id,
                                 'group_booking': parent_booking.group_booking.id,
                                 'house_use': parent_booking.house_use,
                                 'complementary': parent_booking.complementary,

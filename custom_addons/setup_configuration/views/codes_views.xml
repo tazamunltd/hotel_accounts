@@ -31,6 +31,11 @@
                         </page>
                     </notebook>
                 </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -91,6 +96,11 @@
                         <button string="Create Template" type="object" name="action_create_template" class="btn-success"/>
                     </footer>
                 </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -144,6 +154,11 @@
                         <field name="usage_group_profile"/>
                     </group>
                 </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>

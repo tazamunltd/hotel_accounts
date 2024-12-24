@@ -9,9 +9,9 @@ class HotelService(models.Model):
     _order = 'id desc'
 
     name = fields.Char(string="Service", help="Name of the service",
-                       required=True)
+                       required=True,tracking=True)
     unit_price = fields.Float(string="Price", help="Price of the service",
-                              default=0.0)
+                              default=0.0,tracking=True)
     taxes_ids = fields.Many2many('account.tax',
                                  'hotel_service_taxes_rel',
                                  'service_id', 'tax_id',
@@ -20,15 +20,15 @@ class HotelService(models.Model):
                                       " service product.",
                                  domain=[('type_tax_use', '=', 'sale')],
                                  default=lambda self:
-                                 self.env.company.account_sale_tax_id)
+                                 self.env.company.account_sale_tax_id,tracking=True)
 
     frequency = fields.Selection(
         [
             ('one time', 'One Time'),
             ('daily', 'Daily'),
         ],
-        string='Frequency',
-    )
+        string='Frequency'
+    ,tracking=True)
 
     @api.model
     def create(self, vals):

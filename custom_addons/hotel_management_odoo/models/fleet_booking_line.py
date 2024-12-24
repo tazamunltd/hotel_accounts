@@ -1,24 +1,4 @@
-# -*- coding: utf-8 -*-
-###############################################################################
-#
-#    Cybrosys Technologies Pvt. Ltd.
-#
-#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Vishnu K P (odoo@cybrosys.com)
-#
-#    You can modify it under the terms of the GNU LESSER
-#    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU LESSER GENERAL PUBLIC LICENSE (LGPL v3) for more details.
-#
-#    You should have received a copy of the GNU LESSER GENERAL PUBLIC LICENSE
-#    (LGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
-#
-###############################################################################
+
 from odoo import api, fields, models, tools
 
 
@@ -27,6 +7,8 @@ class FleetBookingLine(models.Model):
     _name = "fleet.booking.line"
     _description = "Hotel Fleet Line"
     _rec_name = 'fleet_id'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
 
     @tools.ormcache()
     def _get_default_uom_id(self):
@@ -35,51 +17,51 @@ class FleetBookingLine(models.Model):
 
     booking_id = fields.Many2one("room.booking", string="Booking",
                                  ondelete="cascade",
-                                 help="Shows the room Booking")
+                                 help="Shows the room Booking",tracking=True)
     fleet_id = fields.Many2one('fleet.vehicle.model',
                                string="Vehicle",
-                               help='Indicates the Vehicle')
+                               help='Indicates the Vehicle',tracking=True)
     description = fields.Char(string='Description',
                               related='fleet_id.display_name',
-                              help="Description of Vehicle")
+                              help="Description of Vehicle",tracking=True)
     uom_qty = fields.Float(string="Total KM", default=1,
                            help="The quantity converted into the UoM used by "
-                                "the product")
+                                "the product",tracking=True)
     uom_id = fields.Many2one('uom.uom', readonly=True,
                              string="Unit of Measure",
                              default=_get_default_uom_id, help="This will set "
                                                                "the unit of"
-                                                               " measure used")
+                                                               " measure used",tracking=True)
     price_unit = fields.Float(string='Rent/KM',
                               related='fleet_id.price_per_km',
                               digits='Product Price',
-                              help="The rent/km of the selected fleet.")
+                              help="The rent/km of the selected fleet.",tracking=True)
     tax_ids = fields.Many2many('account.tax',
                                'hotel_fleet_order_line_taxes_rel',
                                'fleet_id',
                                'tax_id', string='Taxes',
                                help="Default taxes used when renting the fleet"
                                     "models.",
-                               domain=[('type_tax_use', '=', 'sale')])
+                               domain=[('type_tax_use', '=', 'sale')],tracking=True)
     currency_id = fields.Many2one(
         related='booking_id.pricelist_id.currency_id',
-        string="Currency", help='The currency used')
+        string="Currency", help='The currency used',tracking=True)
     price_subtotal = fields.Float(string="Subtotal",
                                   compute='_compute_price_subtotal',
                                   help="Total price excluding tax",
-                                  store=True)
+                                  store=True,tracking=True)
     price_tax = fields.Float(string="Total Tax",
                              compute='_compute_price_subtotal',
                              help="Total tax amount",
-                             store=True)
+                             store=True,tracking=True)
     price_total = fields.Float(string="Total",
                                compute='_compute_price_subtotal',
                                help="Total Price Including Tax",
-                               store=True)
+                               store=True,tracking=True)
     state = fields.Selection(related='booking_id.state',
                              string="Order Status",
                              help=" Status of the Order",
-                             copy=False)
+                             copy=False,tracking=True)
 
     @api.depends('uom_qty', 'price_unit', 'tax_ids')
     def _compute_price_subtotal(self):

@@ -7,17 +7,18 @@
             <pivot string="Hotel Room Results">
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
-                <field name="total_rooms" type="measure"/>
+                <field name="total_rooms" type="measure" />
+                <field name="out_of_order" type="measure"/>
                 <field name="available" type="measure"/>
                 <field name="inhouse" type="measure"/>
                 <field name="expected_arrivals" type="measure"/>
                 <field name="expected_departures" type="measure"/>
                 <field name="expected_inhouse" type="measure"/>
-                <field name="reserved" type="measure"/>
                 <field name="expected_occupied_rate" type="measure"/>
-                <field name="out_of_order" type="measure"/>
+                <field name="reserved" type="measure"/>
                 <field name="overbook" type="measure"/>
                 <field name="free_to_sell" type="measure"/>
+                <field name="company_id" type="row"/>
             </pivot>
         </field>
     </record>
@@ -41,6 +42,7 @@
                 <field name="out_of_order" type="measure"/>
                 <field name="overbook" type="measure"/>
                 <field name="free_to_sell" type="measure"/>
+                <field name="company_id" type="row"/>
             </graph>
         </field>
     </record>
@@ -53,17 +55,19 @@
             <tree string="Hotel Room Results">
                 <field name="report_date"/>
                 <field name="room_type"/>
-                <field name="total_rooms"/>
-                <field name="available"/>
-                <field name="inhouse"/>
-                <field name="expected_arrivals"/>
-                <field name="expected_departures"/>
-                <field name="expected_inhouse"/>
-                <field name="reserved"/>
-                <field name="expected_occupied_rate"/>
-                <field name="out_of_order"/>
-                <field name="overbook"/>
-                <field name="free_to_sell"/>
+                <field name="total_rooms" optional="show"/>
+                <field name="out_of_service" optional="show"/>
+                <field name="out_of_order" optional="show"/>
+                <field name="house_use_count" optional="show"/>
+                <field name="available" optional="show"/>
+                <field name="inhouse" optional="show"/>
+                <field name="expected_arrivals" optional="show"/>
+                <field name="expected_departures" optional="show"/>
+                <field name="expected_inhouse" optional="show"/>
+                <field name="expected_occupied_rate" optional="show"/>
+                <field name="overbook" optional="show"/>
+                <field name="free_to_sell" optional="show"/>
+                <field name="company_id" optional="show"/>
             </tree>
         </field>
     </record>

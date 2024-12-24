@@ -8,17 +8,11 @@
             <tree>
                <field name="report_date"/>
                 <field name="room_type"/>
-                <field name="total_rooms"/>
-                <field name="out_of_order"/>
-                <field name="available"/>
-                <field name="inhouse"/>
-                <field name="expected_arrivals"/>
-                <field name="expected_departures"/>
-                <field name="expected_inhouse"/>
-                <field name="expected_occupied_rate"/>
-                <field name="overbook"/>
-                <field name="free_to_sell"/>
-                <field name="reserved"/>
+                <field name="client_id" optional="show"/>
+                <field name="total_rooms" optional="show"/>
+                <!-- <field name="available" optional="show"/> -->
+                <field name="expected_inhouse" optional="show"/>
+                <field name="company_id" optional="show"/>
             </tree>
         </field>
     </record>
@@ -31,17 +25,11 @@
             <graph string="Room Results By Client" type="bar">
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
+                <field name="client_id" type="row"/>
                 <field name="total_rooms" type="measure"/>
-                <field name="out_of_order" type="measure"/>
-                <field name="available" type="measure"/>
-                <field name="inhouse" type="measure"/>
-                <field name="expected_arrivals" type="measure"/>
-                <field name="expected_departures" type="measure"/>
+                <!-- <field name="available" type="measure"/> -->
                 <field name="expected_inhouse" type="measure"/>
-                <field name="expected_occupied_rate" type="measure"/>
-                <field name="overbook" type="measure"/>
-                <field name="free_to_sell" type="measure"/>
-                <field name="reserved" type="measure"/>
+                <field name="company_id" type="row"/>
             </graph>
         </field>
     </record>
@@ -54,17 +42,12 @@
             <pivot string="Room Results By Client">
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
+                <field name="client_id" type="row"/>
                 <field name="total_rooms" type="measure"/>
-                <field name="out_of_order" type="measure"/>
-                <field name="available" type="measure"/>
-                <field name="inhouse" type="measure"/>
-                <field name="expected_arrivals" type="measure"/>
-                <field name="expected_departures" type="measure"/>
+                <!-- <field name="out_of_order" type="measure"/> -->
+                <!-- <field name="available" type="measure"/> -->
                 <field name="expected_inhouse" type="measure"/>
-                <field name="expected_occupied_rate" type="measure"/>
-                <field name="overbook" type="measure"/>
-                <field name="free_to_sell" type="measure"/>
-                <field name="reserved" type="measure"/>
+                <field name="company_id" type="row"/>
             </pivot>
         </field>
     </record>

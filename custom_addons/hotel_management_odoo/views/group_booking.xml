@@ -60,7 +60,8 @@
                                         <field name="name"/>
                                         <field name="age"/>
                                         <field name="address"/>
-                                        <field name="image"/>
+                                        <field name="image" widget="document_upload_widget" filename="document_name"/>
+                                        <field name="document_name"  optional='show'/>
         
                                     </tree>
                                 </field>
