@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="view_department_category_form" model="ir.ui.view">
+    <!-- <record id="view_department_category_form" model="ir.ui.view">
         <field name="name">department.category.form</field>
         <field name="model">department.category</field>
         <field name="arch" type="xml">
@@ -26,8 +26,39 @@
                     <field name="message_ids"/>
                 </div>
             </form>
+             <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
         </field>
-    </record>
+    </record> -->
+    <record id="view_department_category_form" model="ir.ui.view">
+    <field name="name">department.category.form</field>
+    <field name="model">department.category</field>
+    <field name="arch" type="xml">
+        <form string="Department Category">
+            <sheet>
+                <group>
+                    <field name="category"/>
+                    <field name="description"/>
+                </group>
+                <group>
+                    <field name="abbreviation"/>
+                    <field name="user_sort"/>
+                </group>
+                <group>
+                    <field name="arabic_description"/>
+                    <field name="arabic_abbreviation"/>
+                </group>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_follower_ids"/>
+                <field name="activity_ids"/>
+                <field name="message_ids"/>
+            </div>
+        </form>
+    </field>
+</record>
 
     <record id="view_department_category_tree" model="ir.ui.view">
         <field name="name">department.category.tree</field>
@@ -317,6 +348,10 @@
                     <button string="Companies" type="object" name="action_view_companies"/>
                     <button string="Departments" type="object" name="action_view_departments"/>
                 </group>
+             <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -397,10 +432,5 @@
             </tree>
         </field>
     </record>
-
-
-
-
-    
 
 </odoo>

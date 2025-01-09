@@ -24,8 +24,11 @@ class RoomRateForecast(models.Model):
     total = fields.Float(string="Total",tracking=True)
     before_discount = fields.Float(string="Before Discount",tracking=True)
 
-    # @api.depends('rate', 'meals', 'packages', 'fixed_post')
-    # def _compute_total(self):
-    #     for record in self:
-    #         record.total = record.rate + record.meals + record.packages + record.fixed_post + record.total
-    #         record.before_discount = record.rate + record.meals + record.packages + record.fixed_post
+    booking_line_ids = fields.Many2many(
+        'room.booking.line',
+        'room_forecast_booking_line_rel',  # Relation table name
+        'forecast_id',  # Field in the relation table for room.rate.forecast
+        'booking_line_id',  # Field in the relation table for room.booking.line
+        string="Room Lines",
+        help="Related room booking lines for this forecast."
+    )

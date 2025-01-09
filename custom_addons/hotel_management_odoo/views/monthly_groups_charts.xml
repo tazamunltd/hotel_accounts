@@ -10,16 +10,7 @@
                 <field name="room_type" optional="show"/>
                 <field name="company_id" optional="show"/>
                 <field name="group_booking" optional="show"/>
-                <field name="inhouse" optional="show"/>
-                <field name="expected_inhouse" optional="show"/>
-                
-                <!-- <field name="expected_arrivals"/>
-                <field name="expected_departures"/>
-                <field name="out_of_order"/>
-                <field name="expected_occupied_rate"/>
-                <field name="overbook"/>
-                <field name="free_to_sell"/>
-                <field name="reserved"/> --> 
+                <field name="expected_inhouse" optional="show"/> 
                 
             </tree>
         </field>
@@ -37,16 +28,6 @@
                 <field name="group_booking" type="row"/>
                 <field name="inhouse" type="measure"/>
                 <field name="expected_inhouse" type="measure"/>
-                <!-- <field name="out_of_order" type="measure"/>
-                <field name="available" type="measure"/>
-                
-                <field name="expected_arrivals" type="measure"/>
-                <field name="expected_departures" type="measure"/>
-                
-                <field name="expected_occupied_rate" type="measure"/>
-                <field name="overbook" type="measure"/>
-                <field name="free_to_sell" type="measure"/>
-                <field name="reserved" type="measure"/> -->
             </graph>
         </field>
     </record>
@@ -63,17 +44,6 @@
                 <field name="group_booking" type="row"/>
                 <field name="inhouse" type="measure"/>
                 <field name="expected_inhouse" type="measure"/>
-                <!-- <field name="out_of_order" type="measure"/>
-                <field name="available" type="measure"/>
-                
-                <field name="expected_arrivals" type="measure"/>
-                <field name="expected_departures" type="measure"/>
-                
-                <field name="expected_occupied_rate" type="measure"/>
-                <field name="overbook" type="measure"/>
-                <field name="free_to_sell" type="measure"/>
-                <field name="reserved" type="measure"/> -->
-                <!-- Add more measures as required -->
             </pivot>
         </field>
     </record>

@@ -243,6 +243,16 @@
         </field>
     </record>
 
+    <record id="action_delete_room_booking" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="model_room_booking"/>
+        <field name="state">code</field>
+        <field name="code">
+            records.action_archive_as_delete()
+        </field>
+        <field name="binding_model_id" ref="model_room_booking"/>
+        <field name="binding_type">action</field>        <!-- Makes it appear in the Actions menu -->
+    </record>
 
     <!--     Room Booking Form View -->
     <record id="room_booking_view_form" model="ir.ui.view">
@@ -250,11 +260,12 @@
         <field name="model">room.booking</field>
         <field name="arch" type="xml">
             <form>
+
                 <header>
                     <!-- <button name="action_back" string="Back" class="btn-secondary" invisible="state in ('not_confirmed', 'done', 'invoice')" type="object" confirm="Are you sure you want to go back to the previous status?"/> -->
 
                     <!-- Confirm Button: Visible when state is 'Not Confirmed', 'Block', 'No Show', or 'Waiting' -->
-                    <button name="action_confirm" string="Confirm" class="btn-primary" invisible="state not in ('not_confirmed', 'no_show', 'waiting','block') or is_checkin_in_past or hide_confirm_button" type="object" confirm="Are you sure you want to confirm this booking?"/>
+                    <button name="action_confirm" string="Confirm" class="btn-primary" invisible="state not in ('not_confirmed', 'no_show', 'waiting','block') or is_checkin_in_past or hide_confirm_button or hide_buttons_front_desk" type="object" confirm="Are you sure you want to confirm this booking?"/>
 
                     <!-- Cancel Button: Visible when state is 'Not Confirmed', 'Confirmed', or 'Waiting' -->
                     <button name="action_cancel" string="Cancel" class="btn-secondary" invisible="state not in ('not_confirmed', 'confirmed', 'waiting') or is_checkin_in_past" type="object" confirm="Are you sure you want to cancel this booking?"/>
@@ -291,15 +302,281 @@
                 <!-- <header>
                     <field name="reservation_status_count_as" widget="statusbar" statusbar_visible="not_confirmed,confirmed,wait_list,release,cancelled"/>
                 </header> -->
-                <sheet>
+                <sheet class="custom-form-sheet">
                     <notebook>
-                        <page string="Main">
+                        <page string="Offline Search">
+                            <widget name="offline_search_widget" options="{}"/>
+                        </page>
+                        <page string="CSS Demo Main" class="o_form_sheet container-fluid p-2">
+                            <div class="row g-2">
+                                <div class="col-lg-2 col-md-3 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span class="fw-bold">General Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="company_id" class="form-label">Hotel</label>
+                                                <field name="company_id" class="form-control"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="group_booking" class="form-label">Group Booking</label>
+                                                <field name="group_booking" class="form-control"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="date_order" class="form-label">Order Date</label>
+                                                <field name="date_order" class="form-control"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="notes" class="form-label">Notes</label>
+                                                <field name="notes" widget="text" class="form-control"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="source_of_business" class="form-label">Source of Business</label>
+                                                <field name="source_of_business" class="form-control"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="market_segment" class="form-label">Market Segment</label>
+                                                <field name="market_segment" class="form-control"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <!-- Middle Column: Contact Information -->
+                                <div class="col-lg-3 col-md-4 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-tag"></i>
+                                            <span class="fw-bold">Contact Information</span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="form-group mb-1">
+                                                <label for="is_agent" class="form-label small mb-0">Is Company</label>
+                                                <field name="is_agent" class="form-control form-control-sm"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="partner_id" class="form-label small mb-0">Contact Name</label>
+                                                <field name="partner_id" class="form-control form-control-sm"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="nationality" class="form-label small mb-0">Nationality</label>
+                                                <field name="nationality" class="form-control form-control-sm"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="reference_contact_" class="form-label small mb-0">Reference Contact</label>
+                                                <field name="reference_contact_" class="form-control form-control-sm"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Hotel Booking -->
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-bed"></i>
+                                            <span class="fw-bold">Hotel Booking</span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="row">
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="room_count" class="form-label small">Rooms</label>
+                                                    <field name="room_count" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="checkin_date" class="form-label small">Check-in Date</label>
+                                                    <field name="checkin_date" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="adult_count" class="form-label small">Adults</label>
+                                                    <field name="adult_count" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="checkout_date" class="form-label small">Check-out Date</label>
+                                                    <field name="checkout_date" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="child_count" class="form-label small">Children</label>
+                                                    <field name="child_count" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="no_of_nights" class="form-label small">No. of Nights</label>
+                                                    <field name="no_of_nights" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="infant_count" class="form-label small">Infants</label>
+                                                    <field name="infant_count" class="form-control form-control-sm"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="hotel_room_type" class="form-label small">Room Type</label>
+                                                    <field name="hotel_room_type" class="form-control form-control-sm"/>
+                                                </div>
+                                            </div>
+
+                                            <!-- Buttons Row -->
+                                            <div class="btn-toolbar mt-2" role="toolbar">
+                                                <div class="btn-group" role="group">
+                                                    <button name="action_clear_rooms" type="object" string="Clear All Rooms" class="btn btn-outline-secondary btn-sm me-1" />
+                                                    <button name="action_search_rooms" type="object" string="Search Rooms" class="btn btn-outline-primary btn-sm me-1" />
+                                                    <button name="action_split_rooms" type="object" string="Split All Rooms" class="btn btn-outline-warning btn-sm me-1" />
+                                                    <button name="action_assign_all_rooms" type="object" string="Assign All Rooms" class="btn btn-success btn-sm" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Room Discount Details -->
+                                <div class="col-lg-3 col-md-3 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-percent"></i>
+                                            <span class="fw-bold">Room Discount Details</span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="row">
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="use_price" class="form-label small">Use Room Price</label>
+                                                    <field name="use_price" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_price == False">
+                                                    <label for="room_price" class="form-label small">Room Price</label>
+                                                    <field name="room_price" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_price == False">
+                                                    <label for="room_discount" class="form-label small">Discount (Amount)</label>
+                                                    <field name="room_discount" digits="[16,2]" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_price == False">
+                                                    <label for="room_is_amount" class="form-label small">Is Amount</label>
+                                                    <field name="room_is_amount" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_price == False">
+                                                    <label for="room_is_percentage" class="form-label small">Is Percentage</label>
+                                                    <field name="room_is_percentage" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_price == False or room_is_amount == False">
+                                                    <label for="room_amount_selection" class="form-label small">Amount Selection</label>
+                                                    <field name="room_amount_selection" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                            <!-- /row g-2 -->
+
+                            <!-- 2) Discounts Section: Meals Discount Details & Additional Details & Payment Details -->
+                            <div class="row g-2">
+                                <!-- Meals Discount Details -->
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-cutlery"></i>
+                                            <span class="fw-bold">Meals Discount Details</span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="row">
+                                                <div class="form-group col-6 mb-1">
+                                                    <label for="use_meal_price" class="form-label small">Use Meal Price</label>
+                                                    <field name="use_meal_price" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_meal_price == False">
+                                                    <label for="meal_price" class="form-label small">Meal Price</label>
+                                                    <field name="meal_price" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_meal_price == False">
+                                                    <label for="meal_child_price" class="form-label small">Child Meal Price</label>
+                                                    <field name="meal_child_price" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="not meal_is_percentage or use_meal_price == False">
+                                                    <label for="meal_discount" class="form-label small">Meal Discount (Percentage)</label>
+                                                    <field name="meal_discount" widget="percentage" digits="[16,2]" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="meal_is_percentage or use_meal_price == False">
+                                                    <label for="meal_discount" class="form-label small">Meal Discount (Amount)</label>
+                                                    <field name="meal_discount" digits="[16,2]" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_meal_price == False">
+                                                    <label for="meal_is_amount" class="form-label small">Is Amount</label>
+                                                    <field name="meal_is_amount" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="use_meal_price == False">
+                                                    <label for="meal_is_percentage" class="form-label small">Is Percentage</label>
+                                                    <field name="meal_is_percentage" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                                <div class="form-group col-6 mb-1" invisible="meal_is_amount == False or use_meal_price == False">
+                                                    <label for="meal_amount_selection" class="form-label small">Amount Selection</label>
+                                                    <field name="meal_amount_selection" class="form-control form-control-sm" force_save="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Details -->
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-star"></i>
+                                            <span class="fw-bold">Additional Details</span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="form-group mb-1">
+                                                <label for="vip" class="form-label small">VIP</label>
+                                                <field name="vip" class="form-control form-control-sm" force_save="1"/>
+                                            </div>
+                                            <div class="form-group mb-1" invisible="vip == False">
+                                                <label for="vip_code" class="form-label small">VIP Code</label>
+                                                <field name="vip_code" class="form-control form-control-sm" force_save="1"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="complementary" class="form-label small">Complementary</label>
+                                                <field name="complementary" class="form-control form-control-sm" force_save="1"/>
+                                            </div>
+                                            <div class="form-group mb-1" invisible="complementary == False">
+                                                <label for="complementary_codes" class="form-label small">Complementary Codes</label>
+                                                <field name="complementary_codes" class="form-control form-control-sm" force_save="1"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="house_use" class="form-label small">House Use</label>
+                                                <field name="house_use" class="form-control form-control-sm" force_save="1"/>
+                                            </div>
+                                            <div class="form-group mb-1" invisible="house_use == False">
+                                                <label for="house_use_codes" class="form-label small">House Use Codes</label>
+                                                <field name="house_use_codes" class="form-control form-control-sm" force_save="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Details -->
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-money"></i>
+                                            <span class="fw-bold">Payment Details</span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="form-group mb-1">
+                                                <label for="payment_type" class="form-label small">Payment Type</label>
+                                                <field name="payment_type" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                            <!-- /row g-2 -->
+                        </page>
+
+                        <page string="Main">
+                            <!-- Hidden Fields -->
                             <group>
                                 <field name="active" invisible="1"/>
                                 <field name="hide_unconfirm_button" invisible="1"/>
                                 <field name="hide_confirm_button" invisible="1"/>
                                 <field name="hide_admin_buttons" invisible="1"/>
+                                <field name="hide_buttons_front_desk" invisible="1"/>
                                 <!-- <field name="previous_state" string="Previous State"/> -->
                                 <!-- <group string="State"> -->
                                 <!-- <field name="state" readonly="state in ['block']"></field> -->
@@ -317,190 +594,44 @@
                                 <field name="show_group_booking" invisible="1"/>
                                 <field name="rooms_searched" invisible="1"/>
                                 <field name="all_rooms_assigned" invisible="1"/>
-                                <group>
+                                <field name="allow_profile_change" invisible="1" readonly="state in ('check_out', 'no_show')"/>
+                                <field name="need_service" invisible="1" readonly="state in ('check_out', 'no_show')"/>
+                                <field name="need_fleet" invisible="1" readonly="state in ('check_out', 'no_show')"/>
+                                <field name="need_food" invisible="1" readonly="state in ('check_out', 'no_show')"/>
+                                <field name="need_event" invisible="1" readonly="state in ('check_out', 'no_show')"/>
+                                <field name="is_vip" invisible="1" readonly="state in ('check_out', 'no_show')"/>
+                            </group>
+
+                            <!-- General Information -->
+                            <group>
+                                <group string="General Information">
                                     <group>
-                                        <field name="is_readonly_group_booking" invisible="1" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="company_id" placeholder="Select Hotel" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="group_booking" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="is_agent" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="partner_id" options="{'no_create': False}" domain="[('is_company', '=', is_agent)]" required="true" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="reference_contact_" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="date_order" readonly="1"/>
-
-                                        <field name="notes" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="ref_id_bk" readonly="1"/>
-                                        <field name="allow_profile_change" invisible="1" readonly="state in ('check_out', 'no_show')"/>
-                                    </group>
-                                    <group>
-                                        <field name="nationality" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
-                                        <field name="source_of_business" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
-                                        <field name="meal_pattern" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
-                                        <field name="market_segment" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
-                                        <field name="rate_code" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
-
-                                        <field name="need_service" invisible="1" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="need_fleet" invisible="1" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="need_food" invisible="1" readonly="state in ('check_out', 'no_show')"/>
-                                        <field name="need_event" invisible="1" readonly="state in ('check_out', 'no_show')"/>
-
-
-                                    </group>
-                                    <group>
-                                        <field name="room_price" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                        <field name="use_price" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                        <field name="room_discount" invisible="not room_is_percentage or use_price == False" readonly="state in ('check_out', 'no_show')" widget="percentage" digits="[16,2]" options="{'digits': [16,2]}" placeholder="0.00 %" force_save="1"/>
-
-                                        <!-- Regular display -->
-                                        <field name="room_discount" invisible="room_is_percentage or use_price == False" readonly="state in ('check_out', 'no_show')" digits="[16,2]" options="{'digits': [16,2]}" placeholder="0.00" force_save="1"/>
-                                        <!-- <field name="room_discount" invisible="use_price == False" readonly="state in ('check_out', 'no_show')" widget="percentage" digits="[16,2]" options="{'digits': [16,2]}" force_save="1"/> -->
-                                        <field name="room_is_amount" invisible="use_price == False" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                        <field name="room_is_percentage" invisible="use_price == False" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                        <field name="room_amount_selection" invisible="room_is_amount == False or use_price == False" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                    </group>
-                                    <group>
-                                        <field name="meal_price" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                        <field name="use_meal_price" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-
-                                        <!-- Meal Discount as Percentage -->
-                                        <field name="meal_discount" 
-                                            invisible="not meal_is_percentage or use_meal_price == False" 
-                                            readonly="state in ('check_out', 'no_show')" 
-                                            widget="percentage" 
-                                            digits="[16,2]" 
-                                            options="{'digits': [16,2]}" 
-                                            placeholder="0.00 %" 
-                                            force_save="1"/>
-                                            
-                                        <!-- Regular Display for Meal Discount -->
-                                        <field name="meal_discount" 
-                                            invisible="meal_is_percentage or use_meal_price == False" 
-                                            readonly="state in ('check_out', 'no_show')" 
-                                            digits="[16,2]" 
-                                            options="{'digits': [16,2]}" 
-                                            placeholder="0.00" 
-                                            force_save="1"/>
-                                        
-                                        <field name="meal_is_amount" 
-                                            invisible="use_meal_price == False" 
-                                            readonly="state in ('check_out', 'no_show')" 
-                                            force_save="1"/>
-                                        <field name="meal_is_percentage" 
-                                            invisible="use_meal_price == False" 
-                                            readonly="state in ('check_out', 'no_show')" 
-                                            force_save="1"/>
-                                        <field name="meal_amount_selection" 
-                                            invisible="meal_is_amount == False or use_meal_price == False" 
-                                            readonly="state in ('check_out', 'no_show')" 
-                                            force_save="1"/>
-                                    </group>
-
-
-                                    <group>
-                                        <field name="vip" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1" />
-                                        <field name="is_vip" invisible="1" readonly="state in ('check_out', 'no_show')" />
-                                        <field name="vip_code" invisible="vip == False" required="vip == True" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                        <field name="complementary" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1" />
-                                        <field name="complementary_codes" invisible="complementary == False" required="complementary == True" readonly="state in ('check_out', 'no_show')" force_save="1"/>
-                                        <field name="house_use" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1" />
-                                        <field name="house_use_codes" invisible="house_use == False" required="house_use == True" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                        <field name="company_id" string="Hotel" placeholder="Select Hotel" readonly="state in ('check_out', 'no_show')"/>
+                                        <field name="group_booking" string="Group Booking" readonly="state in ('check_out', 'no_show')"/>
+                                        <field name="date_order" string="Date of Order" readonly="1"/>
+                                        <!-- <field name="ref_id_bk" string="Reference ID" readonly="1"/> -->
+                                        <field name="notes" string="Notes" readonly="state in ('check_out', 'no_show')"/>
                                     </group>
                                 </group>
-
-
-                                <group string="Hotel Booking" class="booking-group">
+                                <!-- Hotel Booking Details -->
+                                <group string="Hotel Booking">
                                     <group>
-                                        <!-- Arrange Rooms, Adults, and Children vertically -->
-                                        <group class="vertical-counter-group">
-                                            <!-- Rooms -->
-                                            <label for="room_count" string="Rooms"/>
-                                            <div class="o_field_widget o_input">
-                                                <div class="input-group">
-                                                    <!-- Decrease Button -->
-                                                    <!-- <button type="object" name="decrease_room_count" class="btn btn-secondary" style="border-right: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        -
-                                                    </button> -->
-
-                                                    <!-- Room Count Field -->
-                                                    <field name="room_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;" readonly="state in ('block', 'check_in','check_out','no_show')"/>
-
-                                                    <!-- Increase Button -->
-                                                    <!-- <button type="object" name="increase_room_count" class="btn btn-primary" style="border-left: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        +
-                                                    </button> -->
-                                                </div>
-                                            </div>
-
-                                            <!-- Adults -->
-                                            <label for="adult_count" string="Adults"/>
-                                            <div class="o_field_widget o_input">
-                                                <div class="input-group">
-                                                    <!-- Decrease Button -->
-                                                    <!-- <button type="object" name="decrease_adult_count" class="btn btn-secondary" style="border-right: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        -
-                                                    </button> -->
-
-                                                    <!-- Adult Count Field -->
-                                                    <field name="adult_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;" readonly="state in ('block', 'check_in','check_out','no_show')"/>
-
-                                                    <!-- Increase Button -->
-                                                    <!-- <button type="object" name="increase_adult_count" class="btn btn-primary" style="border-left: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        +
-                                                    </button> -->
-                                                </div>
-                                            </div>
-
-                                            <!-- Children -->
-                                            <label for="child_count" string="Children"/>
-                                            <div class="o_field_widget o_input">
-                                                <div class="input-group">
-                                                    <!-- Decrease Button -->
-                                                    <!-- <button type="object" name="decrease_child_count" class="btn btn-secondary" style="border-right: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        -
-                                                    </button> -->
-
-                                                    <!-- Child Count Field -->
-                                                    <field name="child_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;" readonly="state in ('block', 'check_in','check_out','no_show')"/>
-
-                                                    <!-- Increase Button -->
-                                                    <!-- <button type="object" name="increase_child_count" class="btn btn-primary" style="border-left: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        +
-                                                    </button> -->
-                                                </div>
-                                            </div>
-                                            <!-- Infant -->
-                                            <label for="infant_count" string="Infants"/>
-                                            <div class="o_field_widget o_input">
-                                                <div class="input-group">
-                                                    <!-- Decrease Button -->
-                                                    <!-- <button type="object" name="decrease_child_count" class="btn btn-secondary" style="border-right: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        -
-                                                    </button> -->
-
-                                                    <!-- Child Count Field -->
-                                                    <field name="infant_count" class="o_input" options="{'readonly': '1'}" style="text-align: center; width: 40px; border-left: none; border-right: none;" readonly="state in ('block', 'check_in','check_out','no_show')"/>
-
-                                                    <!-- Increase Button -->
-                                                    <!-- <button type="object" name="increase_child_count" class="btn btn-primary" style="border-left: none;" invisible="state in ('block', 'check_in','check_out','no_show')">
-                                                        +
-                                                    </button> -->
-                                                </div>
-                                            </div>
-                                        </group>
-                                    </group>
-
-                                    <group>
-                                        <field name="checkin_date" placeholder="Select check-in date" readonly="state in ('block', 'check_in','check_out','no_show')" required="1" />
-                                        <field name="no_of_nights" placeholder="Select Days" readonly="state in ('block', 'check_in','check_out','no_show')" required="1" />
-                                        <field name="checkout_date" placeholder="Select check-out date" readonly="state in ('block', 'check_in','check_out','no_show')" required="1" />
-                                        <field name="hotel_room_type" placeholder="Select Room Type" readonly="state in ('block', 'check_in','check_out','no_show')" options="{'no_open': True}" force_save="1"/>
-
-                                        <!-- Buttons -->
+                                        <field name="room_count" string="Rooms" readonly="state in ('block', 'check_in','check_out','no_show')"/>
+                                        <field name="adult_count" string="Adults" readonly="state in ('block', 'check_in','check_out','no_show')"/>
+                                        <field name="child_count" string="Children" readonly="state in ('block', 'check_in','check_out','no_show')"/>
+                                        <field name="infant_count" string="Infants" readonly="state in ('block', 'check_in','check_out','no_show')"/>
                                         <div style="margin-right: 20px;">
-                                            <button name="action_search_rooms" type="object" string="Search Rooms" class="oe_highlight" invisible="state in ('block', 'check_in','check_out','no_show')"/>
+                                            <button name="action_search_rooms" type="object" string="Search Rooms" class="oe_highlight" invisible="state in ('block', 'check_in','check_out','no_show')" />
                                         </div>
                                         <div style="margin-right: 20px;">
                                             <button name="action_split_rooms" type="object" string="Split All Rooms" class="oe_highlight" invisible="state in ('block', 'check_in','check_out','no_show')"/>
                                         </div>
+                                    </group>
+                                    <group>
+                                        <field name="checkin_date" string="Check-in Date" placeholder="Select check-in date" readonly="state in ('block', 'check_in','check_out','no_show')" required="1"/>
+                                        <field name="no_of_nights" string="No. of Nights" placeholder="Select Days" readonly="state in ('block', 'check_in','check_out','no_show')" required="1"/>
+                                        <field name="checkout_date" string="Check-out Date" placeholder="Select check-out date" readonly="state in ('block', 'check_in','check_out','no_show')" required="1"/>
+                                        <field name="hotel_room_type" string="Room Type" placeholder="Select Room Type" readonly="state in ('block', 'check_in','check_out','no_show')" options="{'no_open': True}" force_save="1"/>
                                         <div style="margin-right: 20px;">
                                             <button name="action_clear_rooms" type="object" string="Clear All Rooms" class="oe_highlight" context="{'clear_search_results': True}" invisible="state in ('block', 'check_in','check_out','no_show')"/>
                                         </div>
@@ -508,235 +639,89 @@
                                             <button name="action_assign_all_rooms" type="object" string="Assign All Rooms" class="oe_highlight" invisible="state in ('block', 'check_in','check_out','no_show')"/>
                                         </div>
                                     </group>
+                                    <!-- <group>
+                                    </group> -->
+                                </group>
+                            </group>
+
+                            <group>
+                                <!-- Contact Information -->
+                                <group string="Contact Information">
+                                    <group>
+                                        <field name="is_agent" readonly="state in ('check_out', 'no_show')"/>
+                                        <field name="partner_id" string="Contact Name" options="{'no_create': False}" domain="[('is_company', '=', is_agent)]" required="true" readonly="state in ('check_out', 'no_show')"/>
+                                        <field name="nationality" string="Nationality" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                        <field name="reference_contact_" string="Reference Contact" readonly="state in ('check_out', 'no_show')"/>
+                                        <field name="ref_id_bk" readonly="1"/>
+                                    </group>
+                                </group>
+                                <!-- Guest Details -->
+                                <group string="Codes">
+                                    <group>
+                                        <field name="source_of_business" string="Source of Business" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                        <field name="meal_pattern" string="Meal Pattern" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                        <field name="market_segment" string="Market Segment" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                        <field name="rate_code" string="Rate Code" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                    </group>
+                                </group>
+                            </group>
 
 
+                            <!-- Discounts -->
+                            <group string="Discount Details">
+                                <group string="Rooms">
+                                    <field name="use_price" readonly="state in ('check_out', 'no_show')"  string = "Use Room Price" force_save="1" />
+                                    <!-- <field name="room_price" readonly="state in ('check_out', 'no_show')" force_save="1"/> -->
+                                    <field name="room_price" readonly="state in ('check_out', 'no_show')" invisible="use_price == False" force_save="1"/>
+                                    <!-- <field name="room_child_price" readonly="state in ('check_out', 'no_show')" invisible="use_price == False" force_save="1"/> -->
+                                    <!-- <field name="room_infant_price" readonly="state in ('check_out', 'no_show')" invisible="use_price == False" force_save="1"/> -->
+                                    <field name="room_discount" invisible="not room_is_percentage or use_price == False" readonly="state in ('check_out', 'no_show')" widget="percentage" digits="[16,2]" options="{'digits': [16,2]}" placeholder="0.00 %" force_save="1"/>
+
+                                    <!-- Regular display -->
+                                    <field name="room_discount" invisible="room_is_percentage or use_price == False" readonly="state in ('check_out', 'no_show')" digits="[16,2]" options="{'digits': [16,2]}" placeholder="0.00" force_save="1"/>
+                                    <!-- <field name="room_discount" invisible="use_price == False" readonly="state in ('check_out', 'no_show')" widget="percentage" digits="[16,2]" options="{'digits': [16,2]}" force_save="1"/> -->
+                                    <field name="room_is_amount" invisible="use_price == False or room_is_percentage" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                    <field name="room_is_percentage" invisible="use_price == False or room_is_amount" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                    <field name="room_amount_selection" invisible="room_is_amount == False or use_price == False" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                </group>
+                                <group string="Meals">
+                                    <field name="use_meal_price" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                    <!-- <field name="meal_price" readonly="state in ('check_out', 'no_show')" force_save="1"/> -->
+                                    <field name="meal_price" readonly="state in ('check_out', 'no_show')" invisible="use_meal_price == False" force_save="1"/>
+                                    <field name="meal_child_price" readonly="state in ('check_out', 'no_show')" invisible="use_meal_price == False" force_save="1"/>
+                                    <!-- <field name="meal_infant_price" readonly="state in ('check_out', 'no_show')" invisible="use_meal_price == False" force_save="1"/> -->
+
+                                    <!-- Meal Discount as Percentage -->
+                                    <field name="meal_discount" invisible="not meal_is_percentage or use_meal_price == False" readonly="state in ('check_out', 'no_show')" widget="percentage" digits="[16,2]" options="{'digits': [16,2]}" placeholder="0.00 %" force_save="1"/>
+
+                                    <!-- Regular Display for Meal Discount -->
+                                    <field name="meal_discount" invisible="meal_is_percentage or use_meal_price == False" readonly="state in ('check_out', 'no_show')" digits="[16,2]" options="{'digits': [16,2]}" placeholder="0.00" force_save="1"/>
+
+                                    <field name="meal_is_amount" invisible="use_meal_price == False or meal_is_percentage" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                    <field name="meal_is_percentage" invisible="use_meal_price == False or meal_is_amount" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                    <field name="meal_amount_selection" invisible="meal_is_amount == False or use_meal_price == False" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                </group>
+                            </group>
+
+                            <group>
+                                <group string="VIP and Complementary Details">
+                                    <group>
+                                        <field name="vip" string="VIP" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                        <field name="vip_code" string="VIP Code" invisible="vip == False" required="vip == True" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                        <field name="complementary" string="Complementary" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                        <field name="complementary_codes" string="Complementary Codes" invisible="complementary == False" required="complementary == True" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                        <field name="house_use" string="House Use" readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)" force_save="1"/>
+                                        <field name="house_use_codes" string="House Use Codes" invisible="house_use == False" required="house_use == True" readonly="state in ('check_out', 'no_show')" force_save="1"/>
+                                    </group>
                                 </group>
 
-
-                                <!-- <group>
-                                    <group string="Rate Details">
-                                        <table class="o_list_view table table-condensed table-striped" style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th style="padding: 15px; text-align: left; white-space: nowrap; width: 200px;">
-                                                        Day
-                                                    </th>
-                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
-                                                        1 Pax
-                                                    </th>
-                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
-                                                        2 Pax
-                                                    </th>
-                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
-                                                        3 Pax
-                                                    </th>
-                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
-                                                        4 Pax
-                                                    </th>
-                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
-                                                        5 Pax
-                                                    </th>
-                                                    <th style="padding: 15px; text-align: right; white-space: nowrap; width: 200px;">
-                                                        6 Pax
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td style="padding: 25px; white-space: nowrap; font-weight: bold;">
-                                                        Monday
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="monday_pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="monday_pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="monday_pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="monday_pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="monday_pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="monday_pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
-                                                        Tuesday
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="tuesday_pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="tuesday_pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="tuesday_pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="tuesday_pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="tuesday_pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="tuesday_pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
-                                                        Wedneday
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="wednesday_pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="wednesday_pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="wednesday_pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="wednesday_pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="wednesday_pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="wednesday_pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
-                                                        Thursday
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="thursday_pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="thursday_pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="thursday_pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="thursday_pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="thursday_pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="thursday_pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
-                                                        Friday
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="friday_pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="friday_pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="friday_pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="friday_pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="friday_pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="friday_pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
-                                                        Saturday
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="saturday_pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="saturday_pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="saturday_pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="saturday_pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="saturday_pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="saturday_pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
-                                                        Sunday
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="sunday_pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="sunday_pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="sunday_pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="sunday_pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="sunday_pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="sunday_pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 15px; white-space: nowrap; font-weight: bold;">
-                                                        Default
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="pax_1_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="pax_2_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="pax_3_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="pax_4_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="pax_5_rb"/>
-                                                    </td>
-                                                    <td style="padding: 15px; white-space: nowrap;">
-                                                        <field name="pax_6_rb"/>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </group>
-                                </group> -->
-
-                                <group string="Payment Type">
-                                    <field name="payment_type" widget="radio" readonly="state in ('check_out', 'no_show')"/>
+                                <group string="Payment Details">
+                                    <field name="payment_type" string="Payment Type" widget="radio" readonly="state in ('check_out', 'no_show')"/>
                                 </group>
                             </group>
 
                         </page>
+
                         <page string="Adults">
                             <field name="adult_ids" options="{'invisible': [('adult_count', '=', 0)]}">
                                 <tree string="Adults" editable="top" create="false">
@@ -777,6 +762,26 @@
                                 </tree>
                             </field>
                         </page>
+                        <page string="Infant">
+                            <field name="infant_ids" options="{'invisible': [('infant_count', '=', 0)]}">
+                                <tree string="Infant" editable="top" create="false">
+                                    <field name="room_sequence"/>
+                                    <field name="room_type_id" readonly="1" options="{'no_open': True}"/>
+                                    <field name="room_id" readonly="1" options="{'no_open': True}"/>
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+                        </page>
                         <page string="Fixed Post">
                             <field name="posting_item_ids">
                                 <tree editable="bottom">
@@ -785,7 +790,7 @@
 
                                     <field name="description"/>
                                     <!-- <field name="posting_item_combined"/> -->
-                                    <field name="posting_item_selection"/>
+                                    <field name="posting_item_selection" required = "1"/>
                                     <field name="from_date" readonly="posting_item_selection != 'custom_date'"/>
                                     <field name="to_date" readonly="posting_item_selection != 'custom_date'"/>
 
@@ -829,7 +834,7 @@
                             <field name="total_people" invisible="1"/>
                             <field name="is_room_line_readonly" invisible="1"/>
                             <field name="room_line_ids" colspan="4" string="Room Lines" readonly="is_room_line_readonly" context="{'default_checkin_date':checkin_date, 'default_checkout_date':checkout_date, 'default_uom_qty':duration, 'default_hotel_room_type': hotel_room_type}">
-                                <tree editable="bottom">
+                                <tree editable="bottom" create="false">
                                     <field name="sequence" readonly="1"/>
                                     <field name="booked_room_ids" optional="hide" invisible="1"/>
                                     <field name="counter" optional="hide" invisible="1"/>
@@ -987,6 +992,35 @@
         </field>
     </record>
 
+    <record id="action_report_consolidated_rc_group" model="ir.actions.server">
+        <field name="name">Generate Group RC Report</field>
+        <field name="model_id" ref="model_room_booking"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = {
+                'type': 'ir.actions.act_url',
+                'url': '/generate_rc/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)),
+                'target': 'self',
+            }
+        </field>
+        <field name="binding_model_id" ref="model_room_booking"/>
+        <field name="binding_type">action</field>
+    </record>
+    <record id="action_report_consolidated_rc_guest_group" model="ir.actions.server">
+        <field name="name">Generate Group RC Guest Report</field>
+        <field name="model_id" ref="model_room_booking"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = {
+                'type': 'ir.actions.act_url',
+                'url': '/generate_rc_guest/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)),
+                'target': 'self',
+            }
+        </field>
+        <field name="binding_model_id" ref="model_room_booking"/>
+        <field name="binding_type">action</field>
+    </record>
+
     <record id="action_open_room_booking_update_wizard" model="ir.actions.act_window">
         <field name="name">Update Check-In and Check-Out Dates</field>
         <field name="type">ir.actions.act_window</field>
@@ -1130,7 +1164,7 @@
             </xpath>
 
             <xpath expr="//page[@name='branches']" position="after">
-               <page string="Email Configuration">
+                <page string="Email Configuration">
 
                     <group colspan="2">
                         <group>
@@ -1140,11 +1174,14 @@
                         <group>
                             <field name="template_id" widget="selection" />
                             <field name="reminder_days_before" />
-                            <field name="pre_template_id" widget="selection" />
-                            <field name="pre_arrival_days_before" />
+                            <field name="enable_reminder" />
+                            <field name="pre_template_id" widget="selection" invisible="enable_reminder == False" />
+                            <field name="pre_arrival_days_before" invisible="enable_reminder == False"/>
+                            <!-- <field name="pre_template_id" widget="selection" />
+                            <field name="pre_arrival_days_before" /> -->
                         </group>
-                        
-                     </group>
+
+                    </group>
                 </page>
             </xpath>
 
@@ -1239,12 +1276,52 @@
             </form>
         </field>
     </record>
-     <record id="mail.mail_activity_action" model="ir.actions.act_window">
+    <record id="mail.mail_activity_action" model="ir.actions.act_window">
         <field name="name">Filtered Activities</field>
         <field name="res_model">mail.activity</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[('summary', '=', 'Room Availability Notification'), ('res_model', '=', 'room.booking')]</field>
     </record>
+
+    <!-- <record id="view_confirm_booking_wizard_form" model="ir.ui.view">
+        <field name="name">confirm.booking.wizard.form</field>
+        <field name="model">confirm.booking.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Booking">
+                <group>
+                    <label for="message" string=""/>
+                    <field name="line_id" nolabel="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Yes" type="object" class="btn-primary"/>
+                    <button name="action_cancel" string="No" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record> -->
+
+    <record id="view_confirm_booking_wizard_form" model="ir.ui.view">
+        <field name="name">confirm.booking.wizard.form</field>
+        <field name="model">confirm.booking.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Booking">
+                <field name="message" readonly="1"/>
+                <field name="line_id" invisible="1"/>
+                <footer>
+                    <button string="Yes" name="action_confirm" type="object" class="btn-primary"/>
+                    <button string="No" name="action_cancel" type="object" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_confirm_booking_wizard" model="ir.actions.act_window">
+        <field name="name">Confirm Booking</field>
+        <field name="res_model">confirm.booking.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
 
 
     <record id="action_booking_checkin_wizard" model="ir.actions.act_window">

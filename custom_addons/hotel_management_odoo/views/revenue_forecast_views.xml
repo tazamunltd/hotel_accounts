@@ -1,0 +1,103 @@
+<odoo>
+    <!-- Pivot View -->
+    <record id="view_revenue_forecast_pivot" model="ir.ui.view">
+        <field name="name">revenue.forecast.pivot</field>
+        <field name="model">revenue.forecast</field>
+        <field name="arch" type="xml">
+            <pivot string="Revenue Forecast">
+                <field name="report_date" type="row"/>
+                <field name="total_rooms" type="row"/>
+                <field name="out_of_order" type="row"/>
+                <field name="available_rooms" type="row"/>
+                <field name="in_house" type="row"/>
+                <field name="pax_chi_inf" type="row"/>
+                <field name="expected_occupied_rate" type="row"/>
+                <field name="rate_revenue" type="row"/>
+                <field name="fnb_revenue" type="row"/>
+                <field name="total_revenue" type="measure" />
+                <field name="average_rate_per_room" type="measure"/>
+                <field name="rate_per_pax" type="measure"/>
+                <field name="meals_per_pax" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_revenue_forecast_graph" model="ir.ui.view">
+        <field name="name">revenue.forecast.graph</field>
+        <field name="model">revenue.forecast</field>
+        <field name="arch" type="xml">
+            <graph string="Revenue Forecast Results" type="bar">
+                <field name="report_date" type="row"/>
+                <field name="total_rooms" type="row"/>
+                <field name="out_of_order" type="row"/>
+                <field name="available_rooms" type="row"/>
+                <field name="in_house" type="row"/>
+                <field name="pax_chi_inf" type="row"/>
+                <field name="expected_occupied_rate" type="row"/>
+                <field name="rate_revenue" type="row"/>
+                <field name="fnb_revenue" type="row"/>
+                <field name="total_revenue" type="measure" />
+                <field name="average_rate_per_room" type="measure"/>
+                <field name="rate_per_pax" type="measure"/>
+                <field name="meals_per_pax" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_revenue_forecast_tree" model="ir.ui.view">
+        <field name="name">revenue.forecast.tree</field>
+        <field name="model">revenue.forecast</field>
+        <field name="arch" type="xml">
+            <tree string="Revenue Forecast">
+                <field name="report_date" optional="show"/>
+                <field name="total_rooms" optional="show"/>
+                <field name="out_of_order" optional="show"/>
+                <field name="available_rooms" optional="show"/>
+                <field name="in_house" optional="show"/>
+                <field name="pax_chi_inf" optional="show"/>
+                <field name="expected_occupied_rate" optional="show"/>
+                <field name="rate_revenue" optional="show"/>
+                <field name="fnb_revenue" optional="show"/>
+                <field name="total_revenue" optional="show" />
+                <field name="average_rate_per_room" optional="show"/>
+                <field name="rate_per_pax" optional="show"/>
+                <field name="meals_per_pax" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action Server -->
+    <record id="action_run_process_by_revenue_forecast" model="ir.actions.server">
+        <field name="name">Revenue Forecast</field>
+        <field name="model_id" ref="model_revenue_forecast"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+model.run_process_by_revenue_forecast()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Revenue Forecast Report',
+    'res_model': 'revenue.forecast',
+    'view_mode': 'tree,pivot,graph',
+    'views': [
+        (env.ref('hotel_management_odoo.view_revenue_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_revenue_forecast_pivot').id, 'pivot'),
+        (env.ref('hotel_management_odoo.view_revenue_forecast_graph').id, 'graph'),
+    ],
+    'target': 'current',
+}
+            ]]>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_run_process_by_revenue_forecast"
+        name="Revenue Forecast"
+        parent="menu_forecast"
+        action="action_run_process_by_revenue_forecast"
+        sequence="70"
+    />
+</odoo>

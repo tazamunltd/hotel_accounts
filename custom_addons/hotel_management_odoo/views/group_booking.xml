@@ -61,8 +61,8 @@
                                         <field name="age"/>
                                         <field name="address"/>
                                         <field name="image" widget="document_upload_widget" filename="document_name"/>
-                                        <field name="document_name"  optional='show'/>
-        
+                                        <field name="document_name" optional='show'/>
+
                                     </tree>
                                 </field>
                             </group>
@@ -148,15 +148,30 @@
         </field>
     </record>
 
+    <record id="view_group_booking_pivot" model="ir.ui.view">
+        <field name="name">group.booking.pivot</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <pivot string="Group Booking Analysis">
+                <field name="group_name" type="row"/>
+                <field name="company" type="row"/>
+                <field name="status_code" type="row"/>
+                <field name="expected_rooms" type="measure"/>
+                <field name="total_revenue" type="measure"/>
+                <field name="total_stays" type="measure"/>
+                <field name="total_nights" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+
     <!-- Action for Group Booking -->
     <record id="group_booking_action" model="ir.actions.act_window">
         <field name="name">Group Booking</field>
         <field name="res_model">group.booking</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot</field>
     </record>
 
     <!-- Menu Item for Group Reservation -->
-    <menuitem id="group_reservation_menu" name="Group" sequence="20"
-              parent="room_booking_menu"
-              action="group_booking_action"/>
+    <menuitem id="group_reservation_menu" name="Group" sequence="20" parent="room_booking_menu" action="group_booking_action"/>
 </odoo>

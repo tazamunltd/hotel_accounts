@@ -1,4 +1,5 @@
-from odoo import api, models, fields
+from odoo import api, models, fields,_
+from odoo.exceptions import ValidationError
 
 class DepartmentCategory(models.Model):
     _name = 'department.category'
@@ -20,7 +21,18 @@ class DepartmentCode(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'department'
-    department = fields.Char(string="Department", required=True,tracking=True)
+
+    department = fields.Integer(string="Department", required=True,tracking=True, default = 0)
+
+    @api.onchange('department')
+    def _check_name_validity(self):
+        for record in self:
+            if record.department < 0:
+                raise ValidationError(_("Department name cannot be a negative number.."))
+            # if record.department and record.department.lstrip('-').isdigit():
+            #     if int(record.department) < 1:
+            #         raise ValidationError(_("Department name cannot be a negative number. Please enter a valid name."))
+                
     description = fields.Char(string="Description", required=True,tracking=True)
     abbreviation = fields.Char(string="Abbreviation",tracking=True)
     arabic_description = fields.Char(string="Arabic Description",tracking=True)
@@ -84,7 +96,11 @@ class PostingItem(models.Model):
     arabic_abbreviation = fields.Char(string="Arabic Abbr.",tracking=True)
     main_department = fields.Many2one('department.code', string="Main Department",tracking=True)
     default_currency = fields.Char(string="Default Currency",tracking=True)
-    default_value = fields.Float(string="Default Value", default=0.0,tracking=True)
+    default_value = fields.Float(string="Default Value", default=1,tracking=True)
+    @api.onchange('default_value')
+    def _onchange_default_value(self):
+        if self.default_value < 1:
+            raise ValidationError(_("The Default Value cannot be less than 1."))
     entry_value_type = fields.Selection([
         ('gross', 'Gross'),
         ('net', 'Net'),
@@ -121,10 +137,11 @@ class PostingItem(models.Model):
 class PostingItemAddition(models.Model):
     _name = 'posting.item.addition'
     _description = 'Posting Item Addition'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     posting_item_id = fields.Many2one('posting.item', string="Posting Item", ondelete='cascade',tracking=True)
-    department = fields.Char(string="Department",tracking=True)
+    # department = fields.Char(string="Department",tracking=True)
+    department = fields.Many2one('department.code', string="Main Department",tracking=True)
     line = fields.Integer(string="Line",tracking=True)
     name = fields.Char(string="Name",tracking=True)
     value = fields.Float(string="Value", default=0.0,tracking=True)
@@ -163,6 +180,7 @@ class CurrencyCode(models.Model):
     _description = 'Currency Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    _rec_name = 'currency'
     currency = fields.Char(string="Currency Code", required=True,tracking=True)
     description = fields.Char(string="Description",tracking=True)
     abbreviation = fields.Char(string="Abbreviation",tracking=True)
@@ -177,6 +195,14 @@ class CurrencyCode(models.Model):
     use_fo_default = fields.Boolean(string="Use Default for F/O Rate", default=True,tracking=True)
     use_rate_code_default = fields.Boolean(string="Use Default for Rate Code Rate", default=True,tracking=True)
     use_cash_default = fields.Boolean(string="Use Default for Cash Rate", default=True,tracking=True)
+
+    def name_get(self):
+        result = []
+        for record in self:
+            # Use the 'Code' field as the display name
+            name = record.currency
+            result.append((record.id, name))
+        return result
 
 class BudgetEntry(models.Model):
     _name = 'budget.entry'

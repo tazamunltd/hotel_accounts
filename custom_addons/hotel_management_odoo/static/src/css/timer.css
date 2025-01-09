@@ -1,0 +1,20 @@
+.header-timer {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.o_current_time {
+    color: #f3ededc7;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px;
+}
+
+
+.o_current_date {
+    color: #f3ededc7;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px;
+}

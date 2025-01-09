@@ -44,6 +44,24 @@ class HotelRoom(models.Model):
         return self.env.ref('uom.product_uom_unit')
 
     name = fields.Char(string='Name', help="Name of the Room", index='trigram', required=True)
+
+    # @api.onchange('name')
+    # def _check_name_validity(self):
+    #     for record in self:
+    #         if record.name:
+    #             name_value = int(record.name)
+    #             if name_value <= 0:
+    #                 raise ValidationError(_("Room name cannot be a negative number or zero. Please enter a valid name."))
+
+
+    # @api.constrains('name')
+    # @api.onchange('name')
+    # def _check_name_validity(self):
+    #     for record in self:
+    #         if record.name and record.name.lstrip('-').isdigit():
+    #             if int(record.name) < 1:
+    #                 raise ValidationError(_("Room name cannot be a negative number. Please enter a valid name."))
+                
     room_type_name = fields.Many2one('room.type', string='Room Type')
 
     @api.depends('room_type_name')

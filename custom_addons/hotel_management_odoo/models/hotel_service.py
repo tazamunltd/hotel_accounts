@@ -1,5 +1,5 @@
-from odoo import fields, models, api
-
+from odoo import fields, models, api,_
+from odoo.exceptions import ValidationError
 
 class HotelService(models.Model):
     """Model that holds the all hotel services"""
@@ -11,7 +11,11 @@ class HotelService(models.Model):
     name = fields.Char(string="Service", help="Name of the service",
                        required=True,tracking=True)
     unit_price = fields.Float(string="Price", help="Price of the service",
-                              default=0.0,tracking=True)
+                              default=1,tracking=True)
+    @api.onchange('unit_price')
+    def _onchange_unit_value(self):
+        if self.unit_price < 1:
+            raise ValidationError(_("The Service price cannot be less than 1."))
     taxes_ids = fields.Many2many('account.tax',
                                  'hotel_service_taxes_rel',
                                  'service_id', 'tax_id',

@@ -18,11 +18,11 @@ class MonthlyAllotmentCharts(models.Model):
     total_rooms = fields.Integer(string='Total Rooms', readonly=True,tracking=True)
     available = fields.Integer(string='Available', readonly=True,tracking=True)
     inhouse = fields.Integer(string='In-House', readonly=True,tracking=True)
-    expected_arrivals = fields.Integer(string='Expected Arrivals', readonly=True,tracking=True)
-    expected_departures = fields.Integer(string='Expected Departures', readonly=True,tracking=True)
-    expected_inhouse = fields.Integer(string='Expected In House', readonly=True,tracking=True)
+    expected_arrivals = fields.Integer(string='Exp.Arrivals', readonly=True,tracking=True)
+    expected_departures = fields.Integer(string='Exp.Departures', readonly=True,tracking=True)
+    expected_inhouse = fields.Integer(string='Exp.Inhouse', readonly=True,tracking=True)
     reserved = fields.Integer(string='Reserved', readonly=True,tracking=True)
-    expected_occupied_rate = fields.Float(string='Expected Occupied Rate (%)', readonly=True,tracking=True)  
+    expected_occupied_rate = fields.Float(string='Exp.Occupied Rate (%)', readonly=True,tracking=True)  
     out_of_order = fields.Integer(string='Out of Order', readonly=True,tracking=True)
     overbook = fields.Integer(string='Overbook', readonly=True,tracking=True)
     free_to_sell = fields.Integer(string='Free to sell', readonly=True,tracking=True)
@@ -53,82 +53,146 @@ class MonthlyAllotmentCharts(models.Model):
         query = """
         WITH parameters AS (
     SELECT
-        (SELECT MIN(checkin_date::date) FROM room_booking) AS from_date,
-        (SELECT MAX(checkout_date::date) FROM room_booking) AS to_date,
-        NULL::integer AS selected_room_type
+        COALESCE(
+          (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
+          CURRENT_DATE
+        ) AS from_date,
+        COALESCE(
+          (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
+          CURRENT_DATE
+        ) AS to_date
 ),
 date_series AS (
-    SELECT generate_series(p.from_date, p.to_date, interval '1 day')::date AS report_date
+    SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
     FROM parameters p
 ),
-room_types AS (
-    SELECT rt.id AS room_type_id,
-           rt.room_type,
-           rt.description AS room_type_name
-    FROM room_type rt
+
+/* ----------------------------------------------------------------------------
+   1) LATEST_LINE_STATUS:
+   Determine the latest booking line status for each date and booking line.
+   Incorporate source_of_business.
+---------------------------------------------------------------------------- */
+latest_line_status AS (
+    SELECT DISTINCT ON (rbl.id, ds.report_date)
+           rbl.id AS booking_line_id,
+           ds.report_date,
+           rb.checkin_date::date   AS checkin_date,
+           rb.checkout_date::date  AS checkout_date,
+           hr.company_id,
+           rt.id                   AS room_type_id,
+           rbls.status             AS final_status,
+           rbls.change_time,
+           sb.description           AS source_of_business
+    FROM room_booking_line rbl
+    CROSS JOIN date_series ds
+    JOIN room_booking rb        ON rb.id = rbl.booking_id
+    JOIN hotel_room hr          ON hr.id = rbl.room_id
+    JOIN room_type rt           ON rt.id = hr.room_type_name  -- Ensure hr.room_type_name is the ID
+    LEFT JOIN room_booking_line_status rbls
+           ON rbls.booking_line_id = rbl.id
+           AND rbls.change_time::date <= ds.report_date
+    JOIN source_business sb      ON rb.source_of_business = sb.id
+    ORDER BY
+       rbl.id,
+       ds.report_date,
+       rbls.change_time DESC NULLS LAST
 ),
-line_status_by_day AS (
+
+/* ----------------------------------------------------------------------------
+   2) IN-HOUSE:
+   Count bookings with status 'check_in' for each group.
+---------------------------------------------------------------------------- */
+in_house AS (
     SELECT
-        ds.report_date,
-        rbl.id AS booking_line_id,
-        (
-            SELECT s.status
-            FROM room_booking_line_status s
-            WHERE s.booking_line_id = rbl.id
-              AND s.change_time::date <= ds.report_date
-            ORDER BY s.change_time DESC
-            LIMIT 1
-        ) AS status
-    FROM date_series ds
-    JOIN room_booking_line rbl ON rbl.id IS NOT NULL
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        lls.source_of_business,
+        COUNT(DISTINCT lls.booking_line_id) AS in_house_count
+    FROM latest_line_status lls
+    WHERE lls.checkin_date <= lls.report_date
+      AND lls.checkout_date >= lls.report_date
+      AND lls.final_status = 'check_in'
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.source_of_business
 ),
-hrb AS (
+
+/* ----------------------------------------------------------------------------
+   3) EXPECTED ARRIVALS:
+   Count bookings arriving on the report_date.
+---------------------------------------------------------------------------- */
+expected_arrivals AS (
     SELECT
-        ds.report_date,
-        rbl.id,
-        rb.checkin_date,
-        rb.checkout_date,
-        sb.description AS source_of_business,  -- Fetch description from source_business table
-        lsd.status AS state,
-        hr.room_type_name AS room_type_id,
-        hr.company_id,
-        rc.name AS company_name
-    FROM date_series ds
-    CROSS JOIN room_types rt
-    JOIN room_booking_line rbl ON TRUE
-    JOIN room_booking rb ON rb.id = rbl.booking_id
-    JOIN hotel_room hr ON rbl.room_id = hr.id
-    JOIN res_company rc ON hr.company_id = rc.id
-    JOIN line_status_by_day lsd ON lsd.report_date = ds.report_date AND lsd.booking_line_id = rbl.id
-    JOIN source_business sb ON rb.source_of_business = sb.id -- Join with source_business table
-    WHERE rb.checkin_date::date <= ds.report_date
-      AND rb.checkout_date::date >= ds.report_date
-      AND hr.room_type_name = rt.room_type_id
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        lls.source_of_business,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
+    FROM latest_line_status lls
+    WHERE lls.checkin_date = lls.report_date
+      AND lls.final_status IN ('confirmed', 'block')
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.source_of_business
 ),
-daily_data AS (
+
+/* ----------------------------------------------------------------------------
+   4) EXPECTED DEPARTURES:
+   Count bookings departing on the report_date.
+---------------------------------------------------------------------------- */
+expected_departures AS (
     SELECT
-        hrb.report_date,
-        hrb.source_of_business,
-        hrb.room_type_id,
-        hrb.company_id,
-        hrb.company_name,
-        COUNT(CASE WHEN hrb.state = 'check_in' THEN 1 END) AS in_house,
-        COUNT(CASE WHEN hrb.state IN ('confirmed', 'block') AND hrb.checkin_date::date <= hrb.report_date AND hrb.checkout_date::date >= hrb.report_date THEN 1 END) AS expected_inhouse
-    FROM hrb
-    GROUP BY hrb.report_date, hrb.source_of_business, hrb.room_type_id, hrb.company_id, hrb.company_name
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        lls.source_of_business,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
+    FROM latest_line_status lls
+    WHERE lls.checkout_date = lls.report_date
+      AND lls.final_status = 'check_in'
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.source_of_business
+),
+
+/* ----------------------------------------------------------------------------
+   5) FINAL REPORT:
+   Combine in_house, expected_arrivals, and expected_departures to calculate expected_in_house.
+---------------------------------------------------------------------------- */
+final_report AS (
+    SELECT
+        COALESCE(ih.report_date, ea.report_date, ed.report_date) AS report_date,
+        COALESCE(ih.company_id, ea.company_id, ed.company_id)   AS company_id,
+        COALESCE(ih.room_type_id, ea.room_type_id, ed.room_type_id) AS room_type_id,
+        COALESCE(ih.source_of_business, ea.source_of_business, ed.source_of_business) AS source_of_business,
+        (COALESCE(ih.in_house_count, 0)
+         + COALESCE(ea.expected_arrivals_count, 0)
+         - COALESCE(ed.expected_departures_count, 0)) AS expected_in_house
+    FROM in_house ih
+    FULL OUTER JOIN expected_arrivals ea
+        ON ih.report_date = ea.report_date
+        AND ih.company_id = ea.company_id
+        AND ih.room_type_id = ea.room_type_id
+        AND ih.source_of_business = ea.source_of_business
+    FULL OUTER JOIN expected_departures ed
+        ON COALESCE(ih.report_date, ea.report_date) = ed.report_date
+        AND COALESCE(ih.company_id, ea.company_id) = ed.company_id
+        AND COALESCE(ih.room_type_id, ea.room_type_id) = ed.room_type_id
+        AND COALESCE(ih.source_of_business, ea.source_of_business) = ed.source_of_business
 )
+
 SELECT
-    dd.company_id AS "Company ID",
-    dd.company_name AS "Company Name",
-    dd.report_date AS "Date",
-    dd.source_of_business AS "Source of Business",
-    COALESCE(rt.room_type_name, 'Total') AS "Room Type",
-    SUM(dd.in_house) AS "In House",
-    SUM(dd.expected_inhouse) AS "Expected In-House"
-FROM daily_data dd
-LEFT JOIN room_types rt ON dd.room_type_id = rt.room_type_id
-GROUP BY dd.company_id, dd.company_name, dd.report_date, dd.source_of_business, rt.room_type_name
-ORDER BY dd.company_id, dd.report_date, dd.source_of_business, rt.room_type_name;
+    fr.report_date,
+    fr.company_id,
+    rc.name AS company_name,
+    fr.room_type_id,
+    rt.room_type AS room_type_name,
+    fr.source_of_business,
+    fr.expected_in_house
+FROM final_report fr
+JOIN res_company rc ON fr.company_id = rc.id
+JOIN room_type rt ON fr.room_type_id = rt.id
+ORDER BY
+    fr.report_date,
+    rc.name,
+    rt.room_type,
+    fr.source_of_business;
+
         """
         self.env.cr.execute(query)
         results = self.env.cr.fetchall()
@@ -139,36 +203,48 @@ ORDER BY dd.company_id, dd.report_date, dd.source_of_business, rt.room_type_name
 
         for result in results:
             try:
-                if result[0] is not None:
-                    company_id = result[0]
-                    records_to_create.append({
-                        'company_id': company_id,
-                        'report_date': result[2],  # Date
-                        'source_of_business': result[3],  # Source of Business
-                        'room_type': result[4],    # Room Type
-                        'inhouse': int(result[5] or 0),
-                        'expected_inhouse': int(result[6] or 0),
-                        # 'total_rooms': int(result[6] or 0),        # Total Rooms
-                        # 'available': int(result[7] or 0),          # Available Rooms
-                         
-                        # 'inhouse': int(result[8] or 0),            # In House
-                        # 'expected_arrivals': int(result[9] or 0),  # Expected Arrivals
-                        # 'expected_departures': int(result[10] or 0), # Expected Departures
-                        # Expected In House
-                        # 'reserved': int(result[12] or 0),           # Reserved
-                        # 'expected_occupied_rate': float(result[13] or 0.0), # Expected Occupied Rate
-                        # 'out_of_order': int(result[14] or 0),      # Out of Order Count
-                        # 'overbook': int(result[15] or 0),          # Overbooked Count
-                        # 'free_to_sell': int(result[16] or 0),      # Free to Sell
-                        # 'sort_order': int(result[17] or 0),        # Sort Order
-                    })
+                if result[1]:
+                    
+                    company_id = result[1]
+                    if company_id != self.env.company.id:
+                        continue  
+                    # print(result[1])  
+                else:
+                    continue
+                # Unpack the result tuple
+                (
+                    report_date,
+                    company_id,
+                    company_name,
+                    room_type_id,
+                    room_type_name,
+                    source_of_business,
+                    expected_in_house
+                ) = result
+
+                record = {
+                    'company_id': company_id,                     # Integer
+                    'report_date': report_date,                   # Date
+                    'source_of_business': source_of_business,     # String
+                    'room_type': room_type_name,                  # String
+                    'expected_inhouse': int(expected_in_house or 0),  # Integer
+                }
+                _logger.debug(f"Creating record: {record}")
+                records_to_create.append(record)
+            except ValueError as ve:
+                _logger.error(f"ValueError processing record: {ve}, Data: {result}")
+                continue
             except Exception as e:
                 _logger.error(f"Error processing record: {str(e)}, Data: {result}")
                 continue
 
         if records_to_create:
-            self.create(records_to_create)
-            _logger.info(f"{len(records_to_create)} records created")
+            try:
+                self.create(records_to_create)
+                _logger.info(f"{len(records_to_create)} records created")
+            except Exception as e:
+                _logger.error(f"Error creating records: {str(e)}")
+                raise
         else:
             _logger.info("No records to create")
         _logger.info("Completed run_process_by_monthly_allotment")

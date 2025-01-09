@@ -64,5 +64,59 @@ class RoomsOnHoldManagement(models.Model):
     authorization_code = fields.Char(string="Authorization Code",tracking=True)
     comments = fields.Text(string="Comments",tracking=True)
 
-    
+
+
+class PackageHandling(models.Model):
+    _name = 'hotel.package_handling'
+    _description = 'Package and Mail Handling'
+
+    name = fields.Char(string="Package Name", required=True)
+    room_contact_email = fields.Char(string="Room Contact Email", required=True)
+    package_details = fields.Text(string="Package Details")
+    received_date = fields.Datetime(string="Received Date", default=fields.Datetime.now)
+    signature = fields.Binary(string="Signature")
+    status = fields.Selection([
+        ('pending', 'Pending'),
+        ('ready_for_pickup', 'Ready for Pickup'),
+        ('delivered', 'Delivered'),
+        ('unclaimed', 'Unclaimed')
+    ], string="Status", default='pending', required=True)
+    confirmed = fields.Boolean(string="Confirmed", default=False)
+    booking_id = fields.Many2one('room.booking', string="Booking Reference", required=False)
+
+    @api.model
+    def create(self, vals):
+        record = super(PackageHandling, self).create(vals)
+        if vals.get('room_contact_email'):
+            template = self.env.ref('front_desk.package_received_email_template')
+            self.env['mail.template'].browse(template.id).send_mail(record.id, force_send=True)
+        return record
+
+    def set_ready_for_pickup(self):
+        for record in self:
+            record.status = 'ready_for_pickup'
+
+    def set_delivered(self):
+        for record in self:
+            record.status = 'delivered'
+            record.confirmed = True
+            record.received_date = fields.Datetime.now()
+
+    def mark_unclaimed(self):
+        for record in self:
+            if record.status == 'pending':
+                record.status = 'unclaimed'
+
+    @api.model
+    def daily_unclaimed_packages(self):
+        unclaimed_packages = self.search([('status', '=', 'pending')])
+        for package in unclaimed_packages:
+            package.mark_unclaimed()
+
+    def send_notification(self):
+        for record in self:
+            if record.room_contact_email:
+                template = self.env.ref('front_desk.package_update_email_template')
+                self.env['mail.template'].browse(template.id).send_mail(record.id, force_send=True)
+
 

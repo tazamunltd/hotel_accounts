@@ -27,17 +27,19 @@
             </field>
         </field>
     </record>
+
     <record id="view_fsm_location_tree_inherit" model="ir.ui.view">
-    <field name="name">fsm.location.tree.inherit</field>
-    <field name="model">fsm.location</field>
-    <field name="inherit_id" ref="fieldservice.fsm_location_tree_view"/>
-    <field name="arch" type="xml">
-        <field name="complete_name" position="after">
-            <field name="description" string="Description"/>
+        <field name="name">fsm.location.tree.inherit</field>
+        <field name="model">fsm.location</field>
+        <field name="inherit_id" ref="fieldservice.fsm_location_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="complete_name" position="after">
+                <field name="description" string="Description"/>
+            </field>
         </field>
-    </field>
-</record>
-    
+    </record>
+
+
 
     <!--Hotel Floor Tree View-->
     <record id="hotel_floor_view_tree" model="ir.ui.view">
@@ -60,25 +62,18 @@
     </record>
 
     <!--Floors Menu-->
-    <menuitem id="hotel_floor_menu"
-              name="Floors"
-              action="hotel_floor_action"
-              parent="hotel_config_menu"
-              sequence="50"/>
+    <menuitem id="hotel_floor_menu" name="Floors" action="hotel_floor_action" parent="hotel_config_menu" sequence="50"/>
 
 
 
     <!-- Action for FSM Location -->
     <record id="action_fsm_location_" model="ir.actions.act_window">
         <field name="name">Service Locations</field>
+        <field name="type">ir.actions.act_window</field>
         <field name="res_model">fsm.location</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot,graph,search</field>
     </record>
 
     <!-- Location Menu -->
-    <menuitem id="menu_location_configuration"
-              name="Location"
-              parent="hotel_config_menu" 
-              action="action_fsm_location_" 
-              sequence="2"/>
+    <menuitem id="menu_location_configuration" name="Location" parent="hotel_config_menu" action="action_fsm_location_" sequence="2"/>
 </odoo>

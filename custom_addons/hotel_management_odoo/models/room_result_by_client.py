@@ -17,11 +17,11 @@ class RoomResultByClient(models.Model):
     total_rooms = fields.Integer(string='Total Rooms', readonly=True,tracking=True)
     available = fields.Integer(string='Available', readonly=True,tracking=True)
     inhouse = fields.Integer(string='In-House', readonly=True,tracking=True)
-    expected_arrivals = fields.Integer(string='Expected Arrivals', readonly=True,tracking=True)
-    expected_departures = fields.Integer(string='Expected Departures', readonly=True,tracking=True)
-    expected_inhouse = fields.Integer(string='Expected In House', readonly=True,tracking=True)
+    expected_arrivals = fields.Integer(string='Exp.Arrivals', readonly=True,tracking=True)
+    expected_departures = fields.Integer(string='Exp.Departures', readonly=True,tracking=True)
+    expected_inhouse = fields.Integer(string='Exp.Inhouse', readonly=True,tracking=True)
     reserved = fields.Integer(string='Reserved', readonly=True,tracking=True)
-    expected_occupied_rate = fields.Integer(string='Expected Occupied Rate (%)', readonly=True,tracking=True)
+    expected_occupied_rate = fields.Integer(string='Exp.Occupied Rate (%)', readonly=True,tracking=True)
     out_of_order = fields.Integer(string='Out of Order', readonly=True,tracking=True)
     overbook = fields.Integer(string='Overbook', readonly=True,tracking=True)
     free_to_sell = fields.Integer(string='Free to sell', readonly=True,tracking=True)
@@ -57,99 +57,168 @@ class RoomResultByClient(models.Model):
         query = """
             WITH parameters AS (
     SELECT
-        (SELECT MIN(checkin_date::date) FROM room_booking) AS from_date,
-        (SELECT MAX(checkout_date::date) FROM room_booking) AS to_date,
-        NULL::integer AS selected_room_type
+        COALESCE(
+          (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
+          CURRENT_DATE
+        ) AS from_date,
+        COALESCE(
+          (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
+          CURRENT_DATE
+        ) AS to_date
 ),
 date_series AS (
-    SELECT generate_series(p.from_date, p.to_date, interval '1 day')::date AS report_date
+    SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
     FROM parameters p
 ),
-room_types AS (
-    SELECT rt.id AS room_type_id,
-           rt.room_type,
-           rt.description AS room_type_name
-    FROM room_type rt
+
+latest_line_status AS (
+    SELECT DISTINCT ON (rbl.id, ds.report_date)
+           rbl.id AS booking_line_id,
+           ds.report_date,
+           rb.checkin_date::date   AS checkin_date,
+           rb.checkout_date::date  AS checkout_date,
+           hr.company_id,
+           rt.id                   AS room_type_id,
+           rbls.status             AS final_status,
+           rbls.change_time,
+           rp.id                   AS customer_id,
+           rp.name                 AS customer_name,
+           rp.is_company           AS is_company
+    FROM room_booking_line rbl
+    CROSS JOIN date_series ds
+    JOIN room_booking rb        ON rb.id = rbl.booking_id
+    JOIN hotel_room hr          ON hr.id = rbl.room_id
+    JOIN room_type rt           ON rt.id = hr.room_type_name
+    JOIN res_partner rp         ON rb.partner_id = rp.id
+    LEFT JOIN room_booking_line_status rbls
+           ON rbls.booking_line_id = rbl.id
+           AND rbls.change_time::date <= ds.report_date
+    ORDER BY
+       rbl.id,
+       ds.report_date,
+       rbls.change_time DESC NULLS LAST
 ),
-line_status_by_day AS (
+
+in_house AS (
     SELECT
-        ds.report_date,
-        rbl.id AS booking_line_id,
-        (
-            SELECT s.status
-            FROM room_booking_line_status s
-            WHERE s.booking_line_id = rbl.id
-              AND s.change_time::date <= ds.report_date
-            ORDER BY s.change_time DESC
-            LIMIT 1
-        ) AS status
-    FROM date_series ds
-    JOIN room_booking_line rbl ON rbl.id IS NOT NULL
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        lls.is_company,
+        lls.customer_id,
+        lls.customer_name,
+        COUNT(DISTINCT lls.booking_line_id) AS in_house_count
+    FROM latest_line_status lls
+    WHERE lls.checkin_date <= lls.report_date
+      AND lls.checkout_date > lls.report_date
+      AND lls.final_status = 'check_in'
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.is_company, lls.customer_id, lls.customer_name
 ),
-hrb AS (
+
+expected_arrivals AS (
     SELECT
-        ds.report_date,
-        rbl.id,
-        rb.checkin_date,
-        rb.checkout_date,
-        lsd.status AS state,
-        hr.room_type_name AS room_type_id,
-        hr.company_id,
-        rc.name AS company_name,
-        rb.partner_id AS client_id
-    FROM date_series ds
-    CROSS JOIN room_types rt
-    JOIN room_booking_line rbl ON TRUE
-    JOIN room_booking rb ON rb.id = rbl.booking_id
-    JOIN hotel_room hr ON rbl.room_id = hr.id
-    JOIN res_company rc ON hr.company_id = rc.id
-    JOIN line_status_by_day lsd ON lsd.report_date = ds.report_date AND lsd.booking_line_id = rbl.id
-    WHERE rb.checkin_date::date <= ds.report_date
-      AND rb.checkout_date::date >= ds.report_date
-      AND hr.room_type_name = rt.room_type_id
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        lls.is_company,
+        lls.customer_id,
+        lls.customer_name,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
+    FROM latest_line_status lls
+    WHERE lls.checkin_date = lls.report_date
+      AND lls.final_status IN ('confirmed', 'block')
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.is_company, lls.customer_id, lls.customer_name
 ),
-expected_in_house AS (
+
+expected_departures AS (
     SELECT
-        hrb.report_date,
-        hrb.room_type_id,
-        hrb.company_id,
-        hrb.client_id,
-        COUNT(hrb.id) AS expected_in_house_count
-    FROM hrb
-    WHERE hrb.state IN ('check_in', 'reserved') -- States considered for expected in house
-    GROUP BY hrb.report_date, hrb.room_type_id, hrb.company_id, hrb.client_id
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        lls.is_company,
+        lls.customer_id,
+        lls.customer_name,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
+    FROM latest_line_status lls
+    WHERE lls.checkout_date = lls.report_date
+      AND lls.final_status = 'check_in'
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.is_company, lls.customer_id, lls.customer_name
 ),
-total_rooms AS (
+
+-- Create a master list of all relevant keys
+master_keys AS (
+    SELECT report_date, company_id, room_type_id, is_company, customer_id, customer_name
+    FROM in_house
+    UNION
+    SELECT report_date, company_id, room_type_id, is_company, customer_id, customer_name
+    FROM expected_arrivals
+    UNION
+    SELECT report_date, company_id, room_type_id, is_company, customer_id, customer_name
+    FROM expected_departures
+),
+
+final_report AS (
     SELECT
-        ds.report_date,
-        rt.room_type_id,
-        hr.company_id,
-        rc.name AS company_name,
-        COUNT(hr.id) AS total_rooms
-    FROM date_series ds
-    CROSS JOIN room_types rt
-    LEFT JOIN hotel_room hr ON hr.room_type_name = rt.room_type_id
-    LEFT JOIN res_company rc ON hr.company_id = rc.id
-    GROUP BY ds.report_date, rt.room_type_id, hr.company_id, rc.name
+        mk.report_date,
+        mk.company_id,
+        mk.room_type_id,
+        mk.is_company,
+        mk.customer_id,
+        mk.customer_name,
+        COALESCE(ih.in_house_count, 0) AS in_house_count,
+        COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals_count,
+        COALESCE(ed.expected_departures_count, 0) AS expected_departures_count,
+        -- Ensure expected_in_house does not go negative
+        GREATEST(
+            COALESCE(ih.in_house_count, 0)
+            + COALESCE(ea.expected_arrivals_count, 0)
+            - COALESCE(ed.expected_departures_count, 0),
+            0
+        ) AS expected_in_house
+    FROM master_keys mk
+    LEFT JOIN in_house ih
+        ON mk.report_date = ih.report_date
+       AND mk.company_id = ih.company_id
+       AND mk.room_type_id = ih.room_type_id
+       AND mk.is_company = ih.is_company
+       AND mk.customer_id = ih.customer_id
+       AND mk.customer_name = ih.customer_name
+    LEFT JOIN expected_arrivals ea
+        ON mk.report_date = ea.report_date
+       AND mk.company_id = ea.company_id
+       AND mk.room_type_id = ea.room_type_id
+       AND mk.is_company = ea.is_company
+       AND mk.customer_id = ea.customer_id
+       AND mk.customer_name = ea.customer_name
+    LEFT JOIN expected_departures ed
+        ON mk.report_date = ed.report_date
+       AND mk.company_id = ed.company_id
+       AND mk.room_type_id = ed.room_type_id
+       AND mk.is_company = ed.is_company
+       AND mk.customer_id = ed.customer_id
+       AND mk.customer_name = ed.customer_name
 )
+
 SELECT
-    rc.id AS "Company ID",
-    rc.name AS "Company Name",
-    rp.id AS "Client ID",
-    rp.name AS "Client Name",
-    eih.report_date AS "Date",
-    COALESCE(rt.room_type_name, 'Total') AS "Room Type",
-    SUM(tr.total_rooms) AS "Total Rooms",
-    SUM(eih.expected_in_house_count) AS "Expected In House"
-FROM expected_in_house eih
-LEFT JOIN res_partner rp ON eih.client_id = rp.id
-LEFT JOIN total_rooms tr ON eih.report_date = tr.report_date 
-    AND eih.room_type_id = tr.room_type_id 
-    AND eih.company_id = tr.company_id
-LEFT JOIN room_types rt ON eih.room_type_id = rt.room_type_id
-LEFT JOIN res_company rc ON eih.company_id = rc.id
-GROUP BY rc.id, rc.name, rp.id, rp.name, eih.report_date, rt.room_type_name
-ORDER BY rc.id, rp.id, eih.report_date, rt.room_type_name;
+    fr.report_date,
+    fr.company_id,
+    rc.name AS company_name,
+    fr.room_type_id,
+    rt.room_type AS room_type_name,
+    fr.is_company,
+    fr.customer_id,
+    fr.customer_name,
+    fr.expected_in_house
+FROM final_report fr
+JOIN res_company rc ON fr.company_id = rc.id
+JOIN room_type rt ON fr.room_type_id = rt.id
+ORDER BY
+    fr.report_date,
+    rc.name,
+    rt.room_type,
+    fr.is_company,
+    fr.customer_name;
+
 
         """
 
@@ -161,20 +230,45 @@ ORDER BY rc.id, rp.id, eih.report_date, rt.room_type_name;
         records_to_create = []
         for result in results:
             try:
-                records_to_create.append({
-                    'company_id': result[0],             # Company ID
-                    'report_date': result[4],            # Report Date
-                    'client_id': result[2],              # Client ID
-                    'room_type': result[5],              # Room Type
-                    'total_rooms': int(result[6] or 0),# Total Rooms   
-                    'expected_inhouse': int(result[7] or 0),# Expected In-House
-                    # 'available': int(result[8]),
-                    
-            # Add other fields if necessary
-        })
+                if result[1]:
+                    company_id = result[1]
+                    if company_id != self.env.company.id:
+                        continue  
+                    # print(result[1])  
+                else:
+                    continue
+            # Unpack each row for clarity:
+                (
+                    report_date,
+                    company_id,
+                    company_name,   # not used? up to you
+                    room_type_id,
+                    room_type_name,
+                    is_company,
+                    customer_id,
+                    customer_name,
+                    expected_in_house,
+                ) = result
+
+                # Example: total_rooms is not in the query, so let's set it to 0 or something:
+                total_rooms = 0
+
+            # Build a dictionary that matches your model fields:
+                record_dict = {
+                    'report_date': report_date,       # fields.Date
+                    'company_id': company_id,         # Many2one to res.company (int)
+                    'client_id': customer_id,         # Many2one to res.partner (int)
+                    'room_type': room_type_name,      # Char field
+                    'total_rooms': total_rooms,       # Integer
+                    'inhouse': 0,                    # Or derive from the query if needed
+                    'expected_arrivals': 0,
+                    'expected_departures': 0,
+                    'expected_inhouse': expected_in_house,
+                    # ... etc. fill in more fields if you want
+                }
+                records_to_create.append(record_dict)
             except Exception as e:
                 _logger.error(f"Error processing record: {str(e)}, Data: {result}")
-                continue
 
         if records_to_create:
             self.create(records_to_create)

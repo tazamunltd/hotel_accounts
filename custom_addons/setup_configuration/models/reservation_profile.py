@@ -3,6 +3,7 @@ from odoo import models, fields
 class ReservationProfile(models.Model):
     _name = 'reservation.profile'
     _description = 'Reservation Profile'
+    # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     # Button Methods to trigger actions
     # def action_main_info(self):
@@ -304,6 +305,9 @@ class ReservationProfileMain(models.Model):
 class ReservationGroupProfile(models.Model):
     _name = 'reservation.group.profile'
     _description = 'Reservation Group Profile'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+
 
     def action_print_rooming_list(self):
         """Placeholder for Print Rooming List action."""
@@ -392,6 +396,7 @@ class ReservationGroupProfile(models.Model):
 class ReservationReservationMain(models.Model):
     _name = 'reservation.reservation.main'
     _description = 'Reservation Reservation Main'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     # One2many relation for Adults
     adult_ids = fields.One2many('reservation.adults', 'reservation_id', string='Adults')#

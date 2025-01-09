@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['account', 'event', 'fleet', 'lunch', 'base', 'setup_configuration'],
+    'depends': ['account', 'event', 'fleet', 'lunch', 'base', 'setup_configuration', 'web'],
     'data': [
         'security/hotel_management_odoo_groups.xml',
         # 'security/hotel_management_odoo_security.xml',
@@ -80,12 +80,25 @@
         # 'security/hotel_security.xml',
         'views/monthly_groups_charts.xml',
         'views/reservation_status_report_views.xml',
+        'views/deleted_reservation_report_views.xml',
+        'views/meals_forecast_report.xml',
+        'views/market_segement_forecast_views.xml',
+        'views/company_forecast.xml',
+        'views/source_of_buisness_forecast_views.xml',
+        'views/meals_by_nationality_views.xml',
+        'views/rooms_forecast_views.xml',
+        'views/revenue_forecast_views.xml',
+
+        # HEADER DATETIME
+        # 'views/header_datetime.xml',
     ],
     'assets': {
         'web.assets_backend': [
             # 'hotel_management_odoo/static/src/js/percentage_widget.js',
             'hotel_management_odoo/static/src/js/generate_pdf_report.js',
             'hotel_management_odoo/static/src/js/action_manager.js',
+            'hotel_management_odoo/static/src/js/generate_rc_guest_pdf_report.js',
+            'hotel_management_odoo/static/src/js/generate_rc_pdf_report.js',
             'hotel_management_odoo/static/src/css/dashboard.css',
             'hotel_management_odoo/static/src/js/dashboard_action.js',
             'hotel_management_odoo/static/src/xml/dashboard_templates.xml',
@@ -97,6 +110,19 @@
             'hotel_management_odoo/static/src/**/*.xml',
             'hotel_management_odoo/static/css/hotel_booking_styles.css',
             'hotel_management_odoo/static/src/css/disable.css',
+
+            # HEADER DATETIME
+            # 'hotel_management_odoo/static/src/css/header_datetime.css',
+            # 'hotel_management_odoo/static/src/js/systray_date.js',
+
+            'hotel_management_odoo/static/src/js/timer.js',
+            'hotel_management_odoo/static/src/css/timer.css',
+            'hotel_management_odoo/static/src/xml/timer.xml',
+
+
+            'hotel_management_odoo/static/src/css/offline_search_widget.css',
+            'hotel_management_odoo/static/src/js/offline_search_widget.js',
+            'hotel_management_odoo/static/src/js/offline_search_widget_registry.js',
         ],
     },
     'images': ['static/description/banner.jpg'],

@@ -145,26 +145,33 @@
                 <field name="arabic_desc"/>
                 <field name="arabic_abbr"/>
                 <field name="rate_code_category_id"/>
-                <!--                <field name="currency_id"/>-->
             </tree>
         </field>
     </record>
 
+    <record id="view_rate_code_pivot" model="ir.ui.view">
+        <field name="name">rate.code.pivot</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Rate Code Analysis">
+                <field name="rate_code_category_id" type="row"/>
+                <field name="currency_id" type="row"/>
+                <field name="include_meals" type="row"/>
+                <field name="rhythm" type="row"/>
+                <field name="exchange_rate" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+
     <!-- Action for Rate Code -->
     <record id="action_rate_code" model="ir.actions.act_window">
         <field name="name">Rate Codes</field>
+        <field name="type">ir.actions.act_window</field>
         <field name="res_model">rate.code</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,pivot</field>
     </record>
 
-    <record id="action_rate_code_details" model="ir.actions.act_window">
-        <field name="name">Rate Code Details</field>
-        <field name="res_model">rate.detail</field>
-        <field name="view_mode">tree,form</field>
-        <!-- <field name="view_id" ref="view_rate_detail_tree"/>
-        <field name="target">current</field>
-        <field name="domain">[('rate_code_id', '=', active_id)]</field> -->
-    </record>
 
     <!-- Tree View for Rate Details -->
     <record id="view_rate_detail_tree" model="ir.ui.view">
@@ -191,10 +198,8 @@
         <field name="arch" type="xml">
             <form string="Rate Details">
                 <header>
-                    <button name="action_set_room_type_rate" string="Set Room Type Specific Rate" type="object"
-                            class="btn-primary"/>
-                    <button name="action_set_room_number_rate" string="Set Room Number Specific Rate" type="object"
-                            class="btn-primary"/>
+                    <button name="action_set_room_type_rate" string="Set Room Type Specific Rate" type="object" class="btn-primary"/>
+                    <button name="action_set_room_number_rate" string="Set Room Number Specific Rate" type="object" class="btn-primary"/>
                 </header>
                 <sheet>
                     <notebook>
@@ -207,236 +212,723 @@
                                 <field name="posting_item"/>
                                 <!-- <field name="taxes"/> -->
                             </group>
-                            <group string="Prices">
-                                <table class="o_list_view table table-condensed table-striped" style="width: 100%;">
-                                    <thead>
-                                        <tr>
-                                            <th style="padding: 15px; text-align: center; white-space: nowrap;">Select
-                                            </th>
-                                            <th style="padding: 15px; text-align: center; white-space: nowrap;">Day</th>
-                                            <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                            <group>
+                                <group string="Adult Prices">
+                                    <table class="o_list_view table table-condensed table-striped" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="padding: 15px; text-align: center; white-space: nowrap;">Select
+                                                </th>
+                                                <th style="padding: 15px; text-align: center; white-space: nowrap;">Day</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
                                                 1 Pax
-                                            </th>
-                                            <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
                                                 2 Pax
-                                            </th>
-                                            <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
                                                 3 Pax
-                                            </th>
-                                            <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
                                                 4 Pax
-                                            </th>
-                                            <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
                                                 5 Pax
-                                            </th>
-                                            <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
                                                 6 Pax
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;"></td>
-                                            <td style="padding: 15px; font-weight: bold;">Default</td>
-                                            <td style="padding: 15px;">
-                                                <field name="pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="pax_6"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;">
-                                                <field name="monday_checkbox"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">Monday</td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="monday_pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="monday_pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="monday_pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="monday_pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="monday_pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="monday_pax_6"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;">
-                                                <field name="tuesday_checkbox"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">Tuesday</td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="tuesday_pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="tuesday_pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="tuesday_pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="tuesday_pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="tuesday_pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px; white-space: nowrap;">
-                                                <field name="tuesday_pax_6"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;">
-                                                <field name="wednesday_checkbox"/>
-                                            </td>
-                                            <td style="padding: 15px;">Wednesday</td>
-                                            <td style="padding: 15px;">
-                                                <field name="wednesday_pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="wednesday_pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="wednesday_pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="wednesday_pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="wednesday_pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="wednesday_pax_6"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;">
-                                                <field name="thursday_checkbox"/>
-                                            </td>
-                                            <td style="padding: 15px;">Thursday</td>
-                                            <td style="padding: 15px;">
-                                                <field name="thursday_pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="thursday_pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="thursday_pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="thursday_pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="thursday_pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="thursday_pax_6"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;">
-                                                <field name="friday_checkbox"/>
-                                            </td>
-                                            <td style="padding: 15px;">Friday</td>
-                                            <td style="padding: 15px;">
-                                                <field name="friday_pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="friday_pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="friday_pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="friday_pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="friday_pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="friday_pax_6"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;">
-                                                <field name="saturday_checkbox"/>
-                                            </td>
-                                            <td style="padding: 15px;">Saturday</td>
-                                            <td style="padding: 15px;">
-                                                <field name="saturday_pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="saturday_pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="saturday_pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="saturday_pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="saturday_pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="saturday_pax_6"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 15px; text-align: center;">
-                                                <field name="sunday_checkbox"/>
-                                            </td>
-                                            <td style="padding: 15px;">Sunday</td>
-                                            <td style="padding: 15px;">
-                                                <field name="sunday_pax_1"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="sunday_pax_2"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="sunday_pax_3"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="sunday_pax_4"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="sunday_pax_5"/>
-                                            </td>
-                                            <td style="padding: 15px;">
-                                                <field name="sunday_pax_6"/>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                Child
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                Infant
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;"></td>
+                                                <td style="padding: 15px; font-weight: bold;">Default</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="monday_checkbox"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">Monday</td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="tuesday_checkbox"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">Tuesday</td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="wednesday_checkbox"/>
+                                                </td>
+                                                <td style="padding: 15px;">Wednesday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="wednesday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="wednesday_infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="thursday_checkbox"/>
+                                                </td>
+                                                <td style="padding: 15px;">Thursday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="thursday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="thursday_infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="friday_checkbox"/>
+                                                </td>
+                                                <td style="padding: 15px;">Friday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="friday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="friday_infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="saturday_checkbox"/>
+                                                </td>
+                                                <td style="padding: 15px;">Saturday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="saturday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="saturday_infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="sunday_checkbox"/>
+                                                </td>
+                                                <td style="padding: 15px;">Sunday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_pax_6"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="sunday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="sunday_infant_pax_1"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </group>
+                                <!-- <group string="Child Prices">
+                                    <table class="o_list_view table table-condensed table-striped" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="padding: 15px; text-align: center; white-space: nowrap;">Select
+                                                </th>
+                                                <th style="padding: 15px; text-align: center; white-space: nowrap;">Day</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                1 Pax
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                2 Pax
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                3 Pax
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                4 Pax
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                5 Pax
+                                                </th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">
+                                                6 Pax
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;"></td>
+                                                <td style="padding: 15px; font-weight: bold;">Default</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="monday_checkbox_child"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">Monday</td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="monday_child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="tuesday_checkbox_child"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">Tuesday</td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">
+                                                    <field name="tuesday_child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="wednesday_checkbox_child"/>
+                                                </td>
+                                                <td style="padding: 15px;">Wednesday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="thursday_checkbox_child"/>
+                                                </td>
+                                                <td style="padding: 15px;">Thursday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="friday_checkbox_child"/>
+                                                </td>
+                                                <td style="padding: 15px;">Friday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="saturday_checkbox_child"/>
+                                                </td>
+                                                <td style="padding: 15px;">Saturday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="sunday_checkbox_child"/>
+                                                </td>
+                                                <td style="padding: 15px;">Sunday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_child_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_child_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_child_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_child_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_child_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_child_pax_6"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </group> -->
+                                <!-- <group string="Infant Prices">
+                                    <table class="o_list_view table table-condensed table-striped" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="padding: 15px; text-align: center; white-space: nowrap;">Select</th>
+                                                <th style="padding: 15px; text-align: center; white-space: nowrap;">Day</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">1 Pax</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">2 Pax</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">3 Pax</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">4 Pax</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">5 Pax</th>
+                                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">6 Pax</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;"></td>
+                                                <td style="padding: 15px; font-weight: bold;">Default</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="monday_checkbox_infant"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">Monday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="monday_infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="monday_infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="monday_infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="monday_infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="monday_infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="monday_infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="tuesday_checkbox_infant"/>
+                                                </td>
+                                                <td style="padding: 15px; white-space: nowrap;">Tuesday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="tuesday_infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="tuesday_infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="tuesday_infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="tuesday_infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="tuesday_infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="tuesday_infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="wednesday_checkbox_infant"/>
+                                                </td>
+                                                <td style="padding: 15px;">Wednesday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="wednesday_infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="thursday_checkbox_infant"/>
+                                                </td>
+                                                <td style="padding: 15px;">Thursday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="thursday_infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="friday_checkbox_infant"/>
+                                                </td>
+                                                <td style="padding: 15px;">Friday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="friday_infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="saturday_checkbox_infant"/>
+                                                </td>
+                                                <td style="padding: 15px;">Saturday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="saturday_infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 15px; text-align: center;">
+                                                    <field name="sunday_checkbox_infant"/>
+                                                </td>
+                                                <td style="padding: 15px;">Sunday</td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_infant_pax_1"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_infant_pax_2"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_infant_pax_3"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_infant_pax_4"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_infant_pax_5"/>
+                                                </td>
+                                                <td style="padding: 15px;">
+                                                    <field name="sunday_infant_pax_6"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </group> -->
+
                             </group>
 
-                            <group>
+
+                            <!-- <group>
                                 <field name="extra_bed"/>
                                 <field name="suite_supl"/>
                             </group>
                             <group>
                                 <field name="rate_detail_child"/>
                                 <field name="rate_detail_infant"/>
-                            </group>
+                            </group> -->
                             <group>
                                 <field name="price_type"/>
                                 <!-- <field name="meal_pattern_id"/> -->
@@ -447,12 +939,11 @@
                         <page string="Discounts">
                             <group>
                                 <field name="rate_detail_dicsount"/>
-                                <field name="is_amount"/>
-                                <field name="is_percentage"/>
+                                <field name="is_amount" invisible= "is_percentage"/>
+                                <field name="is_percentage" invisible= "is_amount"/>
                             </group>
                             <group>
-                                <field name="amount_selection" widget="radio"
-                                       invisible= "is_amount ==  False"/>
+                                <field name="amount_selection" widget="radio" invisible= "is_amount ==  False"/>
                             </group>
                         </page>
 
@@ -471,15 +962,15 @@
 
                         <!-- Packages Tab -->
                         <page string="Packages">
-                            <group>
-                                <field name="hotel_services_config"/>
-                                <!-- <field name="hotel_services" no_create="True"/> -->
-                                <field name="packages_posting_item"/>
-                                <field name="packages_value"/>
-                                <field name="packages_value_type" widget="radio"/>
-                                <field name="packages_rhythm" widget="radio"/>
-                                <button string="Add Line" type="object" name="action_add_line" class="btn-primary"/>
-                            </group>
+                            <!-- <group> -->
+                            <!-- <field name="hotel_services_config"/> -->
+                            <!-- <field name="hotel_services" no_create="True"/> -->
+                            <!-- <field name="packages_posting_item"/> -->
+                            <!-- <field name="packages_value"/> -->
+                            <!-- <field name="packages_value_type" widget="radio"/> -->
+                            <!-- <field name="packages_rhythm" widget="radio"/> -->
+                            <!-- <button string="Add Line" type="object" name="action_add_line" class="btn-primary"/> -->
+                            <!-- </group> -->
                             <group string="Service Lines">
                                 <field name="line_ids">
                                     <tree editable="bottom">
@@ -513,6 +1004,39 @@
             </form>
         </field>
     </record>
+
+    <record id="view_rate_detail_pivot" model="ir.ui.view">
+        <field name="name">rate.detail.pivot</field>
+        <field name="model">rate.detail</field>
+        <field name="arch" type="xml">
+            <pivot string="Rate Detail Analysis">
+                <field name="rate_code_id" type="row"/>
+                <field name="from_date" type="row"/>
+                <field name="to_date" type="row"/>
+                <field name="price_type" type="row"/>
+                <field name="pax_1" type="measure"/>
+                <field name="pax_2" type="measure"/>
+                <field name="pax_3" type="measure"/>
+                <field name="pax_4" type="measure"/>
+                <field name="pax_5" type="measure"/>
+                <field name="pax_6" type="measure"/>
+                <field name="child_pax_1" type="measure"/>
+                <field name="child_pax_2" type="measure"/>
+                <field name="child_pax_3" type="measure"/>
+                <field name="child_pax_4" type="measure"/>
+                <field name="child_pax_5" type="measure"/>
+                <field name="child_pax_6" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_rate_code_details" model="ir.actions.act_window">
+        <field name="name">Rate Code Details</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">rate.detail</field>
+        <field name="view_mode">tree,form,pivot</field>
+    </record>
+
 
     <record id="view_room_type_specific_rate_tree" model="ir.ui.view">
         <field name="name">room.type.specific.rate.tree</field>
@@ -559,6 +1083,10 @@
                                 </th>
                                 <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">6 Pax
                                 </th>
+                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">Child
+                                </th>
+                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">Infant
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -582,6 +1110,12 @@
                                 </td>
                                 <td style="padding: 15px;">
                                     <field name="pax_6"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="infant_pax_1"/>
                                 </td>
                             </tr>
                             <tr>
@@ -607,6 +1141,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_type_monday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_monday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_monday_infant_pax_1"/>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; text-align: center;">
@@ -630,6 +1170,12 @@
                                 </td>
                                 <td style="padding: 15px;">
                                     <field name="room_type_tuesday_pax_6"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_tuesday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                <field name="room_type_tuesday_infant_pax_1"/>
                                 </td>
                             </tr>
                             <tr>
@@ -655,6 +1201,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_type_wednesday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_wednesday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_wednesday_infant_pax_1"/>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; text-align: center;">
@@ -678,6 +1230,12 @@
                                 </td>
                                 <td style="padding: 15px;">
                                     <field name="room_type_thursday_pax_6"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_thursday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_thursday_infant_pax_1"/>
                                 </td>
                             </tr>
                             <tr>
@@ -703,6 +1261,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_type_friday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_friday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_friday_infant_pax_1"/>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; text-align: center;">
@@ -726,6 +1290,12 @@
                                 </td>
                                 <td style="padding: 15px;">
                                     <field name="room_type_saturday_pax_6"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_saturday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_saturday_infant_pax_1"/>
                                 </td>
                             </tr>
                             <tr>
@@ -751,6 +1321,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_type_sunday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_sunday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_type_sunday_infant_pax_1"/>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -760,16 +1336,16 @@
                         <field name="pax_3" string="3 Pax"/>
                         <field name="pax_4" string="4 Pax"/>
                     </group> -->
-                    <group>
-                        <!-- <field name="pax_5" string="5 Pax"/>
+                    <!-- <group> -->
+                    <!-- <field name="pax_5" string="5 Pax"/>
                         <field name="pax_6" string="6 Pax"/> -->
-                        <field name="extra_bed" string="Extra Bed"/>
-                        <field name="suite_supl" string="Suite Supplement"/>
-                    </group>
-                    <group>
+                    <!-- <field name="extra_bed" string="Extra Bed"/>
+                        <field name="suite_supl" string="Suite Supplement"/> -->
+                    <!-- </group> -->
+                    <!-- <group>
                         <field name="child" string="Child"/>
                         <field name="infant" string="Infant"/>
-                    </group>
+                    </group> -->
                 </group>
             </form>
         </field>
@@ -822,6 +1398,10 @@
                                 </th>
                                 <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">6 Pax
                                 </th>
+                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">Child
+                                </th>
+                                <th style="padding: 15px; width: 10%; text-align: center; white-space: nowrap;">Inant
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -845,6 +1425,12 @@
                                 </td>
                                 <td style="padding: 15px;">
                                     <field name="pax_6"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="infant_pax_1"/>
                                 </td>
                             </tr>
 
@@ -873,6 +1459,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_number_monday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_monday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_monday_infant_pax_1"/>
+                                </td>
                             </tr>
 
                             <!-- Tuesday Row -->
@@ -899,6 +1491,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_number_tuesday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_tuesday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_tuesday_infant_pax_1"/>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; text-align: center;">
@@ -923,7 +1521,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_number_wednesday_pax_6"/>
                                 </td>
-
+                                <td style="padding: 15px;">
+                                    <field name="room_number_wednesday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_wednesday_infant_pax_1"/>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; text-align: center;">
@@ -947,6 +1550,12 @@
                                 </td>
                                 <td style="padding: 15px;">
                                     <field name="room_number_thursday_pax_6"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_thursday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_thursday_infant_pax_1"/>
                                 </td>
                             </tr>
                             <tr>
@@ -972,6 +1581,12 @@
                                 <td style="padding: 15px;">
                                     <field name="room_number_friday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_friday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_friday_infant_pax_1"/>
+                                </td>
                             </tr>
                             <tr>
                                 <td style="padding: 15px; text-align: center;">
@@ -995,6 +1610,12 @@
                                 </td>
                                 <td style="padding: 15px;">
                                     <field name="room_number_saturday_pax_6"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_saturday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_saturday_infant_pax_1"/>
                                 </td>
                             </tr>
                             <tr>
@@ -1020,8 +1641,13 @@
                                 <td style="padding: 15px;">
                                     <field name="room_number_sunday_pax_6"/>
                                 </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_sunday_child_pax_1"/>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <field name="room_number_sunday_infant_pax_1"/>
+                                </td>
                             </tr>
-
                         </tbody>
                     </table>
 
@@ -1031,16 +1657,16 @@
                         <field name="pax_3" string="3 Pax"/>
                         <field name="pax_4" string="4 Pax"/>
                     </group> -->
-                    <group>
-                        <!-- <field name="pax_5" string="5 Pax"/>
+                    <!-- <group> -->
+                    <!-- <field name="pax_5" string="5 Pax"/>
                         <field name="pax_6" string="6 Pax"/> -->
-                        <field name="extra_bed" string="Extra Bed"/>
-                        <field name="suite_supl" string="Suite Supplement"/>
-                    </group>
-                    <group>
+                    <!-- <field name="extra_bed" string="Extra Bed"/>
+                        <field name="suite_supl" string="Suite Supplement"/> -->
+                    <!-- </group> -->
+                    <!-- <group>
                         <field name="child" string="Child"/>
                         <field name="infant" string="Infant"/>
-                    </group>
+                    </group> -->
                 </group>
             </form>
         </field>

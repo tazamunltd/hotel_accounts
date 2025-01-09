@@ -9,44 +9,35 @@
     <!--    Maintenance Team User groups-->
     <record id="maintenance_team_group_user" model="res.groups">
         <field name="name">Maintenance Team User</field>
-        <field name="category_id"
-               ref="hotel_management_odoo.module_category_hotel_management"/>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
     </record>
     <!--    Maintenance Team Leader group-->
     <record id="maintenance_team_group_leader" model="res.groups">
         <field name="name">Maintenance Team Leader</field>
-        <field name="category_id"
-               ref="hotel_management_odoo.module_category_hotel_management"/>
-        <field name="implied_ids"
-               eval="[(4, ref('hotel_management_odoo.maintenance_team_group_user'))]"/>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('hotel_management_odoo.maintenance_team_group_user'))]"/>
     </record>
     <!--    Reception groups-->
     <record id="hotel_group_reception" model="res.groups">
         <field name="name">Receptionist</field>
-        <field name="category_id"
-               ref="hotel_management_odoo.module_category_hotel_management"/>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
     </record>
     <!--    Cleaning Team User group-->
     <record id="cleaning_team_group_user" model="res.groups">
         <field name="name">Cleaning Team User</field>
-        <field name="category_id"
-               ref="hotel_management_odoo.module_category_hotel_management"/>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
     </record>
     <!--    Cleaning Team Head group-->
     <record id="cleaning_team_group_head" model="res.groups">
         <field name="name">Cleaning Team Head</field>
-        <field name="category_id"
-               ref="hotel_management_odoo.module_category_hotel_management"/>
-        <field name="implied_ids"
-               eval="[(4, ref('hotel_management_odoo.cleaning_team_group_user'))]"/>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('hotel_management_odoo.cleaning_team_group_user'))]"/>
     </record>
     <!--Hotel Admin group-->
     <record id="hotel_group_admin" model="res.groups">
         <field name="name">Admin</field>
-        <field name="category_id"
-               ref="hotel_management_odoo.module_category_hotel_management"/>
-        <field name="implied_ids"
-               eval="[(4, ref('hotel_management_odoo.maintenance_team_group_leader')),
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('hotel_management_odoo.maintenance_team_group_leader')),
                        (4, ref('hotel_management_odoo.cleaning_team_group_head')),
                        (4, ref('hotel_group_reception')), ]"/>
     </record>
@@ -103,7 +94,7 @@
         <!-- Implied access to read-only settings group -->
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
-   
+
 
     <!-- REVENUE MANAGER Group -->
     <record id="revenue_manager_group" model="res.groups">
@@ -160,7 +151,7 @@
         <field name="perm_create" eval="0"/>
         <field name="perm_unlink" eval="0"/>
     </record>
-      <record id="access_fsm_location_frontdesk_reservation_staff" model="ir.model.access">
+    <record id="access_fsm_location_frontdesk_reservation_staff" model="ir.model.access">
         <field name="name">fsm.location Read Only for Frontdesk and Reservation Staff</field>
         <field name="model_id" ref="fieldservice.model_fsm_location"/>
         <field name="group_id" ref="hotel_management_odoo.reservation_staff_group"/>
@@ -195,6 +186,7 @@
     <record id="crs_admin_group" model="res.groups">
         <field name="name">CRS Admin</field>
         <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
     </record>
 
     <record id="access_room_booking_crs_admin" model="ir.model.access">
@@ -206,5 +198,44 @@
         <field name="perm_create" eval="1"/>
         <field name="perm_unlink" eval="0"/>
     </record>
+
+    <!-- Settings menu access -->
+    <record id="base.menu_administration" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('hotel_management_odoo.crs_admin_group'))]"/>
+    </record>
+
+    <!-- Access rights for base settings -->
+    <record id="access_res_config_settings_crs_admin" model="ir.model.access">
+        <field name="name">Settings Access for CRS Admin</field>
+        <field name="model_id" ref="base.model_res_config_settings"/>
+        <field name="group_id" ref="hotel_management_odoo.crs_admin_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <record id="front_desk_user_group" model="res.groups">
+        <field name="name">Front Desk User</field>
+        <field name="category_id" ref="hotel_management_odoo.module_category_hotel_management"/>
+    </record>
+
+    <record id="access_room_booking_front_desk_user" model="ir.model.access">
+        <field name="name">Room Booking Access for Front Desk User</field>
+        <field name="model_id" ref="hotel_management_odoo.model_room_booking"/>
+        <field name="group_id" ref="hotel_management_odoo.front_desk_user_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="rule_room_booking_front_desk" model="ir.rule">
+        <field name="name">Room Booking Access for Front Desk Users</field>
+        <field name="model_id" ref="hotel_management_odoo.model_room_booking"/>
+        <field name="domain_force">[('state', '=', 'block')]</field>
+        <field name="groups" eval="[(4, ref('hotel_management_odoo.front_desk_user_group'))]"/>
+    </record>
+
+
 
 </odoo>

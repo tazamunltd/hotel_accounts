@@ -53,4 +53,11 @@ from . import monthly_allotment_charts
 from . import monthly_groups_chart
 from . import reservation_status_report
 # from . import date_utils
-
+from . import deleted_reservation_report
+from . import meals_forecast_report
+from . import market_segment_forecast
+from . import source_of_buisness_forecast
+from . import meals_by_nationality_forecast
+from . import company_forecast_report
+from . import rooms_forecast
+from . import revenue_forecast

@@ -14,17 +14,17 @@ class HotelRoomResult(models.Model):
     total_rooms = fields.Integer(string='Total Rooms', readonly=True)
     available = fields.Integer(string='Available', readonly=True)
     inhouse = fields.Integer(string='In-House', readonly=True)
-    expected_arrivals = fields.Integer(string='Expected Arrivals', readonly=True)
-    expected_departures = fields.Integer(string='Expected Departures', readonly=True)
-    expected_inhouse = fields.Integer(string='Expected In House', readonly=True)
+    expected_arrivals = fields.Integer(string='Exp.Arrivals', readonly=True)
+    expected_departures = fields.Integer(string='Exp.Departures', readonly=True)
+    expected_inhouse = fields.Integer(string='Exp.In House', readonly=True)
     reserved = fields.Integer(string='Reserved', readonly=True)
-    expected_occupied_rate = fields.Integer(string='Expected Occupied Rate (%)', readonly=True)
+    expected_occupied_rate = fields.Integer(string='Exp.Occupied Rate (%)', readonly=True)
     out_of_order = fields.Integer(string='Out of Order', readonly=True)
     overbook = fields.Integer(string='Overbook', readonly=True)
     free_to_sell = fields.Integer(string='Free to sell', readonly=True)
     sort_order = fields.Integer(string='Sort Order', readonly=True)
     house_use_count = fields.Integer(string='House Use Count', readonly=True)
-    complementary_use_count = fields.Integer(string='Complementary Use Count', readonly=True)
+    complementary_use_count = fields.Integer(string='Complementar Use Count', readonly=True)
     any_overbooking_allowed = fields.Boolean(string='Any Overbooking Allowed', readonly=True)
     total_overbooking_rooms = fields.Integer(string='total_overbooking_rooms' ,readonly=True)
     rooms_on_hold = fields.Integer(string='Rooms On Hold', readonly=True)
@@ -406,10 +406,18 @@ ORDER BY
         _logger.info(f"Query executed successfully. {len(results)} results fetched")
 
         records_to_create = []
-        
+
         for row in results:
             # row is a tuple with indexes 0..19
             try:
+                # Check if the company_id is present and matches the current company
+                if row[1]:  # Assuming row[1] is the company_id
+                    company_id = row[1]
+                    if company_id != self.env.company.id:
+                        continue
+                else:
+                    continue
+
                 report_date              = row[0]
                 company_id               = row[1]
                 company_name             = row[2]    # (not used directly, but available)
@@ -451,7 +459,7 @@ ORDER BY
                         'expected_departures': int(expected_departures or 0),
                         'house_use_count': int(house_use_count or 0),
                         'complementary_use_count': int(complementary_use_count or 0),
-                        
+                        'expected_occupied_rate': int(int(expected_in_house or 0)/int(available_rooms or 1) * 100),
                         'available': int(available_rooms or 0),
                         'expected_inhouse': int(expected_in_house or 0),
                         'free_to_sell': int(free_to_sell or 0),
@@ -471,3 +479,5 @@ ORDER BY
             _logger.info(f"{len(records_to_create)} records created")
 
         _logger.info("Completed run_process_room_availability")
+
+        return

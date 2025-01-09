@@ -89,13 +89,43 @@
 
     <!-- Form View for Out of Order Management -->
     <record id="view_out_of_order_management_form" model="ir.ui.view">
+    <field name="name">out.of.order.management.form</field>
+    <field name="model">out.of.order.management</field>
+    <field name="arch" type="xml">
+        <form string="Out of Order">
+            <sheet>
+                <group>
+                    <!-- Room Information -->
+                    <group>
+                        <field name="room_fsm_location"/>
+                        <field name="room_number"/>
+                        <field name="from_date"/>
+                        <field name="to_date"/>
+                    </group>
+
+                    <!-- Comments Section -->
+                    <group>
+                        <field name="comments"/>
+                    </group>
+                </group>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_follower_ids"/>
+                <field name="activity_ids"/>
+                <field name="message_ids"/>
+            </div>
+        </form>
+    </field>
+</record>
+
+    <!-- <record id="view_out_of_order_management_form" model="ir.ui.view">
         <field name="name">out.of.order.management.form</field>
         <field name="model">out.of.order.management</field>
         <field name="arch" type="xml">
             <form string="Out of Order">
                 <sheet>
                     <group>
-                        <!-- Room Information -->
+                     
                         <group>
                             <field name="room_fsm_location"/>
                             <field name="room_number"/>
@@ -103,22 +133,13 @@
                             <field name="to_date"/>
                         </group>
 
-                        <!-- Codes and Comments -->
-                        <!-- <group>
-                            <field name="out_of_order_code"/>
-                            <field name="authorization_code"/>
-                        </group> -->
+                      
                         <group>
                             <field name="comments"/>
                         </group>
                     </group>
 
-                    <!-- Action Buttons -->
-                    <!-- <group string="Actions">
-                        <button name="action_end_list_today" type="object" string="End All List Today"
-                                class="oe_highlight"/>
-                        <button name="action_change_all_list" type="object" string="Change All List"/>
-                    </group> -->
+                
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
@@ -126,8 +147,12 @@
                     <field name="message_ids"/>
                 </div>
             </form>
+             <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
         </field>
-    </record>
+    </record> -->
 
     <!-- Tree View for Out of Order Management -->
     <record id="view_out_of_order_management_tree" model="ir.ui.view">
@@ -221,6 +246,50 @@
 
     <!-- Form view for 'Housekeeping Traces' -->
     <record id="view_housekeeping_traces_form" model="ir.ui.view">
+    <field name="name">housekeeping.traces.form</field>
+    <field name="model">housekeeping.traces</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <group>
+                        <field name="id"/>
+                        <field name="target"/>
+                        <field name="date"/>
+                        <field name="from_department" string="From"/>
+                        <field name="status"/>
+                    </group>
+                    <group>
+                        <field name="room_number"/>
+                        <field name="due_date"/>
+                        <field name="end_date"/>
+                    </group>
+                </group>
+
+                <group>
+                    <field name="user_text" widget="selection"/>
+                    <field name="user_id" widget="many2one"/>
+                </group>
+
+                <group>
+                    <field name="message"/>
+                </group>
+
+                <group>
+                    <field name="recurring" widget="boolean"/>
+                    <field name="status"/>
+                </group>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_follower_ids"/>
+                <field name="activity_ids"/>
+                <field name="message_ids"/>
+            </div>
+        </form>
+    </field>
+</record>
+
+    <!-- <record id="view_housekeeping_traces_form" model="ir.ui.view">
         <field name="name">housekeeping.traces.form</field>
         <field name="model">housekeeping.traces</field>
         <field name="arch" type="xml">
@@ -228,7 +297,6 @@
                 <sheet>
                     <group>
                         <group>
-                            <!-- Display the ID field normally, not as read-only -->
                             <field name="id"/>
                             <field name="target"/>
                             <field name="date"/>
@@ -236,36 +304,26 @@
                             <field name="status"/>
                         </group>
                         <group>
-                            <!--                                <field name="target"/>-->
                             <field name="room_number"/>
                             <field name="due_date"/>
                             <field name="end_date"/>
                         </group>
                     </group>
 
-                    <!-- User Text with selection options -->
                     <group>
                         <field name="user_text" widget="selection"/>
                         <field name="user_id" widget="many2one"/>
                     </group>
 
-                    <!-- Message field -->
                     <group>
                         <field name="message"/>
                     </group>
 
-                    <!-- Recurring task and status checkboxes -->
                     <group>
                         <field name="recurring" widget="boolean"/>
                         <field name="status"/>
                     </group>
 
-                    <!--                        &lt;!&ndash; Buttons for In Process, Resolved, Cancelled at bottom &ndash;&gt;-->
-                    <!--                        <footer>-->
-                    <!--                            <button name="action_in_process" string="In Process" type="object" class="btn-primary"/>-->
-                    <!--                            <button name="action_resolved" string="Resolved" type="object" class="btn-success"/>-->
-                    <!--                            <button name="action_cancelled" string="Cancelled" type="object" class="btn-danger"/>-->
-                    <!--                        </footer>-->
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
@@ -273,8 +331,12 @@
                     <field name="message_ids"/>
                 </div>
             </form>
+             <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
         </field>
-    </record>
+    </record> -->
 
     <record id="view_concierge_traces_tree" model="ir.ui.view">
         <field name="name">concierge.traces.tree</field>

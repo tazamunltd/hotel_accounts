@@ -15,6 +15,10 @@
                     <field name="user_sort"/>
                     <field name="obsolete"/>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -150,7 +154,7 @@
                     <group>
                         <field name="arabic_description"/>
                         <field name="arabic_abbreviation"/>
-                        <label for="notes"/>
+                        <!-- <label for="notes"/> -->
                         <field name="notes"/>
                     </group>
                 </group>
@@ -164,6 +168,7 @@
                     <field name="activity_ids"/>
                     <field name="message_ids"/>
                 </div>
+            
             </form>
 
         </field>

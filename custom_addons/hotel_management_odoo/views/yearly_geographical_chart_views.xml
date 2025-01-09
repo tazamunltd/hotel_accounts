@@ -6,12 +6,12 @@
         <field name="model">yearly.geographical.chart</field>
         <field name="arch" type="xml">
             <tree string="Yearly Geographical Chart">
-                <field name="report_date"/>
-                <field name="room_type"/>
-                <field name="company_id"/>
-                <field name="nationality"/>
-                <field name= "region"/>
-                <field name="expected_inhouse"/>
+                <field name="report_date" optional="show"/>
+                <field name="room_type" optional="show"/>
+                <field name="company_id" optional="show"/>
+                <field name="nationality" optional="show"/>
+                <field name= "region" optional="show"/>
+                <field name="expected_inhouse" optional="show"/>
                 
             </tree>
         </field>

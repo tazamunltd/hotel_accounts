@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 front_desk.access_out_of_order_management_fron_desk,access_out_of_order_management_fron_desk,front_desk.model_out_of_order_management_fron_desk,base.group_user,1,1,1,1
 front_desk.access_rooms_on_hold_management_front_desk,access_rooms_on_hold_management_front_desk,front_desk.model_rooms_on_hold_management_front_desk,base.group_user,1,1,1,1
+front_desk.access_hotel_package_handling,access_hotel_package_handling,front_desk.model_hotel_package_handling,base.group_user,1,1,1,1

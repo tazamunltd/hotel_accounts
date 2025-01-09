@@ -1,0 +1,345 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* front_desk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-25 12:21+0000\n"
+"PO-Revision-Date: 2024-12-25 12:21+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_needaction
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_needaction
+msgid "Action Needed"
+msgstr "مطلوب اتخاذ إجراء"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_ids
+msgid "Activities"
+msgstr "أنشطة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_exception_decoration
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "زخرفة استثناء النشاط"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_state
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_type_icon
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "رمز نوع النشاط"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_attachment_count
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__authorization_code
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__authorization_code
+msgid "Authorization Code"
+msgstr "رمز التفويض"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__comments
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__comments
+msgid "Comments"
+msgstr "تعليقات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__create_uid
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__create_uid
+msgid "Created by"
+msgstr "تم إنشاؤه بواسطة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__create_date
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__create_date
+msgid "Created on"
+msgstr "تم إنشاؤه في"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__display_name
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: front_desk
+#: model:ir.model,name:front_desk.model_fsm_location
+msgid "Field Service Location"
+msgstr "موقع الخدمة الميدانية"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_follower_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_partner_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_type_icon
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة الخط رائعة مثل fa-tasks"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__from_date
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__from_date
+msgid "From Date"
+msgstr "من تاريخ"
+
+#. module: front_desk
+#: model:ir.ui.menu,name:front_desk.menu_front_desk
+msgid "Front Desk"
+msgstr "مكتب الاستقبال"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__has_message
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__has_message
+msgid "Has Message"
+msgstr "لديه رسالة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__id
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__id
+msgid "ID"
+msgstr "بطاقة تعريف"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_exception_icon
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_icon
+msgid "Icon"
+msgstr "رمز"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_exception_icon
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثناء."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__message_needaction
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا تم تحديد هذا المربع، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__message_has_error
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__message_has_sms_error
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__message_has_error
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا تم تحديد هذا المربع، فقد يكون لبعض الرسائل خطأ في التسليم."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_is_follower
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_is_follower
+msgid "Is Follower"
+msgstr "هل هو تابع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__write_uid
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__write_date
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__room_fsm_location
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__room_fsm_location
+msgid "Location"
+msgstr "موقع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_has_error
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_ids
+msgid "Messages"
+msgstr "رسائل"
+
+#. module: front_desk
+#: model:ir.ui.menu,name:front_desk.menu_misc_fron_desk
+msgid "Misc"
+msgstr "متفرقات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__my_activity_date_deadline
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_date_deadline
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط القادم"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_summary
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط القادم"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_type_id
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_needaction_counter
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_has_error_counter
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__message_needaction_counter
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب اتخاذ إجراء"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__message_has_error_counter
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: front_desk
+#: model:ir.ui.menu,name:front_desk.sub_menu_out_of_order_fron_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_form
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_form
+msgid "Out of Order"
+msgstr "خارج الخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__out_of_order_code
+msgid "Out of Order Code"
+msgstr "رمز خارج الخدمة"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_tree
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_tree
+msgid "Out of Order List"
+msgstr "قائمة خارج الترتيب"
+
+#. module: front_desk
+#: model:ir.actions.act_window,name:front_desk.action_out_of_order_management
+#: model:ir.model,name:front_desk.model_out_of_order_management_fron_desk
+msgid "Out of Order Management"
+msgstr "إدارة خارج الخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__roh_code
+msgid "ROH Code"
+msgstr "كود ROH"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__rating_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_user_id
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__room_number
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__room_number
+msgid "Room Number"
+msgstr "رقم الغرفة"
+
+#. module: front_desk
+#: model:ir.actions.act_window,name:front_desk.action_room_on_hold
+#: model:ir.ui.menu,name:front_desk.sub_menu_room_on_hold_fron_desk
+msgid "Room on Hold"
+msgstr "غرفة قيد الانتظار"
+
+#. module: front_desk
+#: model:ir.model,name:front_desk.model_rooms_on_hold_management_front_desk
+msgid "Rooms On Hold Management"
+msgstr "إدارة الغرف قيد الانتظار"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_has_sms_error
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل القصيرة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_state
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تاريخ الاستحقاق قد انقضى بالفعل\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"المخطط له: الأنشطة المستقبلية."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__to_date
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__to_date
+msgid "To Date"
+msgstr "حتى الآن"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_exception_decoration
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي المسجل."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__website_message_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__website_message_ids
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__website_message_ids
+msgid "Website communication history"
+msgstr "سجل اتصالات الموقع"
