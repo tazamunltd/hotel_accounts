@@ -4,21 +4,21 @@
     <record id="action_department_category" model="ir.actions.act_window">
         <field name="name">Department Categories</field>
         <field name="res_model">department.category</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
     </record>
 
     <!-- Action for Department Code -->
     <record id="action_department_code" model="ir.actions.act_window">
         <field name="name">Department Codes</field>
         <field name="res_model">department.code</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
     </record>
 
     <!-- Action for Posting Item -->
     <record id="action_posting_item" model="ir.actions.act_window">
         <field name="name">Posting Items</field>
         <field name="res_model">posting.item</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
     </record>
 
     <!-- Action for Dummy Room Code -->

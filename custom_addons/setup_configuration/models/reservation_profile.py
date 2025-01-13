@@ -595,14 +595,15 @@ class ReservationInfant(models.Model):
 class ReservationProfile(models.Model):
     _name = 'reservation.reservations.profile'
     _description = 'Reservation Profile'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    profile_id = fields.Char(string='Profile ID')
-    name = fields.Char(string='Name')
-    description = fields.Text(string='Description')
+    profile_id = fields.Char(string='Profile ID',tracking=True)
+    name = fields.Char(string='Name',tracking=True)
+    description = fields.Text(string='Description',tracking=True)
     
 
     # Link to the main reservation
-    profile_reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation')
+    profile_reservation_id = fields.Many2one('reservation.reservation.main', string='Reservation',tracking=True)
 
 
 class ReservationTrace(models.Model):

@@ -6,12 +6,12 @@
         <field name="model">hotel.room</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="name" string="Room Name"/>
-                <field name="room_type_name" string="Room Type"/>
+                <field name="name" string="Room Name" optional='show'/>
+                <field name="room_type_name" string="Room Type" optional='show'/>
                 <!-- <field name="room_type"/> -->
-                <field name="floor_id"/>
-                <field name="list_price"/>
-                <field name="status"/>
+                <field name="floor_id" string="Floor" optional='show'/>
+                <field name="list_price" optional='show'/>
+                <field name="status" optional='show'/>
             </tree>
         </field>
     </record>

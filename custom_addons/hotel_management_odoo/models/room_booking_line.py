@@ -591,8 +591,8 @@ class RoomBookingLine(models.Model):
         """Update booking state based on room_id value and log changes."""
         # if not self.id:
         #     return
-        # if not self.id or not self.room_id:
-        #     return
+        if not self.id or not self.room_id:
+            return
         _logger.info(f"checking room booking line id value: {self.id}")
         if isinstance(self.id, NewId):
             id_str_room = str(self.id)

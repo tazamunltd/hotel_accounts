@@ -11,6 +11,8 @@ class OutOfOrderManagement(models.Model):
     _description = 'Out of Order Management'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    _rec_name = 'room_number'
+
     room_fsm_location = fields.Many2one(
         'fsm.location',
         string="Location",
@@ -18,6 +20,22 @@ class OutOfOrderManagement(models.Model):
     ,tracking=True)
 
     room_number = fields.Many2one('hotel.room', string="Room Number", domain="[('fsm_location', '=', room_fsm_location)]",tracking=True)
+
+    room_type = fields.Many2one(
+        'room.type',
+        string="Room Type",
+        compute="_compute_room_type",
+        store=True,
+        readonly=True
+    )
+
+    @api.depends('room_number')
+    def _compute_room_type(self):
+        for record in self:
+            record.room_type = record.room_number.room_type_name if record.room_number else False
+
+    company_id = fields.Many2one(
+        'res.company', string="Company", default=lambda self: self.env.company, required=True)
 
     @api.onchange('room_fsm_location')
     def _onchange_room_fsm_location(self):
@@ -40,6 +58,8 @@ class RoomsOnHoldManagement(models.Model):
     _description = 'Rooms On Hold Management'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    _rec_name = 'room_number'
+
     room_fsm_location = fields.Many2one(
         'fsm.location',
         string="Location",
@@ -47,6 +67,22 @@ class RoomsOnHoldManagement(models.Model):
     ,tracking=True)
 
     room_number = fields.Many2one('hotel.room', string="Room Number", domain="[('fsm_location', '=', room_fsm_location)]",tracking=True)
+
+    room_type = fields.Many2one(
+        'room.type',
+        string="Room Type",
+        compute="_compute_room_type",
+        store=True,
+        readonly=True
+    )
+
+    @api.depends('room_number')
+    def _compute_room_type(self):
+        for record in self:
+            record.room_type = record.room_number.room_type_name if record.room_number else False
+
+    company_id = fields.Many2one(
+        'res.company', string="Company", default=lambda self: self.env.company, required=True)
 
     @api.onchange('room_fsm_location')
     def _onchange_room_fsm_location(self):

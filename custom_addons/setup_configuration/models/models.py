@@ -123,7 +123,7 @@ class RateCode(models.Model):
             'name': 'Rate Details',
             'res_model': 'rate.detail',
             # Show the tree view first, and allow form view when a record is selected
-            'view_mode': 'tree,form',
+            'view_mode': 'tree,kanban,pivot,graph,calendar,form',
             'view_type': 'form',
             'target': 'current',  # Use 'current' instead of 'new' to show the full tree and form view
             'context': {
@@ -152,8 +152,9 @@ class RateDetailLine(models.Model):
             if record.hotel_services_config:
                 # Fetch the price and frequency from the related service
                 service = record.hotel_services_config
-                record.packages_value = service.unit_price  # Assuming `unit_price` exists in `hotel.configuration`
-                
+                # Assuming `unit_price` exists in `hotel.configuration`
+                record.packages_value = service.unit_price
+
                 if service.frequency == 'one time':
                     record.packages_rhythm = 'first_night'
                 elif service.frequency == 'daily':
@@ -243,6 +244,15 @@ class RateDetail(models.Model):
     @api.constrains('from_date', 'to_date')
     def _check_date_overlap(self):
         for record in self:
+            company = self.env.user.company_id
+            if company.system_date:
+                # Ensure both are `date` objects
+                system_date = fields.Date.to_date(company.system_date)
+                from_date = fields.Date.to_date(record.from_date)
+                if from_date < system_date:
+                    raise ValidationError(
+                        "The 'From Date' cannot be earlier than the system date set in the company."
+                    )
             if record.to_date <= record.from_date:
                 raise ValidationError(
                     "The 'To Date' must be greater than the 'From Date'.")
@@ -311,7 +321,6 @@ class RateDetail(models.Model):
     def _onchange_is_amount(self):
         if self.is_amount:
             self.is_percentage = False
-        
 
     @api.onchange('is_percentage')
     def _onchange_is_percentage(self):
@@ -1391,8 +1400,10 @@ class RoomTypeSpecificRate(models.Model):
     room_type_sunday_pax_4 = fields.Float(string="Sunday 4 Pax", tracking=True)
     room_type_sunday_pax_5 = fields.Float(string="Sunday 5 Pax", tracking=True)
     room_type_sunday_pax_6 = fields.Float(string="Sunday 6 Pax", tracking=True)
-    room_type_sunday_child_pax_1 = fields.Float(string="Sunday 1 Child", tracking=True)
-    room_type_sunday_infant_pax_1 = fields.Float(string="Sunday 1 Infant", tracking=True)
+    room_type_sunday_child_pax_1 = fields.Float(
+        string="Sunday 1 Child", tracking=True)
+    room_type_sunday_infant_pax_1 = fields.Float(
+        string="Sunday 1 Infant", tracking=True)
 
     monday_checkbox_rt = fields.Boolean(
         string="Apply Default for Monday", tracking=True)
@@ -1669,10 +1680,10 @@ class RoomNumberSpecificRate(models.Model):
         string="Monday 5 Pax", tracking=True)
     room_number_monday_pax_6 = fields.Float(
         string="Monday 6 Pax", tracking=True)
-    
+
     room_number_monday_child_pax_1 = fields.Float(
         string="Monday 1 Child", tracking=True)
-    
+
     room_number_monday_infant_pax_1 = fields.Float(
         string="Monday 1 Infant", tracking=True)
 
@@ -1688,13 +1699,12 @@ class RoomNumberSpecificRate(models.Model):
         string="Tuesday 5 Pax", tracking=True)
     room_number_tuesday_pax_6 = fields.Float(
         string="Tuesday 6 Pax", tracking=True)
-    
+
     room_number_tuesday_child_pax_1 = fields.Float(
         string="Tuesday 1 Child", tracking=True)
-    
+
     room_number_tuesday_infant_pax_1 = fields.Float(
         string="Tuesday 1 Infant", tracking=True)
-
 
     room_number_wednesday_pax_1 = fields.Float(
         string="Wednesday 1 Pax", tracking=True)
@@ -1713,8 +1723,6 @@ class RoomNumberSpecificRate(models.Model):
     room_number_wednesday_infant_pax_1 = fields.Float(
         string="Wednesday 1 Infant", tracking=True)
 
-
-
     room_number_thursday_pax_1 = fields.Float(
         string="Thursday 1 Pax", tracking=True)
     room_number_thursday_pax_2 = fields.Float(
@@ -1727,7 +1735,7 @@ class RoomNumberSpecificRate(models.Model):
         string="Thursday 5 Pax", tracking=True)
     room_number_thursday_pax_6 = fields.Float(
         string="Thursday 6 Pax", tracking=True)
-    
+
     room_number_thursday_child_pax_1 = fields.Float(
         string="Thursday 1 Child", tracking=True)
     room_number_thursday_infant_pax_1 = fields.Float(
@@ -1808,11 +1816,11 @@ class RoomNumberSpecificRate(models.Model):
         string="Apply Default for Friday", tracking=True)
     saturday_checkbox_rn = fields.Boolean(
         string="Apply Default for Saturday", tracking=True)
-    sunday_checkbox_rn = fields.Boolean(string="Apply Default for Sunday", tracking=True)
-
-
+    sunday_checkbox_rn = fields.Boolean(
+        string="Apply Default for Sunday", tracking=True)
 
     # Onchange methods for each checkbox
+
     @api.onchange('monday_checkbox_rn')
     def _onchange_monday_checkbox_rn(self):
         if self.monday_checkbox_rn:
@@ -2175,7 +2183,7 @@ class HotelConfiguration(models.Model):
     _name = 'hotel.configuration'
     _description = "Hotel Configuration"
     _rec_name = 'service_name'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     service_name = fields.Char(
         string="Service Name", required=True, tracking=True)

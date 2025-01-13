@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 import logging
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -115,7 +116,7 @@ in_house AS (
         COUNT(DISTINCT lls.booking_line_id) AS in_house_count
     FROM latest_line_status lls
     WHERE lls.checkin_date <= lls.report_date
-      AND lls.checkout_date > lls.report_date
+      AND lls.checkout_date >= lls.report_date
       AND lls.final_status = 'check_in'
     GROUP BY lls.report_date, lls.company_id, lls.room_type_id
 ),
@@ -169,7 +170,7 @@ house_use_cte AS (
     WHERE lls.house_use = TRUE
       AND lls.final_status = 'check_in'
       AND lls.checkin_date <= lls.report_date
-      AND lls.checkout_date > lls.report_date
+      AND lls.checkout_date >= lls.report_date
     GROUP BY lls.report_date, lls.company_id, lls.room_type_id
 ),
 
@@ -188,7 +189,7 @@ complementary_use_cte AS (
     WHERE lls.complementary = TRUE
       AND lls.final_status = 'check_in'
       AND lls.checkin_date <= lls.report_date
-      AND lls.checkout_date > lls.report_date
+      AND lls.checkout_date >= lls.report_date
     GROUP BY lls.report_date, lls.company_id, lls.room_type_id
 ),
 
@@ -400,6 +401,7 @@ ORDER BY
   fr.report_date,
   fr.company_name,
   fr.room_type_name;
+           
             """
         self.env.cr.execute(query)
         results = self.env.cr.fetchall()
@@ -481,3 +483,409 @@ ORDER BY
         _logger.info("Completed run_process_room_availability")
 
         return
+
+    def debug_room_results(self, company_id=None, report_date=None):
+        """
+        Comprehensive diagnostic method to print out room result records.
+        
+        :param company_id: Optional company ID to filter results
+        :param report_date: Optional report date to filter results
+        :return: Detailed debug information
+        """
+        domain = []
+        if company_id:
+            domain.append(('company_id', '=', company_id))
+        if report_date:
+            domain.append(('report_date', '=', report_date))
+        
+        results = self.search(domain)
+        
+        _logger.info("Debug Room Results - Search Parameters:")
+        _logger.info("Company ID Filter: %s", company_id)
+        _logger.info("Report Date Filter: %s", report_date)
+        _logger.info("Total Matching Records: %s", len(results))
+        
+        for record in results:
+            _logger.info("Detailed Record:")
+            _logger.info("- Record ID: %s", record.id)
+            _logger.info("- Company: %s (ID: %s)", record.company_id.name, record.company_id.id)
+            _logger.info("- Report Date: %s", record.report_date)
+            _logger.info("- Room Type: %s", record.room_type)
+            _logger.info("- Expected Arrivals: %s", record.expected_arrivals)
+            _logger.info("- Total Rooms: %s", record.total_rooms)
+            _logger.info("- Available Rooms: %s", record.available)
+            _logger.info("- In-House: %s", record.inhouse)
+            _logger.info("-------------------")
+        
+        return {
+            'total_records': len(results),
+            'records_details': [
+                {
+                    'id': r.id,
+                    'company_name': r.company_id.name,
+                    'company_id': r.company_id.id,
+                    'report_date': str(r.report_date),
+                    'expected_arrivals': r.expected_arrivals
+                } for r in results
+            ]
+        }
+
+    @api.model
+    def get_expected_arrivals_for_dashboard(self, company_id, report_date):
+        """
+        Retrieve sum of expected arrivals for different room types for a specific date and company.
+        
+        :param company_id: Company ID to filter records
+        :param report_date: Date for which expected arrivals are to be calculated
+        :return: Sum of expected arrivals across all room types or 0
+        
+        Modification Date: 2025-01-12
+        Modification Time: 21:47:58
+        """
+        try:
+            # Search for all records matching company and date
+            records = self.search([
+                ('company_id', '=', company_id),
+                ('report_date', '=', report_date)
+            ])
+            
+            if records:
+                # Sum the expected quantities across all matching records
+                total_expected_arrivals = sum(record.expected_arrivals for record in records)
+                return total_expected_arrivals
+            else:
+                _logger.warning("No records found for given company and date")
+                return 0
+        except Exception as e:
+            _logger.error("Error retrieving expected arrivals: %s", str(e))
+            return 0
+
+    @api.model
+    def get_dashboard_room_metrics(self, company_id, report_date):
+        """
+        Retrieve aggregated dashboard metrics for rooms for a specific date and company.
+        
+        :param company_id: Company ID to filter records
+        :param report_date: Date for which room metrics are to be calculated
+        :return: Dictionary of aggregated room metrics
+        
+        Modification Date: 2025-01-12
+        Modification Time: 22:40:00
+        """
+        try:
+            # Search for all records matching company and date
+            records = self.search([
+                ('company_id', '=', company_id),
+                ('report_date', '=', report_date)
+            ])
+            
+            _logger.info(f"Found {len(records)} records for company {company_id} on {report_date}")
+            
+            if not records:
+                _logger.warning("No records found for given company and date")
+                return {
+                    'out_of_order': 0,
+                    'rooms_on_hold': 0,
+                    'out_of_service': 0,
+                    'inhouse': 0,
+                    'expected_arrivals': 0,
+                    'expected_departures': 0,
+                    'house_use_count': 0,
+                    'complementary_use_count': 0,
+                    'expected_occupied_rate': 0,
+                    'available': 0,
+                    'expected_inhouse': 0,
+                    'free_to_sell': 0,
+                    'total_rooms': 0
+                }
+            
+            # Detailed logging for each record
+            _logger.info("Record Details:")
+            for record in records:
+                _logger.info(f"Room Type: {record.room_type}, "
+                             f"In-House: {record.inhouse}, "
+                             f"Available: {record.available}, "
+                             f"Expected In-House: {record.expected_inhouse}")
+            
+            # Calculate aggregated metrics
+            metrics = {
+                'out_of_order': sum(record.out_of_order for record in records),
+                'rooms_on_hold': sum(record.rooms_on_hold for record in records),
+                'out_of_service': sum(record.out_of_service for record in records),
+                'inhouse': sum(record.inhouse for record in records),
+                'expected_arrivals': sum(record.expected_arrivals for record in records),
+                'expected_departures': sum(record.expected_departures for record in records),
+                'house_use_count': sum(record.house_use_count for record in records),
+                'complementary_use_count': sum(record.complementary_use_count for record in records),
+                'available': sum(record.available for record in records),
+                'expected_inhouse': sum(record.expected_inhouse for record in records),
+                'free_to_sell': sum(record.free_to_sell for record in records),
+                'total_rooms': sum(record.total_rooms for record in records)
+            }
+            
+            # Log the final metrics
+            _logger.info(f"Aggregated Metrics: {metrics}")
+            
+            # Calculate expected occupied rate
+            total_available_rooms = metrics['available'] or 1
+            metrics['expected_occupied_rate'] = int((metrics['expected_inhouse'] / total_available_rooms) * 100)
+            
+            return metrics
+        
+        except Exception as e:
+            _logger.error(f"Error retrieving dashboard room metrics: {str(e)}")
+            return {
+                'out_of_order': 0,
+                'rooms_on_hold': 0,
+                'out_of_service': 0,
+                'inhouse': 0,
+                'expected_arrivals': 0,
+                'expected_departures': 0,
+                'house_use_count': 0,
+                'complementary_use_count': 0,
+                'expected_occupied_rate': 0,
+                'available': 0,
+                'expected_inhouse': 0,
+                'free_to_sell': 0,
+                'total_rooms': 0
+            }
+
+    @api.model
+    def get_occupancy_history(self, company_id, days=7):
+        """
+        Get occupancy rate history for the last N days.
+        
+        Args:
+            company_id (int): ID of the company
+            days (int): Number of days of history to fetch (default: 7)
+            
+        Returns:
+            dict: Dictionary containing dates and corresponding occupancy rates
+        """
+        try:
+            end_date = fields.Date.today()
+            start_date = end_date - timedelta(days=days)
+            
+            domain = [
+                ('company_id', '=', company_id),
+                ('report_date', '>=', start_date),
+                ('report_date', '<=', end_date)
+            ]
+            
+            results = self.search(domain, order='report_date asc')
+            
+            # Group results by date and calculate average occupancy rate
+            dates = []
+            rates = []
+            
+            for date in (start_date + timedelta(n) for n in range(days + 1)):
+                day_results = results.filtered(lambda r: r.report_date == date)
+                
+                if day_results:
+                    total_rooms = sum(day_results.mapped('total_rooms'))
+                    occupied_rooms = sum(day_results.mapped('inhouse'))
+                    
+                    # Calculate occupancy rate
+                    rate = round((occupied_rooms / total_rooms * 100) if total_rooms else 0, 2)
+                    
+                    dates.append(date.strftime('%Y-%m-%d'))
+                    rates.append(rate)
+            
+            return {
+                'dates': dates,
+                'rates': rates
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error fetching occupancy history: {str(e)}")
+            return {
+                'dates': [],
+                'rates': []
+            }
+
+    @api.model
+    def get_arrivals_departures_history(self, company_id, days=7):
+        """
+        Get arrivals and departures history for the last N days.
+        
+        Args:
+            company_id (int): ID of the company
+            days (int): Number of days of history to fetch (default: 7)
+            
+        Returns:
+            dict: Dictionary containing dates, arrivals, and departures lists
+        """
+        try:
+            end_date = fields.Date.today()
+            start_date = end_date - timedelta(days=days)
+            
+            domain = [
+                ('company_id', '=', company_id),
+                ('report_date', '>=', start_date),
+                ('report_date', '<=', end_date)
+            ]
+            
+            results = self.search(domain, order='report_date asc')
+            
+            dates = []
+            arrivals = []
+            departures = []
+            
+            for date in (start_date + timedelta(n) for n in range(days + 1)):
+                day_results = results.filtered(lambda r: r.report_date == date)
+                
+                dates.append(date.strftime('%Y-%m-%d'))
+                arrivals.append(sum(day_results.mapped('expected_arrivals')))
+                departures.append(sum(day_results.mapped('expected_departures')))
+            
+            return {
+                'dates': dates,
+                'arrivals': arrivals,
+                'departures': departures
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error fetching arrivals vs departures history: {str(e)}")
+            return {
+                'dates': [],
+                'arrivals': [],
+                'departures': []
+            }
+
+    @api.model
+    def get_room_type_distribution(self, company_id):
+        """
+        Get room distribution by room type.
+        
+        Args:
+            company_id (int): ID of the company
+            
+        Returns:
+            dict: Dictionary containing room types and their counts
+        """
+        try:
+            today = fields.Date.today()
+            domain = [
+                ('company_id', '=', company_id),
+                ('report_date', '=', today)
+            ]
+            
+            results = self.search(domain)
+            room_types = []
+            counts = []
+            
+            for result in results:
+                if result.room_type not in room_types:
+                    room_types.append(result.room_type)
+                    counts.append(result.total_rooms)
+            
+            return {
+                'types': room_types,
+                'counts': counts
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error fetching room type distribution: {str(e)}")
+            return {
+                'types': [],
+                'counts': []
+            }
+
+    @api.model
+    def get_room_status_by_type(self, company_id):
+        """
+        Get room status breakdown by room type.
+        
+        Args:
+            company_id (int): ID of the company
+            
+        Returns:
+            dict: Dictionary containing room types and their status counts
+        """
+        try:
+            today = fields.Date.today()
+            domain = [
+                ('company_id', '=', company_id),
+                ('report_date', '=', today)
+            ]
+            
+            results = self.search(domain)
+            types = []
+            available = []
+            occupied = []
+            reserved = []
+            out_of_order = []
+            
+            for result in results:
+                types.append(result.room_type)
+                available.append(result.available)
+                occupied.append(result.inhouse)
+                reserved.append(result.reserved)
+                out_of_order.append(result.out_of_order)
+            
+            return {
+                'types': types,
+                'available': available,
+                'occupied': occupied,
+                'reserved': reserved,
+                'outOfOrder': out_of_order
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error fetching room status by type: {str(e)}")
+            return {
+                'types': [],
+                'available': [],
+                'occupied': [],
+                'reserved': [],
+                'outOfOrder': []
+            }
+
+    @api.model
+    def get_availability_timeline(self, company_id, days=30):
+        """
+        Get room availability timeline for the next N days.
+        
+        Args:
+            company_id (int): ID of the company
+            days (int): Number of days to look ahead (default: 30)
+            
+        Returns:
+            dict: Dictionary containing dates, available rooms, and total rooms
+        """
+        try:
+            start_date = fields.Date.today()
+            end_date = start_date + timedelta(days=days)
+            
+            domain = [
+                ('company_id', '=', company_id),
+                ('report_date', '>=', start_date),
+                ('report_date', '<=', end_date)
+            ]
+            
+            results = self.search(domain, order='report_date asc')
+            
+            dates = []
+            available = []
+            total = []
+            
+            for date in (start_date + timedelta(n) for n in range(days + 1)):
+                day_results = results.filtered(lambda r: r.report_date == date)
+                
+                dates.append(date.strftime('%Y-%m-%d'))
+                available.append(sum(day_results.mapped('available')))
+                total.append(sum(day_results.mapped('total_rooms')))
+            
+            return {
+                'dates': dates,
+                'available': available,
+                'total': total
+            }
+            
+        except Exception as e:
+            _logger.error(f"Error fetching availability timeline: {str(e)}")
+            return {
+                'dates': [],
+                'available': [],
+                'total': []
+            }

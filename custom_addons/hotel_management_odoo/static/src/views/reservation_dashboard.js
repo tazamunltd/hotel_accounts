@@ -4,11 +4,13 @@ import { useService } from "@web/core/utils/hooks";
 import { Component, useState, onWillStart, onMounted } from "@odoo/owl";
 import { useBus } from "@web/core/utils/hooks";
 
+
 export class ReservationDashBoard extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
         this.parentChildMap = new Map(); // Track parent-child relationships
+        this.companyService = useService("company");
         this.dashboardData = useState({
             today_checkin: 0,
             today_checkout: 0,
@@ -24,6 +26,7 @@ export class ReservationDashBoard extends Component {
             vacant: 0,  // Add this line
             result_booking:[],
             selectedIds:[],
+            
         });
 
         onWillStart(async () => {
@@ -40,6 +43,39 @@ export class ReservationDashBoard extends Component {
             this.buildParentChildMap();
         });
     }
+    async fetchSystemDate() {
+        try {
+            const companyId = this.companyService.currentCompany.id; // Get current company ID
+            if (!companyId) {
+                console.warn("No valid company_id found.");
+                return null;
+            }
+
+            const [company] = await this.orm.read("res.company", [companyId], ["system_date"]);
+            if (company && company.system_date) {
+                const rawDateStr = company.system_date;
+                console.log(rawDateStr)
+                const dateObj = new Date(rawDateStr + "Z"); // Force UTC interpretation
+                // const dateObj = new Date(rawDateStr + "T00:00:00Z");
+                const systemDate1 = dateObj.toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                });
+                console.log('65', systemDate1);
+                return systemDate1
+            } else {
+                console.warn("No system_date found for the company.");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching system date:", error);
+            return null;
+        }
+    }
+    
+
+
 
     buildParentChildMap() {
         const rows = document.querySelectorAll("tr.o_data_row");
@@ -283,36 +319,52 @@ addToSelected(bookingName) {
 
         let domain = [];
         let actionName = '';
+        
+        const systemDate2 = await this.fetchSystemDate();
+        console.log('system date', systemDate2)
 
+        function convertToISOFormat(dateString) {
+            const [day, month, year] = dateString.split('/'); // Split the input string
+            return `${year}-${month}-${day}`; // Rearrange into YYYY-MM-DD format
+        }
+        
+        // Convert and log the result
+        const systemDate = convertToISOFormat(systemDate2);
+        console.log('Formatted Date:', systemDate);
         // Define filter-specific domains and action names
         if (filter_name === "today_checkin") {
+            
             domain = [
-                ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
-                ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
+                ['checkin_date', '=', systemDate],
+                // ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
+                // ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'block'],
 //                ['parent_booking_name', '!=', false]
             ];
             actionName = 'Today Check-Ins';
         } else if (filter_name === "today_checkout") {
             domain = [
-                ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
-                ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
+                ['checkout_date', '=', systemDate],
+                // ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
+                // ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'check_in'],
 //                ['parent_booking_name', '!=', false]
             ];
             actionName = 'Today Check-Outs';
         }else if (filter_name === "actual_checkin") {
             domain = [
-                ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
-                ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
+                ['checkin_date', '=', systemDate],
+                // ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
+                // ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'check_in'],
 //                ['parent_booking_name', '!=', false]
             ];
             actionName = 'Actual Check-Ins';
         }else if (filter_name === "actual_checkout") {
             domain = [
-                ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
-                ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
+                ['checkout_date', '=', systemDate],
+                // ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
+                // ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'check_out'],
 //                ['parent_booking_name', '!=', false]
             ];

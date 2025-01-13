@@ -2,21 +2,18 @@
 
 /**
  * Offline Search Widget - Hotel Management Module
- * 
+ *
  * Comprehensive error handling and logging for robust widget functionality
  * @version 1.1.0
  * @date 2025-01-08T16:55:00+05:00
  */
 
 // Core Owl imports
-import { Component, onWillStart, useState, onError } from "@odoo/owl";
-
-// Utility imports
-import { debounce } from "@web/core/utils/timing";
-
-// Service imports
+import { Component, onWillStart, useState, onError, onWillDestroy } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { debounce } from "@web/core/utils/timing";
+import { session } from "@web/session";
 
 /**
  * Custom Error class for widget-specific errors
@@ -49,77 +46,171 @@ class OfflineSearchWidgetError extends Error {
 
 /**
  * OfflineSearchWidget: Main component for hotel booking and guest information
- * 
- * @class
- * @extends Component
+ * Modified: 2025-01-09T00:23:08+05:00
  */
 export class OfflineSearchWidget extends Component {
-    /**
-     * Prop Definitions
-     * Allows flexible configuration of the widget
-     */
-    static props = {
-        record: { type: Object, optional: true },
-        readonly: { type: Boolean, optional: true },
-        options: { type: Object, optional: true }
-    };
+    static template = "hotel_management_odoo.OfflineSearchWidget";
+    static components = {};
 
     /**
-     * Default Props Configuration
-     */
-    static defaultProps = {
-        readonly: false,
-        options: {}
-    };
-
-    /**
-     * Component Setup Method with Enhanced Error Handling
-     * @date 2025-01-08T16:55:00+05:00
+     * Setup component
+     * Modified: 2025-01-10T22:14:59+05:00
      */
     setup() {
-        // Initialize error tracking services
-        this.notification = useService('notification');
-        this.orm = useService('orm');
+        super.setup();
+        // Initialize services
+        this.notification = useService("notification");
+        this.orm = useService("orm");
+        this.user = useService("user");
+        this.companyService = useService("company");
 
-        // Initialize state with comprehensive error tracking
         this.state = useState({
-            // Core data fields
+            // Default values
+            hotel: "",
+            rooms: 1,
+            checkInDate: this.formatDateString(new Date()),
+            checkOutDate: "",
+            noOfNights: 1,
+            adults: 1,
+            children: 0,
+            infants: 0,
+            roomType: "",
+            systemDate: "",
+            lastSystemDateUpdate: "",
+            searchResults: [],
+            searchPerformed: false,
+            searchError: null,
+            isSearching: false,
+//            guestContact: "",
+//            guestGroup: "",
+            // Other state properties
+            contacts: [],
+            groups: [],
+            hotels: [],
+            roomTypes: [],
+            filteredGroupBookings: [],
+            columns: [
+                { name: 'room_type', label: 'Room Type', visible: true },
+                { name: 'company', label: 'Company', visible: true },
+                { name: 'free_to_sell', label: 'Free to Sell', visible: true },
+                { name: 'total_rooms', label: 'Total Rooms', visible: true },
+                { name: 'rate', label: 'Rate', visible: false },
+                { name: 'capacity', label: 'Capacity', visible: false }
+            ]
+        });
+
+        // System date polling interval (in milliseconds)
+        this.systemDatePollInterval = 300; // 300 milliseconds
+        this.systemDatePollTimer = null;
+
+//         Debounce the updateSystemDate function
+        this.debouncedUpdateSystemDate = debounce(
+            this.updateSystemDate.bind(this), 300);
+
+        // Start system date polling
+        this.startSystemDatePolling();
+
+        // Setup initial data
+        onWillStart(async () => {
+            await this.fetchCompanies();
+            if (this.state.hotel) {
+                await this.fetchRoomTypes();
+                await this.updateSystemDate()
+            }
+//            await this.fetchContacts();
+//            await this.fetchGroups();
+        });
+    }
+
+    /**
+     * Initialize the component
+     * Modified: 2025-01-08T23:59:08+05:00
+     */
+    initializeComponent() {
+        super.setup();
+        // Initialize services
+        this.notification = useService("notification");
+        this.orm = useService("orm");
+        this.action = useService("action");
+
+        /**
+         * Main state
+         */
+        this.state = useState({
+            // Hotel/Company data
             hotel: "",
             hotels: [],
-            
+
             // Booking details
             dateOfOrder: new Date().toISOString().slice(0, 16),
             checkInDate: "",
-            noOfNights: 1,
+            noOfNights: 0,  // Changed from 1 to 0 as default
             checkOutDate: "",
-            
-            // Guest information
+
+            // Guest details
             rooms: 1,
             adults: 1,
             children: 0,
             infants: 0,
-            
-            // Room and search data
+            // Adding contact and group fields - 2025-01-10T11:48:27+05:00
+//            guestContact: "",  // Contact information for the guest
+//            guestGroup: "",    // Group information for the guest
+
+            // Room types
             roomTypes: [],
+            roomType: null, // selected roomType ID
+
+            // Search results
             searchResults: [],
-            
-            // Error and system state tracking
+            searchPerformed: false,
+
+            // Error/Loading flags
             isLoading: false,
             hasError: false,
             errorMessage: null,
             errorDetails: null,
-            
-            // Additional system fields
+            isSearching: false,
+            searchError: null,
+
+            // System date
             systemDate: null,
-            readonly: this.props.readonly || false
+            lastSystemDateUpdate: null,
+            maxCheckOutDate: null,
+
+            // Additional fields visibility
+            showAdditionalFields: false,
+
+            // Room count toggle
+            showRoomCount: false,  // Added for room count toggle
+
+            // Guest information toggle
+            showGuestInfo: false,
+
+            // Column visibility
+            columns: [
+                { name: 'room_type_name', label: 'Room Type', visible: true },
+                { name: 'company_name', label: 'Hotel', visible: true },
+                { name: 'actualFreeToSell', label: 'Available Rooms', visible: true },
+                { name: 'total_rooms', label: 'Total Rooms', visible: true },
+                { name: 'rate', label: 'Rate', visible: false },
+                { name: 'capacity', label: 'Capacity', visible: false }
+            ],
+            // Added group booking state - 2025-01-10T20:37:37+05:00
+            groupBooking: null,
+            groupBookingSearch: "",
+            filteredGroupBookings: []
         });
+
+//        // Debounce the updateSystemDate function
+//        this.debouncedUpdateSystemDate = debounce(
+//            this.updateSystemDate.bind(this),
+//            1000 // 1 second debounce
+//        );
 
         // Global error handler for the widget
-        onError((error) => {
-            this.handleWidgetError(error);
-        });
+        onError((error) => this.handleWidgetError(error));
 
-        // Lifecycle hook with enhanced error management
+        // Lifecycle hook
         onWillStart(async () => {
             this.state.isLoading = true;
             this.state.hasError = false;
@@ -128,15 +219,140 @@ export class OfflineSearchWidget extends Component {
             try {
                 await Promise.all([
                     this.fetchCompanies(),
-                    this.fetchRoomTypes()
+                    this.fetchRoomTypes(),
+                    this.fetchContacts(),
+                    this.fetchGroups(),
                 ]);
+
+                // Start system date polling
+                this.startSystemDatePolling();
             } catch (error) {
                 this.handleWidgetError(error);
             } finally {
                 this.state.isLoading = false;
             }
         });
+
+        // Cleanup on component destroy
+        onWillDestroy(() => {
+             this.isDestroyed = true;
+            this.stopSystemDatePolling();
+        });
     }
+
+    /**
+     * Start polling for system date updates
+     * Modified: 2025-01-08T23:59:08+05:00
+     */
+    startSystemDatePolling() {
+        // Clear any existing timer
+        this.stopSystemDatePolling();
+
+        // Start new polling timer
+        this.systemDatePollTimer = setInterval(async () => {
+//            await this.refreshSession();
+            await this.debouncedUpdateSystemDate();
+        }, this.systemDatePollInterval);
+    }
+
+    /**
+     * Stop polling for system date updates
+     * Modified: 2025-01-08T23:59:08+05:00
+     */
+    stopSystemDatePolling() {
+        if (this.systemDatePollTimer) {
+            clearInterval(this.systemDatePollTimer);
+            this.systemDatePollTimer = null;
+        }
+    }
+
+    /**
+     * Update system date from backend
+     * Modified: 2025-01-08T23:59:08+05:00
+     */
+    async updateSystemDate() {
+        try {
+//            console.log("in the update system date start::",this.state.hotel);
+            if (this.isDestroyed) {
+                console.warn("Component is destroyed; update system date  aborted.");
+                return;
+            }
+//            console.log("in the update system date process::",this.state.hotel);
+//            if (!this.state.hotel) return;
+
+            // Fetch current hotel's system date
+            const [hotel] = await this.orm.searchRead(
+                'res.company',
+                [['id', '=', this.state.hotel]],
+                ['system_date'],
+                { limit: 1 }
+            );
+
+            if (hotel && hotel.system_date) {
+                const newSystemDate = this.formatDateString(hotel.system_date);
+
+                // Only update if date has changed
+                if (newSystemDate !== this.state.systemDate) {
+                    this.state.systemDate = newSystemDate;
+                    this.state.lastSystemDateUpdate = new Date().toISOString();
+
+                    // If check-in date is invalid or not set, set it to system date
+                    if (!this.state.checkInDate || !this.validateCheckInDate(this.state.checkInDate)) {
+                        this.state.checkInDate = newSystemDate;
+                        this.updateMaxCheckOutDate();
+                        this.updateCheckOutDate();
+                    }
+
+                    // Notify user of date change
+                    this.notification.add(
+                        _t("System date has been updated to: ") + this.formatDateForDisplay(newSystemDate),
+                        { type: 'info', sticky: false }
+                    );
+                    this.notification.add(_t('Check-in date updated to system date'), {
+                        type: 'info',
+                        sticky: false
+                    });
+                }
+            }
+        } catch (error) {
+//            console.error('Error updating system date:', error);
+//            this.handleWidgetError(error);
+        }
+    }
+
+    /**
+     * Check if current check-in date is today
+     * Modified: 2025-01-08T23:59:08+05:00
+     * @returns {boolean}
+     */
+    isCheckInToday() {
+        if (!this.state.checkInDate || !this.state.systemDate) return false;
+        return this.state.checkInDate === this.state.systemDate;
+    }
+
+    /**
+     * Format date for display
+     * Modified: 2025-01-08T23:59:08+05:00
+     * @param {string} dateStr - Date string in format YYYY-MM-DD
+     * @returns {string} Formatted date string
+     */
+    formatDateForDisplay(dateStr) {
+        try {
+            const date = new Date(dateStr);
+            return new Intl.DateTimeFormat(undefined, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(date);
+        } catch (error) {
+            console.error('Error formatting date for display:', error);
+            return dateStr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Error Handling
+    //--------------------------------------------------------------------------
 
     /**
      * Centralized Error Handling Method
@@ -144,10 +360,10 @@ export class OfflineSearchWidget extends Component {
      */
     handleWidgetError(error) {
         // Convert to custom error if not already
-        const widgetError = error instanceof OfflineSearchWidgetError 
-            ? error 
+        const widgetError = error instanceof OfflineSearchWidgetError
+            ? error
             : new OfflineSearchWidgetError(
-                error.message || 'Unexpected Widget Error', 
+                error.message || 'Unexpected Widget Error',
                 'WIDGET_UNKNOWN_ERROR',
                 { originalError: error }
             );
@@ -163,41 +379,166 @@ export class OfflineSearchWidget extends Component {
         // Show user-friendly notification
         this.notification.add(_t('An error occurred in the Offline Search Widget. Please try again.'), {
             type: 'danger',
-            sticky: false
+            sticky: false,
         });
     }
 
+    //--------------------------------------------------------------------------
+    // Data Fetching & Initialization
+    //--------------------------------------------------------------------------
     /**
-     * Fetch Companies with Robust Error Handling
+     * Fetch list of companies (hotels)
      * @throws {OfflineSearchWidgetError}
      */
     async fetchCompanies() {
+    try {
+        // Fetch companies with ORM query
+        const companies = await this.orm.searchRead(
+            'res.company',
+            [], // No filter, fetch all companies
+            ['id', 'name', 'system_date'], // Only required fields
+            { order: 'name ASC', limit: 100 } // Sort and limit results
+        );
+
+        // Ensure the fetched companies have valid data
+        const validatedCompanies = companies.map((company) => ({
+            id: company.id,
+            name: company.name || 'Unnamed Company', // Default name if missing
+            system_date: company.system_date || null, // Include system date
+        }));
+
+        // Handle the case where no companies are found
+        if (!validatedCompanies.length) {
+            throw new OfflineSearchWidgetError(
+                'No companies found',
+                'FETCH_COMPANIES_EMPTY',
+                { searchDomain: [] }
+            );
+        }
+
+        // Update state with the validated companies
+        this.state.hotels = validatedCompanies;
+
+        // Get the current company ID from the service
+        const currentCompanyId = this.companyService.currentCompany?.id;
+//        console.log('Current company ID:', currentCompanyId);
+
+        // Find the current company in the validated list
+        const currentCompany = validatedCompanies.find(
+            (company) => company.id === currentCompanyId
+        );
+
+        if (!currentCompany) {
+            console.warn('Current company not found in the fetched companies list.');
+        }
+
+        // Initialize the default hotel with the current company
+        this.initializeDefaultHotel(currentCompany || validatedCompanies[0]); // Fallback to the first company
+
+        // Log success for debugging
+//        console.log(
+//            'Fetched and validated companies:',
+//            validatedCompanies.map((company) => company.name || 'Unnamed Company')
+//        );
+    } catch (error) {
+        // Handle errors and log details
+        console.error('Error fetching companies:', error);
+        throw new OfflineSearchWidgetError(
+            'Failed to fetch companies',
+            'FETCH_COMPANIES_FAILED',
+            {
+                originalError: error.message,
+                stack: error.stack,
+            }
+        );
+    }
+    }
+    /**
+     * Fetch list of Customers
+     * @throws {OfflineSearchWidgetError}
+     */
+    async fetchContacts() {
         try {
-            const companies = await this.orm.searchRead(
-                'res.company',
+            // Ensure name is included in ORM query
+            const contacts = await this.orm.searchRead(
+                'res.partner',
                 [],
-                ['id', 'name', 'system_date'],
-                { order: 'name ASC', limit: 100 }
+                ['id', 'name'],
+                { order: 'name ASC'}
             );
 
-            if (!companies || companies.length === 0) {
+            // Validate and ensure each company has a name
+            const validatedContacts = contacts.map(contact => ({
+                ...contact,
+                name: contact.name || 'Unnamed Contact'  // Provide default name if missing
+            }));
+
+            // Check if companies array is not empty before accessing properties
+            if (!validatedContacts || validatedContacts.length === 0) {
                 throw new OfflineSearchWidgetError(
                     'No companies found',
-                    'FETCH_COMPANIES_EMPTY',
+                    'FETCH_CONTACT_EMPTY',
                     { searchDomain: [] }
                 );
             }
 
-            this.state.hotels = companies;
-            this.initializeDefaultHotel(companies[0]);
+            // Initialize hotels state
+            this.state.contacts = validatedContacts;
 
+            // Add detailed comments with timestamp
+            // 2025-01-08T21:25:01+05:00: Ensured name is included in ORM query and added fallback for logging
         } catch (error) {
             throw new OfflineSearchWidgetError(
-                'Failed to fetch companies',
-                'FETCH_COMPANIES_FAILED',
-                { 
+                'Failed to fetch contacts',
+                'FETCH_CONTACTS_FAILED',
+                {
                     originalError: error.message,
-                    stack: error.stack 
+                    stack: error.stack,
+                }
+            );
+        }
+    }
+
+    /**
+     * Fetch list of Groups
+     * @throws {OfflineSearchWidgetError}
+     */
+    async fetchGroups() {
+        try {
+            // Ensure name is included in ORM query
+            const groups = await this.orm.searchRead(
+                'group.booking',
+                [],
+                ['id', 'name', 'group_name'],
+            );
+
+            // Validate and ensure each company has a name
+            const validatedGroups = groups.map(group => ({
+                ...group,
+                name: group.group_name || group.name  // Provide default name if missing
+            }));
+
+            // Check if companies array is not empty before accessing properties
+            if (!validatedGroups || validatedGroups.length === 0) {
+                throw new OfflineSearchWidgetError(
+                    'No Groups found',
+                    'FETCH_GROUPS_EMPTY',
+                    { searchDomain: [] }
+                );
+            }
+
+            // Initialize hotels state
+            this.state.groups = validatedGroups;
+
+            // Add detailed comments with timestamp
+            // 2025-01-08T21:25:01+05:00: Ensured name is included in ORM query and added fallback for logging
+        } catch (error) {
+            throw new OfflineSearchWidgetError(
+                'Failed to fetch groups',
+                'FETCH_GROUPS_FAILED',
+                {
+                    originalError: error.message,
+                    stack: error.stack,
                 }
             );
         }
@@ -217,22 +558,39 @@ export class OfflineSearchWidget extends Component {
         }
 
         this.state.hotel = firstCompany.id;
-        
+//        console.log("First company", firstCompany);
+
         // Validate and set system date
         if (firstCompany.system_date) {
+//            console.log("TEST")
             try {
                 const systemDate = new Date(firstCompany.system_date);
-                
                 if (isNaN(systemDate.getTime())) {
                     throw new Error('Invalid date format');
                 }
-
-                this.state.systemDate = systemDate.toISOString().slice(0, 10);
+//                this.state.systemDate = systemDate.toISOString().slice(0, 10);
+//
+//                console.log("systemDate", systemDate, typeof(this.state.systemDate), typeof(systemDate));
+//
+//                // Format the date to dd-mm-yyyy
+//                const formattedDate = systemDate.toLocaleDateString('en-GB');
+//                const finalFormattedDate = formattedDate.replace(/\//g, '-');
+//                console.log("finalFormattedDate", finalFormattedDate);
+//                this.state.systemDate = finalFormattedDate;
+//                this.state.checkInDate = finalFormattedDate;
+                this.state.systemDate = new Date().toISOString().slice(0, 10);
                 this.state.checkInDate = this.state.systemDate;
-                // Ensure default nights is set
                 this.state.noOfNights = this.state.noOfNights || 1;
-                // Update check-out date based on new check-in date
+
+//                console.log(this.state.noOfNights);
+
+//                const checkInDateObj = new Date(finalFormattedDate); // Use the original Date object for manipulation
+//                checkInDateObj.setDate(checkInDateObj.getDate() + this.state.noOfNights); // Add the number of nights
+//                const checkOutFormatted = checkInDateObj.toLocaleDateString('en-GB').replace(/\//g, '-'); // Format to dd-mm-yyyy
+//                this.state.checkOutDate = checkOutFormatted;
+
                 this.updateCheckOutDate();
+                this.render();
             } catch (dateError) {
                 console.warn('Date initialization failed:', dateError);
                 // Fallback to current date
@@ -243,522 +601,207 @@ export class OfflineSearchWidget extends Component {
     }
 
     /**
+     * Initialize Default Hotel with Comprehensive Validation
+     * @param {Object} firstCompany - First company from the list
+     */
+    initializeDefaultContact(firstContact) {
+        if (!firstContact) {
+            throw new OfflineSearchWidgetError(
+                'Cannot initialize default contact',
+                'INIT_CONTACT_FAILED',
+                { reason: 'No contact data available' }
+            );
+        }
+
+//        this.state.guestContact = firstContact.id;
+    }
+
+    /**
      * Fetch Room Types with Comprehensive Error Handling
+     * Modified: 2025-01-08T23:31:04+05:00
      * @throws {OfflineSearchWidgetError}
      */
     async fetchRoomTypes() {
         try {
-            const roomTypes = await this.orm.searchRead(
-                'hotel.room.type',
-                [],
-                ['id', 'name', 'description'],
-                { order: 'name ASC', limit: 50 }
+            const hotelId = this.state.hotel;
+
+            // Get room types through hotel.inventory with overbooking info
+            const inventoryItems = await this.orm.searchRead(
+                'hotel.inventory',
+                [['company_id', '=', hotelId]],
+                [
+                    'room_type',
+                    'total_room_count',
+                    'overbooking_allowed',
+                    'overbooking_rooms',
+                    'web_allowed_reservations',
+                    'hotel_name',
+                    'pax'
+                ]
             );
 
-            if (!roomTypes || roomTypes.length === 0) {
-                throw new OfflineSearchWidgetError(
-                    'No room types available',
-                    'FETCH_ROOM_TYPES_EMPTY',
-                    { searchDomain: [] }
-                );
+            if (!inventoryItems || !inventoryItems.length) {
+                console.log('No inventory items found for hotel:', hotelId);
+                this.state.roomTypes = [];
+                return;
             }
 
-            this.state.roomTypes = roomTypes;
+            // Group inventory items by hotel and room type
+            const hotelInventory = {};
+            const roomTypeInventory = {};
 
-        } catch (error) {
-            throw new OfflineSearchWidgetError(
-                'Failed to fetch room types',
-                'FETCH_ROOM_TYPES_FAILED',
-                { 
-                    originalError: error.message,
-                    stack: error.stack 
+            inventoryItems.forEach(item => {
+                if (!item.room_type) return;
+
+                const hotelKey = item.hotel_name;
+                const roomTypeKey = item.room_type[0];
+                const roomTypeName = item.room_type[1];
+
+                // Initialize hotel inventory if not exists
+                if (!hotelInventory[hotelKey]) {
+                    hotelInventory[hotelKey] = {
+                        totalRooms: 0,
+                        totalOverbookingRooms: 0,
+                        totalWebReservations: 0,
+                        totalPax: 0,
+                        roomTypes: new Set()
+                    };
                 }
-            );
-        }
-    }
 
-    /**
-     * Update Check-out Date with Error Prevention
-     */
-    updateCheckOutDate() {
-        try {
-            if (!this.state.checkInDate || this.state.noOfNights < 1) {
+                // Update hotel totals
+                hotelInventory[hotelKey].totalRooms += item.total_room_count || 0;
+                hotelInventory[hotelKey].totalOverbookingRooms += item.overbooking_allowed ? (item.overbooking_rooms || 0) : 0;
+                hotelInventory[hotelKey].totalWebReservations += item.web_allowed_reservations || 0;
+                hotelInventory[hotelKey].totalPax += item.pax || 0;
+                hotelInventory[hotelKey].roomTypes.add(roomTypeName);
+
+                // Initialize room type inventory if not exists
+                if (!roomTypeInventory[roomTypeKey]) {
+                    roomTypeInventory[roomTypeKey] = {
+                        id: roomTypeKey,
+                        room_type: roomTypeName,
+                        total_rooms: 0,
+                        overbooking_rooms: 0,
+                        web_reservations: 0,
+                        total_pax: 0,
+                        hotels: new Set()
+                    };
+                }
+
+                // Update room type totals
+                roomTypeInventory[roomTypeKey].total_rooms += item.total_room_count || 0;
+                roomTypeInventory[roomTypeKey].overbooking_rooms += item.overbooking_allowed ? (item.overbooking_rooms || 0) : 0;
+                roomTypeInventory[roomTypeKey].web_reservations += item.web_allowed_reservations || 0;
+                roomTypeInventory[roomTypeKey].total_pax += item.pax || 0;
+                roomTypeInventory[roomTypeKey].hotels.add(hotelKey);
+            });
+
+            // Convert room type inventory to array and sort
+            const uniqueRoomTypes = Object.values(roomTypeInventory)
+                .map(rt => ({
+                    ...rt,
+                    hotels: Array.from(rt.hotels),
+                    total_capacity: rt.total_rooms + rt.overbooking_rooms
+                }))
+                .sort((a, b) => a.room_type.localeCompare(b.room_type));
+
+            if (!uniqueRoomTypes.length) {
+                console.log('No room types found in inventory:', inventoryItems);
                 throw new OfflineSearchWidgetError(
-                    'Invalid date calculation parameters',
-                    'DATE_CALC_INVALID_PARAMS',
-                    { 
-                        checkInDate: this.state.checkInDate,
-                        nights: this.state.noOfNights 
+                    'No room types found for the selected hotel',
+                    'FETCH_ROOM_TYPES_EMPTY',
+                    {
+                        hotelId,
+                        inventoryCount: inventoryItems.length,
+                        hotelInventory
                     }
                 );
             }
 
-            const checkIn = new Date(this.state.checkInDate);
-            checkIn.setDate(checkIn.getDate() + this.state.noOfNights);
-            
-            this.state.checkOutDate = checkIn.toISOString().slice(0, 10);
+            // Store both room types and hotel inventory in state
+            this.state.roomTypes = uniqueRoomTypes;
+            this.state.hotelInventory = Object.entries(hotelInventory).map(([id, data]) => ({
+                id,
+                ...data,
+                roomTypes: Array.from(data.roomTypes),
+                totalCapacity: data.totalRooms + data.totalOverbookingRooms
+            }));
+
+            // Log detailed inventory information
+            console.log('Hotel Inventory:', this.state.hotelInventory);
+            console.log('Room Types:', uniqueRoomTypes.map(type => ({
+                name: type.room_type,
+                capacity: `${type.total_rooms} + ${type.overbooking_rooms} overbooking`,
+                webReservations: type.web_reservations,
+                pax: type.total_pax,
+                hotels: type.hotels
+            })));
+
         } catch (error) {
-            console.warn('Check-out date update failed:', error);
-            // Fallback to default behavior
-            this.state.checkOutDate = this.state.checkInDate;
-        }
-    }
-
-    /**
-     * Search Rooms based on input
-     * Provides live search functionality with comprehensive results
-     */
-    async searchRooms() {
-        if (this.props.readonly) return;
-        if (!this.validateSearchCriteria()) {
-            return;
-        }
-
-        try {
-            const results = await this.searchAvailableRooms(
-                this.state.checkInDate,
-                this.state.checkOutDate,
-                this.state.rooms
-            );
-            
-            this.state.searchResults = results;
-        } catch (error) {
-            console.error('Error during room search:', error);
-            this.state.searchResults = [];
-        }
-    }
-
-    /**
-     * Split All Rooms
-     * Splits all rooms based on the current booking criteria
-     */
-    splitAllRooms() {
-        if (this.props.readonly) return;
-        console.log("Splitting all rooms");
-    }
-
-    /**
-     * Clear All Rooms
-     * Resets all form fields to their initial state
-     */
-    clearAllRooms() {
-        if (this.props.readonly) return;
-        // Reset all form fields to initial state, but preserve hotels list
-        const currentHotels = this.state.hotels;
-        Object.assign(this.state, {
-            hotel: "",
-            hotels: currentHotels,  // Preserve the existing hotels list
-            dateOfOrder: new Date().toISOString().slice(0, 16),
-            notes: "",
-            rooms: 1,
-            adults: 1,
-            children: 0,
-            infants: 0,
-            checkInDate: "",
-            noOfNights: 1,
-            checkOutDate: "",
-            roomTypes: [],  
-            contactSearch: "",
-            filteredContacts: [],
-            nationalitySearch: "",
-            filteredCountries: [],
-            referenceContact: "",
-            systemDate: null,
-            searchResults: []  // Clear search results
-        });
-    }
-
-    /**
-     * Assign All Rooms
-     * Assigns all rooms based on the current booking criteria
-     */
-    assignAllRooms() {
-        if (this.props.readonly) return;
-        console.log("Assigning all rooms");
-    }
-
-    /**
-     * Update Contact Nationality
-     * Updates the contact nationality based on the selected contact
-     * 
-     * @param {Object} contact - Contact object with nationality information
-     */
-    async updateContactNationality(contact) {
-        // Reset nationality first
-        this.state.nationality = false;
-        this.state.nationalitySearch = '';
-        
-        if (contact.nationality) {
-            try {
-                const countryDetails = await this.orm.read(
-                    'res.country',
-                    [contact.nationality],
-                    ['name', 'code']
-                );
-                if (countryDetails && countryDetails.length > 0) {
-                    this.state.nationality = contact.nationality;
-                    this.state.nationalitySearch = countryDetails[0].name;
+            console.error('Error in fetchRoomTypes:', error);
+            throw new OfflineSearchWidgetError(
+                'Failed to fetch room types',
+                'FETCH_ROOM_TYPES_FAILED',
+                {
+                    originalError: error.message || error.toString(),
+                    stack: error.stack,
                 }
-            } catch (error) {
-                console.error('Error updating nationality:', error);
+            );
+        }
+    }
+
+    //--------------------------------------------------------------------------
+    // Date & Nights Calculation
+    //--------------------------------------------------------------------------
+
+    /**
+     * Format datetime string to date string (YYYY-MM-DD)
+     * Modified: 2025-01-08T23:51:12+05:00
+     * @param {string} datetime - Datetime string in format YYYY-MM-DD HH:mm:ss
+     * @returns {string} Date string in format YYYY-MM-DD
+     */
+    formatDateString(datetime) {
+        try {
+            if (!datetime) return '';
+            if (typeof datetime === 'string') {
+                return datetime.split(' ')[0];
             }
+            return datetime;
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return '';
         }
     }
 
     /**
-     * Get Current System Date
-     * Retrieves the current system date based on the selected hotel
-     * 
-     * @returns {String} Current system date in YYYY-MM-DD format
-     */
-    async getCurrentSystemDate() {
-        if (!this.state.hotel) return null;
-
-        const hotels = this.state.hotels;
-        const selectedHotel = hotels.find(h => h.id === parseInt(this.state.hotel));
-        if (selectedHotel && selectedHotel.system_date) {
-            return selectedHotel.system_date.split(' ')[0];
-        }
-        return null;
-    }
-
-    /**
-     * Validate Check-in Date
-     * Validates the check-in date based on the current system date
-     * 
-     * @param {String} date - Check-in date in YYYY-MM-DD format
-     * @returns {Boolean} True if the date is valid, false otherwise
-     */
-    async validateCheckInDate(date) {
-        // If no date provided, set to current system date
-        if (!date) {
-            const currentSystemDate = await this.getCurrentSystemDate();
-            this.state.checkInDate = currentSystemDate;
-            
-            // Set check-out date to next day
-            const nextDay = new Date(currentSystemDate);
-            nextDay.setDate(nextDay.getDate() + this.state.noOfNights);
-            this.state.checkOutDate = nextDay.toISOString().split('T')[0];
-            this.state.noOfNights = 1;
-            
-            return true;
-        }
-
-        // Get current system date
-        const currentSystemDate = await this.getCurrentSystemDate();
-        if (!currentSystemDate) {
-            alert('Unable to retrieve system date. Please try again.');
-            return false;
-        }
-
-        // Update state's system date
-        this.state.systemDate = currentSystemDate;
-
-        // Convert both dates to YYYY-MM-DD format for comparison
-        const checkInDate = new Date(date).toISOString().split('T')[0];
-
-        if (checkInDate < currentSystemDate) {
-            // Explicitly set check-in date to current system date
-            this.state.checkInDate = currentSystemDate;
-            
-            // Update check-out date
-            const nextDay = new Date(currentSystemDate);
-            nextDay.setDate(nextDay.getDate() + 1);
-            this.state.checkOutDate = nextDay.toISOString().split('T')[0];
-            this.state.noOfNights = 1;
-            
-            // Trigger UI update to reflect the new date
-            const checkInInput = document.getElementById('checkInDate');
-            if (checkInInput) {
-                checkInInput.value = currentSystemDate;
-            }
-            
-            alert('Check-in date cannot be in the past. Setting to current system date.');
-            return false;
-        }
-
-        // If check-out date is not set or is invalid, set it to next day
-        if (!this.state.checkOutDate || new Date(this.state.checkOutDate) <= new Date(checkInDate)) {
-            const nextDay = new Date(checkInDate);
-            nextDay.setDate(nextDay.getDate() + 1);
-            this.state.checkOutDate = nextDay.toISOString().split('T')[0];
-            this.state.noOfNights = 1;
-        }
-
-        return true;
-    }
-
-    /**
-     * Validate Check-out Date
-     * Validates the check-out date based on the check-in date
-     * 
-     * @param {String} date - Check-out date in YYYY-MM-DD format
-     * @returns {Boolean} True if the date is valid, false otherwise
-     */
-    async validateCheckOutDate(date) {
-        // If no date provided, set to check-in date + 1 night
-        if (!date) {
-            const checkInDate = new Date(this.state.checkInDate);
-            const nextDay = new Date(checkInDate);
-            nextDay.setDate(nextDay.getDate() + 1);
-            this.state.checkOutDate = nextDay.toISOString().split('T')[0];
-            this.state.noOfNights = 1;
-            return true;
-        }
-
-        // Get current system date
-        const currentSystemDate = await this.getCurrentSystemDate();
-        if (!currentSystemDate) {
-            alert('Unable to retrieve system date. Please check the console for details.');
-            return false;
-        }
-
-        // Convert dates to YYYY-MM-DD format for comparison
-        const checkOutDate = new Date(date).toISOString().split('T')[0];
-        const checkInDate = new Date(this.state.checkInDate).toISOString().split('T')[0];
-
-        if (checkOutDate <= checkInDate) {
-            // Reset to check-in date + 1 night
-            const nextDay = new Date(this.state.checkInDate);
-            nextDay.setDate(nextDay.getDate() + 1);
-            this.state.checkOutDate = nextDay.toISOString().split('T')[0];
-            this.state.noOfNights = 1;
-            
-            alert('Check-out date must be after check-in date. Setting to next day.');
-            return false;
-        }
-
-        // Calculate and update number of nights
-        const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
-        this.state.noOfNights = nights;
-
-        return true;
-    }
-
-    /**
-     * Update Check-out Date
-     * Updates the check-out date based on the number of nights
+     * Update check-out date based on check-in and nights
+     * Modified: 2025-01-08T23:51:12+05:00
      */
     updateCheckOutDate() {
-        if (this.state.checkInDate) {
+        try {
+//            console.log("TESTING", this.state.checkInDate);
+            if (!this.state.checkInDate) return;
+
             const checkIn = new Date(this.state.checkInDate);
             const checkOut = new Date(checkIn);
-            checkOut.setDate(checkOut.getDate() + parseInt(this.state.noOfNights));
-            this.state.checkOutDate = checkOut.toISOString().split('T')[0];
-        }
-    }
 
-    /**
-     * Update Nights
-     * Updates the number of nights based on the check-in and check-out dates
-     */
-    updateNights() {
-        if (this.state.checkInDate && this.state.checkOutDate) {
-            const checkIn = new Date(this.state.checkInDate);
-            const checkOut = new Date(this.state.checkOutDate);
-            const diffTime = Math.abs(checkOut - checkIn);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            this.state.noOfNights = diffDays;
-        }
-    }
-
-    /**
-     * On Nights Change
-     * Updates the number of nights and check-out date when the user changes the number of nights
-     * 
-     * @param {String} value - New number of nights
-     */
-    async onNightsChange(value) {
-        try {
-            const nights = parseInt(value) || 1;
-            
-            if (!this.validateNights(nights)) {
-                alert(_t("Number of nights must be between 1 and 730 (2 years)."));
-                // Reset to default or previous valid value
-                Object.assign(this.state, {
-                    noOfNights: 1
-                });
+            const nights = this.state.noOfNights || 0;
+            if (nights <= 0) {
+                // If nights is zero or negative, fallback to same day
+                this.state.checkOutDate = this.state.checkInDate;
             } else {
-                Object.assign(this.state, {
-                    noOfNights: nights
-                });
+                checkOut.setDate(checkOut.getDate() + nights);
+                this.state.checkOutDate = checkOut.toISOString().split('T')[0];
             }
-            
-            // Update check-out date and trigger render
-            this.updateCheckOutDate();
-            this.render();
+//            console.log("CHECKOUT DATE", this.state.checkOutDate);
         } catch (error) {
-            console.error('Error in onNightsChange:', error);
-            this.resetDateFields();
+            console.error('Error in updateCheckOutDate:', error);
+            this.handleWidgetError(error);
         }
     }
 
     /**
-     * On Hotel Change
-     * Updates system date and check-in date when hotel selection changes
-     * @modified 2025-01-07T22:17:08+05:00
-     */
-    onHotelChange() {
-        // Original code preserved as comment
-        /* this.state.hotel = ev.target.value;
-        this.fetchRoomTypes(); */
-
-        try {
-            const selectedHotel = this.state.hotels.find(hotel => hotel.id === parseInt(this.state.hotel));
-            if (selectedHotel && selectedHotel.system_date) {
-                // Extract only the date part from system_date
-                this.state.systemDate = selectedHotel.system_date.split(' ')[0];
-                // Set check-in date equal to system date
-                this.state.checkInDate = this.state.systemDate;
-                // Ensure default nights is set
-                this.state.noOfNights = this.state.noOfNights || 1;
-                // Update check-out date based on new check-in date
-                this.updateCheckOutDate();
-            }
-            // Fetch room types for the selected hotel
-            this.fetchRoomTypes();
-        } catch (error) {
-            console.error('Error updating dates on hotel change:', error);
-            alert(_t("Failed to update dates. Please try again."));
-        }
-    }
-
-    /**
-     * Update Rooms
-     * Updates the number of rooms based on the user input
-     * 
-     * @param {String} value - New number of rooms
-     */
-    updateRooms(value) {
-        const rooms = parseInt(value) || 1;
-        if (rooms < 1) {
-            this.state.rooms = 1;
-            alert(_t("Number of rooms cannot be less than 1."));
-        } else {
-            this.state.rooms = rooms;
-        }
-    }
-
-    /**
-     * Update Adults
-     * Updates the number of adults based on the user input
-     * 
-     * @param {String} value - New number of adults
-     */
-    updateAdults(value) {
-        const adults = parseInt(value) || 0;
-        if (adults <= 0) {
-            this.state.adults = 1;
-        } else {
-            this.state.adults = adults;
-        }
-    }
-
-    /**
-     * Update Children
-     * Updates the number of children based on the user input
-     * 
-     * @param {String} value - New number of children
-     */
-    updateChildren(value) {
-        const children = parseInt(value) || 0;
-        if (children < 0) {
-            this.state.children = 0;
-        } else {
-            this.state.children = children;
-        }
-    }
-
-    /**
-     * Update Infants
-     * Updates the number of infants based on the user input
-     * 
-     * @param {String} value - New number of infants
-     */
-    updateInfants(value) {
-        const infants = parseInt(value) || 0;
-        if (infants < 0) {
-            this.state.infants = 0;
-        } else {
-            this.state.infants = infants;
-        }
-    }
-
-    /**
-     * On Check-in Date Change
-     * Validates and updates check-out date when check-in date changes
-     * @modified 2025-01-07T23:15:41+05:00
-     */
-    onCheckInDateChange(ev) {
-        try {
-            const newDate = ev.target.value;
-            if (!this.validateCheckInDate(newDate)) {
-                alert(_t("Check-in date cannot be earlier than system date."));
-                this.state.checkInDate = this.state.systemDate;
-            } else {
-                this.state.checkInDate = newDate;
-            }
-            
-            // Always update checkout date after check-in date change
-            this.updateCheckOutDate();
-        } catch (error) {
-            console.error('Error in onCheckInDateChange:', error);
-            alert(_t("Error updating check-in date."));
-        }
-    }
-
-    /**
-     * On Check-out Date Change
-     * Validates and updates nights when check-out date changes
-     * @modified 2025-01-07T21:55:31+05:00
-     */
-    onCheckOutDateChange() {
-        // Validate check-out date
-        if (!this.validateCheckOutDate(this.state.checkOutDate)) {
-            alert(_t("Check-out date must be after check-in date."));
-            this.updateCheckOutDate();
-            return;
-        }
-
-        // Update number of nights
-        this.updateNights();
-    }
-
-    /**
-     * On Nights Change
-     * Updates check-out date when number of nights changes
-     * @param {string} value - New number of nights
-     * @modified 2025-01-07T21:55:31+05:00
-     */
-    onNightsChange(value) {
-        const nights = parseInt(value) || 1;
-        if (nights < 1) {
-            this.state.noOfNights = 1;
-            alert(_t("Number of nights must be at least 1."));
-        } else {
-            this.state.noOfNights = nights;
-        }
-        this.updateCheckOutDate();
-    }
-
-    /**
-     * Update Check-out Date
-     * Calculates and updates check-out date based on check-in date and nights
-     * @modified 2025-01-07T21:55:31+05:00
-     */
-    updateCheckOutDate() {
-        if (!this.state.checkInDate) return;
-        
-        const checkIn = new Date(this.state.checkInDate);
-        const checkOut = new Date(checkIn);
-        checkOut.setDate(checkOut.getDate() + this.state.noOfNights);
-        this.state.checkOutDate = checkOut.toISOString().split('T')[0];
-    }
-
-    /**
-     * Update Nights
-     * Calculates and updates number of nights based on check-in and check-out dates
-     * @modified 2025-01-07T21:55:31+05:00
+     * Update nights based on check-in and check-out
      */
     updateNights() {
         if (!this.state.checkInDate || !this.state.checkOutDate) return;
@@ -767,642 +810,28 @@ export class OfflineSearchWidget extends Component {
         const checkOut = new Date(this.state.checkOutDate);
         const diffTime = checkOut.getTime() - checkIn.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
         this.state.noOfNights = diffDays > 0 ? diffDays : 1;
     }
 
-    /**
-     * Validate Check-in Date
-     * @param {string} date - Date to validate
-     * @returns {boolean} - True if date is valid
-     * @modified 2025-01-07T21:55:31+05:00
-     */
-    validateCheckInDate(date) {
-        if (!date || !this.state.systemDate) return true;
-        return new Date(date) >= new Date(this.state.systemDate);
-    }
+    //--------------------------------------------------------------------------
+    // Basic Validation Logic
+    //--------------------------------------------------------------------------
 
     /**
-     * Validate Check-out Date
-     * @param {string} date - Date to validate
-     * @returns {boolean} - True if date is valid
-     * @modified 2025-01-07T21:55:31+05:00
-     */
-    validateCheckOutDate(date) {
-        if (!date || !this.state.checkInDate) return true;
-        return new Date(date) > new Date(this.state.checkInDate);
-    }
-
-    /**
-     * On Contact Search Blur
-     * Handles actions when contact search input loses focus
-     */
-    // onContactSearchBlur() {
-    //     if (!this.state.contactSearch) {
-    //         // Clear contact-related fields when search is empty
-    //         this.state.contact = null;
-    //         this.state.contactSearch = '';
-    //     }
-    // }
-
-    /**
-     * Default method for handling input events that might not be fully implemented
-     * Prevents undefined handler errors
-     */
-    noop() {
-        // No operation - prevents undefined handler errors
-        console.log('No operation handler called');
-    }
-
-    // /**
-    //  * Select Group Booking
-    //  * Selects a group booking from the search results
-    //  * 
-    //  * @param {Object} groupBooking - Selected group booking object
-    //  */
-    // selectGroupBooking(groupBooking) {
-    //     if (groupBooking) {
-    //         this.state.groupBooking = groupBooking;
-    //         this.state.groupBookingSearch = groupBooking.name || '';
-    //         this.state.filteredGroupBookings = [];
-    //     }
-    // }
-
-    // /**
-    //  * Select Contact
-    //  * Selects a contact from the search results
-    //  * 
-    //  * @param {Object} contact - Selected contact object
-    //  */
-    // selectContact(contact) {
-    //     if (contact) {
-    //         this.state.contact = contact;
-    //         this.state.contactSearch = contact.name || '';
-    //         this.state.filteredContacts = [];
-    //     }
-    // }
-
-    // /**
-    //  * Select Nationality
-    //  * Selects a nationality from the search results
-    //  * 
-    //  * @param {Object} country - Selected country object
-    //  */
-    // selectNationality(country) {
-    //     if (country) {
-    //         this.state.nationality = country;
-    //         this.state.nationalitySearch = country.name || '';
-    //         this.state.filteredCountries = [];
-    //     }
-    // }
-
-    // /**
-    //  * Search Group Bookings based on input
-    //  * @date 2025-01-07T20:20:32+05:00
-    //  * Adjusted to use company field correctly linked to res.partner
-    //  */
-    // async onGroupBookingSearch() {
-    //     try {
-    //         // Safely get search term with fallback
-    //         const searchTerm = (this.state.groupBookingSearch || '').trim();
-            
-    //         // Early return if no search term
-    //         if (!searchTerm) {
-    //             this.state.filteredGroupBookings = [];
-    //             return;
-    //         }
-
-    //         // Construct search domain
-    //         const domain = [
-    //             '|', '|', '|', '|',
-    //             ['name', 'ilike', searchTerm],
-    //             ['group_name', 'ilike', searchTerm],
-    //             ['company.name', 'ilike', searchTerm],
-    //             ['company.email', 'ilike', searchTerm],
-    //             ['company.phone', 'ilike', searchTerm]
-    //         ];
-
-    //         // Fetch group bookings with related details
-    //         const groupBookings = await this.orm.searchRead(
-    //             'group.booking',
-    //             domain,
-    //             [
-    //                 'id',        // Unique identifier
-    //                 'name',      // Booking name
-    //                 'group_name', // Specific group name
-    //                 'company'    // Related company information
-    //             ],
-    //             { 
-    //                 limit: 50,
-    //                 context: {
-    //                     lang: this.env.lang,
-    //                     tz: this.env.context.tz
-    //                 }
-    //             }
-    //         );
-
-    //         // Transform results safely
-    //         this.state.filteredGroupBookings = groupBookings.map(groupBooking => ({
-    //             id: groupBooking.id || null,
-    //             name: groupBooking.name || '',
-    //             groupName: groupBooking.group_name || '',
-    //             companyName: groupBooking.company ? groupBooking.company[1] : '',
-    //             contactDetails: {
-    //                 email: groupBooking.company ? 
-    //                     (this.orm.read('res.partner', [groupBooking.company[0]], ['email'])[0]?.email || '') : '',
-    //                 phone: '',
-    //                 address: ''
-    //             }
-    //         }));
-
-    //     } catch (error) {
-    //         // Comprehensive error handling
-    //         console.error('Group Booking Search Error', error);
-            
-    //         // User-friendly notification
-    //         alert('Search failed. Please try again.');
-    //         // this.notification.add('Search failed. Please try again.', {
-    //         //     type: 'danger',
-    //         //     title: 'Search Error'
-    //         // });
-
-    //         // Reset filtered bookings on error
-    //         this.state.filteredGroupBookings = [];
-    //     }
-    // }
-
-    // /**
-    //  * Source of Business Search Method
-    //  * @description Handles searching and filtering bookings based on source of business
-    //  * @param {Event} ev - The triggering event
-    //  * @returns {Promise<void>}
-    //  */
-    // /* General Information Methods - Commented Out @date 2025-01-07T20:47:56+05:00
-    //  * Including: group, contact, nationality, source of business, market segment, notes
-    //  */
-    
-    // /**
-    //  * Source of Business Search Handler
-    //  * @param {Event} ev - The triggering event
-    //  * @returns {Promise<void>}
-    //  */
-    // async _onSourceOfBusinessSearch(ev) {
-    //     const sourceOfBusiness = (ev.target.value || '').trim();
-    //     console.log('Source of Business Search Term:', sourceOfBusiness);
-        
-    //     if (!sourceOfBusiness) {
-    //         this.state.filteredSourceOfBusiness = [];
-    //         return;
-    //     }
-
-    //     try {
-    //         const domain = [
-    //             '|',
-    //             ['name', 'ilike', sourceOfBusiness],
-    //             ['code', 'ilike', sourceOfBusiness]
-    //         ];
-
-    //         const sources = await this.orm.searchRead(
-    //             'source.of.business',
-    //             domain,
-    //             ['id', 'name', 'code'],
-    //             { limit: 10 }
-    //         );
-
-    //         this.state.filteredSourceOfBusiness = sources.map(source => ({
-    //             id: source.id,
-    //             name: source.name,
-    //             code: source.code
-    //         }));
-    //     } catch (error) {
-    //         console.error('Source of Business Search Error:', error);
-    //         this.state.filteredSourceOfBusiness = [];
-    //     }
-    // }
-
-    // /**
-    //  * Initialize Source of Business Dropdown
-    //  * @returns {Promise<void>}
-    //  */
-    // async _initSourceOfBusinessDropdown() {
-    //     try {
-    //         const sourceOptions = await this.orm.searchRead(
-    //             'source.of.business',
-    //             [],
-    //             ['id', 'name', 'code']
-    //         );
-
-    //         this.sourceOfBusinessOptions = sourceOptions.map(source => ({
-    //             id: source.id,
-    //             name: source.name,
-    //             code: source.code
-    //         }));
-
-    //         console.log('Source of Business Options:', this.sourceOfBusinessOptions);
-    //     } catch (error) {
-    //         console.error('Error initializing Source of Business:', error);
-    //         this.sourceOfBusinessOptions = [];
-    //     }
-    // }
-
-    // /**
-    //  * Select Source of Business Handler
-    //  * @param {Object} source - The selected source of business
-    //  */
-    // selectSourceOfBusiness(source) {
-    //     if (source) {
-    //         this.state.sourceOfBusiness = source;
-    //         this.state.sourceOfBusinessSearch = source.name || '';
-    //         this.state.filteredSourceOfBusiness = [];
-    //     }
-    // }
-
-    // /**
-    //  * Market Segment Search Handler
-    //  * @param {Event} ev - The triggering event
-    //  * @returns {Promise<void>}
-    //  */
-    // async _onMarketSegmentSearch(ev) {
-    //     const marketSegment = (ev.target.value || '').trim();
-    //     console.log('Market Segment Search Term:', marketSegment);
-        
-    //     if (!marketSegment) {
-    //         this.state.filteredMarketSegments = [];
-    //         return;
-    //     }
-
-    //     try {
-    //         const domain = [
-    //             '|',
-    //             ['name', 'ilike', marketSegment],
-    //             ['code', 'ilike', marketSegment]
-    //         ];
-
-    //         const segments = await this.orm.searchRead(
-    //             'market.segment',
-    //             domain,
-    //             ['id', 'name', 'code'],
-    //             { limit: 10 }
-    //         );
-
-    //         this.state.filteredMarketSegments = segments.map(segment => ({
-    //             id: segment.id,
-    //             name: segment.name,
-    //             code: segment.code
-    //         }));
-    //     } catch (error) {
-    //         console.error('Market Segment Search Error:', error);
-    //         this.state.filteredMarketSegments = [];
-    //     }
-    // }
-
-    // /**
-    //  * Initialize Market Segment Dropdown
-    //  * @returns {Promise<void>}
-    //  */
-    // async _initMarketSegmentDropdown() {
-    //     try {
-    //         const segmentOptions = await this.orm.searchRead(
-    //             'market.segment',
-    //             [],
-    //             ['id', 'name', 'code']
-    //         );
-
-    //         this.marketSegmentOptions = segmentOptions.map(segment => ({
-    //             id: segment.id,
-    //             name: segment.name,
-    //             code: segment.code
-    //         }));
-
-    //         console.log('Market Segment Options:', this.marketSegmentOptions);
-    //     } catch (error) {
-    //         console.error('Error initializing Market Segment:', error);
-    //         this.marketSegmentOptions = [];
-    //     }
-    // }
-
-    // /**
-    //  * Select Market Segment Handler
-    //  * @param {Object} segment - The selected market segment
-    //  */
-    // selectMarketSegment(segment) {
-    //     if (segment) {
-    //         this.state.marketSegment = segment;
-    //         this.state.marketSegmentSearch = segment.name || '';
-    //         this.state.filteredMarketSegments = [];
-    //     }
-    // }
-
-    // /**
-    //  * Market Segment Search Methods
-    //  */
-    // _onMarketSegmentSearch() {
-    //     const search = this.state.marketSegmentSearch.toLowerCase().trim();
-    //     if (!search) {
-    //         this.state.filteredMarketSegments = [];
-    //         return;
-    //     }
-
-    //     // Fetch or filter market segment options
-    //     const segmentOptions = [
-    //         { id: 1, name: 'Leisure' },
-    //         { id: 2, name: 'Business' },
-    //         { id: 3, name: 'Group' },
-    //         { id: 4, name: 'MICE' },
-    //         { id: 5, name: 'Government' }
-    //     ];
-
-    //     this.state.filteredMarketSegments = segmentOptions.filter(segment => 
-    //         segment.name.toLowerCase().includes(search)
-    //     );
-    // }
-
-    // /**
-    //  * Select Market Segment
-    //  * @param {Object} segment - Selected market segment
-    //  */
-    // selectMarketSegment(segment) {
-    //     if (segment) {
-    //         this.state.marketSegment = segment;
-    //         this.state.marketSegmentSearch = segment.name || '';
-    //         this.state.filteredMarketSegments = [];
-    //     }
-    // }
-
-    /**
-     * Blur event handlers for Source of Business and Market Segment
-     */
-//     onSourceOfBusinessBlur() {
-//         if (!this.state.sourceOfBusinessSearch) {
-//             this.state.sourceOfBusiness = null;
-//             this.state.filteredSourceOfBusiness = [];
-//         }
-//     }
-
-//     onMarketSegmentBlur() {
-//         if (!this.state.marketSegmentSearch) {
-//             this.state.marketSegment = null;
-//             this.state.filteredMarketSegments = [];
-//         }
-//     }
-// }
-
-    /**
-     * Reset to Default Values
-     * Sets all form fields to their default values
-     * @modified 2025-01-07T23:28:12+05:00
-     */
-    resetToDefaults() {
-        this.state.checkInDate = this.state.systemDate;
-        this.state.noOfNights = 1;
-        this.state.rooms = 1;
-        this.state.roomType = false;
-        this.updateCheckOutDate();
-    }
-
-    /**
-     * Reset Date Fields to Default Values
-     * @modified 2025-01-08T00:19:03+05:00
-     */
-    resetDateFields() {
-        // Original code preserved
-        /* this.state.checkInDate = this.state.systemDate;
-        this.state.noOfNights = 1;
-        this.updateCheckOutDate(); */
-
-        // Using Object.assign to trigger reactivity
-        Object.assign(this.state, {
-            checkInDate: this.state.systemDate,
-            noOfNights: 1
-        });
-        
-        // Force update check-out date
-        this.updateCheckOutDate();
-        
-        // Trigger render
-        this.render();
-    }
-
-    /**
-     * On Check-in Date Change
-     * @modified 2025-01-08T00:19:03+05:00
-     */
-    onCheckInDateChange(ev) {
-        try {
-            const newDate = ev.target.value;
-            if (!this.validateCheckInDate(newDate)) {
-                alert(_t("Check-in date cannot be earlier than system date. Setting to default values."));
-                this.resetDateFields();
-            } else {
-                this.state.checkInDate = newDate;
-                this.updateCheckOutDate();
-            }
-        } catch (error) {
-            console.error('Error in onCheckInDateChange:', error);
-            alert(_t("Error updating check-in date. Setting to default values."));
-            this.resetDateFields();
-        }
-    }
-
-    /**
-     * On Nights Change
-     * @modified 2025-01-08T00:19:03+05:00
-     */
-    onNightsChange(value) {
-        try {
-            const nights = parseInt(value) || 0;
-            
-            if (!this.validateNights(nights)) {
-                alert(_t("Number of nights cannot be negative. Setting to default values."));
-                this.resetDateFields();
-            } else {
-                this.state.noOfNights = nights;
-                this.updateCheckOutDate();
-            }
-        } catch (error) {
-            console.error('Error in onNightsChange:', error);
-            alert(_t("Error updating nights. Setting to default values."));
-            this.resetDateFields();
-        }
-    }
-
-    /**
-     * Update Check-out Date
-     * @modified 2025-01-08T00:30:39+05:00
-     */
-    updateCheckOutDate() {
-        // Original code preserved
-        /* if (!this.state.checkInDate) return;
-        const checkIn = new Date(this.state.checkInDate);
-        const checkOut = new Date(checkIn);
-        checkOut.setDate(checkOut.getDate() + this.state.noOfNights);
-        this.state.checkOutDate = checkOut.toISOString().split('T')[0]; */
-
-        try {
-            if (!this.state.checkInDate) return;
-
-            const checkIn = new Date(this.state.checkInDate);
-            const checkOut = new Date(checkIn);
-            
-            // Handle special case for 0 nights
-            const nights = this.state.noOfNights || 0;
-            if (nights <= 0) {
-                // Using Object.assign to trigger reactivity
-                Object.assign(this.state, {
-                    checkOutDate: this.state.checkInDate
-                });
-            } else {
-                checkOut.setDate(checkOut.getDate() + nights);
-                // Using Object.assign to trigger reactivity
-                Object.assign(this.state, {
-                    checkOutDate: checkOut.toISOString().split('T')[0]
-                });
-            }
-            
-            // Trigger render
-            this.render();
-        } catch (error) {
-            console.error('Error in updateCheckOutDate:', error);
-            alert(_t("Error updating check-out date."));
-        }
-    }
-
-    /**
-     * Handle Check-in Date Blur
-     * Validates check-in date when focus leaves the input
-     * @param {Event} ev - Blur event
-     * @modified 2025-01-08T00:26:21+05:00
-     */
-    onCheckInDateBlur(ev) {
-        try {
-            const currentDate = ev.target.value;
-            if (!currentDate || !this.validateCheckInDate(currentDate)) {
-                alert(_t("Invalid check-in date. Setting to default value."));
-                this.resetDateFields();
-            } else {
-                // Ensure valid date is set using Object.assign
-                Object.assign(this.state, {
-                    checkInDate: currentDate
-                });
-                this.updateCheckOutDate();
-            }
-            // Trigger render
-            this.render();
-        } catch (error) {
-            console.error('Error in onCheckInDateBlur:', error);
-            this.resetDateFields();
-        }
-    }
-
-    /**
-     * Handle Check-out Date Blur
-     * Validates check-out date when focus leaves the input
-     * @param {Event} ev - Blur event
-     * @modified 2025-01-08T00:26:21+05:00
-     */
-    onCheckOutDateBlur(ev) {
-        try {
-            const currentDate = ev.target.value;
-            if (!currentDate || !this.validateCheckOutDate(currentDate)) {
-                alert(_t("Invalid check-out date. Setting to default value."));
-                this.resetDateFields();
-            } else {
-                // Ensure valid date is set using Object.assign
-                Object.assign(this.state, {
-                    checkOutDate: currentDate
-                });
-                // Calculate and update nights
-                const checkIn = new Date(this.state.checkInDate);
-                const checkOut = new Date(currentDate);
-                const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-                Object.assign(this.state, {
-                    noOfNights: nights
-                });
-            }
-            // Trigger render
-            this.render();
-        } catch (error) {
-            console.error('Error in onCheckOutDateBlur:', error);
-            this.resetDateFields();
-        }
-    }
-
-    /**
-     * Validate Check-in Date
-     * @param {string} date - Date to validate
-     * @returns {boolean} - True if date is valid
-     * @modified 2025-01-08T00:26:21+05:00
-     */
-    validateCheckInDate(date) {
-        // Original code preserved
-        /* if (!date || !this.state.systemDate) return false;
-        const checkInDate = new Date(date);
-        const systemDate = new Date(this.state.systemDate);
-        return checkInDate >= systemDate; */
-
-        if (!date || !this.state.systemDate) return false;
-        
-        try {
-            const checkInDate = new Date(date);
-            const systemDate = new Date(this.state.systemDate);
-            
-            // Reset time parts to compare only dates
-            checkInDate.setHours(0, 0, 0, 0);
-            systemDate.setHours(0, 0, 0, 0);
-            
-            return !isNaN(checkInDate) && !isNaN(systemDate) && checkInDate >= systemDate;
-        } catch (error) {
-            console.error('Error validating check-in date:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Validate Check-out Date
-     * @param {string} date - Date to validate
-     * @returns {boolean} - True if date is valid
-     * @modified 2025-01-08T00:26:21+05:00
-     */
-    validateCheckOutDate(date) {
-        // Original code preserved
-        /* if (!date || !this.state.checkInDate) return false;
-        const checkOut = new Date(date);
-        const checkIn = new Date(this.state.checkInDate);
-        return checkOut > checkIn; */
-
-        if (!date || !this.state.checkInDate) return false;
-        
-        try {
-            const checkOut = new Date(date);
-            const checkIn = new Date(this.state.checkInDate);
-            
-            // Reset time parts to compare only dates
-            checkOut.setHours(0, 0, 0, 0);
-            checkIn.setHours(0, 0, 0, 0);
-            
-            return !isNaN(checkOut) && !isNaN(checkIn) && checkOut >= checkIn;
-        } catch (error) {
-            console.error('Error validating check-out date:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Check if date is within 2 years from reference date
-     * @param {Date} dateToCheck - Date to validate
-     * @param {Date} referenceDate - Reference date to check against
-     * @returns {boolean} - True if date is within 2 years
-     * @modified 2025-01-08T00:37:37+05:00
+     * Check if `dateToCheck` is within 2 years from `referenceDate`
+     * @param {Date} dateToCheck
+     * @param {Date} referenceDate
+     * @returns {boolean}
      */
     isWithinTwoYears(dateToCheck, referenceDate) {
         try {
             const twoYearsFromRef = new Date(referenceDate);
             twoYearsFromRef.setFullYear(twoYearsFromRef.getFullYear() + 2);
-            
-            // Reset time parts to compare only dates
+
+            // Compare as pure dates, ignoring time
             dateToCheck.setHours(0, 0, 0, 0);
             twoYearsFromRef.setHours(0, 0, 0, 0);
-            
+
             return dateToCheck <= twoYearsFromRef;
         } catch (error) {
             console.error('Error in isWithinTwoYears:', error);
@@ -1411,33 +840,28 @@ export class OfflineSearchWidget extends Component {
     }
 
     /**
-     * Validate Check-in Date
-     * @param {string} date - Date to validate
+     * Validate check-in date
+     * @param {string} date - Date to validate (YYYY-MM-DD)
      * @returns {boolean} - True if date is valid
-     * @modified 2025-01-08T00:37:37+05:00
      */
     validateCheckInDate(date) {
-        // Original code preserved
-        /* if (!date || !this.state.systemDate) return false;
-        const checkInDate = new Date(date);
-        const systemDate = new Date(this.state.systemDate);
-        return checkInDate >= systemDate; */
-
         if (!date || !this.state.systemDate) return false;
-        
+
         try {
             const checkInDate = new Date(date);
             const systemDate = new Date(this.state.systemDate);
-            
-            // Reset time parts to compare only dates
+
+            // Compare as pure dates
             checkInDate.setHours(0, 0, 0, 0);
             systemDate.setHours(0, 0, 0, 0);
-            
-            // Check if date is not before system date and within 2 years
-            return !isNaN(checkInDate) && 
-                   !isNaN(systemDate) && 
-                   checkInDate >= systemDate &&
-                   this.isWithinTwoYears(checkInDate, systemDate);
+
+            // Must not be before system date and within 2 years
+            return (
+                !isNaN(checkInDate) &&
+                !isNaN(systemDate) &&
+                checkInDate >= systemDate &&
+                this.isWithinTwoYears(checkInDate, systemDate)
+            );
         } catch (error) {
             console.error('Error validating check-in date:', error);
             return false;
@@ -1445,33 +869,31 @@ export class OfflineSearchWidget extends Component {
     }
 
     /**
-     * Validate Check-out Date
-     * @param {string} date - Date to validate
+     * Validate check-out date
+     * Modified: 2025-01-08T23:39:34+05:00
+     * @param {string} date - Date to validate (YYYY-MM-DD)
      * @returns {boolean} - True if date is valid
-     * @modified 2025-01-08T00:37:37+05:00
      */
     validateCheckOutDate(date) {
-        // Original code preserved
-        /* if (!date || !this.state.checkInDate) return false;
-        const checkOut = new Date(date);
-        const checkIn = new Date(this.state.checkInDate);
-        return checkOut > checkIn; */
-
         if (!date || !this.state.checkInDate) return false;
-        
+
         try {
-            const checkOut = new Date(date);
-            const checkIn = new Date(this.state.checkInDate);
-            
-            // Reset time parts to compare only dates
-            checkOut.setHours(0, 0, 0, 0);
-            checkIn.setHours(0, 0, 0, 0);
-            
-            // Check if date is after check-in and within 2 years of check-in
-            return !isNaN(checkOut) && 
-                   !isNaN(checkIn) && 
-                   checkOut >= checkIn &&
-                   this.isWithinTwoYears(checkOut, checkIn);
+            const checkOutDate = new Date(date);
+            const checkInDate = new Date(this.state.checkInDate);
+            const systemDate = new Date(this.state.systemDate);
+
+            // Compare as pure dates
+            checkOutDate.setHours(0, 0, 0, 0);
+            checkInDate.setHours(0, 0, 0, 0);
+            systemDate.setHours(0, 0, 0, 0);
+
+            // Must be after or equal to check-in date and within 2 years of system date
+            return (
+                !isNaN(checkOutDate) &&
+                !isNaN(checkInDate) &&
+                checkOutDate >= checkInDate &&
+                this.isWithinTwoYears(checkOutDate, systemDate)
+            );
         } catch (error) {
             console.error('Error validating check-out date:', error);
             return false;
@@ -1479,16 +901,16 @@ export class OfflineSearchWidget extends Component {
     }
 
     /**
-     * Validate Number of Nights
-     * @param {number} nights - Number of nights to validate
-     * @returns {boolean} - True if nights is valid
-     * @modified 2025-01-08T00:37:37+05:00
+     * Validate number of nights
+     * Modified: 2025-01-09T11:53:04+05:00
+     * @param {number} nights
+     * @returns {boolean}
      */
     validateNights(nights) {
         try {
-            // Calculate maximum nights (2 years = 730 days)
+            // 2 years = 730 nights
             const MAX_NIGHTS = 730;
-            return nights > 0 && nights <= MAX_NIGHTS;
+            return nights >= 0 && nights <= MAX_NIGHTS;
         } catch (error) {
             console.error('Error validating nights:', error);
             return false;
@@ -1496,96 +918,351 @@ export class OfflineSearchWidget extends Component {
     }
 
     /**
-     * Handle Nights Blur
-     * Validates number of nights when focus leaves the input
-     * @param {string} value - Number of nights
-     * @modified 2025-01-08T00:41:30+05:00
+     * Calculate and update the maximum allowed check-out date
+     * Modified: 2025-01-08T23:39:34+05:00
      */
-    onNightsBlur(value) {
+    updateMaxCheckOutDate() {
+        if (!this.state.checkInDate) return;
+
+        const maxDate = new Date(this.state.checkInDate);
+        maxDate.setDate(maxDate.getDate() + 730); // Max 2 years from check-in
+        this.state.maxCheckOutDate = maxDate.toISOString().split('T')[0];
+    }
+
+    //--------------------------------------------------------------------------
+    // Handlers: Date, Nights, Hotel, etc.
+    //--------------------------------------------------------------------------
+
+    /**
+     * Called when the hotel selection changes
+     * Modified: 2025-01-08T23:51:12+05:00
+     * @param {Event} ev
+     */
+    async onHotelChange(ev) {
         try {
-            const nights = parseInt(value) || 1;
-            
-            if (!this.validateNights(nights)) {
-                alert(_t("Number of nights must be between 1 and 730 (2 years). Setting to default value."));
-                // Reset to default value
-                Object.assign(this.state, {
-                    noOfNights: 1
-                });
-                this.updateCheckOutDate();
-            } else {
-                // Ensure the value is set using Object.assign
-                Object.assign(this.state, {
-                    noOfNights: nights
-                });
-                this.updateCheckOutDate();
+            const hotelId = parseInt(ev.target.value);
+            this.state.hotel = hotelId;
+
+            // Find the selected hotel
+            const selectedHotel = this.state.hotels.find(h => h.id === hotelId);
+            if (!selectedHotel) {
+                console.error('Selected hotel not found:', hotelId);
+                return;
             }
-            // Trigger render
-            this.render();
+
+            // Update system date from hotel (format to YYYY-MM-DD)
+            this.state.systemDate = this.formatDateString(selectedHotel.system_date);
+
+            // Update check-in date to hotel's system date
+            this.state.checkInDate = this.state.systemDate;
+
+            // Reset other fields
+            this.state.noOfNights = 1;
+            this.state.checkOutDate = '';
+
+            // Update check-out date based on new check-in
+            this.updateMaxCheckOutDate();
+            this.updateCheckOutDate();
+
+            // Fetch room types for the selected hotel
+            await this.fetchRoomTypes();
         } catch (error) {
-            console.error('Error in onNightsBlur:', error);
-            this.resetDateFields();
+            console.error('Error in onHotelChange:', error);
+            this.handleWidgetError(error);
         }
     }
 
     /**
-     * Get available rooms based on check-in and check-out dates
-     * @param {string} fromDate - Check-in date in YYYY-MM-DD format
-     * @param {string} toDate - Check-out date in YYYY-MM-DD format
-     * @param {number} roomCount - Number of rooms required
-     * @returns {Promise} Promise resolving to available rooms
-     * @date 2025-01-08T01:48:25+05:00
+     * Check-in date input change handler
+     * Modified: 2025-01-09T00:07:41+05:00
+     * @param {Event} ev - The change event
      */
-    async searchAvailableRooms(fromDate, toDate, roomCount) {
+    onCheckInDateChange(ev) {
         try {
-            // Call the backend method using ORM
-            const result = await this.orm.call(
-                'room.search',
-                'search_available_rooms',
-                [fromDate, toDate, roomCount, parseInt(this.state.hotel,10), this.state.roomType]
-            );
-            
-            return result;
+            const newDate = ev.target.value;
+            if (!this.validateCheckInDate(newDate)) {
+                this.notification.add(
+                    _t("Check-in date must not be before hotel's system date and within 2 years"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+                return;
+            }
+
+            // Update check-in date and max check-out date
+            this.state.checkInDate = newDate;
+            this.updateMaxCheckOutDate();
+
+            // If check-out date exists, validate and update nights
+            if (this.state.checkOutDate) {
+                if (!this.validateCheckOutDate(this.state.checkOutDate)) {
+                    // Reset check-out date if it's now invalid
+                    this.state.checkOutDate = '';
+                    this.state.noOfNights = 1;
+                    this.updateCheckOutDate();
+                } else {
+                    this.updateNights();
+                }
+            } else {
+                // No check-out date, set default nights and calculate check-out
+                this.state.noOfNights = 1;
+                this.updateCheckOutDate();
+            }
         } catch (error) {
-            console.error('Error searching rooms:', error);
-            alert(_t("Failed to search for available rooms. Please try again."));
-            return [];
+            console.error('Error in onCheckInDateChange:', error);
+            this.handleWidgetError(error);
+        }
+    }
+
+    /**
+     * Check-in date blur handler
+     * Modified: 2025-01-09T00:07:41+05:00
+     * @param {Event} ev - The blur event
+     */
+    onCheckInDateBlur(ev) {
+        try {
+            if (!this.state.checkInDate) return;
+
+            if (!this.validateCheckInDate(this.state.checkInDate)) {
+                this.notification.add(
+                    _t("Check-in date must not be before hotel's system date and within 2 years"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+            }
+        } catch (error) {
+            console.error('Error in onCheckInDateBlur:', error);
+            this.handleWidgetError(error);
+        }
+    }
+
+    /**
+     * Check-out date input change handler
+     * Modified: 2025-01-09T00:07:41+05:00
+     * @param {Event} ev - The change event
+     */
+    onCheckOutDateChange(ev) {
+        try {
+            const newDate = ev.target.value;
+            if (!this.validateCheckOutDate(newDate)) {
+                this.notification.add(
+                    _t("Check-out date must be after check-in date and within 2 years"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+                return;
+            }
+
+            // Update check-out date and recalculate nights
+            this.state.checkOutDate = newDate;
+            this.updateNights();
+
+            // Validate the resulting number of nights
+            if (!this.validateNights(this.state.noOfNights)) {
+                this.notification.add(
+                    _t("The selected dates result in an invalid stay duration. Maximum stay is 730 nights"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+            }
+        } catch (error) {
+            console.error('Error in onCheckOutDateChange:', error);
+            this.handleWidgetError(error);
+        }
+    }
+
+    /**
+     * Check-out date blur handler
+     * Modified: 2025-01-09T00:07:41+05:00
+     * @param {Event} ev - The blur event
+     */
+    onCheckOutDateBlur(ev) {
+        try {
+            if (!this.state.checkOutDate) return;
+
+            if (!this.validateCheckOutDate(this.state.checkOutDate)) {
+                this.notification.add(
+                    _t("Check-out date must be after check-in date and within 2 years"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+                return;
+            }
+
+            // Ensure nights calculation is valid
+            if (!this.validateNights(this.state.noOfNights)) {
+                this.notification.add(
+                    _t("The selected dates result in an invalid stay duration. Maximum stay is 730 nights"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+            }
+        } catch (error) {
+            console.error('Error in onCheckOutDateBlur:', error);
+            this.handleWidgetError(error);
+        }
+    }
+
+    /**
+     * Nights input change
+     * @param {string|number} value
+     */
+    onNightsChange(value) {
+        try {
+            const nights = parseInt(value) || 0;
+            if (!this.validateNights(nights)) {
+                this.notification.add(
+                    _t("Number of nights must be between 0 and 730"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+            } else {
+                this.state.noOfNights = nights;
+                this.updateCheckOutDate();
+            }
+        } catch (error) {
+            console.error('Error in onNightsChange:', error);
+            this.handleWidgetError(error);
+        }
+    }
+
+    /**
+     * Nights input blur handler
+     * Modified: 2025-01-09T00:07:41+05:00
+     * @param {string|number} value
+     */
+    onNightsBlur(value) {
+        try {
+            const nights = parseInt(value) || 0;
+            if (!this.validateNights(nights)) {
+                this.notification.add(
+                    _t("Number of nights must be between 0 and 730"),
+                    { type: 'warning' }
+                );
+                this.resetDateFields();
+            }
+        } catch (error) {
+            console.error('Error in onNightsBlur:', error);
+            this.handleWidgetError(error);
+        }
+    }
+
+    /**
+     * Reset date fields to defaults
+     * Modified: 2025-01-08T23:51:12+05:00
+     */
+    resetDateFields() {
+        // Use hotel's system date if available, otherwise use state.systemDate
+        const defaultDate = this.state.hotel
+            ? this.formatDateString(this.state.hotels.find(h => h.id === this.state.hotel)?.system_date)
+            : this.state.systemDate;
+
+        Object.assign(this.state, {
+            checkInDate: defaultDate,
+            noOfNights: 1,
+            checkOutDate: ''
+        });
+
+        this.updateMaxCheckOutDate();
+        this.updateCheckOutDate();
+    }
+
+    /**
+     * Update room count
+     * @param {string} value
+     */
+    updateRooms(value) {
+        const rooms = parseInt(value) || 1;
+        if (rooms < 1) {
+            this.state.rooms = 1;
+            this.notification.add(
+                _t("Number of rooms cannot be less than 1"),
+                { type: 'warning' }
+            );
+        } else {
+            this.state.rooms = rooms;
+        }
+    }
+
+    /**
+     * Update number of adults
+     * @param {string} value
+     */
+    updateAdults(value) {
+        const adults = parseInt(value) || 0;
+        this.state.adults = adults <= 0 ? 1 : adults;
+    }
+
+    /**
+     * Update number of children
+     * @param {string} value
+     */
+    updateChildren(value) {
+        const children = parseInt(value) || 0;
+        this.state.children = children < 0 ? 0 : children;
+    }
+
+    /**
+     * Update number of infants
+     * @param {string} value
+     */
+    updateInfants(value) {
+        const infants = parseInt(value) || 0;
+        this.state.infants = infants < 0 ? 0 : infants;
+    }
+
+    /**
+     * Select Group Booking
+     * Selects a group booking from the search results
+     * Modified: 2025-01-10T20:37:37+05:00
+     * @param {Object} groupBooking - Selected group booking object
+     */
+    selectGroupBooking(groupBooking) {
+        try {
+            if (groupBooking) {
+                this.state.groupBooking = groupBooking;
+                this.state.groupBookingSearch = groupBooking.name || '';
+                this.state.filteredGroupBookings = [];
+            }
+        } catch (error) {
+            console.error('Error in selectGroupBooking:', error);
+            alert('Failed to select group booking. Please try again.');
+        }
+    }
+
+    /**
+     * Toggle guest information
+     */
+    toggleGuestInfo() {
+        this.state.showGuestInfo = !this.state.showGuestInfo;
+    }
+
+    /**
+     * Toggle column visibility
+     * @param {string} columnName
+     */
+    toggleColumn(columnName) {
+        const column = this.state.columns.find(c => c.name === columnName);
+        if (column) {
+            column.visible = !column.visible;
+            this.render();
         }
     }
 
     /**
      * Search for available rooms
+     * Modified: 2025-01-09T15:46:05+05:00
      * @returns {Promise<void>}
-     * @date 2025-01-08T01:27:09+05:00
      */
     async searchRooms() {
         try {
-            this.state.isSearching = true;
-            this.state.searchError = null;
+            // Only clear search results while preserving other state
             this.state.searchResults = [];
+            this.state.searchPerformed = true;
+            this.state.searchError = null;
+            this.state.isSearching = true;
+            console.log("this.state.roomType", this.state.roomType);
 
-            // Validate inputs
-            if (!this.state.checkInDate || !this.state.checkOutDate) {
-                this.state.searchError = _t("Please select check-in and check-out dates");
-                return;
-            }
-            if (!this.state.rooms || this.state.rooms < 1) {
-                this.state.searchError = _t("Please select at least one room");
-                return;
-            }
-            if (!this.state.hotel) {
-                this.state.searchError = _t("Please select a hotel");
-                return;
-            }
-
-            console.log('Search params:', {
-                checkInDate: this.state.checkInDate,
-                checkOutDate: this.state.checkOutDate,
-                rooms: this.state.rooms,
-                hotel: this.state.hotel,
-                roomType: this.state.selectedRoomType || false
-            });
-
-            // Call the search method
             const results = await this.orm.call(
                 'room.search',
                 'search_available_rooms',
@@ -1594,464 +1271,374 @@ export class OfflineSearchWidget extends Component {
                     this.state.checkOutDate,
                     this.state.rooms,
                     this.state.hotel,
-                    this.state.selectedRoomType || false
+                    this.state.roomType
                 ]
             );
 
-            console.log('Search results:', results);
+            console.log('Raw results from server:', results); // Debug log
 
-            // Update state with results
-            this.state.searchResults = results.map(result => ({
-                ...result,
-                isSelected: false,
-                displayPrice: this._formatPrice(result.rate_per_night)
-            }));
+            let filteredResults = results;
 
+            if (this.state.roomType) {
+                const roomTypeId = Number(this.state.roomType); // Convert to a number if it's not already
+                filteredResults = results.filter(result => Number(result.room_type_id) === roomTypeId);
+                console.log("TEST", filteredResults);
+            }
+
+            console.log('filtered results from server:', filteredResults);
+
+            if (Array.isArray(filteredResults)) {
+                // Add derived fields including actualFreeToSell and overbooked
+                this.state.searchResults = filteredResults.map(room => {
+                    const minFreeToSell = room.min_free_to_sell || 0;
+                    const total_overbooking_rooms = room.total_overbooking_rooms || 0;
+                    const actualFreeToSell = minFreeToSell - total_overbooking_rooms;
+
+                    return {
+                        ...room,
+                        actualFreeToSell: actualFreeToSell > 0 ? actualFreeToSell : 0,
+                        overbooked: actualFreeToSell < 0 ? Math.abs(actualFreeToSell) : 0
+                    };
+                });
+            }
         } catch (error) {
-            console.error('Error searching rooms:', error);
-            console.error('Error details:', {
-                name: error.name,
-                message: error.message,
-                stack: error.stack,
-                data: error.data
+            console.error('Error during room search:', error);
+            this.state.searchError = error.message || _t('An error occurred while searching rooms');
+            this.notification.add(this.state.searchError, {
+                type: 'danger',
+                sticky: true,
+                title: _t('Search Error')
             });
-            this.state.searchError = error.data?.message || error.message || _t("Failed to search for rooms");
-            alert(this.state.searchError);
+            this.state.searchResults = [];
         } finally {
             this.state.isSearching = false;
         }
     }
 
     /**
-     * Format price for display
-     * @param {number} price 
-     * @returns {string}
-     * @date 2025-01-08T01:27:09+05:00
-     */
-    _formatPrice(price) {
-        return price ? price.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }) : 'N/A';
-    }
-
-    /**
-     * Select a room type from search results
-     * @param {number} roomTypeId 
-     * @date 2025-01-08T01:27:09+05:00
-     */
-    selectRoomType(roomTypeId) {
-        this.state.searchResults = this.state.searchResults.map(result => ({
-            ...result,
-            isSelected: result.room_type_id === roomTypeId
-        }));
-        this.state.selectedRoomType = roomTypeId;
-    }
-
-    validateSearchCriteria() {
-        if (!this.state.hotel) {
-            alert(_t("Please select a hotel"));
-            return false;
-        }
-        if (!this.state.checkInDate) {
-            alert(_t("Please select a check-in date"));
-            return false;
-        }
-        if (!this.state.checkOutDate) {
-            alert(_t("Please select a check-out date"));
-            return false;
-        }
-        if (!this.validateCheckInDate(this.state.checkInDate)) {
-            alert(_t("Invalid check-in date"));
-            return false;
-        }
-        if (!this.validateCheckOutDate(this.state.checkOutDate)) {
-            alert(_t("Invalid check-out date"));
-            return false;
-        }
-        return true;
-    }
-}
-
-// Define the Owl template for rendering
-OfflineSearchWidget.template = 'hotel_management_odoo.OfflineSearchWidget';
-
-/**
- * Validate Search Criteria with comprehensive checks
- * @returns {boolean} True if all criteria are valid, false otherwise
- * @date 2025-01-08T12:48:47+05:00
- */
-validateSearchCriteria() {
-    let isValid = true;
-    const errorMessages = [];
-
-    // Hotel validation
-    if (!this.state.hotel) {
-        errorMessages.push("Please select a hotel.");
-        isValid = false;
-    }
-
-    // Check-in date validation
-    if (!this.state.checkInDate) {
-        errorMessages.push("Please select a check-in date.");
-        isValid = false;
-    }
-
-    // Check-out date validation
-    if (!this.state.checkOutDate) {
-        errorMessages.push("Please select a check-out date.");
-        isValid = false;
-    }
-
-    // Rooms validation
-    if (!this.state.rooms || this.state.rooms < 1) {
-        errorMessages.push("Number of rooms must be at least 1.");
-        isValid = false;
-    }
-
-    // Nights validation
-    if (!this.state.noOfNights || this.state.noOfNights < 1) {
-        errorMessages.push("Number of nights must be at least 1.");
-        isValid = false;
-    }
-
-    // Display error messages if any
-    if (!isValid) {
-        console.error("Validation Errors:", errorMessages);
-    }
-
-    return isValid;
-}
-
-/**
- * Search Rooms with enhanced filtering and error handling
- * @returns {Promise<void>}
- * @date 2025-01-08T12:48:47+05:00
- */
-async searchRooms() {
-    // Reset search results and no results flag before search
-    this.state.searchResults = [];
-    this.state.searchPerformed = true;
-
-    if (!this.validateSearchCriteria()) {
-        return;
-    }
-
-    try {
-        let results = await this.searchAvailableRooms(
-            this.state.checkInDate,
-            this.state.checkOutDate,
-            this.state.rooms
-        );
-
-        // Calculate actual free to sell including overbooking quantity
-        results.forEach(room => {
-            room.actualFreeToSell = room.min_free_to_sell + (room.overbooking_qty || 0);
-        });
-
-        // If no room type is selected, return all room types
-        if (!this.state.roomType) {
-            this.state.searchResults = results;
-        } else {
-            // Filter by selected room type
-            this.state.searchResults = results.filter(room => 
-                room.room_type_id === parseInt(this.state.roomType)
-            );
-        }
-
-        // Notification for no results
-        if (this.state.searchResults.length === 0) {
-            this.notification.add('No rooms found matching your criteria.', {
-                type: 'warning',
-                sticky: false,
-                title: 'Search Results'
-            });
-        }
-    } catch (error) {
-        console.error('Error during room search:', error);
-        
-        // Error notification
-        this.notification.add('An error occurred while searching rooms. Please try again.', {
-            type: 'danger',
-            sticky: false,
-            title: 'Search Error'
-        });
-        
-        this.state.searchResults = [];
-    }
-}
-
-/**
-     * Validate Search Criteria
-     * @returns {boolean} True if all criteria are valid, false otherwise
-     * @date 2025-01-08T12:26:34+05:00
-     */
-    validateSearchCriteria() {
-        let isValid = true;
-        const errorMessages = [];
-
-        // Hotel validation
-        if (!this.state.hotel) {
-            errorMessages.push("Please select a hotel.");
-            isValid = false;
-        }
-
-        // Check-in date validation
-        if (!this.state.checkInDate) {
-            errorMessages.push("Please select a check-in date.");
-            isValid = false;
-        }
-
-        // Check-out date validation
-        if (!this.state.checkOutDate) {
-            errorMessages.push("Please select a check-out date.");
-            isValid = false;
-        }
-
-        // Rooms validation
-        if (!this.state.rooms || this.state.rooms < 1) {
-            errorMessages.push("Number of rooms must be at least 1.");
-            isValid = false;
-        }
-
-        // Nights validation
-        if (!this.state.noOfNights || this.state.noOfNights < 1) {
-            errorMessages.push("Number of nights must be at least 1.");
-            isValid = false;
-        }
-
-        // Display error messages if any
-        if (!isValid) {
-            console.error("Validation Errors:", errorMessages);
-        }
-
-        return isValid;
-    }
-
-    /**
-     * Search Rooms
+     * Calling Search after creating bookings
+     * Modified: 2025-01-09T15:46:05+05:00
      * @returns {Promise<void>}
-     * @date 2025-01-08T12:26:34+05:00
      */
-    async searchRooms() {
-        // Reset search results
-        this.state.searchResults = [];
-
-        if (!this.validateSearchCriteria()) {
-            return;
-        }
-
+    async actionSearchRooms(recordId) {
         try {
-            let results = await this.searchAvailableRooms(
-                this.state.checkInDate,
-                this.state.checkOutDate,
-                this.state.rooms
+            const results = await this.orm.call(
+                'room.booking',
+                'action_search_rooms',
+                [[recordId]]
             );
 
-            // Calculate actual free to sell including overbooking quantity
-            results.forEach(room => {
-                room.actualFreeToSell = room.min_free_to_sell + (room.overbooking_qty || 0);
+            console.log('calling action_search_rooms server:', results);
+        } catch (error) {
+            console.error('Error action search rooms:', error);
+//            this.state.searchError = error.message || _t('An error occurred while searching rooms');
+//            this.notification.add(this.state.searchError, {
+//                type: 'danger',
+//                sticky: true,
+//                title: _t('Search Error')
+//            });
+//            this.state.searchResults = [];
+        } finally {
+            this.state.isSearching = false;
+        }
+    }
+
+    /**
+     * Call to backend method to get available rooms
+     * Modified: 2025-01-09T15:38:02+05:00
+     * @param {string} fromDate - Check-in date in YYYY-MM-DD
+     * @param {string} toDate - Check-out date in YYYY-MM-DD
+     * @param {number} roomCount
+     * @returns {Promise<Array>}
+     */
+    async searchAvailableRooms(fromDate, toDate, roomCount) {
+        try {
+            // Validate parameters before making the call
+            if (!fromDate) throw new Error('Check-in date is required');
+            if (!toDate) throw new Error('Check-out date is required');
+            if (!roomCount || roomCount < 1) throw new Error('Number of rooms must be at least 1');
+            if (!this.state.hotel) throw new Error('Hotel selection is required');
+
+            // Show searching notification
+            this.notification.add(_t('Searching for available rooms...'), {
+                type: 'info',
+                sticky: false,
+                title: _t('Search Status')
             });
 
-            // If no room type is selected, return all room types
-            if (!this.state.roomType) {
-                this.state.searchResults = results;
+            // Call the backend method
+            const results = await this.orm.call(
+                'room.search',
+                'search_available_rooms',
+                [fromDate, toDate, roomCount, this.state.hotel, this.state.roomType || false]
+            );
+
+            // Update state with results (even if empty)
+            this.state.searchResults = results;
+            this.state.searchPerformed = true;
+
+            // Show appropriate notification
+            if (results.length > 0) {
+                this.notification.add(
+                    _t('Found %s available room types', results.length),
+                    { type: 'success', sticky: false }
+                );
             } else {
-                // Filter by selected room type
-                this.state.searchResults = results.filter(room => 
-                    room.room_type_id === parseInt(this.state.roomType)
+                this.notification.add(
+                    _t('No rooms available for the selected criteria'),
+                    { type: 'info', sticky: false }
                 );
             }
 
+            return results;
+
         } catch (error) {
-            console.error('Error during room search:', error);
+            console.error('Search Error:', error);
+
+            // Update state to reflect error
             this.state.searchResults = [];
+            this.state.searchPerformed = true;
+            this.state.searchError = error.message || 'Failed to search rooms';
+
+            // Show error notification
+            this.notification.add(
+                error.data?.message || error.message || _t('Failed to search rooms'),
+                { type: 'warning', sticky: true, title: _t('Search Error') }
+            );
+
+            // Don't throw error, just return empty results
+            return [];
         }
     }
 
-/**
- * Enhanced database selection with:
- * 1. Comprehensive error tracking
- * 2. Detailed logging
- * 3. User-friendly notifications
- * 4. Robust error handling
- * 5. Detailed state management for database selection process
- */
-class DatabaseSelectionError extends Error {
-    constructor(message, errorCode, details = {}) {
-        super(message);
-        this.name = 'DatabaseSelectionError';
-        this.errorCode = errorCode;
-        this.details = {
-            timestamp: new Date().toISOString(),
-            ...details
+    /**
+     * Clear search results
+     */
+    clearSearch() {
+        this.state = {
+            ...this.state,
+            company_id: false,
+            checkin_date: false,
+            checkout_date: false,
+            room_count: 1,
+            room_type_id: false,
+            adult_count: 1,
+            child_count: 0,
+            infant_count: 0,
+            searchResults: []
         };
+        this.render();
     }
 
-    toLogObject() {
-        return {
-            name: this.name,
-            message: this.message,
-            errorCode: this.errorCode,
-            details: this.details
-        };
-    }
-}
+    /**
+     * Sync booking data with the currently open room.booking form
+     * @param {number} roomTypeId - ID of the room type to book
+     * Modified: 2025-01-10T22:28:28+05:00
+     */
+    async createBooking(roomTypeId) {
+        console.log('Starting createBooking with Room Type ID:', roomTypeId);
+        try {
+            // Validate required fields
+            if (!this.state.hotel) {
+                throw new Error('Hotel is required');
+            }
 
-export class OfflineSearchWidget extends Component {
-    static props = {
-        record: { type: Object, optional: true },
-        readonly: { type: Boolean, optional: true },
-        options: { type: Object, optional: true }
-    };
+//            // Validate required fields
+//            if (!this.state.guestContact) {
+//                throw new Error('Contact is required for creating booking');
+//            }
 
-    setup() {
-        // Enhanced service initialization with error tracking
-        this.orm = useService('orm');
-        this.notification = useService('notification');
-        this.action = useService('action');
-        this.rpc = useService('rpc');
+            // Prepare the booking data
+            const bookingData = {
+                company_id: this.state.hotel,
+                room_count: this.state.rooms,
+                checkin_date: this.state.checkInDate,
+                no_of_nights: this.state.noOfNights,
+                checkout_date: this.state.checkOutDate,
+                adult_count: this.state.adults,
+                child_count: this.state.children,
+                infant_count: this.state.infants,
+//                partner_id: this.state.guestContact,
+//                group_booking: this.state.guestGroup ?? '',
+                state: 'not_confirmed',
+                hotel_room_type: roomTypeId,
+            };
 
-        // Comprehensive state for database selection
-        this.state = useState({
-            databases: [],
-            selectedDatabase: null,
-            isLoading: false,
-            error: null,
-            
-            // Detailed database selection tracking
-            databaseSelectionAttempts: 0,
-            lastSelectedDatabaseId: null,
-            databaseSelectionTimestamp: null
-        });
+            console.log('Booking Data to be sent:', bookingData);
 
-        // Global error handler
-        onError((error) => {
-            this.handleDatabaseSelectionError(error);
-        });
-
-        // Initialize database selection process
-        onWillStart(async () => {
             try {
-                await this.initializeDatabaseList();
-            } catch (error) {
-                this.handleDatabaseSelectionError(error);
-            }
-        });
-    }
-
-    /**
-     * Comprehensive Database List Initialization
-     */
-    async initializeDatabaseList() {
-        this.state.isLoading = true;
-        this.state.error = null;
-
-        try {
-            // Fetch available databases with enhanced error tracking
-            const databases = await this.rpc('/web/database/list', {});
-
-            if (!databases || databases.length === 0) {
-                throw new DatabaseSelectionError(
-                    'No databases available',
-                    'NO_DATABASES_FOUND',
-                    { availableDatabases: databases }
+                // Create a new record first
+                console.log('Creating new booking record...');
+                const newRecordId = await this.orm.call(
+                    'room.booking',
+                    'create',
+                    [bookingData]
                 );
-            }
 
-            this.state.databases = databases;
-            this.state.isLoading = false;
-        } catch (error) {
-            throw new DatabaseSelectionError(
-                'Database initialization failed',
-                'DATABASE_INIT_FAILED',
-                { 
-                    originalError: error.message,
-                    stack: error.stack
+                console.log('New record created with ID:', newRecordId);
+                await this.actionSearchRooms(newRecordId);
+
+                if (newRecordId) {
+                    // Open the form view with the new record
+                    const action = {
+                        type: 'ir.actions.act_window',
+                        res_model: 'room.booking',
+                        res_id: newRecordId,
+                        views: [[false, 'form']],
+                        target: 'current',
+                        flags: {
+                            mode: 'edit'
+                        }
+                    };
+
+                    // Execute the action to open the form view
+                    await this.env.services.action.doAction(action);
+
+                    this.notification.add('Booking created successfully!', {
+                        type: 'success',
+                        sticky: false
+                    });
+                } else {
+                    throw new Error('Failed to create booking record');
                 }
-            );
-        }
-    }
-
-    /**
-     * Enhanced Database Selection Method
-     * @param {string} databaseName - Selected database name
-     */
-    async selectDatabase(databaseName) {
-        this.state.databaseSelectionAttempts++;
-        this.state.databaseSelectionTimestamp = new Date().toISOString();
-        this.state.lastSelectedDatabaseId = databaseName;
-
-        try {
-            // Validate database selection
-            if (!databaseName) {
-                throw new DatabaseSelectionError(
-                    'Invalid database selection',
-                    'INVALID_DATABASE',
-                    { selectedDatabase: databaseName }
-                );
+            } catch (writeError) {
+                console.error('Booking creation error:', {
+                    error: writeError,
+                    message: writeError.message,
+                    name: writeError.name,
+                    data: writeError.data,
+                    stack: writeError.stack
+                });
+                throw writeError;
             }
-
-            // Perform database selection with comprehensive logging
-            const selectionResult = await this.rpc('/web/database/change', {
-                db_name: databaseName
-            });
-
-            if (!selectionResult) {
-                throw new DatabaseSelectionError(
-                    'Database selection failed',
-                    'DATABASE_CHANGE_FAILED',
-                    { selectedDatabase: databaseName }
-                );
-            }
-
-            // Trigger notification on successful database selection
-            this.notification.add(_t('Database selected successfully'), {
-                type: 'success',
-                sticky: false
-            });
-
-            // Optional: Reload or redirect after database selection
-            this.action.doAction({
-                type: 'ir.actions.client',
-                tag: 'reload'
-            });
 
         } catch (error) {
-            this.handleDatabaseSelectionError(error);
-        }
-    }
+            console.error('Detailed error information:', {
+                message: error.message,
+                name: error.name,
+                stack: error.stack,
+                cause: error.cause,
+                data: error.data
+            });
 
-    /**
-     * Centralized Error Handling for Database Selection
-     * @param {Error} error - Error during database selection
-     */
-    handleDatabaseSelectionError(error) {
-        const databaseError = error instanceof DatabaseSelectionError 
-            ? error 
-            : new DatabaseSelectionError(
-                error.message || 'Unexpected Database Selection Error',
-                'UNKNOWN_DATABASE_ERROR',
-                { originalError: error }
-            );
-
-        // Update state with error details
-        this.state.error = databaseError.toLogObject();
-        this.state.isLoading = false;
-
-        // Log detailed error
-        console.error('Database Selection Error:', databaseError.toLogObject());
-
-        // Show user-friendly error notification
-        this.notification.add(
-            _t('Database Selection Error: %s', databaseError.message), 
-            {
+            this.notification.add(`Failed to create booking: ${error.message}`, {
                 type: 'danger',
                 sticky: true
+            });
+        }
+    }
+
+    /**
+     * Handle room booking action
+     * @param {number} roomTypeId - ID of the room type to book
+     */
+    async bookRoom(roomTypeId) {
+        try {
+            // Create action context with pre-filled values
+            const context = {
+                default_hotel_room_type_id: roomTypeId,
+                default_company_id: this.state.hotel,
+                default_checkin_date: this.state.checkInDate,
+                default_checkout_date: this.state.checkOutDate,
+                default_adult_count: this.state.adults,
+                default_child_count: this.state.children,
+                default_infant_count: this.state.infants,
+                default_room_count: this.state.rooms
+            };
+
+            // Open the room booking form view
+            await this.action.doAction({
+                type: 'ir.actions.act_window',
+                res_model: 'room.booking',
+                view_mode: 'form',
+                view_type: 'form',
+                views: [[false, 'form']],
+                target: 'current',
+                context: context,
+            });
+        } catch (error) {
+            console.error('Error creating booking:', error);
+            this.notification.notify({
+                title: 'Error',
+                message: 'Failed to create booking. Please try again.',
+                type: 'danger'
+            });
+        }
+    }
+
+    /**
+     * Search Group Bookings based on input
+     * @date 2025-01-07T20:20:32+05:00
+     * Adjusted to use company field correctly linked to res.partner
+     */
+    async onGroupBookingSearch() {
+        try {
+            // Safely get search term with fallback
+            const searchTerm = (this.state.groupBookingSearch || '').trim();
+
+            // Early return if no search term
+            if (!searchTerm) {
+                this.state.filteredGroupBookings = [];
+                return;
             }
-        );
+
+            // Construct search domain
+            const domain = [
+                '|', '|', '|', '|',
+                ['name', 'ilike', searchTerm],
+                ['group_name', 'ilike', searchTerm],
+                ['company.name', 'ilike', searchTerm],
+                ['company.email', 'ilike', searchTerm],
+                ['company.phone', 'ilike', searchTerm]
+            ];
+
+            // Fetch group bookings with related details
+            const groupBookings = await this.orm.searchRead(
+                'group.booking',
+                domain,
+                [
+                    'id',        // Unique identifier
+                    'name',      // Booking name
+                    'group_name', // Specific group name
+                    'company'    // Related company information
+                ],
+                {
+                    limit: 50,
+                    context: {
+                        lang: this.env.lang,
+                        tz: this.env.context.tz
+                    }
+                }
+            );
+
+            // Transform results safely
+            this.state.filteredGroupBookings = groupBookings.map(groupBooking => ({
+                id: groupBooking.id || null,
+                name: groupBooking.name || '',
+                groupName: groupBooking.group_name || '',
+                companyName: groupBooking.company ? groupBooking.company[1] : '',
+                contactDetails: {
+                    email: groupBooking.company ?
+                        (this.orm.read('res.partner', [groupBooking.company[0]], ['email'])[0]?.email || '') : '',
+                    phone: '',
+                    address: ''
+                }
+            }));
+
+        } catch (error) {
+            // Comprehensive error handling
+            console.error('Group Booking Search Error', error);
+
+            // User-friendly notification
+            alert('Search failed. Please try again.');
+
+            // Reset filtered bookings on error
+            this.state.filteredGroupBookings = [];
+        }
     }
 }
 
-// Owl template reference
-OfflineSearchWidget.template = 'hotel_management_odoo.OfflineSearchWidget';
+// Register the widget
+// registry.category("fields").add("offline_search_widget", OfflineSearchWidget);
+// Define the template
+OfflineSearchWidget.template = "hotel_management_odoo.OfflineSearchWidget";

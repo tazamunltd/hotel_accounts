@@ -2,4 +2,3 @@
 
 from . import controllers
 from . import hms_controllers
-from . import payment_controllers

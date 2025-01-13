@@ -65,13 +65,73 @@
         <field name="model">department.category</field>
         <field name="arch" type="xml">
             <tree string="Department Category">
+                <field name="category" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_department_category_kanban" model="ir.ui.view">
+        <field name="name">department.category.kanban</field>
+        <field name="model">department.category</field>
+        <field name="arch" type="xml">
+            <kanban string="Department Category">
                 <field name="category"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="category"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+    <record id="view_department_category_pivot" model="ir.ui.view">
+        <field name="name">department.category.pivot</field>
+        <field name="model">department.category</field>
+        <field name="arch" type="xml">
+            <pivot string="Department Category">
+                <field name="category" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_department_category_graph" model="ir.ui.view">
+        <field name="name">department.category.graph</field>
+        <field name="model">department.category</field>
+        <field name="arch" type="xml">
+            <graph string="Department Category" type="bar">
+                <field name="category" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_department_category_search" model="ir.ui.view">
+        <field name="name">department.category.search</field>
+        <field name="model">department.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Department Categories">
+                <field name="category" string="Category" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+            </search>
+        </field>
+    </record>
+
 
     
     <!-- Form View for Department Code -->
@@ -97,7 +157,7 @@
                             <group string="Function">
                                 <field name="function_type"/>
                                 <separator string="Charges"/>
-                                <field name="charge_room"/>
+                                <!-- <field name="charge_room"/>
                                 <field name="charge_food"/>
                                 <field name="charge_beverage"/>
                                 <field name="charge_telephone"/>
@@ -112,7 +172,8 @@
                                 <field name="tax_service_charge"/>
                                 <field name="tax_vat"/>
                                 <field name="tax_municipality"/>
-                                <field name="tax_other"/>
+                                <field name="tax_other"/> -->
+                                <field name="charge_type" widget="radio"/> 
                             </group>
                         </page>
 
@@ -139,15 +200,94 @@
         <field name="model">department.code</field>
         <field name="arch" type="xml">
             <tree string="Department Codes">
+                <field name="department" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="unit_price" optional='show'/>
+                <field name="category" optional='show'/>
+                <field name="charge_type" optional='show'/> 
+                <field name="user_sort" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_department_code_kanban" model="ir.ui.view">
+        <field name="name">department.code.kanban</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <kanban string="Department Codes">
                 <field name="department"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="unit_price"/>
                 <field name="category"/>
                 <field name="user_sort"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="department"/></strong>
+                            <div><field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>Unit Price: <field name="unit_price"/></div>
+                            <div>Category: <field name="category"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+    <record id="view_department_code_pivot" model="ir.ui.view">
+        <field name="name">department.code.pivot</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Department Codes">
+                <field name="department" type="row"/>
+                <field name="category" type="row"/>
+                <field name="unit_price" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="view_department_code_graph" model="ir.ui.view">
+        <field name="name">department.code.graph</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <graph string="Department Codes" type="bar">
+                <field name="department" type="row"/>
+                <field name="category" type="row"/>
+                <field name="unit_price" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    <!-- <record id="view_department_code_calendar" model="ir.ui.view">
+        <field name="name">department.code.calendar</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <calendar string="Department Codes" date_start="create_date">
+                <field name="department"/>
+                <field name="description"/>
+                <field name="unit_price"/>
+            </calendar>
+        </field>
+    </record> -->
+
+
+
+
+    <record id="view_department_code_search" model="ir.ui.view">
+        <field name="name">department.code.search</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Department Codes">
+                <field name="department" string="Department" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="unit_price" string="Unit Price" />
+                <field name="category" string="Category" />
+                <field name="user_sort" string="User Sort" />
+            </search>
+        </field>
+    </record>
+
 
     
     <!-- Form View for Posting Item -->
@@ -219,15 +359,68 @@
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
             <tree string="Posting Items" >
+                <field name="item_code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="main_department" optional='show'/>
+                <field name="default_currency" optional='show'/>
+                <field name="default_value" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_posting_item_kanban" model="ir.ui.view">
+        <field name="name">posting.item.kanban</field>
+        <field name="model">posting.item</field>
+        <field name="arch" type="xml">
+            <kanban string="Posting Items">
                 <field name="item_code"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="main_department"/>
                 <field name="default_currency"/>
                 <field name="default_value"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="item_code"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>Main Department: <field name="main_department"/></div>
+                            <div>Default Currency: <field name="default_currency"/></div>
+                            <div>Default Value: <field name="default_value"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+    <record id="view_posting_item_pivot" model="ir.ui.view">
+        <field name="name">posting.item.pivot</field>
+        <field name="model">posting.item</field>
+        <field name="arch" type="xml">
+            <pivot string="Posting Items">
+                <field name="item_code" type="row"/>
+                <field name="main_department" type="row"/>
+                <field name="default_currency" type="row"/>
+                <field name="default_value" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="view_posting_item_graph" model="ir.ui.view">
+        <field name="name">posting.item.graph</field>
+        <field name="model">posting.item</field>
+        <field name="arch" type="xml">
+            <graph string="Posting Items" type="bar">
+                <field name="item_code" type="row"/>
+                <field name="main_department" type="row"/>
+                <field name="default_currency" type="row"/>
+                <field name="default_value" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+
+
 
 
 
@@ -322,10 +515,10 @@
         <field name="model">currency.code</field>
         <field name="arch" type="xml">
             <tree string="Currency Codes">
-                <field name="currency"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="exchange_rate"/>
+                <field name="currency" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="exchange_rate" optional='show'/>
             </tree>
         </field>
     </record>

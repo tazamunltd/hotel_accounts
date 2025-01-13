@@ -1824,11 +1824,11 @@ class WebAppController(http.Controller):
              f"{booking.partner_id.mobile or 'N/A'}", "رقم الجوال:"),
             ("No. of Nights:", f"{booking.no_of_nights}", "عدد الليالي:", "Passport No:", "", "رقم جواز السفر:"),
             ("Room Number:", f"{booking.room_ids_display}", "رقم الغرفة:", "ID No:", "", "رقم الهوية:"),
-            ("Room Type:", f"{booking.room_type_display}", "نوع الغرفة:", "Number of pax:", f"{booking.adult_count}",
+            ("Room Type:", f"{booking.room_type_display}", "نوع الغرفة:", "No. of pax:", f"{booking.adult_count}",
              "عدد الأشخاص:"),
-            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", "Number of child:",
+            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", "No.of child:",
              f"{booking.child_count}", "عدد الأشخاص:"),
-            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "Number of infants:",
+            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "No. of infants:",
              f"{booking.infant_count}", "عدد الرضع:"),
             ("Room Disc:", f"{room_discount}", "خصم الغرفة:", "Meal Disc:", f"{meal_discount}", "خصم الوجبة:"),
         ]
@@ -1859,9 +1859,9 @@ class WebAppController(http.Controller):
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
         # Payment Details
         payment_details = [
-            ("Payment Method:", f"{pay_type}", "نظام الدفع:", "Daily Room Rate(Avg):", f"{avg_rate}",
+            ("Payment Method:", f"{pay_type}", "نظام الدفع:", "Room Rate(Avg):", f"{avg_rate}",
              "السعر اليومي للغرفة:"),
-            ("VAT:", "", "القيمة المضافة:", "Daily Meals Rate(Avg):", f"{avg_meals}", "سعر الوجبات اليومي:"),
+            ("VAT:", "", "القيمة المضافة:", "Meals Rate(Avg):", f"{avg_meals}", "سعر الوجبات اليومي:"),
             ("Municipality:", "", "رسوم البلدية:", "Total Fixed Post:",f"{booking.total_fixed_post_forecast}","إجمالي المشاركات الثابتة:"),
             ("Total Taxes:", "", "إجمالي الضرائب:","Total Packages:",f"{booking.total_package_forecast}","إجمالي الحزم:"),
             ("VAT ID:", "", "الرقم الضريبي:","Remaining:", "", "المبلغ المتبقي:"),
@@ -1869,19 +1869,18 @@ class WebAppController(http.Controller):
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
-        # Adjust English label and value positioning
-            c.drawString(LEFT_LABEL_X, y_position, f"{l_label}")
-            c.drawString(LEFT_LABEL_X + 100, y_position, f"{l_value}")  # Add spacing (adjust 150 as needed)
-
-            # Draw Arabic label and value
+            # Left column
+            c.drawString(LEFT_LABEL_X,  y_position, l_label)
+            c.drawString(LEFT_VALUE_X,  y_position, l_value)
             draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
 
-            c.drawString(RIGHT_LABEL_X, y_position, f"{r_label}")
-            c.drawString(RIGHT_LABEL_X + 90, y_position, f"{r_value}")  # Add spacing (adjust 150 as needed)
-
+            # Right column
+            c.drawString(RIGHT_LABEL_X, y_position, r_label)
+            c.drawString(RIGHT_VALUE_X, y_position, r_value)
             draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
 
-            y_position -= line_height  # Move to the next line
+            y_position -= line_height
+
 
         guest_payment_border_bottom = y_position - 20  # A little extra space below
         # Draw the border for Guest + Payment details
@@ -1898,9 +1897,9 @@ class WebAppController(http.Controller):
         # Table Headers (Combined English and Arabic Labels)
         table_headers = [
             ("Nationality", "الجنسية"),
-            ("Passport NO.", "رقم جواز السفر"),
-            ("Tel NO.", "رقم الهاتف"),
-            ("ID NO.", "رقم الهوية"),
+            ("Passport No.", "رقم جواز السفر"),
+            ("Tel No.", "رقم الهاتف"),
+            ("ID No.", "رقم الهوية"),
             ("Joiner Name", "اسم المرافق"),
         ]
 
@@ -2362,9 +2361,9 @@ class WebAppController(http.Controller):
              f"{booking.partner_id.nationality.name or 'N/A'}", "الجنسية:"),
             ("Departure (Hijri):", checkout_hijri_str, "تاريخ المغادرة (هجري):", "Mobile No:",
              f"{booking.partner_id.mobile or 'N/A'}", "رقم الجوال:"),
-            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", "Number of child:",
+            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", "No. of child:",
              f"{booking.child_count}", "عدد الأشخاص:"),
-            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "Number of infants:",
+            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "No. of infants:",
              f"{booking.infant_count}", "عدد الرضع:"),
             ("Room Disc Avg:", f"{avg_rate}", "خصم الغرفة:", "Meal Disc Avg:", f"{avg_meal}", "خصم الوجبة:"),
             ("Room Disc Min:", f"{min(rate_list)}", "خصم الغرفة الأدنى:", "Meal Disc Min:",  f"{min(meal_list)}", "خصم الوجبة الأدنى:"),
@@ -2385,6 +2384,7 @@ class WebAppController(http.Controller):
             draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
 
             y_position -= line_height
+
 
         avg_rate = 0.0
         avg_meals = 0.0
@@ -2410,7 +2410,7 @@ class WebAppController(http.Controller):
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
     # Adjust English label and value positioning
             c.drawString(LEFT_LABEL_X, y_position, f"{l_label}")
-            c.drawString(LEFT_LABEL_X + 100, y_position, f"{l_value}")  # Add spacing (adjust 150 as needed)
+            c.drawString(LEFT_LABEL_X + 90, y_position, f"{l_value}")  # Add spacing (adjust 150 as needed)
 
             # Draw Arabic label and value
             draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
@@ -2851,9 +2851,9 @@ class WebAppController(http.Controller):
             ("Departure (Hijri):", checkout_hijri_str, "تاريخ المغادرة (هجري):", "Mobile No:",
              f"{booking.partner_id.mobile or 'N/A'}", "رقم الجوال:"),
 
-            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", "Number of child:",
+            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", "No. of child:",
              f"{booking.child_count}", "عدد الأشخاص:"),
-            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "Number of infants:",
+            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "No. of infants:",
              f"{booking.infant_count}", "عدد الرضع:"),
             ("Room Disc Avg:", f"{avg_rate}", "خصم الغرفة:", "Meal Disc Avg:", f"{avg_meal}", "خصم الوجبة:"),
             ("Room Disc Min:", f"{min(rate_list)}", "خصم الغرفة الأدنى:", "Meal Disc Min:",  f"{min(meal_list)}", "خصم الوجبة الأدنى:"),
@@ -2967,9 +2967,9 @@ class WebAppController(http.Controller):
 
         table_headers_2 = [
             ("Nationality", "الجنسية"),
-            ("Passport NO.", "رقم جواز السفر"),
-            ("Tel NO.", "رقم الهاتف"),
-            ("ID NO.", "رقم الهوية"),
+            ("Passport No.", "رقم جواز السفر"),
+            ("Tel No.", "رقم الهاتف"),
+            ("ID No.", "رقم الهوية"),
             ("Joiner Name", "اسم المرافق"),
         ]
 

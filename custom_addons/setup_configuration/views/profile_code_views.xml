@@ -169,6 +169,11 @@
                     <field name="mandatory_doc_country"/>
                     <field name="mandatory_doc_expiry"/>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>

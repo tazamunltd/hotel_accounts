@@ -38,6 +38,77 @@
             </tree>
         </field>
     </record>
+    <record id="view_room_type_kanban" model="ir.ui.view">
+        <field name="name">.kanban</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <kanban string="Room Types">
+                <field name="room_type"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="generic_type"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="room_type"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>Generic Type: <field name="generic_type"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                            <div>Obsolete: <field name="obsolete"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_room_type_pivot" model="ir.ui.view">
+        <field name="name">room.type.pivot</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <pivot string="Room Types">
+                <field name="room_type" type="row"/>
+                <field name="generic_type" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_room_type_graph" model="ir.ui.view">
+        <field name="name">room.type.graph</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <graph string="Room Types" type="bar">
+                <field name="room_type" type="row"/>
+                <field name="generic_type" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_room_type_search" model="ir.ui.view">
+        <field name="name">room.type.search</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <search string="Search Room Types">
+                <field name="room_type" string="Room Type" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="generic_type" string="Generic Type" />
+                <field name="user_sort" string="User Sort" />
+                <field name="obsolete" string="Obsolete" />
+            </search>
+        </field>
+    </record>
+
+    
 
     <record id="view_room_specification_form" model="ir.ui.view">
         <field name="name">room.specification.form</field>
@@ -154,7 +225,7 @@
                     <group>
                         <field name="arabic_description"/>
                         <field name="arabic_abbreviation"/>
-                        <!-- <label for="notes"/> -->
+                        <label for="notes"/>
                         <field name="notes"/>
                     </group>
                 </group>
@@ -180,11 +251,82 @@
         <field name="model">meal.code</field>
         <field name="arch" type="xml">
             <tree string="Meal Codes">
+                <field name="meal_code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_meal_code_kanban" model="ir.ui.view">
+        <field name="name">meal.code.kanban</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <kanban string="Meal Codes">
                 <field name="meal_code"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="meal_code"/></strong>
+                            <div><field name="description"/></div>
+                            <div><field name="abbreviation"/></div>
+                            <div><field name="user_sort"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_meal_code_pivot" model="ir.ui.view">
+        <field name="name">meal.code.pivot</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Meal Codes">
+                <field name="meal_code" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_meal_code_graph" model="ir.ui.view">
+        <field name="name">meal.code.graph</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <graph string="Meal Codes" type="bar">
+                <field name="meal_code" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_meal_code_calendar" model="ir.ui.view">
+        <field name="name">meal.code.calendar</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <calendar string="Meal Codes" date_start="create_date">
+                <field name="meal_code"/>
+                <field name="description"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_meal_code_search" model="ir.ui.view">
+        <field name="name">meal.code.search</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Meal Codes">
+                <field name="meal_code" string="Meal Code" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+            </search>
         </field>
     </record>
 
@@ -221,6 +363,10 @@
                         </tree>
                     </field>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -231,13 +377,74 @@
         <field name="model">meal.pattern</field>
         <field name="arch" type="xml">
             <tree string="Meal Patterns">
+                <field name="meal_pattern" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="meal_posting_item" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_meal_pattern_kanban" model="ir.ui.view">
+        <field name="name">meal.pattern.kanban</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <kanban string="Meal Patterns">
                 <field name="meal_pattern"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="meal_posting_item"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="meal_pattern"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>Meal Posting Item: <field name="meal_posting_item"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+
+    <record id="view_meal_pattern_pivot" model="ir.ui.view">
+        <field name="name">meal.pattern.pivot</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <pivot string="Meal Patterns">
+                <field name="meal_pattern" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="meal_posting_item" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+    
+    <record id="view_meal_pattern_graph" model="ir.ui.view">
+        <field name="name">meal.pattern.graph</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <graph string="Meal Patterns" type="bar">
+                <field name="meal_pattern" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="meal_posting_item" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_meal_pattern_search" model="ir.ui.view">
+        <field name="name">meal.pattern.search</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <search string="Search Meal Patterns">
+                <field name="meal_pattern" string="Meal Pattern" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="meal_posting_item" string="Meal Posting Item" />
+            </search>
+        </field>
+    </record>
+
 
     <!-- Form View for Authorized Code -->
     <record id="view_authorized_code_form" model="ir.ui.view">
@@ -265,6 +472,10 @@
                     <field name="can_authorize_out_of_order"/>
                     <field name="can_authorize_room_on_hold"/>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -275,11 +486,11 @@
         <field name="model">authorized.code</field>
         <field name="arch" type="xml">
             <tree string="Authorized Codes">
-                <field name="code"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="user_sort"/>
-                <field name="obsolete"/>
+                <field name="code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+                <field name="obsolete" optional='show'/>
             </tree>
         </field>
     </record>
@@ -306,6 +517,10 @@
                 <group string="Type">
                     <field name="type" widget="radio"/>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -316,14 +531,79 @@
         <field name="model">complimentary.code</field>
         <field name="arch" type="xml">
             <tree string="Complimentary Codes">
+                <field name="code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+                <field name="obsolete" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_complimentary_code_kanban" model="ir.ui.view">
+        <field name="name">complimentary.code.kanban</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <kanban string="Complimentary Codes">
                 <field name="code"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>
                 <field name="obsolete"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="code"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                            <div>Obsolete: <field name="obsolete"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+    <record id="view_complimentary_code_pivot" model="ir.ui.view">
+        <field name="name">complimentary.code.pivot</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Complimentary Codes">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_complimentary_code_graph" model="ir.ui.view">
+        <field name="name">complimentary.code.graph</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <graph string="Complimentary Codes" type="bar">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_complimentary_code_search" model="ir.ui.view">
+        <field name="name">complimentary.code.search</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Complimentary Codes">
+                <field name="code" string="Code" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+                <field name="obsolete" string="Obsolete" />
+            </search>
+        </field>
+    </record>
+
 
     <!-- Form View for Out of Order Code -->
     <record id="view_out_of_order_code_form" model="ir.ui.view">
@@ -344,6 +624,10 @@
                         <field name="arabic_abbreviation"/>
                     </group>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -362,6 +646,71 @@
             </tree>
         </field>
     </record>
+    <record id="view_out_of_order_code_kanban" model="ir.ui.view">
+        <field name="name">out.of.order.code.kanban</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <kanban string="Out of Order Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="code"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                            <div>Obsolete: <field name="obsolete"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_out_of_order_code_pivot" model="ir.ui.view">
+        <field name="name">out.of.order.code.pivot</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Out of Order Codes">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_out_of_order_code_graph" model="ir.ui.view">
+        <field name="name">out.of.order.code.graph</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <graph string="Out of Order Codes" type="bar">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_out_of_order_code_search" model="ir.ui.view">
+        <field name="name">out.of.order.code.search</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Out of Order Codes">
+                <field name="code" string="Code" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+                <field name="obsolete" string="Obsolete" />
+            </search>
+        </field>
+    </record>
+
 
     <!-- Form View for Room on Hold Code -->
     <record id="view_room_on_hold_code_form" model="ir.ui.view">
@@ -382,6 +731,10 @@
                         <field name="arabic_abbreviation"/>
                     </group>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -421,6 +774,10 @@
                         <field name="arabic_abbreviation"/>
                     </group>
                 </group>
+                 <!-- <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div> -->
             </form>
         </field>
     </record>
@@ -461,6 +818,11 @@
                         <field name="arabic_abbreviation"/>
                     </group>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
+                    
             </form>
         </field>
     </record>
@@ -480,6 +842,76 @@
             </tree>
         </field>
     </record>
+    <record id="view_house_code_kanban" model="ir.ui.view">
+        <field name="name">house.code.kanban</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <kanban string="House Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="level"/>
+                <field name="user_sort"/>
+                <field name="obsolete"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="code"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>Level: <field name="level"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                            <div>Obsolete: <field name="obsolete"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_house_code_pivot" model="ir.ui.view">
+        <field name="name">house.code.pivot</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <pivot string="House Codes">
+                <field name="code" type="row"/>
+                <field name="level" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_house_code_graph" model="ir.ui.view">
+        <field name="name">house.code.graph</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <graph string="House Codes" type="bar">
+                <field name="code" type="row"/>
+                <field name="level" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_house_code_search" model="ir.ui.view">
+        <field name="name">house.code.search</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <search string="Search House Codes">
+                <field name="code" string="Code" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="level" string="Level" />
+                <field name="user_sort" string="User Sort" />
+                <field name="obsolete" string="Obsolete" />
+            </search>
+        </field>
+    </record>
+
 
     <!-- Form View for Safe Deposit Code -->
     <record id="view_safe_deposit_code_form" model="ir.ui.view">
@@ -539,6 +971,10 @@
                         <field name="notes"/>
                     </group>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -608,6 +1044,10 @@
                 </group>
                 
                 <field name="notes"/>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -641,6 +1081,10 @@
                     <field name="room_number"/>
                     <field name="comments"/>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>

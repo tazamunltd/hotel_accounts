@@ -1,59 +1,83 @@
 /** @odoo-module **/
 
-const { Component } = require("@odoo/owl");
-const { registry } = require("@web/core/registry");
+import { Component, onWillStart, onWillDestroy } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 
-class TimerWidget extends Component {
-  // setup() {
-  //     this.state = { currentTime: new Date().toLocaleTimeString() };
-  //     this.updateTime();
-  // }
+export class TimerWidget extends Component {
+    static props = [];
 
-  setup() {
-    this.state = { currentDate: this.getCurrentDate() };
-    this.updateDate();
-  }
+    setup() {
+        // Services
+        this.orm = useService("orm");
+        this.userService = useService("user");
+        this.companyService = useService("company");
 
-  getCurrentDate() {
-    // Format date in a human-readable format
-    return new Date().toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
+        // Initial state
+        this.state = { systemDate: null };
 
-  getCurrentTime() {
-    // Format time in 24-hour format
-    return new Date().toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  }
+        // Log the user ID before fetching data
+        console.log("TimerWidget: Current User ID =>", this.userService.userId);
 
-  //   updateTime() {
-  //     setInterval(() => {
-  //       this.state.currentTime = this.getCurrentTime();
-  //       this.render();
-  //     }, 1000);
-  //   }
-  // }
+        // Setup company change watcher using onWillStart lifecycle hook
+        onWillStart(async () => {
+            // Initial fetch
+            await this.fetchSystemDate();
+            
+            // Setup company change watcher
+            this.companyChangedCallback = () => this.fetchSystemDate();
+            this.env.bus.addEventListener('COMPANY_SWITCHED', this.companyChangedCallback);
+        });
 
-  updateDate() {
-    setInterval(() => {
-      this.state.currentDate = this.getCurrentDate();
-      this.render();
-    }, 60000); // Update every minute to avoid unnecessary rendering
-  }
+        // Cleanup on component destroy
+        onWillDestroy(() => {
+            if (this.companyChangedCallback) {
+                this.env.bus.removeEventListener('COMPANY_SWITCHED', this.companyChangedCallback);
+            }
+        });
+    }
+
+    async fetchSystemDate() {
+        try {
+            // Get current company ID
+            const companyId = this.companyService.currentCompany.id;
+            console.log("TimerWidget: Current Company ID =>", companyId);
+
+            if (!companyId) {
+                console.warn("TimerWidget: No valid company_id found.");
+                return;
+            }
+
+            // Read the system_date from the res.company record
+            const [company] = await this.orm.read("res.company", [companyId], ["system_date"]);
+            console.log("TimerWidget: res.company record =>", company);
+
+            if (company && company.system_date) {
+                // Format and store the system date in component state
+                const rawDateStr = company.system_date;
+                const dateObj = new Date(rawDateStr + "Z"); // Force UTC interpretation
+                this.state.systemDate = dateObj.toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                });
+
+                // Log the final formatted date
+                console.log("TimerWidget: Computed systemDate =>", this.state.systemDate);
+
+                // Trigger render
+                this.render();
+            }
+        } catch (error) {
+            console.error("Error fetching system date:", error);
+        }
+    }
 }
 
 TimerWidget.template = "hotel_management_odoo.TimerWidget";
 
-const systrayItem = {
-  Component: TimerWidget,
-  sequence: 100,
-};
-
 // Register the component in the systray registry
-registry.category("systray").add("hotel_management_odoo.timer", systrayItem);
+registry.category("systray").add("hotel_management_odoo.timer", {
+    Component: TimerWidget,
+    sequence: 100,
+});
