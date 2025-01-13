@@ -1,298 +1,997 @@
 /** @odoo-module */
-import { registry} from '@web/core/registry';
+import { registry } from '@web/core/registry';
 import { useService } from "@web/core/utils/hooks";
-const { Component, onWillStart, onMounted} = owl
-import { jsonrpc } from "@web/core/network/rpc_service";
-import { Domain } from "@web/core/domain";
-import { _t } from "@web/core/l10n/translation";
-import {serializeDate,serializeDateTime,} from "@web/core/l10n/dates";
-const today = new Date();
-const day = today.getDate(); // Returns the day of the month (1-31)
-const month = today.getMonth() + 1; // Returns the month (0-11); Adding 1 to match regular months (1-12)
-const year = today.getFullYear(); // Returns the year (4 digits)
-// Display the current date in a specific format (e.g., MM/DD/YYYY)
-const formattedDate = `${year}-${month}-${day}`;
-export class CustomDashBoard extends Component {
-    /**
-     * Setup method to initialize required services and register event handlers.
+const { Component, onWillStart, onMounted, useState } = owl;
+
+/* Date: 2025-01-13 Time: 01:39:40
+ * Custom Dashboard Component for Hotel Management
+ * Handles room metrics and chart visualizations
+ */
+class CustomDashBoard extends Component {
+    setup() {
+        this.action = useService("action");
+        this.orm = useService("orm");
+        
+        // Initialize chart instances
+        this.charts = {
+            occupancyStatus: null,
+            dailyOccupancy: null,
+            arrivalsVsDepartures: null,
+            roomTypeDistribution: null,
+            roomStatusByType: null,
+            roomAvailabilityTimeline: null
+        };
+        
+        // Initialize state with all required metrics
+        this.state = useState({
+            // Room metrics
+            expected_arrivals: 0,
+            out_of_order: 0,
+            rooms_on_hold: 0,
+            out_of_service: 0,
+            inhouse: 0,
+            expected_departures: 0,
+            house_use_count: 0,
+            complementary_use_count: 0,
+            available: 0,
+            expected_inhouse: 0,
+            free_to_sell: 0,
+            total_rooms: 0,
+            reserved: 0,
+            
+            // Chart data
+            occupancyHistory: {
+                dates: [],
+                rates: []
+            },
+            arrivalsVsDepartures: {
+                dates: [],
+                arrivals: [],
+                departures: []
+            },
+            roomTypeDistribution: {
+                types: [],
+                counts: []
+            },
+            roomStatusByType: {
+                types: [],
+                available: [],
+                occupied: [],
+                reserved: [],
+                outOfOrder: []
+            },
+            availabilityTimeline: {
+                dates: [],
+                available: [],
+                total: []
+            }
+        });
+
+        // Setup lifecycle hooks
+        onWillStart(async () => {
+            await this._getInitialState();
+        });
+
+        onMounted(() => {
+            this.renderAllCharts();
+        });
+    }
+
+    /* Date: 2025-01-13 Time: 02:04:55
+     * Method to get initial state data
      */
-setup() {
-this.action = useService("action");
-this.orm = useService("orm");
-onWillStart(this.onWillStart);
-onMounted(this.onMounted);
-}
-async onWillStart() {
-await this.fetch_data();
-}
-async onMounted() {
-// Render other components after fetching data
-// this.render_project_task();
-// this.render_top_employees_graph();
-// this.render_filter();
-}
-fetch_data() {
-       var self = this;
-       console.log("dafdaafdfadf", this)
-       //RPC call for retrieving data for displaying on dashboard tiles
-       var def1= jsonrpc('/web/dataset/call_kw/room.booking/get_details'
-       ,{ model:'room.booking',
-          method:'get_details',
-           args: [{}],
-           kwargs: {},
-       }).then(function(result){
-            document.getElementsByClassName("total_room").innerHTML=['total_room']
-            self.total_room=result['total_room']
-            self.available_room=result['available_room']
-            self.staff=result['staff']
-            self.check_in=result['check_in']
-            self.reservation=result['reservation']
-            self.check_out=result['check_out']
-            self.total_vehicle=result['total_vehicle']
-            self.available_vehicle=result['available_vehicle']
-            self.total_event=result['total_event']
-            self.today_events=result['today_events']
-            self.pending_events=result['pending_events']
-            self.food_items=result['food_items']
-            self.food_order=result['food_order']
-            if(result['currency_position']=='before'){
-                self.total_revenue=result['currency_symbol']+" "+result['total_revenue']
-                self.today_revenue=result['currency_symbol']+" "+result['today_revenue']
-                self.pending_payment=result['currency_symbol']+" "+result['pending_payment']
-            }
-            else{
-                self.total_revenue=+result['total_revenue']+" "+result['currency_symbol']
-                self.today_revenue=result['today_revenue']+" "+result['currency_symbol']
-                self.pending_payment=result['pending_payment']+" "+result['currency_symbol']
+    async _getInitialState() {
+        try {
+            await Promise.all([
+                this.fetchExpectedArrivals(),
+                this.fetchOccupancyHistory(),
+                this.fetchArrivalsVsDepartures(),
+                this.fetchRoomTypeDistribution(),
+                this.fetchRoomStatusByType(),
+                this.fetchAvailabilityTimeline()
+            ]);
+        } catch (error) {
+            console.error('Error fetching initial state:', error);
+        }
+    }
+
+    /* Date: 2025-01-13 Time: 02:04:55
+     * Method to render all charts
+     */
+    async renderAllCharts() {
+        try {
+            // Cleanup existing charts
+            this.cleanupCharts();
+
+            // Render each chart
+            await Promise.all([
+                this.renderRoomOccupancyStatusChart(),
+                this.renderDailyOccupancyChart(),
+                this.renderArrivalsVsDeparturesChart(),
+                this.renderRoomTypeDistributionChart(),
+                this.renderRoomStatusByTypeChart(),
+                this.renderRoomAvailabilityTimelineChart()
+            ]);
+        } catch (error) {
+            console.error('Error rendering charts:', error);
+        }
+    }
+
+    async fetchExpectedArrivals() {
+        try {
+            // Helper method to get company and system date
+            const getCompanySystemDate = async () => {
+                // Comprehensive fallback for company retrieval
+                let companyIds = [];
+
+                // Try multiple ways to get company IDs
+                if (this.env.services.company.currentCompany.id) {
+                    companyIds = Object.values(this.env.services.company.allowedCompanies)
+                        .map(company => company.id);
+                }
+
+                // Use the current company
+                var current_company_id = this.env.services.company.currentCompany.id;
+
+                // Fetch company details
+                const companies = await this.orm.call('res.company', 'search_read', [
+                    [['id', 'in', companyIds]],
+                    ['id', 'system_date', 'name']
+                ]);
+
+                // Find the system date for the current company
+                var current_company = companies.find(company => company.id === current_company_id);
+                
+                // Validate system date
+                var system_date = current_company && current_company.system_date ? current_company.system_date : formattedDate;
+                
+                // Parse the original system date
+                var parsedDate = new Date(system_date);
+                
+                // Format the date to YYYY-MM-DD
+                system_date = parsedDate.toISOString().split('T')[0];
+
+                return {
+                    current_company_id: current_company_id,
+                    system_date: system_date
+                };
+            };
+
+            // Get company and system date
+            const { current_company_id, system_date } = await getCompanySystemDate();
+
+            // Fetch dashboard metrics
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_dashboard_room_metrics',
+                [current_company_id, system_date]
+            );
+            
+            console.log("Received dashboard metrics:", result);
+
+            // Set default values if not provided
+            this.state.expected_arrivals = result.expected_arrivals || 0;
+            this.state.out_of_order = result.out_of_order || 0;
+            this.state.rooms_on_hold = result.rooms_on_hold || 0;
+            this.state.out_of_service = result.out_of_service || 0;
+            this.state.inhouse = result.inhouse || 0;
+            this.state.expected_departures = result.expected_departures || 0;
+            this.state.house_use_count = result.house_use_count || 0;
+            this.state.complementary_use_count = result.complementary_use_count || 0;
+            this.state.expected_occupied_rate = result.expected_occupied_rate || 0;
+            this.state.available = result.available || 0;
+            this.state.expected_inhouse = result.expected_inhouse || 0;
+            this.state.free_to_sell = result.free_to_sell || 0;
+            this.state.total_rooms = result.total_rooms || 0;
+            this.state.reserved = result.reserved || 0;
+
+            console.log("Updated state:", this.state);
+
+        } catch (error) {
+            console.error("Error fetching expected arrivals:", error);
+        }
+    }
+
+    /* Date: 2025-01-13 Time: 01:14:29
+     * Method to fetch occupancy history for the last 7 days
+     */
+    async fetchOccupancyHistory() {
+        try {
+            console.log("Fetching occupancy history");
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_occupancy_history',
+                [this.env.services.company.currentCompany.id, 7]  // Fetch last 7 days
+            );
+            
+            this.state.occupancyHistory.dates = result.dates || [];
+            this.state.occupancyHistory.rates = result.rates || [];
+            
+            console.log("Received occupancy history:", this.state.occupancyHistory);
+        } catch (error) {
+            console.error("Error fetching occupancy history:", error);
+        }
+    }
+
+    async fetchArrivalsVsDepartures() {
+        try {
+            console.log("Fetching arrivals vs departures data");
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_arrivals_departures_history',
+                [this.env.services.company.currentCompany.id, 7]  // Fetch last 7 days
+            );
+            
+            this.state.arrivalsVsDepartures = result;
+            console.log("Received arrivals vs departures data:", result);
+        } catch (error) {
+            console.error("Error fetching arrivals vs departures data:", error);
+        }
+    }
+
+    async fetchRoomTypeDistribution() {
+        try {
+            console.log("Fetching room type distribution");
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_room_type_distribution',
+                [this.env.services.company.currentCompany.id]
+            );
+            
+            this.state.roomTypeDistribution = result;
+            console.log("Received room type distribution:", result);
+        } catch (error) {
+            console.error("Error fetching room type distribution:", error);
+        }
+    }
+
+    async fetchRoomStatusByType() {
+        try {
+            console.log("Fetching room status by type");
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_room_status_by_type',
+                [this.env.services.company.currentCompany.id]
+            );
+            
+            this.state.roomStatusByType = result;
+            console.log("Received room status by type:", result);
+        } catch (error) {
+            console.error("Error fetching room status by type:", error);
+        }
+    }
+
+    async fetchAvailabilityTimeline() {
+        try {
+            console.log("Fetching availability timeline");
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_availability_timeline',
+                [this.env.services.company.currentCompany.id, 30]  // Fetch next 30 days
+            );
+            
+            this.state.availabilityTimeline = result;
+            console.log("Received availability timeline:", result);
+        } catch (error) {
+            console.error("Error fetching availability timeline:", error);
+        }
+    }
+
+    renderRoomOccupancyChart() {
+        const ctx = document.getElementById('roomOccupancyChart');
+        if (!ctx) return;
+
+        if (window.Chart) {
+            new window.Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Occupied', 'Available'],
+                    datasets: [{
+                        data: [this.state.inhouse, this.state.available],
+                        backgroundColor: ['#FF6384', '#36A2EB']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Room Occupancy'
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    renderRoomOccupancyStatusChart() {
+        try {
+            const ctx = document.getElementById('roomOccupancyStatusChart');
+            if (!ctx) {
+                console.error('Canvas element for room occupancy status chart not found');
+                return;
             }
 
-       });
+            if (window.Chart) {
+                const data = [
+                    this.state.inhouse,
+                    this.state.available,
+                    this.state.reserved,
+                    this.state.out_of_order,
+                    this.state.house_use_count,
+                    this.state.complementary_use_count
+                ];
+                
+                this.charts.occupancyStatus = new window.Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: [
+                            'In-house',
+                            'Available',
+                            'Reserved',
+                            'Out of Order',
+                            'House Use',
+                            'Complementary'
+                        ],
+                        datasets: [{
+                            data: data,
+                            backgroundColor: [
+                                '#4CAF50',  // Green for in-house
+                                '#2196F3',  // Blue for available
+                                '#FFC107',  // Amber for reserved
+                                '#F44336',  // Red for out of order
+                                '#9C27B0',  // Purple for house use
+                                '#FF9800'   // Orange for complementary
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                right: 100  // Add padding for legend
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels: {
+                                    padding: 20,
+                                    generateLabels: function(chart) {
+                                        const datasets = chart.data.datasets;
+                                        const labels = chart.data.labels;
+                                        const total = datasets[0].data.reduce((a, b) => a + b, 0);
+                                        
+                                        return labels.map((label, i) => ({
+                                            text: `${label}: ${datasets[0].data[i]} (${((datasets[0].data[i]/total)*100).toFixed(1)}%)`,
+                                            fillStyle: datasets[0].backgroundColor[i],
+                                            strokeStyle: datasets[0].backgroundColor[i],
+                                            lineWidth: 0,
+                                            hidden: false,
+                                            index: i
+                                        }));
+                                    },
+                                    font: {
+                                        size: 12
+                                    },
+                                    color: '#333'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Room Occupancy Status Distribution',
+                                padding: {
+                                    top: 10,
+                                    bottom: 30
+                                },
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                color: '#fff',
+                                font: {
+                                    weight: 'bold',
+                                    size: 12
+                                },
+                                formatter: function(value, context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${percentage}%`;
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error rendering room occupancy status chart:', error);
+        }
+    }
 
-           return $.when(def1);
-     }
-     total_rooms(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        console.log(this.action.doAction)
-                this.action.doAction({
-                    name: _t("Rooms"),
-                    type:'ir.actions.act_window',
-                    res_model:'hotel.room',
-                    view_mode:'tree,form',
-                    view_type:'form',
-                    views:[[false,'list'],[false,'form']],
-                    target:'current'
-                },options)
+    async renderDailyOccupancyChart() {
+        try {
+            const ctx = document.getElementById('dailyOccupancyChart');
+            if (!ctx) {
+                console.error('Canvas element for daily occupancy chart not found');
+                return;
+            }
+
+            if (window.Chart) {
+                this.charts.dailyOccupancy = new window.Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: this.state.occupancyHistory.dates,
+                        datasets: [{
+                            label: 'Occupancy Rate (%)',
+                            data: this.state.occupancyHistory.rates,
+                            backgroundColor: '#2196F3',
+                            borderColor: '#1976D2',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Daily Occupancy Rate Trend',
+                                padding: {
+                                    top: 10,
+                                    bottom: 30
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Occupancy Rate'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date'
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Occupancy: ${context.raw}%`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'top',
+                                formatter: function(value) {
+                                    return value + '%';
+                                },
+                                font: {
+                                    weight: 'bold'
+                                },
+                                color: '#1976D2'
+                            }
+                        }
+                    },
+                    plugins: [{
+                        afterDraw: function(chart) {
+                            var ctx = chart.ctx;
+                            chart.data.datasets.forEach(function(dataset) {
+                                chart.getDatasetMeta(0).data.forEach(function(bar, index) {
+                                    var data = dataset.data[index];
+                                    ctx.fillStyle = '#1976D2';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                                    ctx.font = 'bold 12px Arial';
+                                    ctx.fillText(data + '%', bar.x, bar.y - 5);
+                                });
+                            });
+                        }
+                    }]
+                });
+            }
+        } catch (error) {
+            console.error('Error rendering daily occupancy chart:', error);
+        }
     }
-    check_ins(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Check-In"),
-            type:'ir.actions.act_window',
-            res_model:'room.booking',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-            domain: [['state', '=', 'check_in']],
-            target:'current'
-        },options)
+
+    async renderArrivalsVsDeparturesChart() {
+        try {
+            const ctx = document.getElementById('arrivalsVsDeparturesChart');
+            if (!ctx) {
+                console.error('Canvas element not found: arrivalsVsDeparturesChart');
+                return;
+            }
+
+            this.charts.arrivalsVsDepartures = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: this.state.arrivalsVsDepartures.dates,
+                    datasets: [{
+                        label: 'Arrivals',
+                        data: this.state.arrivalsVsDepartures.arrivals,
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Departures',
+                        data: this.state.arrivalsVsDepartures.departures,
+                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering arrivals vs departures chart:', error);
+        }
     }
-    //    Total Events
-    view_total_events(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Total Events"),
-            type:'ir.actions.act_window',
-            res_model:'event.event',
-            view_mode:'kanban,tree,form',
-            view_type:'form',
-            views:[[false,'kanban'],[false,'list'],[false,'form']],
-            domain: [],
-            target:'current'
-        },options)
+
+    async renderRoomTypeDistributionChart() {
+        try {
+            const ctx = document.getElementById('roomTypeDistributionChart');
+            if (!ctx) {
+                console.error('Canvas element not found: roomTypeDistributionChart');
+                return;
+            }
+
+            this.charts.roomTypeDistribution = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: this.state.roomTypeDistribution.types,
+                    datasets: [{
+                        data: this.state.roomTypeDistribution.counts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering room type distribution chart:', error);
+        }
     }
-//        //    Today's Events
-    fetch_today_events(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Today's Events"),
-            type:'ir.actions.act_window',
-            res_model:'event.event',
-            view_mode:'kanban,tree,form',
-            view_type:'form',
-            views:[[false,'kanban'],[false,'list'],[false,'form']],
-            domain:  [['date_end', '=', formattedDate]],
-            target:'current'
-        },options)
+
+    async renderRoomStatusByTypeChart() {
+        try {
+            const ctx = document.getElementById('roomStatusByTypeChart');
+            if (!ctx) {
+                console.error('Canvas element not found: roomStatusByTypeChart');
+                return;
+            }
+
+            this.charts.roomStatusByType = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: this.state.roomStatusByType.types,
+                    datasets: [{
+                        label: 'Available',
+                        data: this.state.roomStatusByType.available,
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                        stack: 'Stack 0',
+                    }, {
+                        label: 'Occupied',
+                        data: this.state.roomStatusByType.occupied,
+                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        stack: 'Stack 0',
+                    }, {
+                        label: 'Reserved',
+                        data: this.state.roomStatusByType.reserved,
+                        backgroundColor: 'rgba(255, 206, 86, 0.8)',
+                        stack: 'Stack 0',
+                    }, {
+                        label: 'Out of Order',
+                        data: this.state.roomStatusByType.outOfOrder,
+                        backgroundColor: 'rgba(153, 102, 255, 0.8)',
+                        stack: 'Stack 0',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering room status by type chart:', error);
+        }
     }
-//        //    Pending Events
-    fetch_pending_events(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Pending Events"),
-            type:'ir.actions.act_window',
-            res_model:'event.event',
-            view_mode:'kanban,tree,form',
-            view_type:'form',
-            views:[[false,'kanban'],[false,'list'],[false,'form']],
-            domain:  [['date_end', '>=', formattedDate]],
-            target:'current'
-        },options)
+
+    async renderRoomAvailabilityTimelineChart() {
+        try {
+            const ctx = document.getElementById('roomAvailabilityTimelineChart');
+            if (!ctx) {
+                console.error('Canvas element not found: roomAvailabilityTimelineChart');
+                return;
+            }
+
+            this.charts.roomAvailabilityTimeline = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: this.state.availabilityTimeline.dates,
+                    datasets: [{
+                        label: 'Available Rooms',
+                        data: this.state.availabilityTimeline.available,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true
+                    }, {
+                        label: 'Total Rooms',
+                        data: this.state.availabilityTimeline.total,
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering room availability timeline chart:', error);
+        }
     }
-//        //    Total staff
-    fetch_total_staff(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Total Staffs"),
-            type:'ir.actions.act_window',
-            res_model:'res.users',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-            domain: [['groups_id.name', 'in',['Admin',
-                       'Cleaning Team User',
-                       'Cleaning Team Head',
-                       'Receptionist',
-                       'Maintenance Team User',
-                       'Maintenance Team Leader'
-                   ]]],
-            target:'current'
-        },options)
+
+    renderRevenueGauge() {
+        const ctx = document.getElementById('revenueGauge');
+        if (!ctx) return;
+
+        if (window.Chart) {
+            new window.Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [this.state.expected_occupied_rate, 100 - this.state.expected_occupied_rate],
+                        backgroundColor: ['#4CAF50', '#EEEEEE']
+                    }]
+                },
+                options: {
+                    circumference: 180,
+                    rotation: -90,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Occupancy Rate'
+                        }
+                    }
+                }
+            });
+        }
     }
-    //    check-out
-    check_outs(e){
-        var self = this;
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Today's Check-Out"),
-            type:'ir.actions.act_window',
-            res_model:'room.booking',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-            domain: [['room_line_ids.checkout_date', '=', formattedDate]],
-            target:'current'
-        },options)
+
+    /* Date: 2025-01-13 Time: 01:18:18
+     * Method to cleanup existing charts before re-rendering
+     */
+    cleanupCharts() {
+        Object.values(this.charts).forEach(chart => {
+            if (chart) {
+                chart.destroy();
+            }
+        });
     }
-//    Available rooms
-    available_rooms(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Available Room"),
-            type:'ir.actions.act_window',
-            res_model:'hotel.room',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-            domain: [['status', '=', 'available']],
-            target:'current'
-        },options)
+
+    async getArrivalsVsDepartures() {
+        try {
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_arrivals_departures_history',
+                [this.env.services.company.currentCompany.id]
+            );
+
+            const ctx = document.getElementById('arrivalsVsDeparturesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: result.dates,
+                    datasets: [{
+                        label: 'Arrivals',
+                        data: result.arrivals,
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Departures',
+                        data: result.departures,
+                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching arrivals vs departures data:', error);
+        }
     }
-//    Reservations
-    reservations(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Total Reservations"),
-            type:'ir.actions.act_window',
-            res_model:'room.booking',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-            domain: [['state', '=', 'reserved']],
-            target:'current'
-        },options)
+
+    async getRoomTypeDistribution() {
+        try {
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_room_type_distribution',
+                [this.env.services.company.currentCompany.id]
+            );
+
+            const ctx = document.getElementById('roomTypeDistributionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: result.types,
+                    datasets: [{
+                        data: result.counts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching room type distribution data:', error);
+        }
     }
-//    Food Items
-    fetch_food_item(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Food Items"),
-            type:'ir.actions.act_window',
-            res_model:'lunch.product',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-            domain: [],
-            target:'current'
-        },options)
+
+    async getRoomStatusByType() {
+        try {
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_room_status_by_type',
+                [this.env.services.company.currentCompany.id]
+            );
+
+            const ctx = document.getElementById('roomStatusByTypeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: result.types,
+                    datasets: [{
+                        label: 'Available',
+                        data: result.available,
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                        stack: 'Stack 0',
+                    }, {
+                        label: 'Occupied',
+                        data: result.occupied,
+                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        stack: 'Stack 0',
+                    }, {
+                        label: 'Reserved',
+                        data: result.reserved,
+                        backgroundColor: 'rgba(255, 206, 86, 0.8)',
+                        stack: 'Stack 0',
+                    }, {
+                        label: 'Out of Order',
+                        data: result.outOfOrder,
+                        backgroundColor: 'rgba(153, 102, 255, 0.8)',
+                        stack: 'Stack 0',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching room status by type data:', error);
+        }
     }
-//    food Orders
-    async fetch_food_order(e){
-        var self = this;
-        const result = await this.orm.call('food.booking.line', 'search_food_orders',[{}],{});
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({
-            name: _t("Food Orders"),
-            type:'ir.actions.act_window',
-            res_model:'food.booking.line',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-           domain: [['id','in', result]],
-            target:'current'
-        },options)
+
+    async getRoomAvailabilityTimeline() {
+        try {
+            const result = await this.orm.call(
+                'hotel.room.result',
+                'get_availability_timeline',
+                [this.env.services.company.currentCompany.id]
+            );
+
+            const ctx = document.getElementById('roomAvailabilityTimelineChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: result.dates,
+                    datasets: [{
+                        label: 'Available Rooms',
+                        data: result.available,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true
+                    }, {
+                        label: 'Total Rooms',
+                        data: result.total,
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching room availability timeline data:', error);
+        }
     }
-//    total vehicle
-    fetch_total_vehicle(e){
-        var self = this;
-        e.stopPropagation();
-        e.preventDefault();
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        this.action.doAction({name: _t("Total Vehicles"),
-                    type:'ir.actions.act_window',
-                    res_model:'fleet.vehicle.model',
-                    view_mode:'tree,form',
-                    view_type:'form',
-                    views:[[false,'list'],[false,'form']],
-                    target:'current'
-                },options)
+
+    async start() {
+        await this._super(...arguments);
+        await this._getInitialState();
+        this.getOccupancyStatusChart();
+        this.getDailyOccupancyChart();
+        this.getArrivalsVsDepartures();
+        this.getRoomTypeDistribution();
+        this.getRoomStatusByType();
+        this.getRoomAvailabilityTimeline();
     }
-//    Available Vehicle
-    async fetch_available_vehicle(e){
-    const result = await this.orm.call('fleet.booking.line', 'search_available_vehicle',[{}],{});
-        var self = this;
-        var options={on_reverse_breadcrum:this.on_reverse_breadcrum,};
-        e.stopPropagation();
-        e.preventDefault();
-        this.action.doAction({
-            name: _t("Available Vehicle"),
-            type:'ir.actions.act_window',
-            res_model:'fleet.vehicle.model',
-            view_mode:'tree,form',
-            view_type:'form',
-            views:[[false,'list'],[false,'form']],
-            domain: [['id','not in', result]],
-            target:'current'
-        },options)
+
+    cleanupCharts() {
+        const charts = [
+            'roomOccupancyStatusChart',
+            'dailyOccupancyChart',
+            'arrivalsVsDeparturesChart',
+            'roomTypeDistributionChart',
+            'roomStatusByTypeChart',
+            'roomAvailabilityTimelineChart'
+        ];
+        
+        charts.forEach(chartId => {
+            const chartElement = document.getElementById(chartId);
+            if (chartElement) {
+                const chart = Chart.getChart(chartElement);
+                if (chart) {
+                    chart.destroy();
+                }
+            }
+        });
     }
 }
-CustomDashBoard.template = "CustomDashBoard"
-registry.category("actions").add("custom_dashboard_tags", CustomDashBoard)
+
+CustomDashBoard.template = 'CustomDashBoard';
+registry.category("actions").add("custom_dashboard_tags", CustomDashBoard);

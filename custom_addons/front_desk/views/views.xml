@@ -8,6 +8,7 @@
                 <tree string="Out of Order List">
                     <field name="room_fsm_location"/>
                     <field name="room_number"/>
+                    <field name="room_type"/>
                     <field name="from_date"/>
                     <field name="to_date"/>
                     <field name="comments"/>
@@ -26,6 +27,7 @@
                             <group>
                                 <field name="room_fsm_location"/>
                                 <field name="room_number"/>
+                                <field name="room_type"/>
                                 <field name="from_date"/>
                                 <field name="to_date"/>
                             </group>
@@ -50,6 +52,7 @@
                 <tree string="Out of Order List">
                     <field name="room_fsm_location"/>
                     <field name="room_number"/>
+                    <field name="room_type"/>
                     <field name="from_date"/>
                     <field name="to_date"/>
                     <field name="comments"/>
@@ -68,6 +71,7 @@
                             <group>
                                 <field name="room_fsm_location"/>
                                 <field name="room_number"/>
+                                <field name="room_type"/>
                                 <field name="from_date"/>
                                 <field name="to_date"/>
                             </group>

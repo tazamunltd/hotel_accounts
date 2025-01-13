@@ -3,3 +3,7 @@
     flex-direction: column;
     gap: 10px; /* Adjusts spacing between each counter */
 }
+
+.dropdown-item.o_menu_item:has(.oi.oi-archive) {
+    display: none;
+}

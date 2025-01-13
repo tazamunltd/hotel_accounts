@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 */
 ###############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
@@ -88,15 +88,21 @@
         'views/meals_by_nationality_views.xml',
         'views/rooms_forecast_views.xml',
         'views/revenue_forecast_views.xml',
-
+        'views/reservation_summary_report.xml',
+        'views/all_reservation_status_report.xml',
         # HEADER DATETIME
         # 'views/header_datetime.xml',
     ],
     'assets': {
         'web.assets_backend': [
-            # 'hotel_management_odoo/static/src/js/percentage_widget.js',
+            'hotel_management_odoo/static/lib/chart.js/dist/chart.umd.js',
             'hotel_management_odoo/static/src/js/generate_pdf_report.js',
             'hotel_management_odoo/static/src/js/action_manager.js',
+            # Added offline search widget files - 2025-01-08T19:01:27+05:00
+            'hotel_management_odoo/static/src/js/offline_search_widget.js',
+            'hotel_management_odoo/static/src/js/offline_search_widget_registry.js',
+            'hotel_management_odoo/static/src/xml/offline_search_widget.xml',
+            'hotel_management_odoo/static/src/css/offline_search_widget.css',
             'hotel_management_odoo/static/src/js/generate_rc_guest_pdf_report.js',
             'hotel_management_odoo/static/src/js/generate_rc_pdf_report.js',
             'hotel_management_odoo/static/src/css/dashboard.css',
@@ -110,19 +116,9 @@
             'hotel_management_odoo/static/src/**/*.xml',
             'hotel_management_odoo/static/css/hotel_booking_styles.css',
             'hotel_management_odoo/static/src/css/disable.css',
-
-            # HEADER DATETIME
-            # 'hotel_management_odoo/static/src/css/header_datetime.css',
-            # 'hotel_management_odoo/static/src/js/systray_date.js',
-
             'hotel_management_odoo/static/src/js/timer.js',
             'hotel_management_odoo/static/src/css/timer.css',
             'hotel_management_odoo/static/src/xml/timer.xml',
-
-
-            'hotel_management_odoo/static/src/css/offline_search_widget.css',
-            'hotel_management_odoo/static/src/js/offline_search_widget.js',
-            'hotel_management_odoo/static/src/js/offline_search_widget_registry.js',
         ],
     },
     'images': ['static/description/banner.jpg'],

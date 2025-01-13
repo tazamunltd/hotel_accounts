@@ -49,6 +49,7 @@ from . import setting_inherit
 from . import room_result_by_room_type
 from . import room_result_by_client
 from . import yearly_geographical_chart
+from . import room_search
 from . import monthly_allotment_charts
 from . import monthly_groups_chart
 from . import reservation_status_report
@@ -61,3 +62,5 @@ from . import meals_by_nationality_forecast
 from . import company_forecast_report
 from . import rooms_forecast
 from . import revenue_forecast
+from . import reservation_summary_report
+from .import all_reservation_status_report

@@ -2,19 +2,32 @@
     display: inline-flex;
     align-items: center;
     margin-right: 15px;
+    color: white; /* Ensures child elements inherit white text by default */
 }
 
-.o_current_time {
-    color: #f3ededc7;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 8px;
-}
-
-
+.o_current_time,
 .o_current_date {
-    color: #f3ededc7;
+    color: white; /* or #fff */
     font-size: 14px;
     font-weight: 500;
     padding: 8px;
 }
+
+/* .o_current_date {
+    .o_current_date {
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px;
+        
+    }
+} */
+
+.o_timer_widget {
+    color: #fff; /* or 'white' */
+    font-size: 14px; /* optional, to adjust text size */
+    font-weight: 500;
+    padding: 8px;
+}
+
+

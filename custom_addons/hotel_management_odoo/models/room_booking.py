@@ -54,7 +54,7 @@ class RoomBooking(models.Model):
         crs_user_group = self.env.ref('hotel_management_odoo.crs_user_group')
         for record in self:
             record.hide_unconfirm_button = (
-                    record.state == 'confirmed' and crs_user_group in self.env.user.groups_id
+                record.state == 'confirmed' and crs_user_group in self.env.user.groups_id
             )
 
     hide_confirm_button = fields.Boolean(
@@ -68,7 +68,7 @@ class RoomBooking(models.Model):
         crs_user_group = self.env.ref('hotel_management_odoo.crs_user_group')
         for record in self:
             record.hide_confirm_button = (
-                    record.state == 'block' and crs_user_group in self.env.user.groups_id
+                record.state == 'block' and crs_user_group in self.env.user.groups_id
             )
 
     hide_admin_buttons = fields.Boolean(
@@ -82,7 +82,7 @@ class RoomBooking(models.Model):
         crs_admin_group = self.env.ref('hotel_management_odoo.crs_admin_group')
         for record in self:
             record.hide_admin_buttons = (
-                    record.state == 'block' and crs_admin_group in self.env.user.groups_id
+                record.state == 'block' and crs_admin_group in self.env.user.groups_id
             )
 
     hide_buttons_front_desk = fields.Boolean(
@@ -97,8 +97,28 @@ class RoomBooking(models.Model):
             'hotel_management_odoo.front_desk_user_group')
         for record in self:
             record.hide_buttons_front_desk = (
-                    record.state == 'block' and front_desk_group in self.env.user.groups_id
+                record.state == 'block' and front_desk_group in self.env.user.groups_id
             )
+
+    is_checkout_in_past = fields.Boolean(
+        string="Is Checkout in Past",
+        compute="_compute_is_checkout_in_past",
+        store=True
+    )
+
+    @api.depends('checkout_date')
+    def _compute_is_checkout_in_past(self):
+        today = fields.Date.context_today(self)
+        for record in self:
+            if record.checkout_date:
+                checkout_date = (
+                    record.checkout_date.date()
+                    if isinstance(record.checkout_date, datetime)
+                    else record.checkout_date
+                )
+                record.is_checkout_in_past = checkout_date < today
+            else:
+                record.is_checkout_in_past = False
 
     notification_sent = fields.Boolean(
         string="Notification Sent", default=False)
@@ -788,9 +808,9 @@ class RoomBooking(models.Model):
             else:
                 # Otherwise, apply the original logic
                 record.show_in_tree = not (
-                        not record.parent_booking_id
-                        and record.room_count > 1
-                        and all(line.room_id for line in record.room_line_ids)
+                    not record.parent_booking_id
+                    and record.room_count > 1
+                    and all(line.room_id for line in record.room_line_ids)
                 )
 
     no_show_ = fields.Boolean(string="No Show", help="Mark booking as No Show")
@@ -823,6 +843,8 @@ class RoomBooking(models.Model):
 
     @api.model
     def retrieve_dashboard(self):
+        company = self.env.company  # This fetches the current company
+        system_date = company.system_date or fields.Date.context_today(self)  
         # self.delete_zero_room_count_records()
         self.env.cr.commit()
         # Today's check-in and check-out counts
@@ -833,31 +855,35 @@ class RoomBooking(models.Model):
         # today_end = today + timedelta(days=1)
         # today = datetime.now()
         actual_checkin_count = self.search_count([
-            ('checkin_date', '>=', today),
-            ('checkin_date', '<', today + timedelta(days=1)),
+            # ('checkin_date', '>=', today),
+            ('checkin_date', '=', system_date),
+            # ('checkin_date', '<', today + timedelta(days=1)),
             ('state', '=', 'check_in'),
             # ('parent_booking_name', '!=', False)
 
         ])
 
         actual_checkout_count = self.search_count([
-            ('checkout_date', '>=', today),
-            ('checkout_date', '<', today + timedelta(days=1)),
+            # ('checkout_date', '>=', today),
+            ('checkout_date', '=', system_date),
+            # ('checkout_date', '<', today + timedelta(days=1)),
             ('state', '=', 'check_out'),
             # ('parent_booking_name', '!=', False)
 
         ])
 
         today_checkin_count = self.search_count([
-            ('checkin_date', '>=', today),
-            ('checkin_date', '<', today + timedelta(days=1)),
+            # ('checkin_date', '>=', today),
+            ('checkin_date', '=', system_date),
+            # ('checkin_date', '<', today + timedelta(days=1)),
             ('state', '=', 'block'),
             # ('parent_booking_name', '!=', False)
 
         ])
         today_checkout_count = self.search_count([
-            ('checkout_date', '>=', today),
-            ('checkout_date', '<', today + timedelta(days=1)),
+            # ('checkout_date', '>=', today),
+            ('checkout_date', '=', system_date),
+            # ('checkout_date', '<', today + timedelta(days=1)),
             ('state', '=', 'check_in'),
             # ('parent_booking_name', '!=', False)
 
@@ -974,7 +1000,7 @@ class RoomBooking(models.Model):
                     if record.meal_is_amount:
                         # record.total_meal_forecast = total - (record.meal_discount * record.adult_count)
                         record.total_meal_forecast = total - \
-                                                     (record.meal_discount)
+                            (record.meal_discount)
                     else:
                         record.total_meal_forecast = sum(
                             line.meals for line in record.rate_forecast_ids)
@@ -1069,9 +1095,10 @@ class RoomBooking(models.Model):
                     _logger.info(
                         f"After Rate Discount Line ({rate_detail_discount_value}): {total_sum}")
 
-            if is_percentage_value:
+            if is_percentage_value and not record.use_price:
                 # record.total_total_forecast = total_sum - rate_detail_discount_value
-                percentage_discount = (total_sum * rate_detail_discount_value) / 100
+                percentage_discount = (
+                    total_sum * rate_detail_discount_value) / 100
                 total_sum -= percentage_discount
                 _logger.info(
                     f"After Rate Discount ({rate_detail_discount_value}): {total_sum}")
@@ -1080,7 +1107,7 @@ class RoomBooking(models.Model):
             if record.room_is_percentage and record.use_price:
                 # record.total_total_forecast = total_sum - record.room_discount
                 percentage_discount = (
-                        record.room_price * record.room_discount * record.room_count * record.no_of_nights)
+                    record.room_price * record.room_discount * record.room_count * record.no_of_nights)
                 total_sum -= percentage_discount
                 _logger.info(
                     f"After Percent Room Discount ({record.room_discount}): {total_sum}")
@@ -1103,9 +1130,9 @@ class RoomBooking(models.Model):
             if record.meal_is_percentage and record.use_meal_price:
                 # record.total_total_forecast = total_sum - record.room_discount
                 percentage_discount = (
-                        record.meal_price * record.meal_discount * record.adult_count * record.no_of_nights * record.room_count)
+                    record.meal_price * record.meal_discount * record.adult_count * record.no_of_nights * record.room_count)
                 percentage_discount += (
-                        record.meal_child_price * record.meal_discount * record.child_count * record.no_of_nights * record.room_count)
+                    record.meal_child_price * record.meal_discount * record.child_count * record.no_of_nights * record.room_count)
                 total_sum -= percentage_discount
                 _logger.info(
                     f"After Percent Meal Discount ({record.meal_discount}): {total_sum}")
@@ -1231,10 +1258,10 @@ class RoomBooking(models.Model):
                 # print("MEAL PRICE ADULT", meal_rate_pax_price)
                 # meal_rate_child_price = meal_rate_child * record.child_count
                 meal_rate_child_price = meal_rate_child * \
-                                        record.child_count * record.room_count
+                    record.child_count * record.room_count
                 # print("MEAL PRICE CHILD", meal_rate_child_price)
                 meal_rate_infant_price = meal_rate_infant * \
-                                         record.infant_count * record.room_count
+                    record.infant_count * record.room_count
                 # print("MEAL PRICE INFANT", meal_rate_infant_price)
                 meal_price += (meal_rate_pax_price +
                                meal_rate_child_price + meal_rate_infant_price)
@@ -1243,7 +1270,8 @@ class RoomBooking(models.Model):
             else:
                 meal_price += record.meal_price * record.adult_count * record.room_count
                 meal_price += record.meal_child_price * record.child_count * record.room_count
-                meal_price += record.meal_infant_price * record.infant_count * record.room_count
+                meal_price += record.meal_infant_price * \
+                    record.infant_count * record.room_count
 
         if record.adult_count > 0:
             _day = forecast_date.strftime('%A').lower()
@@ -1260,11 +1288,14 @@ class RoomBooking(models.Model):
                 if rate_details:
                     posting_item_value = rate_details[0].posting_item.id
                     # print(f"Posting Item Value rate: {posting_item_value}")
-                    room_price += rate_details[0][_var] * record.room_count * _adult_count
+                    room_price += rate_details[0][_var] * \
+                        record.room_count * _adult_count
                     # print("ROOM PRICE ADULT", room_price)
-                    room_price += rate_details[0][_var_child] * record.room_count * record.child_count
+                    room_price += rate_details[0][_var_child] * \
+                        record.room_count * record.child_count
                     # print("ROOM PRICE CHILD", room_price)
-                    room_price += rate_details[0][_var_infant] * record.room_count * record.infant_count
+                    room_price += rate_details[0][_var_infant] * \
+                        record.room_count * record.infant_count
                     # print("ROOM PRICE INFANT", room_price)
                 # else:
                 #     room_price += 0
@@ -1274,9 +1305,11 @@ class RoomBooking(models.Model):
                 elif len(rate_details) > 1:
                     room_price += rate_details[0][_var] * record.room_count
                     # print("ROOM PRICE ADULT 1", room_price)
-                    room_price += rate_details[0][_var_child] * record.room_count
+                    room_price += rate_details[0][_var_child] * \
+                        record.room_count
                     # print("ROOM PRICE CHILD 1", room_price)
-                    room_price += rate_details[0][_var_infant] * record.room_count
+                    room_price += rate_details[0][_var_infant] * \
+                        record.room_count
                     # print("ROOM PRICE INFANT 1", room_price)
 
                 else:
@@ -1588,16 +1621,20 @@ class RoomBooking(models.Model):
                 if day == 0:  # First day logic
                     if every_night_value is None:
                         # Adjusted for room_count
-                        fixed_post_value = (first_night_value or 0) * record.room_count
+                        fixed_post_value = (
+                            first_night_value or 0) * record.room_count
                     elif first_night_value is None:
                         # Adjusted for room_count
-                        fixed_post_value = (every_night_value or 0) * record.room_count
+                        fixed_post_value = (
+                            every_night_value or 0) * record.room_count
                     else:
-                        fixed_post_value = (first_night_value + every_night_value) * record.room_count
+                        fixed_post_value = (
+                            first_night_value + every_night_value) * record.room_count
                 else:  # Other days
                     if every_night_value is None:
                         # Adjusted for room_count
-                        fixed_post_value = (first_night_value or 0) * record.room_count
+                        fixed_post_value = (
+                            first_night_value or 0) * record.room_count
                     else:
                         fixed_post_value = every_night_value * record.room_count
 
@@ -1678,7 +1715,7 @@ class RoomBooking(models.Model):
 
                 # total = before_discount - get_discount - room_price - meal_price
                 total = before_discount - get_discount - \
-                        room_price_after_discount - meal_price_after_discount
+                    room_price_after_discount - meal_price_after_discount
 
                 # meal_rates_get_discount = get_meal_rates + get_discount
                 # print("meal_rates_ge  t_discount", meal_rates_get_discount)
@@ -1898,8 +1935,8 @@ class RoomBooking(models.Model):
         if 'child_count' in vals and vals['child_count'] < 0:
             raise ValidationError("Child count cannot be less than zero.")
 
-        if 'infant_count' in vals and vals['infant_count'] < 0:
-            raise ValidationError("Infant count cannot be less than zero.")
+        # if 'infant_count' in vals and vals['infant_count'] < 0:
+        #     raise ValidationError("Infant count cannot be less than zero.")
 
         if 'checkin_date' in vals and not vals['checkin_date']:
             raise ValidationError(
@@ -2133,15 +2170,15 @@ class RoomBooking(models.Model):
             checkin_user_tz = fields.Datetime.context_timestamp(
                 self, self.checkin_date)
 
-            if checkin_user_tz < buffer_time:
-                # Reset to current time if invalid
-                self.checkin_date = fields.Datetime.to_string(current_time)
-                return {
-                    'warning': {
-                        'title': 'Invalid Date',
-                        'message': "Check-In Date cannot be in the past."
-                    }
-                }
+            # if checkin_user_tz < buffer_time:
+            #     # Reset to current time if invalid
+            #     self.checkin_date = fields.Datetime.to_string(current_time)
+            #     return {
+            #         'warning': {
+            #             'title': 'Invalid Date',
+            #             'message': "Check-In Date cannot be in the past."
+            #         }
+            #     }
 
             # Validate no_of_nights field
             # if not self.no_of_nights or self.no_of_nights < 0:
@@ -2159,7 +2196,7 @@ class RoomBooking(models.Model):
             else:
                 # Calculate checkout_date based on checkin_date and no_of_nights
                 self.checkout_date = self.checkin_date + \
-                                     timedelta(days=self.no_of_nights)
+                    timedelta(days=self.no_of_nights)
 
     # working
     # @api.onchange('checkin_date')
@@ -2983,28 +3020,39 @@ class RoomBooking(models.Model):
                     'default_booking_ids': future_bookings.mapped('id'),
                 }
             }
-        # Create invoices for eligible bookings
 
-        # if created_invoices:
-        #     return {
-        #         'type': 'ir.actions.act_window',
-        #         'name': 'Invoices',
-        #         'view_mode': 'form',
-        #         'view_type': 'form',
-        #         'res_model': 'account.move',
-        #         'view_id': self.env.ref('account.view_move_form').id,
-        #         'res_id': created_invoices[0].id,
-        #         'context': "{'create': False}"
-        #     }
-
-        # If no future bookings, continue directly with checkout
-        # return self._perform_bulk_checkout(eligible_bookings, today)
         self._perform_bulk_checkout(eligible_bookings, today)
+
+    #     return {
+    #     'type': 'ir.actions.client',
+    #     'tag': 'display_notification',
+    #     'params': {
+    #         'type': 'success',
+    #         'message': _("Booking Checked Out Successfully!"),
+    #         'next': {'type': 'ir.actions.act_window_close'},
+    #     }
+    # }
 
         # Update the dashboard after the function completes
         self.env.cr.commit()
         # self.retrieve_dashboard()
+        # return {
+        #     'type': 'ir.actions.act_window',
+        #     'name': 'Room Booking',
+        #     'res_model': 'room.booking',
+        #     'view_mode': 'tree,form',
+        #     'target': 'current',
+        # }
+        # Display a success notification
+
         return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'success',
+                'message': _("Booking Checked Out Successfully!"),
+            },
+        }, {
             'type': 'ir.actions.act_window',
             'name': 'Room Booking',
             'res_model': 'room.booking',
@@ -3282,64 +3330,59 @@ class RoomBooking(models.Model):
             if not record.room_line_ids:
                 record.action_split_rooms()
 
+            # 4) Check if there is any line in block state
+            block_line = record.room_line_ids.filtered(
+                lambda l: l.state_ == 'block')
+            if block_line:
+                # Open wizard for the first line in block
+                return {
+                    'name': _("Confirm Booking"),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'confirm.booking.wizard',
+                    'view_mode': 'form',
+                    'target': 'new',
+                    'context': {
+                        'default_message': _(
+                            "Room number will be released."
+                            "Do you want to proceed?"
+                        ),
+                        'default_line_id': block_line[0].id,
+                        'default_booking_id': record.id,
+                    },
+                }
+
+            # 5) If we reached here, there is NO line in block state => we can confirm now
             record.state = "confirmed"
 
+            # 6) Adjust availability
             for search_result in record.availability_results:
                 search_result.available_rooms -= search_result.rooms_reserved
 
-                # self._hotel_inventory_room_count(record.company_id.id, record.adult_count, search_result.room_type.id, "subtract")
+        return True
 
-            # Check for any lines in 'block' state
-            # 5) Check if there's at least one line in block state
-        #     block_lines = record.room_line_ids.filtered(lambda l: l.state_ == 'block')
-        #     if block_lines:
-        #         # DO NOT confirm the booking yet. Instead, show the wizard.
-        #         return {
-        #             'name': _("Confirm Booking"),
-        #             'type': 'ir.actions.act_window',
-        #             'res_model': 'confirm.booking.wizard',
-        #             'view_mode': 'form',
-        #             'target': 'new',
-        #             # Pass the "active_id" of this booking in context 
-        #             # so the wizard can find and update it
-        #             'context': {
-        #                 'default_message': _(
-        #                     "Room ID will be deleted for the line(s) in 'block' state. "
-        #                     "Do you want to proceed?"
-        #                 ),
-        #                 'default_line_id': block_lines[0].id,  # or pass all if needed
-        #                 'active_id': record.id,               # so wizard knows the booking
-        #             },
-        #         }
-        #     else:
-        #         # If no blocked lines, confirm immediately
-        #         record.state = "confirmed"
-        # return True
-    
-            # Update the state_ field in related room.booking.line records to 'confirmed'
-            for line in record.room_line_ids:
-                line.room_id = False
-                line.state_ = 'confirmed'
-                # Trigger the wizard for confirmation
-                # if line.state_ == 'block':
-                #     return {
-                #         'name': _("Confirm Booking"),
-                #         'type': 'ir.actions.act_window',
-                #         'res_model': 'confirm.booking.wizard',
-                #         'view_mode': 'form',
-                #         'target': 'new',
-                #         'context': {
-                #             'default_message': _("Room ID will be deleted for the line in 'block' state. Do you want to proceed?"),
-                #             'line_id': line.id,
-                #         },
-                #     }
+        # record.state = "confirmed"
 
-                # Update line state if not in block
-                # line.room_id = False
-                # line.state_ = 'confirmed'
+        # for search_result in record.availability_results:
+        #     search_result.available_rooms -= search_result.rooms_reserved
 
-
-    
+        # for line in record.room_line_ids:
+        #     line.room_id = False
+        #     line.state_ = 'confirmed'
+        # for line in record.room_line_ids:
+        #     return {
+        #         'name': _("Confirm Booking"),
+        #         'type': 'ir.actions.act_window',
+        #         'res_model': 'confirm.booking.wizard',
+        #         'view_mode': 'form',
+        #         'target': 'new',
+        #         'context': {
+        #             'default_message': _("Room ID will be deleted for the line in 'block' state. Do you want to proceed?"),
+        #             'default_line_id': line.id,
+        #             'default_booking_id': record.id,
+        #         },
+        #     }
+        # line.room_id = False
+        # line.state_ = 'confirmed'
 
     def action_waiting(self):
         today = datetime.now().date()
@@ -3731,16 +3774,16 @@ class RoomBooking(models.Model):
 
     passport = fields.Char(string='Passport', tracking=True)
     nationality = fields.Many2one(
-        'res.country', string='Nationality', tracking=True)
+        'res.country', string='Nationality', tracking=True, required=True)
     source_of_business = fields.Many2one(
-        'source.business', string='Source of Business', tracking=True)
+        'source.business', string='Source of Business', tracking=True, required=True)
     market_segment = fields.Many2one(
-        'market.segment', string='Market Segment', tracking=True)
+        'market.segment', string='Market Segment', tracking=True, required=True)
 
     rate_details = fields.One2many(
         'room.type.specific.rate', compute="_compute_rate_details", string="Rate Details")
     # rate_details = fields.One2many('rate.detail', compute="_compute_rate_details", string="Rate Details")
-    rate_code = fields.Many2one('rate.code', string='Rate Code', tracking=True)
+    rate_code = fields.Many2one('rate.code', string='Rate Code', tracking=True, required=True)
 
     monday_pax_1 = fields.Float(string="Monday (1 Pax)", tracking=True)
 
@@ -4294,7 +4337,7 @@ class RoomBooking(models.Model):
                             for move_line in account_move_line:
                                 if move_line['product_type'] == 'room' and booking_dict['name'] == move_line['name']:
                                     if booking_dict['price_unit'] == move_line['price_unit'] and booking_dict[
-                                        'quantity'] != move_line['quantity']:
+                                            'quantity'] != move_line['quantity']:
                                         booking_list.append({
                                             'name': room.room_id.name,
                                             "quantity": booking_dict['quantity'] - move_line['quantity'],
@@ -4347,21 +4390,21 @@ class RoomBooking(models.Model):
 
             # Assign computed amounts to the current record
             rec.amount_untaxed = amount_untaxed_food + amount_untaxed_room + \
-                                 amount_untaxed_fleet + amount_untaxed_event + amount_untaxed_service
+                amount_untaxed_fleet + amount_untaxed_event + amount_untaxed_service
             rec.amount_untaxed_food = amount_untaxed_food
             rec.amount_untaxed_room = amount_untaxed_room
             rec.amount_untaxed_fleet = amount_untaxed_fleet
             rec.amount_untaxed_event = amount_untaxed_event
             rec.amount_untaxed_service = amount_untaxed_service
             rec.amount_tax = amount_taxed_food + amount_taxed_room + \
-                             amount_taxed_fleet + amount_taxed_event + amount_taxed_service
+                amount_taxed_fleet + amount_taxed_event + amount_taxed_service
             rec.amount_taxed_food = amount_taxed_food
             rec.amount_taxed_room = amount_taxed_room
             rec.amount_taxed_fleet = amount_taxed_fleet
             rec.amount_taxed_event = amount_taxed_event
             rec.amount_taxed_service = amount_taxed_service
             rec.amount_total = amount_total_food + amount_total_room + \
-                               amount_total_fleet + amount_total_event + amount_total_service
+                amount_total_fleet + amount_total_event + amount_total_service
             rec.amount_total_food = amount_total_food
             rec.amount_total_room = amount_total_room
             rec.amount_total_fleet = amount_total_fleet
@@ -4754,28 +4797,29 @@ class RoomBooking(models.Model):
     def action_checkout(self):
         posting_item_meal, _1, _2, _3 = self.get_meal_rates(
             self.meal_pattern.id)
-        print(f"The Posting Item Meal is: {posting_item_meal}")
+        _logger.info(f"The Posting Item Meal is: {posting_item_meal}")
         # forecast_date = self.forecast_date  # Assuming this is set in your class
         record = self  # Assuming the current record is used as 'record'
         meal_price, room_price, package_price, posting_item_value, line_posting_items = self.get_all_prices(
             record.checkin_date, record)
-        print(f"Rate Posting Item: {posting_item_value}")
-        print(f"Line Posting Items: {line_posting_items}")
+        _logger.info(f"Rate Posting Item: {posting_item_value}")
+        _logger.info(f"Line Posting Items: {line_posting_items}")
         # if not self.posting_item_ids:
         #     raise ValidationError("You cannot proceed with checkout. Please add at least one Posting Item.")
 
         # today = fields.Date.context_today(self)
         today = datetime.now().date()
 
-        print(f"Debug: action_checkout called for Booking ID: {self.id}")
-        print(f"Debug: Today's date = {today}")
-        print(f"Debug: checkout_date = {self.checkout_date}")
+        _logger.info(
+            f"Debug: action_checkout called for Booking ID: {self.id}")
+        _logger.info(f"Debug: Today's date = {today}")
+        _logger.info(f"Debug: checkout_date = {self.checkout_date}")
 
         if not self.room_line_ids:
             raise ValidationError(_("Please Enter Room Details"))
         filtered_lines = [
             line for line in self.rate_forecast_ids if line.date == today]
-        print(
+        _logger.info(
             f"Debug: Number of filtered rate_forecast_ids lines = {len(filtered_lines)}")
         for line in filtered_lines:
             print(f"Rate Forecast Line ID: {line.id}")
@@ -5355,7 +5399,7 @@ class RoomBooking(models.Model):
     #         raise ValidationError('Adult count cannot be zero. Please enter a valid number of adults.')
 
     child_count = fields.Integer(string='Children', default=0, tracking=True)
-    infant_count = fields.Integer(string='Children', default=0, tracking=True)
+    infant_count = fields.Integer(string='Infant', default=0, tracking=True)
     child_ages = fields.One2many(
         'hotel.child.age', 'booking_id', string='Children Ages')
     total_people = fields.Integer(
@@ -5368,17 +5412,17 @@ class RoomBooking(models.Model):
     room_type_display = fields.Char(
         string="Room Types", compute="_compute_room_type_display", tracking=True)
 
-    room_price = fields.Float(string="Room Price", default=100, tracking=True)
+    room_price = fields.Float(string="Room Price", default=0, tracking=True)
     room_child_price = fields.Float(string="Room Child Price", tracking=True)
     room_infant_price = fields.Float(string="Room Infant Price", tracking=True)
-    meal_price = fields.Float(string="Meal Price", default=100, tracking=True)
-    meal_child_price = fields.Float(string="Meal Child Price", tracking=True)
+    meal_price = fields.Float(string="Meal Price", default=0, tracking=True)
+    meal_child_price = fields.Float(string="Meal Child Price", tracking=True, default=0)
     meal_infant_price = fields.Float(string="Meal Infant Price", tracking=True)
     # Discount Fields
     room_discount = fields.Float(
-        string="Room Discount", default=1, digits=(16, 2), tracking=True)
+        string="Room Discount", default=0, digits=(16, 2), tracking=True)
     meal_discount = fields.Float(
-        string="Meal Discount", default=1, tracking=True)
+        string="Meal Discount", default=0, tracking=True)
 
     def check_room_meal_validation(self, vals, is_write):
         _logger.info(f"VALIDATION STARTED: {vals}, IS_WRITE: {is_write}")
@@ -5388,8 +5432,8 @@ class RoomBooking(models.Model):
                 _logger.info(
                     f"USE ROOM PRICE {vals.get('use_price', record.use_price)}")
 
-                if vals.get('room_price', record.room_price) < 1:
-                    raise UserError("Room Price cannot be less than 1.")
+                if vals.get('room_price', record.room_price) < 0:
+                    raise UserError("Room Price cannot be less than 0.")
 
                 # if vals.get('child_count', record.child_count) > 0:
                 #     if vals.get('room_child_price', record.room_child_price) < 1:
@@ -5406,30 +5450,30 @@ class RoomBooking(models.Model):
                     if vals.get('room_discount', record.room_discount) * 100 < 1:
                         raise UserError("Room Discount cannot be less than 1.")
                 else:
-                    if vals.get('room_discount', record.room_discount) < 1:
-                        raise UserError("Room Discount cannot be less than 1.")
+                    if vals.get('room_discount', record.room_discount) < 0:
+                        raise UserError("Room Discount cannot be less than 0.")
 
             # Meal Price validation
             if vals.get('use_meal_price', record.use_meal_price):
-                if vals.get('meal_price', record.meal_price) < 1:
-                    raise UserError("Meal Price cannot be less than 1.")
+                if vals.get('meal_price', record.meal_price) < 0:
+                    raise UserError("Meal Price cannot be less than 0.")
 
                 if vals.get('child_count', record.child_count) > 0:
-                    if vals.get('meal_child_price', record.meal_child_price) < 1:
+                    if vals.get('meal_child_price', record.meal_child_price) < 0:
                         raise UserError(
-                            "Meal Child Price cannot be less than 1.")
+                            "Meal Child Price cannot be less than 0.")
 
-                if vals.get('infant_count', record.infant_count) > 0:
-                    if vals.get('meal_infant_price', record.meal_infant_price) < 1:
-                        raise UserError(
-                            "Meal Infant Price cannot be less than 1.")
+                # if vals.get('infant_count', record.infant_count) > 0:
+                #     if vals.get('meal_infant_price', record.meal_infant_price) < 1:
+                #         raise UserError(
+                #             "Meal Infant Price cannot be less than 1.")
 
                 if vals.get('meal_is_percentage', record.meal_is_percentage):
                     if vals.get('meal_discount', record.meal_discount) * 100 < 1:
                         raise UserError("Meal Discount cannot be less than 1.")
                 else:
-                    if vals.get('meal_discount', record.meal_discount) < 1:
-                        raise UserError("Meal Discount cannot be less than 1.")
+                    if vals.get('meal_discount', record.meal_discount) < 0:
+                        raise UserError("Meal Discount cannot be less than 0.")
 
         _logger.info("VALIDATION COMPLETED")
 
@@ -5477,9 +5521,9 @@ class RoomBooking(models.Model):
 
     # Discount Type Selection for Room
     room_is_amount = fields.Boolean(
-        string="Room Discount as Amount", default=True, tracking=True)
+        string="Room Discount(Amount)", default=True, tracking=True)
     room_is_percentage = fields.Boolean(
-        string="Room Discount as Percentage", default=False, tracking=True)
+        string="Room Discount(%)", default=False, tracking=True)
 
     room_discount_display = fields.Char(
         string="Room Discount Display", tracking=True)
@@ -6081,6 +6125,7 @@ class RoomBooking(models.Model):
         """Allocate rooms based on availability."""
         results = []
         remaining_rooms = room_count
+        today_date = datetime.today().strftime('%Y-%m-%d')
 
         for company in companies:
             loop_company_id = company['company_id'][0]
@@ -6116,7 +6161,8 @@ class RoomBooking(models.Model):
                         'entries': []
                     }
                 grouped_availabilities[room_type_id]['total_room_count'] += availability['total_room_count']
-                grouped_availabilities[room_type_id]['overbooking_rooms'] += availability['overbooking_rooms']  # Sum overbooking rooms
+                # Sum overbooking rooms
+                grouped_availabilities[room_type_id]['overbooking_rooms'] += availability['overbooking_rooms']
                 grouped_availabilities[room_type_id]['entries'].append(
                     availability)
 
@@ -6125,17 +6171,47 @@ class RoomBooking(models.Model):
                 #     availability['room_type']
 
                 # Exclude already allocated bookings from search
-                booked_rooms = self.env['room.booking.line'].search_count([
+                # booked_rooms = self.env['room.booking.line'].search_count([
+                #     ('hotel_room_type', '=', room_type_id),
+                #     ('booking_id.room_count', '=', 1),
+                #     # ('adult_count', '=', availability['pax']),
+                #     ('checkin_date', '<=', checkout_date),
+                #     ('checkout_date', '>=', checkin_date),
+                #     ('booking_id.state', 'in', [
+                #         'confirmed', 'check_in', 'block']),
+                #     # Exclude allocated lines
+                #     ('id', 'not in', self.env.context.get('already_allocated', []))
+                # ])
+                booked_rooms = self.env['room.booking'].search_count([
                     ('hotel_room_type', '=', room_type_id),
-                    ('booking_id.room_count', '=', 1),
+                    # ('booking_id.room_count', '=', 1),
                     # ('adult_count', '=', availability['pax']),
                     ('checkin_date', '<=', checkout_date),
                     ('checkout_date', '>=', checkin_date),
-                    ('booking_id.state', 'in', [
-                        'confirmed', 'check_in', 'block']),
+                    # ('checkout_date', '!=', today_date), 
+                    ('checkout_date', 'not like', today_date + '%'), 
+                    ('state', 'in', [
+                         'check_in', 'block']),
                     # Exclude allocated lines
                     ('id', 'not in', self.env.context.get('already_allocated', []))
                 ])
+
+                rooms_on_hold_count = self.env['rooms.on.hold.management.front.desk'].search_count([
+                    ('company_id', '=', self.env.company.id),
+                    ('room_type', '=', room_type_id),
+                    ('from_date', '<=', checkout_date),
+                    ('to_date', '>=', checkin_date)
+                ])
+
+                # Count out-of-order rooms for the current company and matching room type
+                out_of_order_rooms_count = self.env['out.of.order.management.fron.desk'].search_count([
+                    ('company_id', '=', self.env.company.id),
+                    ('room_type', '=', room_type_id),
+                    ('from_date', '<=', checkout_date),
+                    ('to_date', '>=', checkin_date)
+                ])
+                booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count
+
 
                 if availability['overbooking_allowed']:
                     available_rooms = max(
@@ -6277,6 +6353,8 @@ class RoomBooking(models.Model):
             # ('pax', '>=', adult_count),
         ]
 
+        today_date = datetime.today().strftime('%Y-%m-%d')
+
         if hotel_room_type_id:
             room_availabilities_domain.append(
                 ('room_type', '=', hotel_room_type_id))
@@ -6291,7 +6369,7 @@ class RoomBooking(models.Model):
                                                                        'overbooking_allowed', 'overbooking_rooms'],
                                                                       order='room_type ASC'
                                                                       )
-        
+
         grouped_availabilities = {}
 
         for availability in room_availabilities:
@@ -6306,7 +6384,8 @@ class RoomBooking(models.Model):
                     'entries': []
                 }
             grouped_availabilities[room_type_id]['total_room_count'] += availability['total_room_count']
-            grouped_availabilities[room_type_id]['overbooking_rooms'] += availability['overbooking_rooms']  # Sum overbooking rooms
+            # Sum overbooking rooms
+            grouped_availabilities[room_type_id]['overbooking_rooms'] += availability['overbooking_rooms']
             grouped_availabilities[room_type_id]['entries'].append(
                 availability)
             print('3245', grouped_availabilities)
@@ -6317,24 +6396,59 @@ class RoomBooking(models.Model):
             #     availability['room_type']
             # print('2666', room_type_id, availability['pax'], checkout_date, checkin_date)
             # Exclude already allocated bookings from search
-            booked_rooms = self.env['room.booking.line'].search_count([
-                ('hotel_room_type', '=', room_type_id),
-                # Include only bookings with room_count = 1
-                ('booking_id.room_count', '=', 1),
-                # ('adult_count', '=', availability['pax']),
-                ('checkin_date', '<=', checkout_date),  # Check-in date filter
-                ('checkout_date', '>=', checkin_date),  # Check-out date filter
-                # Booking state filter
-                ('booking_id.state', 'in', ['block', 'check_in']),
-                ('id', 'not in', self.env.context.get('already_allocated', []))
-                # ('hotel_room_type', '=', room_type_id),
-                # ('adult_count', '=', availability['pax']),
-                # ('checkin_date', '<', checkout_date),
-                # ('checkout_date', '>', checkin_date),
-                # ('state', 'in', ['confirmed', 'block', 'check_in']),
-                # ('id', 'not in', self.env.context.get('already_allocated', []))  # Exclude allocated lines
-            ])
+            # booked_rooms = self.env['room.booking.line'].search_count([
+            #     ('hotel_room_type', '=', room_type_id),
+            #     # Include only bookings with room_count = 1
+            #     ('booking_id.room_count', '=', 1),
+            #     # ('adult_count', '=', availability['pax']),
+            #     ('checkin_date', '<=', checkout_date),  # Check-in date filter
+            #     ('checkout_date', '>=', checkin_date),  # Check-out date filter
+            #     # Booking state filter
+            #     ('booking_id.state', 'in', ['block', 'check_in']),
+            #     ('id', 'not in', self.env.context.get('already_allocated', []))
+            #     # ('hotel_room_type', '=', room_type_id),
+            #     # ('adult_count', '=', availability['pax']),
+            #     # ('checkin_date', '<', checkout_date),
+            #     # ('checkout_date', '>', checkin_date),
+            #     # ('state', 'in', ['confirmed', 'block', 'check_in']),
+            #     # ('id', 'not in', self.env.context.get('already_allocated', []))  # Exclude allocated lines
+            # ])
             # print("line 2676",booked_rooms)
+
+            booked_rooms = self.env['room.booking'].search_count([
+                    ('hotel_room_type', '=', room_type_id),
+                    # ('booking_id.room_count', '=', 1),
+                    # ('adult_count', '=', availability['pax']),
+                    ('checkin_date', '<=', checkout_date),
+                    ('checkout_date', '>=', checkin_date),
+                    # ('checkout_date', '!=', today_date), 
+                    ('checkout_date', 'not like', today_date + '%'), 
+                    ('state', 'in', [
+                         'check_in', 'block']),
+                    # Exclude allocated lines
+                    ('id', 'not in', self.env.context.get('already_allocated', []))
+                ])
+            
+            rooms_on_hold_count = self.env['rooms.on.hold.management.front.desk'].search_count([
+                    ('company_id', '=', self.env.company.id),
+                    ('room_type', '=', room_type_id),
+                    ('from_date', '<=', checkout_date),
+                    ('to_date', '>=', checkin_date)
+                ])
+
+            # Count out-of-order rooms for the current company and matching room type
+            out_of_order_rooms_count = self.env['out.of.order.management.fron.desk'].search_count([
+                    ('company_id', '=', self.env.company.id),
+                    ('room_type', '=', room_type_id),
+                    ('from_date', '<=', checkout_date),
+                    ('to_date', '>=', checkin_date)
+                ])
+            
+            booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count
+            
+            print("line 6408",booked_rooms)
+
+            
 
             if availability['overbooking_allowed']:
                 available_rooms = max(
@@ -6615,6 +6729,7 @@ class RoomBooking(models.Model):
     #         booking._compute_show_in_tree()
 
     def action_clear_rooms(self):
+        print('inside clear')
         clear_search_results = self.env.context.get(
             'clear_search_results', False)
 
@@ -6630,11 +6745,14 @@ class RoomBooking(models.Model):
                 [('room_booking_id', '=', booking.id)]).unlink()
 
             # Clear search results only if the flag is True
-            if clear_search_results:
-                search_results = self.env['room.availability.result'].search(
-                    [('room_booking_id', '=', booking.id)])
+            # if clear_search_results:
+            search_results = self.env['room.availability.result'].search(
+                [('room_booking_id', '=', booking.id)])
+            if search_results:
                 search_results.unlink()
+                print('6750', search_results)
             booking.write({'state': 'not_confirmed'})
+        print('outside clear')
 
     def action_split_rooms(self):
         for booking in self:
@@ -6666,8 +6784,11 @@ class RoomBooking(models.Model):
 
             partner_name = booking.partner_id.name or ""
             name_parts = partner_name.split()  # Split the name by spaces
-            first_name = name_parts[0] if len(name_parts) > 0 else ""
-            last_name = name_parts[1] if len(name_parts) > 1 else ""
+            # first_name = name_parts[0] if len(name_parts) > 0 else ""
+            # last_name = name_parts[1] if len(name_parts) > 1 else ""
+            # Assign first and last names
+            first_name = name_parts[0] if name_parts else ""  # First part as first_name
+            last_name = name_parts[-1] if len(name_parts) > 1 else ""  # Last part as last_name
 
             # Loop through each availability result and process room lines
             for result in availability_results:
@@ -6709,7 +6830,7 @@ class RoomBooking(models.Model):
                     child_inserts.append((
                         booking.id,
                         result.room_type.id,
-                        first_name, last_name, '', '', '', '', '', '', '', '', '',  # Empty fields
+                        '', '', '', '', '', '', '', '', '', '', '',  # Empty fields
                     ))
 
                 # Append new infant records for this room
@@ -6718,7 +6839,7 @@ class RoomBooking(models.Model):
                     infant_inserts.append((
                         booking.id,
                         result.room_type.id,
-                        first_name, last_name, '', '', '', '', '', '', '', '', '',  # Empty fields
+                        '', '', '', '', '', '', '', '', '', '', '',  # Empty fields
                     ))
 
                 # Mark this record as split
@@ -7248,7 +7369,7 @@ class ResPartner(models.Model):
     market_segments = fields.Many2one(
         'market.segment', string="Market Segment", tracking=True)
     meal_pattern = fields.Many2one(
-        'meal.pattern', string="Meal Pattern", tracking=True)
+        'meal.pattern', string="Meal Pattern", tracking=True, required=True)
     max_pax = fields.Integer(string="Max Room", tracking=True)
 
     hashed_password = fields.Char(string="Hashed Password")
@@ -7711,8 +7832,8 @@ class RoomAvailabilityResult(models.Model):
                         'reservation_id': booking.room_booking_id.id,
                         'room_type_id': result.room_type.id,
                         'room_sequence': room_idx + counter,
-                        'first_name': first_name,
-                        'last_name': last_name,
+                        'first_name': '',
+                        'last_name': '',
                         'profile': '',
                         'nationality': '',
                         'passport_number': '',
@@ -7730,8 +7851,8 @@ class RoomAvailabilityResult(models.Model):
                         'reservation_id': booking.room_booking_id.id,
                         'room_type_id': result.room_type.id,
                         'room_sequence': room_idx + counter,
-                        'first_name': first_name,
-                        'last_name': last_name,
+                        'first_name': '',
+                        'last_name': '',
                         'profile': '',
                         'nationality': '',
                         'passport_number': '',
@@ -8015,12 +8136,51 @@ class RoomBookingPostingItem(models.Model):
         required=True,
         help="Reference to the room booking."
     )
+    # posting_item_id = fields.Many2one(
+    #     'posting.item',
+    #     string="Posting Item",
+    #     required=True,
+    #     help="The posting item linked to this booking."
+    # )
+
+#     posting_item_id = fields.Many2one(
+#     'posting.item',
+#     string="Posting Item",
+#     required=True,
+#     domain="[('main_department', '!=', False), '|', ('main_department.charge_room', '=', True), '|', ('main_department.charge_food', '=', True), '|', ('main_department.charge_beverage', '=', True), '|', ('main_department.charge_telephone', '=', True), ('main_department.charge_other', '=', True)]",
+#     help="The posting item linked to this booking, filtered by department settings."
+# )
     posting_item_id = fields.Many2one(
         'posting.item',
         string="Posting Item",
         required=True,
-        help="The posting item linked to this booking."
+         domain="""[
+            ('main_department', '!=', False),
+            ('main_department.charge_type', '!=', False)
+        ]""",
+        # domain="""[
+        #     ('main_department', '!=', False),
+        #     '|', '|', '|', '|', '|', '|', '|',
+        #     ('main_department.charge_room', '=', True),
+        #     ('main_department.charge_food', '=', True),
+        #     ('main_department.charge_beverage', '=', True),
+        #     ('main_department.charge_telephone', '=', True),
+        #     ('main_department.charge_other', '=', True),
+        #     ('main_department.payment_cash', '=', True),
+        #     ('main_department.payment_credit_card', '=', True),
+        #     '|', '|', '|',
+        #     ('main_department.payment_other', '=', True),
+        #     ('main_department.tax_service_charge', '=', True),
+        #     ('main_department.tax_vat', '=', True),
+        #     '|',
+        #     ('main_department.tax_other', '=', True),
+        #     ('main_department.tax_municipality', '=', True)
+        # ]""",
+        help="The posting item linked to this booking, filtered by department settings."
     )
+
+
+
     item_code = fields.Char(string="Item Code")
     description = fields.Char(string="Description")
     # posting_item_selection = fields.Selection(
@@ -8040,6 +8200,16 @@ class RoomBookingPostingItem(models.Model):
     )
     from_date = fields.Datetime(string="From Date")
     to_date = fields.Datetime(string="To Date")
+
+    @api.constrains('posting_item_selection', 'from_date', 'to_date')
+    def _check_custom_date_required_fields(self):
+        for record in self:
+            if record.posting_item_selection == 'custom_date':
+                if not record.from_date or not record.to_date:
+                    raise exceptions.ValidationError(
+                        "Both 'From Date' and 'To Date' are required when 'Custom Date' is selected."
+                    )
+
     default_value = fields.Float(string="Default Value")
 
     @api.constrains('posting_item_id', 'booking_id')
@@ -8635,44 +8805,34 @@ class ConfirmBookingWizard(models.TransientModel):
     _description = "Confirm Booking Wizard"
 
     message = fields.Text(string="Confirmation Message", readonly=True)
-    line_id = fields.Many2one('room.booking.line', string="Room Line", readonly=True)
+    line_id = fields.Many2one(
+        'room.booking.line', string="Room Line", readonly=True)
+    booking_id = fields.Many2one(
+        'room.booking', string="Booking", readonly=True)
+
+    # def action_confirm(self):
+    #     self.line.room_id = False
+    #     self.line_id.state_ = 'confirmed'
+    #     return {'type': 'ir.actions.act_window_close'}
 
     def action_confirm(self):
-        """
-        YES button: 
-        - Clear all lines in 'block' state: set room_id=False, state_='confirmed'.
-        - Then confirm the booking (booking.state='confirmed') if no lines remain blocked.
-        """
-        booking_id = self._context.get('active_id')
-        booking = self.env['room.booking'].browse(booking_id)
-        if not booking:
-            return {'type': 'ir.actions.act_window_close'}
-
-        # Find all 'block' lines
-        block_lines = booking.room_line_ids.filtered(
-            lambda l: l.state_ == 'block')
-        if block_lines:
-            # Un-block them: clear room_id and set state_ to 'confirmed'
-            block_lines.write({
-                'room_id': False,
-                'state_': 'confirmed'
-            })
-
-        # Check if any line is still blocked (unlikely, but just in case)
-        still_blocked = booking.room_line_ids.filtered(
-            lambda l: l.state_ == 'block')
-        if not still_blocked:
-            # If no lines are blocked now, confirm the booking
-            booking.state = "confirmed"
-
-        # Close the wizard
+        """YES button: if the line is in 'block' state,
+           set room_id to False and change state to 'confirmed'."""
+        if self.line_id and self.line_id.state_ == 'block':
+            self.line_id.room_id = False
+            self.line_id.state_ = 'confirmed'
         return {'type': 'ir.actions.act_window_close'}
 
-    def action_cancel(self):
-        """
-        NO button:
-        - DO NOT confirm the booking
-        - DO NOT modify anything
-        - Just close the wizard
-        """
+    def action_block(self):
+        # self.line_id.state_ = 'block'
+        # self.booking_id.state = 'block'
         return {'type': 'ir.actions.act_window_close'}
+
+    # def action_cancel(self):
+    #     """
+    #     NO button:
+    #     - DO NOT confirm the booking
+    #     - DO NOT modify anything
+    #     - Just close the wizard
+    #     """
+    #     return {'type': 'ir.actions.act_window_close'}

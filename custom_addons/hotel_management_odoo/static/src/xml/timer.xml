@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
+<!-- <templates xml:space="preserve">
     <t t-name="hotel_management_odoo.TimerWidget" owl="1">
         <div class="header-timer">
-            <!-- <span id="current-time" class="o_current_time" t-esc="state.currentTime"/> -->
             <span id="current-date" class="o_current_date" t-esc="state.currentDate"/>
+        </div>
+    </t>
+</templates> -->
 
+<!-- <templates xml:space="preserve">
+    <t t-name="hotel_management_odoo.TimerWidget" owl="1">
+        <div class="header-timer">
+            <span id="system-date" class="o_system_date" t-esc="state.systemDate" />
+        </div>
+    </t>
+</templates> -->
+<templates xml:space="preserve">
+    <t t-name="hotel_management_odoo.TimerWidget" owl="1">
+        <div class="o_timer_widget">
+            <span t-if="state.systemDate" class="fa fa-clock-o me-1"/>
+            <t t-esc="state.systemDate"/>
         </div>
     </t>
 </templates>

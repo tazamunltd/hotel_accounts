@@ -70,13 +70,73 @@
         <field name="model">rate.category</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="category" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_rate_category_kanban" model="ir.ui.view">
+        <field name="name">rate.category.kanban</field>
+        <field name="model">rate.category</field>
+        <field name="arch" type="xml">
+            <kanban string="Rate Categories">
                 <field name="category"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="category"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+    <record id="view_rate_category_pivot" model="ir.ui.view">
+        <field name="name">rate.category.pivot</field>
+        <field name="model">rate.category</field>
+        <field name="arch" type="xml">
+            <pivot string="Rate Categories">
+                <field name="category" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="view_rate_category_graph" model="ir.ui.view">
+        <field name="name">rate.category.graph</field>
+        <field name="model">rate.category</field>
+        <field name="arch" type="xml">
+            <graph string="Rate Categories" type="bar">
+                <field name="category" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_rate_category_search" model="ir.ui.view">
+        <field name="name">rate.category.search</field>
+        <field name="model">rate.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Rate Categories">
+                <field name="category" string="Category" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+            </search>
+        </field>
+    </record>
+
 
     <!-- Form View -->
     <record id="view_rate_category_form" model="ir.ui.view">
@@ -90,6 +150,10 @@
                     <field name="abbreviation"/>
                     <field name="user_sort"/>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                 </div>
             </form>
         </field>
     </record>
@@ -139,12 +203,12 @@
         <field name="model">rate.code</field>
         <field name="arch" type="xml">
             <tree string="Rate Codes">
-                <field name="code"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="arabic_desc"/>
-                <field name="arabic_abbr"/>
-                <field name="rate_code_category_id"/>
+                <field name="code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="arabic_desc" optional='show'/>
+                <field name="arabic_abbr" optional='show'/>
+                <field name="rate_code_category_id" optional='show'/>
             </tree>
         </field>
     </record>
@@ -158,8 +222,85 @@
                 <field name="currency_id" type="row"/>
                 <field name="include_meals" type="row"/>
                 <field name="rhythm" type="row"/>
-                <field name="exchange_rate" type="measure"/>
+                <!-- <field name="exchange_rate" type="measure"/> -->
             </pivot>
+        </field>
+    </record>
+
+    <record id="view_rate_code_graph" model="ir.ui.view">
+        <field name="name">rate.code.graph</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <graph string="Rate Code Analysis">
+                <field name="rate_code_category_id" type="row"/>
+                <field name="code" type="col"/>
+                <field name="currency_id" type="row"/>
+                <!-- Add this field if relevant -->
+                <!-- <field name="exchange_rate" type="measure"/> Replace with a numeric field -->
+            </graph>
+        </field>
+    </record>
+    <!-- <record id="view_rate_code_calendar" model="ir.ui.view">
+        <field name="name">rate.code.calendar</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <calendar string="Rate Codes" date_start="start_date" date_stop="end_date" color="rate_code_category_id">
+                <field name="code"/>
+                <field name="description"/>
+            </calendar>
+        </field>
+    </record> -->
+
+    <record id="view_rate_code_search" model="ir.ui.view">
+        <field name="name">rate.code.search</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Rate Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="arabic_desc"/>
+                <field name="arabic_abbr"/>
+                <field name="rate_code_category_id"/>
+                <!-- <filter string="Has Description" domain="[('description', '!=', False)]"/>
+                <filter string="Arabic Desc" domain="[('arabic_desc', '!=', False)]"/> -->
+            </search>
+        </field>
+    </record>
+
+    <record id="view_rate_code_kanban" model="ir.ui.view">
+        <field name="name">rate.code.kanban</field>
+        <field name="model">rate.code</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_view">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="arabic_desc"/>
+                <field name="arabic_abbr"/>
+                <field name="rate_code_category_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_details">
+                                <strong t-esc="record.code.value"/>
+                                <div t-if="record.description.value">
+                                    <span>Description: </span>
+                                    <span t-esc="record.description.value"/>
+                                </div>
+                                <div t-if="record.abbreviation.value">
+                                    <span>Abbreviation: </span>
+                                    <span t-esc="record.abbreviation.value"/>
+                                </div>
+                                <div t-if="record.rate_code_category_id.value">
+                                    <span>Category: </span>
+                                    <span t-esc="record.rate_code_category_id.value"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -169,7 +310,7 @@
         <field name="name">Rate Codes</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">rate.code</field>
-        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
     </record>
 
 
@@ -179,15 +320,15 @@
         <field name="model">rate.detail</field>
         <field name="arch" type="xml">
             <tree string="Rate Details">
-                <field name="rate_code_id"/>
-                <field name="from_date"/>
-                <field name="to_date"/>
-                <field name="pax_1"/>
-                <field name="pax_2"/>
-                <field name="pax_3"/>
-                <field name="pax_4"/>
-                <field name="pax_5"/>
-                <field name="pax_6"/>
+                <field name="rate_code_id" optional='show'/>
+                <field name="from_date" optional='show'/>
+                <field name="to_date" optional='show'/>
+                <field name="pax_1" optional='show'/>
+                <field name="pax_2" optional='show'/>
+                <field name="pax_3" optional='show'/>
+                <field name="pax_4" optional='show'/>
+                <field name="pax_5" optional='show'/>
+                <field name="pax_6" optional='show'/>
             </tree>
         </field>
     </record>
@@ -207,8 +348,11 @@
                         <page string="Main">
                             <group>
                                 <field name="rate_code_id" readonly="1"/>
-                                <field name="from_date"/>
-                                <field name="to_date"/>
+                                <!-- <field name="from_date"/> -->
+                                <!-- <field name="to_date"/> -->
+                                <field name="from_date" widget="date" options="{'format': 'dd/mm/yyyy'}"/>
+                                <field name="to_date" widget="date" options="{'format': 'dd/mm/yyyy'}"/>
+
                                 <field name="posting_item"/>
                                 <!-- <field name="taxes"/> -->
                             </group>
@@ -956,7 +1100,7 @@
                             <group>
                                 <field name="adult_meal_rate" invisible="customize_meal == 'meal_pattern'"/>
                                 <field name="child_meal_rate" invisible="customize_meal == 'meal_pattern'"/>
-                                <field name="infant_meal_rate" invisible="customize_meal == 'meal_pattern'"/>
+                                <!-- <field name="infant_meal_rate" invisible="customize_meal == 'meal_pattern'"/> -->
                             </group>
                         </page>
 
@@ -1030,6 +1174,116 @@
         </field>
     </record>
 
+    <record id="view_rate_detail_graph" model="ir.ui.view">
+        <field name="name">rate.detail.graph</field>
+        <field name="model">rate.detail</field>
+        <field name="arch" type="xml">
+            <graph string="Rate Details">
+                <field name="rate_code_id" type="row"/>
+                <field name="from_date" type="col"/>
+                <field name="pax_1" type="measure"/>
+                <field name="pax_2" type="measure"/>
+                <field name="pax_3" type="measure"/>
+                <field name="pax_4" type="measure"/>
+                <field name="pax_5" type="measure"/>
+                <field name="pax_6" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    <record id="view_rate_detail_calendar" model="ir.ui.view">
+        <field name="name">rate.detail.calendar</field>
+        <field name="model">rate.detail</field>
+        <field name="arch" type="xml">
+            <calendar string="Rate Details" date_start="from_date" date_stop="to_date" color="rate_code_id">
+                <field name="rate_code_id"/>
+                <field name="pax_1"/>
+                <field name="pax_2"/>
+                <field name="pax_3"/>
+                <field name="pax_4"/>
+                <field name="pax_5"/>
+                <field name="pax_6"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_rate_detail_kanban" model="ir.ui.view">
+        <field name="name">rate.detail.kanban</field>
+        <field name="model">rate.detail</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_view">
+                <field name="rate_code_id"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <field name="pax_1"/>
+                <field name="pax_2"/>
+                <field name="pax_3"/>
+                <field name="pax_4"/>
+                <field name="pax_5"/>
+                <field name="pax_6"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click" t-attf-data-id="{{ record.id }}">
+                            <div class="oe_kanban_details">
+                                <strong t-esc="record.rate_code_id.value"/>
+                                <div>
+                                    <span>From: </span>
+                                    <span t-esc="record.from_date.value"/>
+                                </div>
+                                <div>
+                                    <span>To: </span>
+                                    <span t-esc="record.to_date.value"/>
+                                </div>
+                                <div>
+                                    <span>Pax 1: </span>
+                                    <span t-esc="record.pax_1.value"/>
+                                </div>
+                                <div>
+                                    <span>Pax 2: </span>
+                                    <span t-esc="record.pax_2.value"/>
+                                </div>
+                                <div>
+                                    <span>Pax 3: </span>
+                                    <span t-esc="record.pax_3.value"/>
+                                </div>
+                                <div>
+                                    <span>Pax 4: </span>
+                                    <span t-esc="record.pax_4.value"/>
+                                </div>
+                                <div>
+                                    <span>Pax 5: </span>
+                                    <span t-esc="record.pax_5.value"/>
+                                </div>
+                                <div>
+                                    <span>Pax 6: </span>
+                                    <span t-esc="record.pax_6.value"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+    <record id="view_rate_detail_search" model="ir.ui.view">
+        <field name="name">rate.detail.search</field>
+        <field name="model">rate.detail</field>
+        <field name="arch" type="xml">
+            <search string="Search Rate Details">
+                <field name="rate_code_id"/>
+                <field name="from_date" filter_domain="[('from_date', '&gt;=', self)]"/>
+                <field name="to_date" filter_domain="[('to_date', '&lt;=', self)]"/>
+                <field name="pax_1"/>
+                <field name="pax_2"/>
+                <field name="pax_3"/>
+                <field name="pax_4"/>
+                <field name="pax_5"/>
+                <field name="pax_6"/>
+            </search>
+        </field>
+    </record>
+
     <record id="action_rate_code_details" model="ir.actions.act_window">
         <field name="name">Rate Code Details</field>
         <field name="type">ir.actions.act_window</field>
@@ -1043,13 +1297,13 @@
         <field name="model">room.type.specific.rate</field>
         <field name="arch" type="xml">
             <tree string="Room Type Specific Rates">
-                <field name="room_type_id"/>
-                <field name="pax_1"/>
-                <field name="pax_2"/>
-                <field name="pax_3"/>
-                <field name="pax_4"/>
-                <field name="pax_5"/>
-                <field name="pax_6"/>
+                <field name="room_type_id" optional='show'/>
+                <field name="pax_1" optional='show'/>
+                <field name="pax_2" optional='show'/>
+                <field name="pax_3" optional='show'/>
+                <field name="pax_4" optional='show'/>
+                <field name="pax_5" optional='show'/>
+                <field name="pax_6" optional='show'/>
             </tree>
         </field>
     </record>
@@ -1356,14 +1610,14 @@
         <field name="model">room.number.specific.rate</field>
         <field name="arch" type="xml">
             <tree string="Room Number Specific Rates">
-                <field name="room_number"/>
-                <field name="room_fsm_location"/>
-                <field name="pax_1"/>
-                <field name="pax_2"/>
-                <field name="pax_3"/>
-                <field name="pax_4"/>
-                <field name="pax_6"/>
-                <field name="pax_4"/>
+                <field name="room_number" optional='show'/>
+                <field name="room_fsm_location" optional='show'/>
+                <field name="pax_1" optional='show'/>
+                <field name="pax_2" optional='show'/>
+                <field name="pax_3" optional='show'/>
+                <field name="pax_4" optional='show'/>
+                <field name="pax_6" optional='show'/>
+                <field name="pax_4" optional='show'/>
             </tree>
         </field>
     </record>
@@ -1692,6 +1946,10 @@
                     <field name="valid_from"/>
                     <field name="valid_to"/>
                 </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                 </div>
             </form>
         </field>
     </record>
@@ -1725,6 +1983,10 @@
                     <field name="abbreviation"/>
                     <field name="user_sort"/>
                 </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -1735,13 +1997,72 @@
         <field name="model">market.category</field>
         <field name="arch" type="xml">
             <tree string="Market Categories">
+                <field name="market_category" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_market_category_kanban" model="ir.ui.view">
+        <field name="name">market.category.kanban</field>
+        <field name="model">market.category</field>
+        <field name="arch" type="xml">
+            <kanban string="Market Categories">
                 <field name="market_category"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="market_category"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+
+    <record id="view_market_category_pivot" model="ir.ui.view">
+        <field name="name">market.category.pivot</field>
+        <field name="model">market.category</field>
+        <field name="arch" type="xml">
+            <pivot string="Market Categories">
+                <field name="market_category" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="view_market_category_graph" model="ir.ui.view">
+        <field name="name">market.category.graph</field>
+        <field name="model">market.category</field>
+        <field name="arch" type="xml">
+            <graph string="Market Categories" type="bar">
+                <field name="market_category" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_market_category_search" model="ir.ui.view">
+        <field name="name">market.category.search</field>
+        <field name="model">market.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Market Categories">
+                <field name="market_category" string="Market Category" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+            </search>
+        </field>
+    </record>
+
 
     <record id="view_market_segment_form" model="ir.ui.view">
         <field name="name">market.segment.form</field>
@@ -1766,15 +2087,83 @@
         <field name="model">market.segment</field>
         <field name="arch" type="xml">
             <tree string="Market Segments">
+                <field name="market_segment" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="category" optional='show'/>
+                <field name="user_sort" optional='show'/>
+                <field name="obsolete" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_market_segment_kanban" model="ir.ui.view">
+        <field name="name">market.segment.kanban</field>
+        <field name="model">market.segment</field>
+        <field name="arch" type="xml">
+            <kanban string="Market Segments">
                 <field name="market_segment"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="category"/>
                 <field name="user_sort"/>
                 <field name="obsolete"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="market_segment"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>Category: <field name="category"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                            <div>Obsolete: <field name="obsolete"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+    <record id="view_market_segment_pivot" model="ir.ui.view">
+        <field name="name">market.segment.pivot</field>
+        <field name="model">market.segment</field>
+        <field name="arch" type="xml">
+            <pivot string="Market Segments">
+                <field name="market_segment" type="row"/>
+                <field name="category" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_market_segment_graph" model="ir.ui.view">
+        <field name="name">market.segment.graph</field>
+        <field name="model">market.segment</field>
+        <field name="arch" type="xml">
+            <graph string="Market Segments" type="bar">
+                <field name="market_segment" type="row"/>
+                <field name="category" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_market_segment_search" model="ir.ui.view">
+        <field name="name">market.segment.search</field>
+        <field name="model">market.segment</field>
+        <field name="arch" type="xml">
+            <search string="Search Market Segments">
+                <field name="market_segment" string="Market Segment" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="category" string="Category" />
+                <field name="user_sort" string="User Sort" />
+                <field name="obsolete" string="Obsolete" />
+            </search>
+        </field>
+    </record>
+
 
     <record id="view_source_business_form" model="ir.ui.view">
         <field name="name">source.business.form</field>
@@ -1788,6 +2177,10 @@
                     <field name="user_sort"/>
                     <field name="obsolete"/>
                 </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -1798,14 +2191,79 @@
         <field name="model">source.business</field>
         <field name="arch" type="xml">
             <tree string="Source of Business">
+                <field name="source" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+                <field name="obsolete" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_source_business_kanban" model="ir.ui.view">
+        <field name="name">source.business.kanban</field>
+        <field name="model">source.business</field>
+        <field name="arch" type="xml">
+            <kanban string="Source of Business">
                 <field name="source"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>
                 <field name="obsolete"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="source"/></strong>
+                            <div>Description: <field name="description"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                            <div>Obsolete: <field name="obsolete"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+
+    <record id="view_source_business_pivot" model="ir.ui.view">
+        <field name="name">source.business.pivot</field>
+        <field name="model">source.business</field>
+        <field name="arch" type="xml">
+            <pivot string="Source of Business">
+                <field name="source" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_source_business_graph" model="ir.ui.view">
+        <field name="name">source.business.graph</field>
+        <field name="model">source.business</field>
+        <field name="arch" type="xml">
+            <graph string="Source of Business" type="bar">
+                <field name="source" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_source_business_search" model="ir.ui.view">
+        <field name="name">source.business.search</field>
+        <field name="model">source.business</field>
+        <field name="arch" type="xml">
+            <search string="Search Source of Business">
+                <field name="source" string="Source" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+                <field name="obsolete" string="Obsolete" />
+            </search>
+        </field>
+    </record>
+
 
     <record id="view_company_category_form" model="ir.ui.view">
         <field name="name">company.category.form</field>
@@ -1818,6 +2276,7 @@
                     <field name="abbreviation"/>
                     <field name="user_sort"/>
                 </group>
+                
             </form>
         </field>
     </record>
@@ -1828,10 +2287,10 @@
         <field name="model">company.category</field>
         <field name="arch" type="xml">
             <tree string="Company Categories">
-                <field name="category"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="user_sort"/>
+                <field name="category" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
             </tree>
         </field>
     </record>
@@ -1848,6 +2307,10 @@
                     <field name="abbreviation"/>
                     <field name="user_sort"/>
                 </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -1858,13 +2321,73 @@
         <field name="model">country.region</field>
         <field name="arch" type="xml">
             <tree string="Country Regions">
+                <field name="country_ids" optional='show'/>
+                <field name="Region" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_country_region_kanban" model="ir.ui.view">
+        <field name="name">country.region.kanban</field>
+        <field name="model">country.region</field>
+        <field name="arch" type="xml">
+            <kanban string="Country Regions">
                 <field name="country_ids"/>
                 <field name="Region"/>
                 <field name="abbreviation"/>
                 <field name="user_sort"/>
-            </tree>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong><field name="Region"/></strong>
+                            <div>Countries: <field name="country_ids"/></div>
+                            <div>Abbreviation: <field name="abbreviation"/></div>
+                            <div>User Sort: <field name="user_sort"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
+    <record id="view_country_region_pivot" model="ir.ui.view">
+        <field name="name">country.region.pivot</field>
+        <field name="model">country.region</field>
+        <field name="arch" type="xml">
+            <pivot string="Country Regions">
+                <field name="Region" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="view_country_region_graph" model="ir.ui.view">
+        <field name="name">country.region.graph</field>
+        <field name="model">country.region</field>
+        <field name="arch" type="xml">
+            <graph string="Country Regions" type="bar">
+                <field name="Region" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="user_sort" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+
+
+    <record id="view_country_region_search" model="ir.ui.view">
+        <field name="name">country.region.search</field>
+        <field name="model">country.region</field>
+        <field name="arch" type="xml">
+            <search string="Search Country Regions">
+                <field name="country_ids" string="Country" />
+                <field name="Region" string="Region" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="user_sort" string="User Sort" />
+            </search>
+        </field>
+    </record>
+
 
     <!-- Form View for Reservation Status Code -->
     <record id="view_reservation_status_code_form" model="ir.ui.view">
@@ -1882,6 +2405,10 @@
                 <group>
                     <field name="count_as"/>
                 </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -1892,11 +2419,11 @@
         <field name="model">reservation.status.code</field>
         <field name="arch" type="xml">
             <tree string="Reservation Status Codes">
-                <field name="reservation"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="user_sort"/>
-                <field name="count_as"/>
+                <field name="reservation" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+                <field name="count_as" optional='show'/>
             </tree>
         </field>
     </record>
@@ -1914,6 +2441,10 @@
                     <field name="user_sort"/>
                     <field name="obsolete"/>
                 </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -1950,7 +2481,12 @@
                     <field name="user_sort"/>
                     <field name="obsolete"/>
                 </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
+
         </field>
     </record>
 
@@ -1980,6 +2516,10 @@
                     <field name="country_code" readonly="1"/>
                     <field name="phone_code" readonly="1"/>
                 </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                    </div>
             </form>
         </field>
     </record>
@@ -1990,9 +2530,9 @@
         <field name="model">country.code</field>
         <field name="arch" type="xml">
             <tree string="Country Codes">
-                <field name="country_id"/>
-                <field name="country_code"/>
-                <field name="phone_code"/>
+                <field name="country_id" optional='show'/>
+                <field name="country_code" optional='show'/>
+                <field name="phone_code" optional='show'/>
             </tree>
         </field>
     </record>

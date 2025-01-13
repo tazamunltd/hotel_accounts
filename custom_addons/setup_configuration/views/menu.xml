@@ -24,14 +24,14 @@
      <record id="action_rate_category" model="ir.actions.act_window">
         <field name="name">Rate Category</field>
         <field name="res_model">rate.category</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
     </record>
 
-    <record id="action_rate_code" model="ir.actions.act_window">
+    <!-- <record id="action_rate_code" model="ir.actions.act_window">
         <field name="name">Rate Code</field>
         <field name="res_model">rate.code</field>
         <field name="view_mode">tree,form</field>
-    </record>
+    </record> -->
 
     <!-- Action for Rate Promotion -->
     <record id="action_rate_promotion" model="ir.actions.act_window">
@@ -44,7 +44,7 @@
     <record id="action_market_category" model="ir.actions.act_window">
         <field name="name">Market Categories</field>
         <field name="res_model">market.category</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Click to create a new market category.
@@ -56,7 +56,7 @@
     <record id="action_market_segment" model="ir.actions.act_window">
         <field name="name">Market Segments</field>
         <field name="res_model">market.segment</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Click to create a new market segment.
@@ -68,7 +68,7 @@
     <record id="action_source_business" model="ir.actions.act_window">
         <field name="name">Source of Business</field>
         <field name="res_model">source.business</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
     </record>
 
     <!-- Action for Company Category -->
@@ -82,7 +82,7 @@
     <record id="action_country_region" model="ir.actions.act_window">
         <field name="name">Country Regions</field>
         <field name="res_model">country.region</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
     </record>
 
     <!-- Action for Reservation Status Code -->

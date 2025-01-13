@@ -27,22 +27,23 @@ class DeletedReservationReport(models.Model):
     date_order = fields.Date(string='Date Order')
     room_type_name = fields.Char(string='Room Type Name')
     state = fields.Selection([
-        ('reserved', 'Reserved'),
+        ('not_confirmed', 'Not Confirmed'),
         ('cancelled', 'Cancelled'),
         ('no_show', 'No Show'),
         ('deleted_reservations', 'Deleted Reservations'),  # Ensure this is included
     ], string='State', required=True)
     original_state = fields.Selection([
-        ('confirmed', 'Confirmed'),
-        ('block', 'Blocked'),
         ('not_confirmed', 'Not Confirmed'),
         ('no_show', 'No Show'),
         ('cancel', 'Cancelled'),
-        # Add other states as needed
     ], string='Original State')
     partner_id = fields.Many2one('res.partner', string='partner_id')    
     partner_company_id = fields.Many2one('res.company', string='Partner Company')
-    partner_name = fields.Char(string='By')
+    partner_name = fields.Char(string='Company')
+    write_user =  fields.Integer(string ='Write User')
+    write_user_name = fields.Char(string='By')
+    ref_id_bk = fields.Integer(string='Reference')
+    room_name = fields.Integer(string='Room Number')
 
     @api.model
     def action_generate_results(self):
@@ -63,7 +64,7 @@ class DeletedReservationReport(models.Model):
         _logger.info("Existing records deleted")
 
         query = """
-        WITH 
+       WITH 
     room_types AS (
         SELECT 
             rt.id AS room_type_id,
@@ -94,7 +95,11 @@ class DeletedReservationReport(models.Model):
             rb.date_order,
             rp.id AS partner_id,
             rp.company_id AS partner_company_id,
-            rp.name AS partner_name
+            rp.name AS partner_name,
+            hr.name AS room_name,
+            rb.ref_id_bk,
+            rb.write_uid AS write_user,
+            wp.name AS write_user_name
         FROM 
             room_booking rb
         LEFT JOIN 
@@ -108,9 +113,14 @@ class DeletedReservationReport(models.Model):
         LEFT JOIN 
             res_users ru ON rb.write_uid = ru.id
         LEFT JOIN 
-            res_partner rp ON ru.partner_id = rp.id
+            res_partner rp ON rb.partner_id = rp.id
+        LEFT JOIN 
+            hotel_room hr ON rb.room_id = hr.id
+        LEFT JOIN 
+            res_partner wp ON ru.partner_id = wp.id
         WHERE 
             rb.active = FALSE
+            AND rb.state IN ('no_show', 'cancel', 'not_confirmed')  -- <-- New condition here
     )
 SELECT
     t.id,
@@ -133,13 +143,46 @@ SELECT
     t.date_order,
     t.partner_id,
     t.partner_company_id,
-    t.partner_name
+    t.partner_name,
+    t.room_name,
+    t.ref_id_bk,
+    t.write_user,
+    t.write_user_name
 FROM 
     transformed t
 LEFT JOIN 
-    room_types rt ON t.hotel_room_type = rt.room_type_id
+    room_types rt 
+    ON t.hotel_room_type = rt.room_type_id
+GROUP BY 
+    t.id,
+    t.company_id,
+    t.state,
+    t.original_state,
+    t.group_booking_name,
+    t.room_count,
+    t.adult_count,
+    t.room_id,
+    rt.room_type_name,
+    t.checkin_date,
+    t.checkout_date,
+    t.no_of_nights,
+    t.vip,
+    t.house_use,
+    t.meal_pattern_code,
+    t.complementary_code,
+    t.nationality,
+    t.date_order,
+    t.partner_id,
+    t.partner_company_id,
+    t.partner_name,
+    t.room_name,
+    t.ref_id_bk,
+    t.write_user,
+    t.write_user_name
 ORDER BY 
     t.date_order;
+
+
 
         """
 
@@ -157,7 +200,7 @@ ORDER BY
         }
 
         for result in results:
-            if len(result) != 21:  # Adjusted to expect 17 values
+            if len(result) != 25:  # Adjusted to expect 17 values
                 _logger.error(f"Unexpected result length: {len(result)}, Data: {result}")
                 continue
             if result[1]:
@@ -168,28 +211,33 @@ ORDER BY
                 continue 
             try:
                 (
-                    id,
-                    company_id,
-                    state,
+                    id, 
+                    company_id, 
+                    state, 
                     original_state,
-                    group_booking,
+                    group_booking, 
                     room_count,
-                    adult_count,
-                    room_id,
-                    room_type_name,
-                    checkin_date,
+                    adult_count, 
+                    room_id, 
+                    room_type_name, 
+                    checkin_date, 
                     checkout_date,
-                    no_of_nights,
-                    vip,
-                    house_use,
-                    meal_pattern,
+                    no_of_nights, 
+                    vip, 
+                    house_use, 
+                    meal_pattern, 
                     complementary_codes,
-                    nationality,
-                    date_order,
-                    partner_id,
-                    partner_company_id,
-                    partner_name
+                    nationality, 
+                    date_order, 
+                    partner_id, 
+                    partner_company_id, 
+                    partner_name,
+                    room_name,
+                    ref_id_bk, 
+                    write_user, 
+                    write_user_name
                 ) = result
+
 
                 # Map the state value using the defined mapping
                 state = state_mapping.get(state, state)
@@ -220,7 +268,11 @@ ORDER BY
                     'date_order': date_order,
                     'partner_id': partner_id,
                     'partner_company_id': partner_company_id,
-                    'partner_name': partner_name
+                    'partner_name': partner_name,
+                    'write_user': write_user,
+                    'write_user_name': write_user_name,
+                    'ref_id_bk': ref_id_bk,
+                    'room_name': room_name
                 })
 
             except Exception as e:
