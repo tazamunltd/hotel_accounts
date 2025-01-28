@@ -1,5 +1,5 @@
 
-from odoo import fields, models,api
+from odoo import _, fields, models,api
 
 
 class HotelFloor(models.Model):
@@ -8,7 +8,7 @@ class HotelFloor(models.Model):
     _description = "Floor"
     _order = 'id desc'
 
-    name = fields.Char(string="Name", help="Name of the floor", required=True)
+    name = fields.Char(string=_("Name"), help="Name of the floor", required=True, translate=True)
     user_id = fields.Many2one('res.users', string='Manager',
                               help="Manager of the Floor",
                               required=True)
@@ -19,7 +19,7 @@ class FSMLocationInherit(models.Model):
 
     owner_id = fields.Many2one('res.partner', string='Related Owner', required=False)    
 
-    description = fields.Char(string='Description')
+    description = fields.Char(string=_('Description'), translate=True)
     # description = fields.Char(string='Description', required=True, compute='_compute_description', store=True)
 
     # @api.onchange('fsm_parent_id.complete_name', 'name')
@@ -57,7 +57,7 @@ class FSMLocationInherit(models.Model):
         'dynamic.selection',
         string="Location Type"
     )
-    description = fields.Char(required=True)
+    description = fields.Char(string=_("Description"), required=True, translate=True)
 
     # company_id = fields.Many2one('res.company', string="Hotel", )
     company_id = fields.Many2one(

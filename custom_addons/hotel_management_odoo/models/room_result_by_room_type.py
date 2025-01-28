@@ -43,7 +43,7 @@ class RoomResultByRoomType(models.Model):
         """Execute the SQL query and process the results."""
         _logger.info("Started run_process_by_room_type")
         # SQL Query (modified)
-        self.env.cr.execute("DELETE FROM room_result_by_client")
+        self.env.cr.execute("DELETE FROM room_result_by_room_type")
         _logger.info("Existing records deleted")
         print("line 47")
         query = """
@@ -105,15 +105,50 @@ latest_line_status AS (
    ---------------------------------------------------------------------------- */
 in_house AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS in_house_count
-    FROM latest_line_status lls
-    WHERE lls.checkin_date <= lls.report_date
-      AND lls.checkout_date >= lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        COUNT(DISTINCT sub.booking_line_number) AS in_house_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
+
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date,
+                rbl.checkout_date,
+                rbl.id              AS booking_line_number,
+                rbls.status,
+                rbls.change_time
+            FROM room_booking rb
+            JOIN room_booking_line rbl
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id     = rc.id
+          AND qry.room_type_id   = rt.id
+
+          /* Lines that physically cover ds.report_date: [checkin_date, checkout_date) */
+          AND qry.checkin_date::date <= ds.report_date
+          AND qry.checkout_date::date > ds.report_date
+
+          /* Must have had status='check_in' as of or before ds.report_date */
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id
 ),
 
 /* ----------------------------------------------------------------------------
@@ -123,14 +158,56 @@ in_house AS (
    ---------------------------------------------------------------------------- */
 expected_arrivals AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
-    FROM latest_line_status lls
-    WHERE lls.checkin_date = lls.report_date
-      AND lls.final_status IN ('confirmed', 'block')
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        /* 
+           Count how many DISTINCT booking lines 
+           match 'confirmed' or 'block' for that day.
+        */
+        COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count
+    FROM date_series ds
+    /* 
+       Adjust these CROSS JOINs to however you want to 
+       iterate over each company & room type.
+    */
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
+
+    /*
+       LATERAL sub‐query: Reuse your “distinct on” query, 
+       but parameterize the date based on ds.report_date.
+    */
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date    AS checkin_dt,
+                rb.name,
+                rbls.status,
+                rbl.id              AS booking_line_number,
+                rbls.change_time
+            FROM room_booking rb
+            JOIN room_booking_line rbl 
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+          AND qry.status        IN ('confirmed','block')
+          /* 
+             Use ds.report_date in place of your old '2025-01-15'.
+          */
+          AND qry.change_time::date <= ds.report_date
+          AND qry.checkin_dt::date   = ds.report_date
+
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+	GROUP BY ds.report_date, rc.id, rt.id
 ),
 
 /* ----------------------------------------------------------------------------
@@ -140,14 +217,49 @@ expected_arrivals AS (
    ---------------------------------------------------------------------------- */
 expected_departures AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
-    FROM latest_line_status lls
-    WHERE lls.checkout_date = lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
+
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date,
+                rbl.checkout_date,
+                rbl.id              AS booking_line_number,
+                rbls.status,
+                rbls.change_time
+            FROM room_booking rb
+            JOIN room_booking_line rbl
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+
+          /* Depart on ds.report_date */
+          AND qry.checkout_date::date = ds.report_date
+
+          /* Must have had status='check_in' by ds.report_date */
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id
 ),
 
 /* ----------------------------------------------------------------------------
@@ -264,8 +376,8 @@ final_report AS (
         rc.id                    AS company_id,
         rc.name                  AS company_name,
         rt.id                    AS room_type_id,
-        rt.room_type             AS room_type_name,
-
+        --rt.room_type             AS room_type_name,
+		    COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
         COALESCE(inv.total_room_count, 0)           AS total_rooms,
         COALESCE(inv.overbooking_rooms, 0)          AS overbooking_rooms,
         COALESCE(inv.overbooking_allowed, false)    AS overbooking_allowed,
@@ -396,6 +508,7 @@ ORDER BY
   fr.report_date,
   fr.company_name,
   fr.room_type_name;
+           
         """
         self.env.cr.execute(query)
         results = self.env.cr.fetchall()
@@ -415,7 +528,7 @@ ORDER BY
                 else:
                     continue
                 report_date = result[0] if result[0] else False  # fr.report_date
-                company_id = result[1] if result[1] else DEFAULT_COMPANY_ID  # fr.company_id
+                company_id = result[1] # if result[1] else DEFAULT_COMPANY_ID   fr.company_id
                 room_type_id = result[3]  # fr.room_type_id
                 room_type_name = result[4]  # fr.room_type_name
 

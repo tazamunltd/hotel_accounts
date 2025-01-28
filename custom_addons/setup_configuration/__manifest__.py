@@ -44,6 +44,7 @@ Long description of module's purpose
         'views/front_desk_walkin_views.xml',
         'views/front_desk_inhouse.xml',
         'views/misc_view.xml',
+        'security/groups.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

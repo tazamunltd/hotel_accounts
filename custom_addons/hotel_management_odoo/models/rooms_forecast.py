@@ -83,7 +83,7 @@ date_series AS (
      - rb.house_use (boolean)
      - rb.complementary (boolean)
      - rbl.adult_count, rbl.child_count, rbl.infant_count
-   ---------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 latest_line_status AS (
     SELECT DISTINCT ON (rbl.id, ds.report_date)
            rbl.id AS booking_line_id,
@@ -96,7 +96,7 @@ latest_line_status AS (
            rbls.change_time,
            rb.house_use            AS house_use,
            rb.complementary        AS complementary,
-           rb.adult_count,        -- Correctly referencing rbl
+           rbl.adult_count,
            rb.child_count,
            rb.infant_count
     FROM room_booking_line rbl
@@ -116,77 +116,214 @@ latest_line_status AS (
 /* ----------------------------------------------------------------------------
    2) IN-HOUSE:
    Lines in final_status='check_in' with date in [checkin_date,checkout_date).
-   ---------------------------------------------------------------------------- */
+   Also aggregating adult, child, and infant counts.
+---------------------------------------------------------------------------- */
 in_house AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS in_house_count,
-        SUM(lls.adult_count) AS in_house_adult_count,         -- Correct aggregation
-        SUM(lls.child_count) AS in_house_child_count,
-        SUM(lls.infant_count) AS in_house_infant_count
-    FROM latest_line_status lls
-    WHERE lls.checkin_date <= lls.report_date
-      AND lls.checkout_date > lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        COUNT(DISTINCT sub.booking_line_number) AS in_house_count,
+        SUM(rlls.adult_count) AS in_house_adult_count,
+        SUM(rlls.child_count) AS in_house_child_count,
+        SUM(rlls.infant_count) AS in_house_infant_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
+
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.adult_count,
+               qry.child_count,
+               qry.infant_count
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date::date <= ds.report_date AS is_in_house,
+                rbl.checkout_date::date > ds.report_date AS is_staying,
+                rbl.id              AS booking_line_number,
+                rbls.status,
+                rbls.change_time,
+                rbl.adult_count,
+                rb.child_count,
+                rb.infant_count
+            FROM room_booking rb
+            JOIN room_booking_line rbl
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id     = rc.id
+          AND qry.room_type_id   = rt.id
+
+          /* Lines that physically cover ds.report_date: [checkin_date, checkout_date) */
+          AND qry.is_in_house
+          AND qry.is_staying
+
+          /* Must have had status='check_in' as of or before ds.report_date */
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+
+    LEFT JOIN latest_line_status rlls ON rlls.booking_line_id = sub.booking_line_number AND rlls.report_date = ds.report_date
+
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id
 ),
 
 /* ----------------------------------------------------------------------------
    3) EXPECTED ARRIVALS:
    Lines that arrive on this date => checkin_date = report_date,
    final_status in ('confirmed','block').
-   ---------------------------------------------------------------------------- */
+   Also aggregating adult, child, and infant counts.
+---------------------------------------------------------------------------- */
 expected_arrivals AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count,
-        SUM(lls.adult_count) AS expected_arrivals_adult_count,    -- Correct aggregation
-        SUM(lls.child_count) AS expected_arrivals_child_count,
-        SUM(lls.infant_count) AS expected_arrivals_infant_count
-    FROM latest_line_status lls
-    WHERE lls.checkin_date = lls.report_date
-      AND lls.final_status IN ('confirmed', 'block')
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        /* 
+           Count how many DISTINCT booking lines 
+           match 'confirmed' or 'block' for that day.
+        */
+        COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count,
+        SUM(rlls.adult_count) AS expected_arrivals_adult_count,
+        SUM(rlls.child_count) AS expected_arrivals_child_count,
+        SUM(rlls.infant_count) AS expected_arrivals_infant_count
+    FROM date_series ds
+    /* 
+       Adjust these CROSS JOINs to however you want to 
+       iterate over each company & room type.
+    */
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
+
+    /*
+       LATERAL sub‐query: Reuse your “distinct on” query, 
+       but parameterize the date based on ds.report_date.
+    */
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.adult_count,
+               qry.child_count,
+               qry.infant_count
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date    AS checkin_dt,
+                rb.name,
+                rbls.status,
+                rbl.id              AS booking_line_number,
+                rbls.change_time,
+                rbl.adult_count,
+                rb.child_count,
+                rb.infant_count
+            FROM room_booking rb
+            JOIN room_booking_line rbl 
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+          AND qry.status        IN ('confirmed','block')
+          /* 
+             Use ds.report_date in place of your old '2025-01-15'.
+          */
+          AND qry.change_time::date <= ds.report_date
+          AND qry.checkin_dt::date   = ds.report_date
+
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+
+    LEFT JOIN latest_line_status rlls ON rlls.booking_line_id = sub.booking_line_number AND rlls.report_date = ds.report_date
+
+    GROUP BY ds.report_date, rc.id, rt.id
 ),
 
 /* ----------------------------------------------------------------------------
    4) EXPECTED DEPARTURES:
    Lines that depart on this date => checkout_date = report_date,
    final_status = 'check_in'.
-   ---------------------------------------------------------------------------- */
+   Also aggregating adult, child, and infant counts.
+---------------------------------------------------------------------------- */
 expected_departures AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count,
-        SUM(lls.adult_count) AS expected_departures_adult_count,   -- Correct aggregation
-        SUM(lls.child_count) AS expected_departures_child_count,
-        SUM(lls.infant_count) AS expected_departures_infant_count
-    FROM latest_line_status lls
-    WHERE lls.checkout_date = lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count,
+        SUM(rlls.adult_count) AS expected_departures_adult_count,
+        SUM(rlls.child_count) AS expected_departures_child_count,
+        SUM(rlls.infant_count) AS expected_departures_infant_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
+
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.adult_count,
+               qry.child_count,
+               qry.infant_count
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date,
+                rbl.checkout_date,
+                rbl.id              AS booking_line_number,
+                rbls.status,
+                rbls.change_time,
+                rbl.adult_count,
+                rb.child_count,
+                rb.infant_count
+            FROM room_booking rb
+            JOIN room_booking_line rbl
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+
+          /* Depart on ds.report_date */
+          AND qry.checkout_date::date = ds.report_date
+
+          /* Must have had status='check_in' by ds.report_date */
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+
+    LEFT JOIN latest_line_status rlls ON rlls.booking_line_id = sub.booking_line_number AND rlls.report_date = ds.report_date
+
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id
 ),
 
 /* ----------------------------------------------------------------------------
    5) HOUSE USE:
    Lines in final_status='check_in', date in [checkin_date,checkout_date),
    and house_use = TRUE.
-   ---------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 house_use_cte AS (
     SELECT
         lls.report_date,
         lls.company_id,
         lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS house_use_count,
-        SUM(lls.adult_count) AS house_use_adult_count,         -- Correct aggregation
-        SUM(lls.child_count) AS house_use_child_count,
-        SUM(lls.infant_count) AS house_use_infant_count
+        COUNT(DISTINCT lls.booking_line_id) AS house_use_count
     FROM latest_line_status lls
     WHERE lls.house_use = TRUE
       AND lls.final_status = 'check_in'
@@ -199,16 +336,13 @@ house_use_cte AS (
    6) COMPLEMENTARY USE:
    Lines in final_status='check_in', date in [checkin_date,checkout_date),
    and complementary = TRUE.
-   ---------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 complementary_use_cte AS (
     SELECT
         lls.report_date,
         lls.company_id,
         lls.room_type_id,
-        COUNT(DISTINCT lls.booking_line_id) AS complementary_use_count,
-        SUM(lls.adult_count) AS complementary_use_adult_count,     -- Correct aggregation
-        SUM(lls.child_count) AS complementary_use_child_count,
-        SUM(lls.infant_count) AS complementary_use_infant_count
+        COUNT(DISTINCT lls.booking_line_id) AS complementary_use_count
     FROM latest_line_status lls
     WHERE lls.complementary = TRUE
       AND lls.final_status = 'check_in'
@@ -220,7 +354,7 @@ complementary_use_cte AS (
 /* ----------------------------------------------------------------------------
    7) INVENTORY (with Overbooking):
    Aggregated by (company_id, room_type).
-   ---------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 inventory AS (
     SELECT
         hi.company_id,
@@ -234,7 +368,7 @@ inventory AS (
 
 /* ----------------------------------------------------------------------------
    8) OUT_OF_ORDER, ROOMS_ON_HOLD, OUT_OF_SERVICE
-   ---------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 out_of_order AS (
     SELECT
         rt.id                  AS room_type_id,
@@ -281,19 +415,18 @@ out_of_service AS (
       ON hr.room_type_name = rt.id
     GROUP BY rt.id, hr.company_id, ds.report_date
 ),
-
 /* ----------------------------------------------------------------------------
    9) FINAL_REPORT:
    Cross-join (date, company, room_type) => 1 row per combination,
    then LEFT JOIN each aggregated CTE.
-   ---------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 final_report AS (
     SELECT
         ds.report_date,
         rc.id                    AS company_id,
         rc.name                  AS company_name,
         rt.id                    AS room_type_id,
-        rt.room_type             AS room_type_name,
+        COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
 
         COALESCE(inv.total_room_count, 0)           AS total_rooms,
         COALESCE(inv.overbooking_rooms, 0)          AS overbooking_rooms,
@@ -324,29 +457,38 @@ final_report AS (
         COALESCE(ed.expected_departures_infant_count, 0)  AS expected_departures_infant_count,
 
         /* Calculating expected_in_house adult, child, infant counts */
-        COALESCE(ih.in_house_adult_count, 0) 
-          + COALESCE(ea.expected_arrivals_adult_count, 0) 
-          - COALESCE(ed.expected_departures_adult_count, 0) AS expected_in_house_adult_count,
+        GREATEST(
+            0,
+            COALESCE(ih.in_house_adult_count, 0) 
+            + COALESCE(ea.expected_arrivals_adult_count, 0) 
+            - COALESCE(ed.expected_departures_adult_count, 0)
+        ) AS expected_in_house_adult_count,
 
-        COALESCE(ih.in_house_child_count, 0) 
-          + COALESCE(ea.expected_arrivals_child_count, 0) 
-          - COALESCE(ed.expected_departures_child_count, 0) AS expected_in_house_child_count,
+        GREATEST(
+            0,
+            COALESCE(ih.in_house_child_count, 0) 
+            + COALESCE(ea.expected_arrivals_child_count, 0) 
+            - COALESCE(ed.expected_departures_child_count, 0)
+        ) AS expected_in_house_child_count,
 
-        COALESCE(ih.in_house_infant_count, 0) 
-          + COALESCE(ea.expected_arrivals_infant_count, 0) 
-          - COALESCE(ed.expected_departures_infant_count, 0) AS expected_in_house_infant_count,
+        GREATEST(
+            0,
+            COALESCE(ih.in_house_infant_count, 0) 
+            + COALESCE(ea.expected_arrivals_infant_count, 0) 
+            - COALESCE(ed.expected_departures_infant_count, 0)
+        ) AS expected_in_house_infant_count,
+		    GREATEST(
+            0,
+            COALESCE(ih.in_house_count, 0)
+            + COALESCE(ea.expected_arrivals_count, 0)
+            - COALESCE(ed.expected_departures_count, 0)
+        ) AS expected_in_house,
 
         /* available_rooms = total_rooms - (out_of_order + rooms_on_hold) */
         ( COALESCE(inv.total_room_count, 0)
           - COALESCE(ooo.out_of_order_count, 0)
           - COALESCE(roh.rooms_on_hold_count, 0)
-        ) AS available_rooms,
-
-        /* expected_in_house = in_house + arrivals - departures */
-        ( COALESCE(ih.in_house_count, 0)
-          + COALESCE(ea.expected_arrivals_count, 0)
-          - COALESCE(ed.expected_departures_count, 0)
-        ) AS expected_in_house
+        ) AS available_rooms
     FROM date_series ds
     CROSS JOIN res_company rc
     CROSS JOIN room_type rt
@@ -391,7 +533,7 @@ final_report AS (
    10) GROUP BY + FINAL SELECT:
    We sum up values in case of duplicates, 
    then compute free_to_sell & over_booked with negative clamp (GREATEST(0,...)).
-   ---------------------------------------------------------------------------- */
+---------------------------------------------------------------------------- */
 SELECT
   fr.report_date,
   fr.company_id,
@@ -471,6 +613,7 @@ ORDER BY
   fr.report_date,
   fr.company_name,
   fr.room_type_name;
+
 
 
 

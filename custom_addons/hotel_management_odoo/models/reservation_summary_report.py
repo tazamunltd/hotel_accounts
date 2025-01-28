@@ -65,7 +65,7 @@ final_report AS (
             WHEN rp.is_company THEN rp.name
             ELSE 'Individual Booking'
         END AS company_name,
-        gb.name AS group_booking_name,
+        COALESCE(jsonb_extract_path_text(gb.name::jsonb, 'en_US'),'N/A') AS group_booking_name,
         fb.first_check_in,
         fb.last_check_out,
         rt.room_type
@@ -78,40 +78,37 @@ final_report AS (
         ON rt.id = fb.hotel_room_type
 )
 SELECT
-    -- Grouping columns:
     company_name,
     group_booking_name,
 
-    -- Count total “Rms”
+    -- Total Rms
     COUNT(booking_line_id) AS rms,
 
-    -- Pivoted room-type columns (with COALESCE to handle NULLs properly)
+    -- Pivoted room-type columns
     SUM(
-      CASE WHEN COALESCE(room_type, '') ILIKE '%DELX%' THEN 1 ELSE 0 END
+      CASE WHEN COALESCE(room_type::text, '') ILIKE '%DELX%' THEN 1 ELSE 0 END
     ) AS dlx,
     SUM(
-      CASE WHEN COALESCE(room_type, '') ILIKE '%DUBL%' THEN 1 ELSE 0 END
+      CASE WHEN COALESCE(room_type::text, '') ILIKE '%DUBL%' THEN 1 ELSE 0 END
     ) AS dbl,
     SUM(
-      CASE WHEN COALESCE(room_type, '') ILIKE '%QUAD%' THEN 1 ELSE 0 END
+      CASE WHEN COALESCE(room_type::text, '') ILIKE '%QUAD%' THEN 1 ELSE 0 END
     ) AS qud,
     SUM(
-      CASE
-        WHEN COALESCE(room_type, '') NOT ILIKE '%DELX%'
-          AND COALESCE(room_type, '') NOT ILIKE '%DUBL%'
-          AND COALESCE(room_type, '') NOT ILIKE '%QUAD%'
-        THEN 1
-        ELSE 0
+      CASE WHEN 
+        COALESCE(room_type::text, '') NOT ILIKE '%DELX%'
+        AND COALESCE(room_type::text, '') NOT ILIKE '%DUBL%'
+        AND COALESCE(room_type::text, '') NOT ILIKE '%QUAD%'
+      THEN 1
+      ELSE 0
       END
     ) AS oth,
 
-    -- Earliest arrival / latest departure:
     MIN(first_check_in) AS first_arrival,
     MAX(last_check_out) AS last_departure
 
 FROM final_report
 WHERE
-    -- Only include rows that have at least a check-in or check-out
     first_check_in IS NOT NULL
     OR last_check_out IS NOT NULL
 GROUP BY
@@ -120,7 +117,6 @@ GROUP BY
 ORDER BY
     company_name,
     group_booking_name;
-
 
         """
 

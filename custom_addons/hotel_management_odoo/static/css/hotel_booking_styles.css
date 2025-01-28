@@ -7,3 +7,14 @@
 .dropdown-item.o_menu_item:has(.oi.oi-archive) {
     display: none;
 }
+
+/* Target the date elements */
+.o_field_date .text-truncate {
+    /* content: attr(date_format); Use the original date from a custom data attribute */
+    white-space: none; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: unset; /* Remove ellipsis */
+    display: inline-block; /* Keep it inline */
+    max-width:64px;
+}
+

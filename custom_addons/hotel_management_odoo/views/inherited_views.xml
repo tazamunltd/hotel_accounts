@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Inherit Form View -->
-    <record id="view_partner_form_inherit_hotel" model="ir.ui.view">
+    <!-- <record id="view_partner_form_inherit_hotel" model="ir.ui.view">
         <field name="name">res.partner.form.inherit.hotel</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <!-- Change Company Type field options -->
             <field name="company_type" position="attributes">
                 <attribute name="options">{'horizontal': true}</attribute>
             </field>
             
-            <!-- Replace the entire company_type field widget -->
             <field name="company_type" position="replace">
                 <field name="company_type" widget="radio" options="{'horizontal': true}">
                     <radio value="individual">Individual</radio>
@@ -19,23 +17,51 @@
                 </field>
             </field>
             
-            <!-- Change Is a Company? checkbox label to Is an Agent? -->
             <field name="is_company" position="attributes">
                 <attribute name="string">Is an Agent?</attribute>
             </field>
             
-            <!-- Change Company Name label to Agent Name -->
+            <field name="company_name" position="attributes">
+                <attribute name="string">Agent Name</attribute>
+            </field>
+        </field>
+    </record> -->
+    <record id="view_partner_form_inherit_hotel" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.hotel</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <!-- Update the Company Type field to use horizontal radio buttons -->
+            <field name="company_type" position="attributes">
+                <attribute name="options">{'horizontal': true}</attribute>
+            </field>
+
+            <!-- Replace the Company Type field with a customized widget -->
+            <field name="company_type" position="replace">
+                <field name="company_type" widget="radio" options="{'horizontal': true}">
+                    <radio value="individual">Individual</radio>
+                    <radio value="company">Agent</radio>
+                </field>
+            </field>
+
+            <!-- Update the label for the "Is a Company?" checkbox to "Is an Agent?" -->
+            <field name="is_company" position="attributes">
+                <attribute name="string">Is an Agent?</attribute>
+            </field>
+
+            <!-- Update the label for the "Company Name" field to "Agent Name" -->
             <field name="company_name" position="attributes">
                 <attribute name="string">Agent Name</attribute>
             </field>
         </field>
     </record>
 
+
     <!-- Inherit Search View -->
     <record id="view_res_partner_filter_inherit_hotel" model="ir.ui.view">
         <field name="name">res.partner.select.inherit.hotel</field>
         <field name="model">res.partner</field>
-        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="inherit_id" ref="base.view_res_partner_filter" />
         <field name="arch" type="xml">
             <!-- Change Company filter to Agent -->
             <filter name="type_company" position="attributes">

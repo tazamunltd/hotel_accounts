@@ -92,33 +92,47 @@
         'views/all_reservation_status_report.xml',
         # HEADER DATETIME
         # 'views/header_datetime.xml',
+        'views/new_dashboard_views.xml',
+        'views/new_dashboard_action.xml',  # Added new dashboard action - 2025-01-20T00:16:16
     ],
     'assets': {
         'web.assets_backend': [
-            'hotel_management_odoo/static/lib/chart.js/dist/chart.umd.js',
+            # Date: 2025-01-20 Time: 13:25:51 - Using shared Chart.js for both dashboards
+            # Core web client dependencies
+            '/web/static/src/webclient/webclient.js',
+            '/web/static/src/webclient/webclient.xml',
+            
+            # Chart.js library from static assets
+            '/hotel_management_odoo/static/src/lib/chart.js/chart.umd.js',
+            
+            # Dashboard files that depend on Chart.js
+            '/hotel_management_odoo/static/src/js/dashboard_action.js',
+            '/hotel_management_odoo/static/src/js/new_dashboard_action.js',
+            
+            # Module specific assets
+            'hotel_management_odoo/static/src/css/dashboard.css',
+            'hotel_management_odoo/static/src/css/disable.css',
+            'hotel_management_odoo/static/src/css/timer.css',
+            'hotel_management_odoo/static/css/hotel_booking_styles.css',
+            
+            # JavaScript files
             'hotel_management_odoo/static/src/js/generate_pdf_report.js',
             'hotel_management_odoo/static/src/js/action_manager.js',
-            # Added offline search widget files - 2025-01-08T19:01:27+05:00
             'hotel_management_odoo/static/src/js/offline_search_widget.js',
+            'hotel_management_odoo/static/src/js/system_date_notification_service.js',
             'hotel_management_odoo/static/src/js/offline_search_widget_registry.js',
-            'hotel_management_odoo/static/src/xml/offline_search_widget.xml',
-            'hotel_management_odoo/static/src/css/offline_search_widget.css',
             'hotel_management_odoo/static/src/js/generate_rc_guest_pdf_report.js',
             'hotel_management_odoo/static/src/js/generate_rc_pdf_report.js',
-            'hotel_management_odoo/static/src/css/dashboard.css',
-            'hotel_management_odoo/static/src/js/dashboard_action.js',
+            'hotel_management_odoo/static/src/js/timer.js',
+            
+            # XML templates
+            'hotel_management_odoo/static/src/xml/offline_search_widget.xml',
             'hotel_management_odoo/static/src/xml/dashboard_templates.xml',
-            # 'hotel_management_odoo/static/src/xml/percentage_widget.xml',
-            # 'hotel_management_odoo/static/src/css/booking_styles.css',
-            # 'hotel_management_odoo/static/src/js/room_booking_buttons.js',
-            # 'hotel_management_odoo/static/src/xml/room_booking_buttons.xml',
+            'hotel_management_odoo/static/src/xml/timer.xml',
+            'hotel_management_odoo/static/src/xml/new_dashboard_templates.xml',
+
             'hotel_management_odoo/static/src/views/*.js',
             'hotel_management_odoo/static/src/**/*.xml',
-            'hotel_management_odoo/static/css/hotel_booking_styles.css',
-            'hotel_management_odoo/static/src/css/disable.css',
-            'hotel_management_odoo/static/src/js/timer.js',
-            'hotel_management_odoo/static/src/css/timer.css',
-            'hotel_management_odoo/static/src/xml/timer.xml',
         ],
     },
     'images': ['static/description/banner.jpg'],

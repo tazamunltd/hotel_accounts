@@ -2,8 +2,12 @@
 <templates>
     <t t-name="CustomDashBoard">
         <div class="oh_dashboards">
+         <!-- Date: 2025-01-20 Time: 00:22:13 -->
             <div class="container-fluid o_pj_dashboard">
                 <div class="row main-section">
+            
+            <!-- Date: 2025-01-19 Time: 22:08:28 -->
+            <!-- Old dashboard section - containing previous dashboard -->
                     <!--            Expected Arrivals-->
                     <div groups="hotel_management_odoo.hotel_group_reception"
                          class="col-md-3 col-sm-6 expected_arrivals dash-card">
@@ -207,7 +211,6 @@
                     </div>
                 </div>
 
-                <!-- Date: 2025-01-13 Time: 01:57:44 -->
                 <!-- Chart Containers Section -->
                 <div class="row mt-4">
                     <div class="col-md-6">
@@ -272,6 +275,21 @@
                                 <h5 class="card-title">Room Availability Timeline</h5>
                                 <div style="height: 300px;">
                                     <canvas id="roomAvailabilityTimelineChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4 mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Reservation Statistics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="reservation-stats-content">
+                                    <!-- Content will be populated by JavaScript -->
                                 </div>
                             </div>
                         </div>

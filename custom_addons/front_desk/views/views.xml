@@ -6,16 +6,93 @@
             <field name="model">out.of.order.management.fron.desk</field>
             <field name="arch" type="xml">
                 <tree string="Out of Order List">
-                    <field name="room_fsm_location"/>
-                    <field name="room_number"/>
-                    <field name="room_type"/>
-                    <field name="from_date"/>
-                    <field name="to_date"/>
-                    <field name="comments"/>
+                    <field name="room_fsm_location" />
+                    <field name="room_number" />
+                    <field name="room_type" />
+                    <field name="from_date" />
+                    <field name="to_date" />
+                    <field name="comments" />
                 </tree>
             </field>
         </record>
-
+        <record id="view_out_of_order_management_kanban" model="ir.ui.view">
+            <field name="name">out.of.order.management.fron.desk.kanban</field>
+            <field name="model">out.of.order.management.fron.desk</field>
+            <field name="arch" type="xml">
+                <kanban string="Out of Order Kanban">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_card oe_kanban_global_click">
+                                <div>
+                                    <strong>
+                                        <field name="room_number" />
+                                    </strong>
+                                    - <field name="room_fsm_location" />
+                                </div>
+                                <div>
+                                    <span>
+                                        <field name="room_type" />
+                                    </span>
+                                </div>
+                                <div>
+                                    <small>
+                                        <field name="from_date" /> - <field name="to_date" />
+                                    </small>
+                                </div>
+                                <div>
+                                    <span>
+                                        <field name="comments" />
+                                    </span>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="view_out_of_order_management_pivot" model="ir.ui.view">
+            <field name="name">out.of.order.management.fron.desk.pivot</field>
+            <field name="model">out.of.order.management.fron.desk</field>
+            <field name="arch" type="xml">
+                <pivot string="Out of Order Pivot">
+                    <field name="room_fsm_location" type="row" />
+                    <field name="room_type" type="col" />
+                    <!-- <field name="id" type="measure" string="Count"/> -->
+                </pivot>
+            </field>
+        </record>
+        <record id="view_out_of_order_management_graph" model="ir.ui.view">
+            <field name="name">out.of.order.management.fron.desk.graph</field>
+            <field name="model">out.of.order.management.fron.desk</field>
+            <field name="arch" type="xml">
+                <graph string="Out of Order Graph" type="bar">
+                    <field name="room_fsm_location" type="row" />
+                    <field name="id" type="measure" string="Count" />
+                </graph>
+            </field>
+        </record>
+        <record id="view_out_of_order_management_calendar" model="ir.ui.view">
+            <field name="name">out.of.order.management.fron.desk.calendar</field>
+            <field name="model">out.of.order.management.fron.desk</field>
+            <field name="arch" type="xml">
+                <calendar string="Out of Order Calendar" date_start="from_date" date_stop="to_date">
+                    <field name="room_number" />
+                    <field name="room_fsm_location" />
+                    <field name="room_type" />
+                </calendar>
+            </field>
+        </record>
+        <record id="view_out_of_order_management_search" model="ir.ui.view">
+            <field name="name">out.of.order.management.fron.desk.search</field>
+            <field name="model">out.of.order.management.fron.desk</field>
+            <field name="arch" type="xml">
+                <search string="Out of Order Search">
+                    <field name="room_fsm_location" />
+                    <field name="room_number" />
+                    <field name="room_type" />
+                </search>
+            </field>
+        </record>
         <record id="view_out_of_order_management_form" model="ir.ui.view">
             <field name="name">out.of.order.management.fron.desk.form</field>
             <field name="model">out.of.order.management.fron.desk</field>
@@ -25,41 +102,118 @@
                         <group>
                             <!-- Room Information -->
                             <group>
-                                <field name="room_fsm_location"/>
-                                <field name="room_number"/>
-                                <field name="room_type"/>
-                                <field name="from_date"/>
-                                <field name="to_date"/>
+                                <field name="room_fsm_location" />
+                                <field name="room_number" />
+                                <field name="room_type" />
+                                <field name="from_date" />
+                                <field name="to_date" />
                             </group>
 
                             <group>
-                                <field name="comments"/>
+                                <field name="comments" />
                             </group>
                         </group>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids"/>
-                        <field name="message_ids"/>
+                        <field name="message_follower_ids" />
+                        <field name="message_ids" />
                     </div>
                 </form>
             </field>
         </record>
-
         <record id="view_room_on_hold_tree" model="ir.ui.view">
             <field name="name">rooms.on.hold.management.front.desk.tree</field>
             <field name="model">rooms.on.hold.management.front.desk</field>
             <field name="arch" type="xml">
                 <tree string="Out of Order List">
-                    <field name="room_fsm_location"/>
-                    <field name="room_number"/>
-                    <field name="room_type"/>
-                    <field name="from_date"/>
-                    <field name="to_date"/>
-                    <field name="comments"/>
+                    <field name="room_fsm_location" />
+                    <field name="room_number" />
+                    <field name="room_type" />
+                    <field name="from_date" />
+                    <field name="to_date" />
+                    <field name="comments" />
                 </tree>
             </field>
         </record>
+        <record id="view_room_on_hold_kanban" model="ir.ui.view">
+            <field name="name">rooms.on.hold.management.front.desk.kanban</field>
+            <field name="model">rooms.on.hold.management.front.desk</field>
+            <field name="arch" type="xml">
+                <kanban string="Rooms on Hold Kanban">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_card oe_kanban_global_click">
+                                <div>
+                                    <strong>
+                                        <field name="room_number" />
+                                    </strong>
+                                    - <field name="room_fsm_location" />
+                                </div>
+                                <div>
+                                    <span>
+                                        <field name="room_type" />
+                                    </span>
+                                </div>
+                                <div>
+                                    <small>
+                                        <field name="from_date" /> - <field name="to_date" />
+                                    </small>
+                                </div>
+                                <div>
+                                    <span>
+                                        <field name="comments" />
+                                    </span>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="view_room_on_hold_pivot" model="ir.ui.view">
+            <field name="name">rooms.on.hold.management.front.desk.pivot</field>
+            <field name="model">rooms.on.hold.management.front.desk</field>
+            <field name="arch" type="xml">
+                <pivot string="Rooms on Hold Pivot">
+                    <field name="room_fsm_location" type="row" />
+                    <field name="room_type" type="col" />
+                    <!-- <field name="id" type="measure" string="Count"/> -->
+                </pivot>
+            </field>
+        </record>
+        <record id="view_room_on_hold_graph" model="ir.ui.view">
+            <field name="name">rooms.on.hold.management.front.desk.graph</field>
+            <field name="model">rooms.on.hold.management.front.desk</field>
+            <field name="arch" type="xml">
+                <graph string="Rooms on Hold Graph" type="bar">
+                    <field name="room_fsm_location" type="row" />
+                    <field name="id" type="measure" string="Count" />
+                </graph>
+            </field>
+        </record>
+        <record id="view_room_on_hold_calendar" model="ir.ui.view">
+            <field name="name">rooms.on.hold.management.front.desk.calendar</field>
+            <field name="model">rooms.on.hold.management.front.desk</field>
+            <field name="arch" type="xml">
+                <calendar string="Rooms on Hold Calendar" date_start="from_date" date_stop="to_date">
+                    <field name="room_number" />
+                    <field name="room_fsm_location" />
+                    <field name="room_type" />
+                </calendar>
+            </field>
+        </record>
+        <record id="view_room_on_hold_search" model="ir.ui.view">
+            <field name="name">rooms.on.hold.management.front.desk.search</field>
+            <field name="model">rooms.on.hold.management.front.desk</field>
+            <field name="arch" type="xml">
+                <search string="Rooms on Hold Search">
+                    <field name="room_fsm_location" />
+                    <field name="room_number" />
+                    <field name="room_type" />
 
+                </search>
+            </field>
+        </record>
         <record id="view_room_on_hold_form" model="ir.ui.view">
             <field name="name">rooms.on.hold.management.front.desk.form</field>
             <field name="model">rooms.on.hold.management.front.desk</field>
@@ -69,26 +223,25 @@
                         <group>
                             <!-- Room Information -->
                             <group>
-                                <field name="room_fsm_location"/>
-                                <field name="room_number"/>
-                                <field name="room_type"/>
-                                <field name="from_date"/>
-                                <field name="to_date"/>
+                                <field name="room_fsm_location" />
+                                <field name="room_number" />
+                                <field name="room_type" />
+                                <field name="from_date" />
+                                <field name="to_date" />
                             </group>
 
                             <group>
-                                <field name="comments"/>
+                                <field name="comments" />
                             </group>
                         </group>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids"/>
-                        <field name="message_ids"/>
+                        <field name="message_follower_ids" />
+                        <field name="message_ids" />
                     </div>
                 </form>
             </field>
         </record>
-
         <record id="view_package_handling_form" model="ir.ui.view">
             <field name="name">hotel.package.handling.form</field>
             <field name="model">hotel.package_handling</field>
@@ -97,21 +250,21 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="name"/>
-                                <field name="room_contact_email"/>
+                                <field name="name" />
+                                <field name="room_contact_email" />
                             </group>
                             <group>
-                                <field name="package_details"/>
-                                <field name="received_date"/>
+                                <field name="package_details" />
+                                <field name="received_date" />
                             </group>
                         </group>
                         <group string="Status">
-                            <field name="status"/>
-                            <field name="confirmed"/>
+                            <field name="status" />
+                            <field name="confirmed" />
                         </group>
                         <group string="Additional Information">
-                            <field name="booking_id"/>
-                            <field name="signature" widget="signature"/>
+                            <field name="booking_id" />
+                            <field name="signature" widget="signature" />
                         </group>
                     </sheet>
                 </form>
@@ -123,27 +276,25 @@
             <field name="model">hotel.package_handling</field>
             <field name="arch" type="xml">
                 <tree string="Package Handling">
-                    <field name="name"/>
-                    <field name="status"/>
-                    <field name="room_contact_email"/>
-                    <field name="received_date"/>
-                    <field name="confirmed"/>
+                    <field name="name" />
+                    <field name="status" />
+                    <field name="room_contact_email" />
+                    <field name="received_date" />
+                    <field name="confirmed" />
                 </tree>
             </field>
         </record>
 
-
-
         <record id="action_out_of_order_management" model="ir.actions.act_window">
             <field name="name">Out of Order Management</field>
             <field name="res_model">out.of.order.management.fron.desk</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,kanban,pivot,graph,calendar,form</field>
         </record>
 
         <record id="action_room_on_hold" model="ir.actions.act_window">
             <field name="name">Room on Hold</field>
             <field name="res_model">rooms.on.hold.management.front.desk</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,kanban,pivot,graph,calendar,form</field>
         </record>
 
         <record id="action_package_handling" model="ir.actions.act_window">
@@ -157,15 +308,60 @@
             </field>
         </record>
 
-        <menuitem id="menu_front_desk" name="Front Desk" sequence="3"/>
+        <!-- <record id="room_booking_view_tree_inherit" model="ir.ui.view">
+            <field name="name">room.booking.view.tree.inherit</field>
+            <field name="model">room.booking</field>
+            <field name="inherit_id" ref="hotel_management_odoo.room_booking_view_tree" />
+            <field name="arch" type="xml">
+                <tree position="attributes">
+                    <attribute name="js_class" />
+                </tree>
+            </field>
+        </record> -->
+        <!-- <record id="action_frnt_dsk_room_booking" model="ir.actions.act_window">
+            <field name="name">Room Booking</field>
+            <field name="res_model">room.booking</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="room_booking_view_tree_inherit" />
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Room Booking
+                </p>
+            </field>
+        </record> -->
 
-        <menuitem id="menu_misc_fron_desk" name="Misc" parent="menu_front_desk" sequence="1"/>
 
-        <menuitem id="sub_menu_out_of_order_fron_desk" name="Out of Order" parent="menu_misc_fron_desk" action="action_out_of_order_management" sequence="1"/>
+        <!-- group booking -->
+        <record id="action_fd_grp_booking" model="ir.actions.act_window">
+            <field name="name">Group Booking</field>
+            <field name="res_model">group.booking</field>
+            <field name="view_mode">tree,kanban,pivot,graph,form</field>
+            <field name="target">current</field>
+        </record>
 
-        <menuitem id="sub_menu_room_on_hold_fron_desk" name="Room on Hold" parent="menu_misc_fron_desk" action="action_room_on_hold" sequence="2"/>
 
-        <menuitem id="menu_package_handling" name="Package Handling" parent="menu_front_desk" action="action_package_handling" sequence="2"/>
+        <menuitem id="menu_front_desk" name="Front Desk" sequence="3" />
+
+        <menuitem id="menu_misc_fron_desk" name="Misc" parent="menu_front_desk" sequence="1" />
+
+        <menuitem id="sub_menu_out_of_order_fron_desk" name="Out of Order"
+            parent="menu_misc_fron_desk" action="action_out_of_order_management" sequence="1" />
+
+        <menuitem id="sub_menu_room_on_hold_fron_desk" name="Room on Hold"
+            parent="menu_misc_fron_desk" action="action_room_on_hold" sequence="2" />
+
+        <menuitem id="menu_package_handling" name="Package Handling" parent="menu_front_desk"
+            action="action_package_handling" sequence="2" />
+
+        <!-- Reservation Menu -->
+        <menuitem id="menu_reservation" name="Reservation" parent="menu_front_desk" sequence="4" />
+
+        <!-- Submenus for Reservation -->
+        <!-- <menuitem id="menu_fd_room_booking" name="Room Booking" parent="menu_reservation"
+            action="action_frnt_dsk_room_booking" sequence="5" /> -->
+
+        <menuitem id="menu_fd_grp_booking" name="Group Booking" parent="menu_reservation"
+            action="action_fd_grp_booking" sequence="6" />
 
     </data>
 </odoo>

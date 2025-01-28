@@ -8,8 +8,8 @@ class HotelService(models.Model):
     _inherit = 'mail.thread'
     _order = 'id desc'
 
-    name = fields.Char(string="Service", help="Name of the service",
-                       required=True,tracking=True)
+    name = fields.Char(string=_("Service"), help="Name of the service",
+                       required=True,tracking=True, translate=True)
     unit_price = fields.Float(string="Price", help="Price of the service",
                               default=1,tracking=True)
     @api.onchange('unit_price')

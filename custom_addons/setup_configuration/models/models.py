@@ -1,15 +1,17 @@
 from odoo import _, api, models, fields
 from odoo.exceptions import ValidationError
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class HotelDetails(models.Model):
     _name = 'system.configuration'
     _description = 'Hotel Details'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    hotel_name = fields.Char('Hotel Name', tracking=True)
-    address = fields.Char(string='Address', tracking=True)
-    contact_info = fields.Char(string='Contact Info', tracking=True)
+    hotel_name = fields.Char(string=_('Hotel Name'), tracking=True)
+    address = fields.Char(string=_('Address'), tracking=True)
+    contact_info = fields.Char(string=_('Contact Info'), tracking=True, translate=True)
 
 
 class SystemConfig(models.Model):
@@ -18,12 +20,10 @@ class SystemConfig(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     system_configuration_id = fields.Char(
-        'System Configuration ID', tracking=True)
-    pms_integration_id = fields.Char('PMS Integration ID', tracking=True)
-    accounting_integration_id = fields.Char(
-        'Accounting Integration ID', tracking=True)
-    booking_integration_id = fields.Char(
-        'Booking.com Integration ID', tracking=True)
+        _('System Configuration ID'), tracking=True)
+    pms_integration_id = fields.Char(_('PMS Integration ID'), tracking=True)
+    accounting_integration_id = fields.Char(_('Accounting Integration ID'), tracking=True)
+    booking_integration_id = fields.Char(_('Booking.com Integration ID'), tracking=True)
 
 
 class SystemLanguagesUI(models.Model):
@@ -55,11 +55,11 @@ class RateCategory(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'category'
-    category = fields.Char(string='Category', required=True, tracking=True)
-    description = fields.Char(string='Description',
-                              required=True, tracking=True)
+    category = fields.Char(string=_('Category'), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_('Description'),
+                              required=True, tracking=True, translate=True)
     abbreviation = fields.Char(
-        string='Abbreviation', required=True, tracking=True)
+        string=_('Abbreviation'), required=True, tracking=True, translate=True)
     user_sort = fields.Integer(string='User Sort', default=0, tracking=True)
 
 
@@ -72,12 +72,13 @@ class RateCode(models.Model):
         'rate.detail', 'rate_code_id', string="Rate Details")
 
     _rec_name = 'code'
-    code = fields.Char(string='Rate Code', required=True, tracking=True)
-    description = fields.Char(string='Description',
-                              required=True, tracking=True)
-    abbreviation = fields.Char(string='Abbreviation', tracking=True)
-    arabic_desc = fields.Char(string='Arabic Description', tracking=True)
-    arabic_abbr = fields.Char(string='Arabic Abbreviation', tracking=True)
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    code = fields.Char(string=_('Rate Code'), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_('Description'),
+                              required=True, tracking=True, translate=True)
+    abbreviation = fields.Char(string=_('Abbreviation'), tracking=True, translate=True)
+    arabic_desc = fields.Char(string=_('Arabic Description'), tracking=True)
+    arabic_abbr = fields.Char(string=_('Arabic Abbreviation'), tracking=True)
     rate_code_category_id = fields.Many2one(
         'rate.category', string='Category', required=True, tracking=True)
     rate_posting_item = fields.Many2one(
@@ -183,6 +184,24 @@ class RateDetail(models.Model):
 
     _rec_name = 'rate_code_id'
 
+    def write(self, values):
+        super(RateDetail, self).write(values)
+        bookings = self.env['room.booking'].search([
+            ('rate_code', '<=', self.id),
+            ('state', 'not in', ['done', 'cancel', 'no_show', 'check_out']),
+
+        ])
+        print("BOOKINGS", len(bookings))
+
+        # print("BOOKINGS", bookings)
+
+        for booking in bookings:
+            # print("CHECK", booking.checkin_date, booking.checkout_date, booking.state)
+            _logger.info(f"BOOKING ID {booking.id}, {booking.name}")
+            booking._get_forecast_rates(from_rate_code=True)
+
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+
     def name_get(self):
         result = []
         for record in self:
@@ -215,6 +234,13 @@ class RateDetail(models.Model):
     ], string="Meal Option", required=True, default='meal_pattern', tracking=True)
     adult_meal_rate = fields.Float(string='Adult Rate', tracking=True)
     child_meal_rate = fields.Float(string='Child Rate', tracking=True)
+    @api.constrains('adult_meal_rate', 'child_meal_rate')
+    def _check_meal_rate(self):
+        for record in self:
+            if record.adult_meal_rate < 0:
+                raise ValidationError("The Adult Rate cannot be less than 0.")
+            if record.child_meal_rate < 0:
+                raise ValidationError("The Child Rate cannot be less than 0.")
     infant_meal_rate = fields.Float(string='Infant Rate', tracking=True)
 
     packages_line_number = fields.Integer(string="Line", tracking=True)
@@ -248,6 +274,7 @@ class RateDetail(models.Model):
             if company.system_date:
                 # Ensure both are `date` objects
                 system_date = fields.Date.to_date(company.system_date)
+                print('251', system_date)
                 from_date = fields.Date.to_date(record.from_date)
                 if from_date < system_date:
                     raise ValidationError(
@@ -348,27 +375,27 @@ class RateDetail(models.Model):
     saturday_price = fields.Float(string="Saturday", tracking=True)
     sunday_price = fields.Float(string="Sunday", tracking=True)
 
-    pax_1 = fields.Float(string="1 Pax", tracking=True, default=1)
-    pax_2 = fields.Float(string="2 Pax", tracking=True, default=1)
-    pax_3 = fields.Float(string="3 Pax", tracking=True, default=1)
-    pax_4 = fields.Float(string="4 Pax", tracking=True, default=1)
-    pax_5 = fields.Float(string="5 Pax", tracking=True, default=1)
-    pax_6 = fields.Float(string="6 Pax", tracking=True, default=1)
+    pax_1 = fields.Float(string="1 Pax", tracking=True, default=0)
+    pax_2 = fields.Float(string="2 Pax", tracking=True, default=0)
+    pax_3 = fields.Float(string="3 Pax", tracking=True, default=0)
+    pax_4 = fields.Float(string="4 Pax", tracking=True, default=0)
+    pax_5 = fields.Float(string="5 Pax", tracking=True, default=0)
+    pax_6 = fields.Float(string="6 Pax", tracking=True, default=0)
 
     # Child Prices for different configurations (1 Child, 2 Children, etc., tracking=True)
-    child_pax_1 = fields.Float(string="1 Infant", tracking=True, default=1)
-    child_pax_2 = fields.Float(string="2 Children", tracking=True, default=1)
-    child_pax_3 = fields.Float(string="3 Children", tracking=True, default=1)
-    child_pax_4 = fields.Float(string="4 Children", tracking=True, default=1)
-    child_pax_5 = fields.Float(string="5 Children", tracking=True, default=1)
-    child_pax_6 = fields.Float(string="6 Children", tracking=True, default=1)
+    child_pax_1 = fields.Float(string="1 Infant", tracking=True, default=0)
+    child_pax_2 = fields.Float(string="2 Children", tracking=True, default=0)
+    child_pax_3 = fields.Float(string="3 Children", tracking=True, default=0)
+    child_pax_4 = fields.Float(string="4 Children", tracking=True, default=0)
+    child_pax_5 = fields.Float(string="5 Children", tracking=True, default=0)
+    child_pax_6 = fields.Float(string="6 Children", tracking=True, default=0)
 
-    infant_pax_1 = fields.Float(string="1 Infant", tracking=True, default=1)
-    infant_pax_2 = fields.Float(string="2 Infant", tracking=True, default=1)
-    infant_pax_3 = fields.Float(string="3 Infant", tracking=True, default=1)
-    infant_pax_4 = fields.Float(string="4 Infant", tracking=True, default=1)
-    infant_pax_5 = fields.Float(string="5 Infant", tracking=True, default=1)
-    infant_pax_6 = fields.Float(string="6 Infant", tracking=True, default=1)
+    infant_pax_1 = fields.Float(string="1 Infant", tracking=True, default=0)
+    infant_pax_2 = fields.Float(string="2 Infant", tracking=True, default=0)
+    infant_pax_3 = fields.Float(string="3 Infant", tracking=True, default=0)
+    infant_pax_4 = fields.Float(string="4 Infant", tracking=True, default=0)
+    infant_pax_5 = fields.Float(string="5 Infant", tracking=True, default=0)
+    infant_pax_6 = fields.Float(string="6 Infant", tracking=True, default=0)
 
     extra_bed = fields.Integer(string="Extra Bed", tracking=True, default=0)
     suite_supl = fields.Integer(string="Suite Supl", tracking=True, default=0)
@@ -376,25 +403,25 @@ class RateDetail(models.Model):
     @api.onchange('pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6', 'extra_bed', 'suite_supl')
     def _onchange_check_minimum_value(self):
         for field_name in ['pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6']:
-            if getattr(self, field_name, 0) < 1:
+            if getattr(self, field_name, 0) < 0:
                 raise ValidationError(
-                    _("The value for '%s' cannot be less than 1.") % self._fields[field_name].string
+                    _("The value for '%s' cannot be less than 0.") % self._fields[field_name].string
                 )
 
     @api.onchange('child_pax_1', 'child_pax_2', 'child_pax_3', 'child_pax_4', 'child_pax_5', 'child_pax_6')
     def _onchange_check_minimum_child_value(self):
         for field_name in ['child_pax_1', 'child_pax_2', 'child_pax_3', 'child_pax_4', 'child_pax_5', 'child_pax_6']:
-            if getattr(self, field_name, 1) < 1:
+            if getattr(self, field_name, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' cannot be less than 1.") % self._fields[field_name].string
+                    _("The value for '%s' cannot be less than 0.") % self._fields[field_name].string
                 )
 
     @api.onchange('infant_pax_1', 'infant_pax_2', 'infant_pax_3', 'infant_pax_4', 'infant_pax_5', 'infant_pax_6')
     def _onchange_check_minimum_infant_value(self):
         for field_name in ['infant_pax_1', 'infant_pax_2', 'infant_pax_3', 'infant_pax_4', 'infant_pax_5', 'infant_pax_6']:
-            if getattr(self, field_name, 1) < 1:
+            if getattr(self, field_name, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' cannot be less than 1.") % self._fields[field_name].string
+                    _("The value for '%s' cannot be less than 0.") % self._fields[field_name].string
                 )
 
     @api.onchange('extra_bed', 'suite_supl')
@@ -407,38 +434,38 @@ class RateDetail(models.Model):
 
     # Pax Rates for Monday
     monday_pax_1 = fields.Float(
-        string="1 Pax (Monday)", tracking=True, default=1)
+        string="1 Pax (Monday)", tracking=True, default=0)
     monday_pax_2 = fields.Float(
-        string="2 Pax (Monday)", tracking=True, default=1)
+        string="2 Pax (Monday)", tracking=True, default=0)
     monday_pax_3 = fields.Float(
-        string="3 Pax (Monday)", tracking=True, default=1)
+        string="3 Pax (Monday)", tracking=True, default=0)
     monday_pax_4 = fields.Float(
-        string="4 Pax (Monday)", tracking=True, default=1)
+        string="4 Pax (Monday)", tracking=True, default=0)
     monday_pax_5 = fields.Float(
-        string="5 Pax (Monday)", tracking=True, default=1)
+        string="5 Pax (Monday)", tracking=True, default=0)
     monday_pax_6 = fields.Float(
-        string="6 Pax (Monday)", tracking=True, default=1)
+        string="6 Pax (Monday)", tracking=True, default=0)
 
     @api.onchange('monday_pax_1', 'monday_pax_2', 'monday_pax_3', 'monday_pax_4', 'monday_pax_5', 'monday_pax_6')
     def _onchange_monday_pax(self):
         for field in ['monday_pax_1', 'monday_pax_2', 'monday_pax_3', 'monday_pax_4', 'monday_pax_5', 'monday_pax_6']:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Monday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Monday cannot be less than 0.") % self._fields[field].string)
 
     # Child Pax Rates for each day
     monday_child_pax_1 = fields.Float(
-        string="1 Child (Monday)", tracking=True, default=1)
+        string="1 Child (Monday)", tracking=True, default=0)
     monday_child_pax_2 = fields.Float(
-        string="2 Children (Monday)", tracking=True, default=1)
+        string="2 Children (Monday)", tracking=True, default=0)
     monday_child_pax_3 = fields.Float(
-        string="3 Children (Monday)", tracking=True, default=1)
+        string="3 Children (Monday)", tracking=True, default=0)
     monday_child_pax_4 = fields.Float(
-        string="4 Children (Monday)", tracking=True, default=1)
+        string="4 Children (Monday)", tracking=True, default=0)
     monday_child_pax_5 = fields.Float(
-        string="5 Children (Monday)", tracking=True, default=1)
+        string="5 Children (Monday)", tracking=True, default=0)
     monday_child_pax_6 = fields.Float(
-        string="6 Children (Monday)", tracking=True, default=1)
+        string="6 Children (Monday)", tracking=True, default=0)
 
     # Onchange for Monday child pax``
 
@@ -448,22 +475,22 @@ class RateDetail(models.Model):
             'monday_child_pax_1', 'monday_child_pax_2', 'monday_child_pax_3',
             'monday_child_pax_4', 'monday_child_pax_5', 'monday_child_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Monday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Monday cannot be less than 0.") % self._fields[field].string)
 
     monday_infant_pax_1 = fields.Float(
-        string="1 Child (Monday)", tracking=True, default=1)
+        string="1 Child (Monday)", tracking=True, default=0)
     monday_infant_pax_2 = fields.Float(
-        string="2 Children (Monday)", tracking=True, default=1)
+        string="2 Children (Monday)", tracking=True, default=0)
     monday_infant_pax_3 = fields.Float(
-        string="3 Children (Monday)", tracking=True, default=1)
+        string="3 Children (Monday)", tracking=True, default=0)
     monday_infant_pax_4 = fields.Float(
-        string="4 Children (Monday)", tracking=True, default=1)
+        string="4 Children (Monday)", tracking=True, default=0)
     monday_infant_pax_5 = fields.Float(
-        string="5 Children (Monday)", tracking=True, default=1)
+        string="5 Children (Monday)", tracking=True, default=0)
     monday_infant_pax_6 = fields.Float(
-        string="6 Children (Monday)", tracking=True, default=1)
+        string="6 Children (Monday)", tracking=True, default=0)
 
     # Onchange for Monday Infant pax
     @api.onchange('monday_infant_pax_1', 'monday_infant_pax_2', 'monday_infant_pax_3', 'monday_infant_pax_4', 'monday_infant_pax_5', 'monday_infant_pax_6')
@@ -472,43 +499,43 @@ class RateDetail(models.Model):
             'monday_infant_pax_1', 'monday_infant_pax_2', 'monday_infant_pax_3',
             'monday_infant_pax_4', 'monday_infant_pax_5', 'monday_infant_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Monday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Monday cannot be less than 0.") % self._fields[field].string)
 
     # Pax Rates for Tuesday
     tuesday_pax_1 = fields.Float(
-        string="1 Pax (Tuesday)", tracking=True, default=1)
+        string="1 Pax (Tuesday)", tracking=True, default=0)
     tuesday_pax_2 = fields.Float(
-        string="2 Pax (Tuesday)", tracking=True, default=1)
+        string="2 Pax (Tuesday)", tracking=True, default=0)
     tuesday_pax_3 = fields.Float(
-        string="3 Pax (Tuesday)", tracking=True, default=1)
+        string="3 Pax (Tuesday)", tracking=True, default=0)
     tuesday_pax_4 = fields.Float(
-        string="4 Pax (Tuesday)", tracking=True, default=1)
+        string="4 Pax (Tuesday)", tracking=True, default=0)
     tuesday_pax_5 = fields.Float(
-        string="5 Pax (Tuesday)", tracking=True, default=1)
+        string="5 Pax (Tuesday)", tracking=True, default=0)
     tuesday_pax_6 = fields.Float(
-        string="6 Pax (Tuesday)", tracking=True, default=1)
+        string="6 Pax (Tuesday)", tracking=True, default=0)
 
     @api.onchange('tuesday_pax_1', 'tuesday_pax_2', 'tuesday_pax_3', 'tuesday_pax_4', 'tuesday_pax_5', 'tuesday_pax_6')
     def _onchange_tuesday_pax(self):
         for field in ['tuesday_pax_1', 'tuesday_pax_2', 'tuesday_pax_3', 'tuesday_pax_4', 'tuesday_pax_5', 'tuesday_pax_6']:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Tuesday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Tuesday cannot be less than 0.") % self._fields[field].string)
 
     tuesday_child_pax_1 = fields.Float(
-        string="1 Child (Tuesday)", tracking=True, default=1)
+        string="1 Child (Tuesday)", tracking=True, default=0)
     tuesday_child_pax_2 = fields.Float(
-        string="2 Children (Tuesday)", tracking=True, default=1)
+        string="2 Children (Tuesday)", tracking=True, default=0)
     tuesday_child_pax_3 = fields.Float(
-        string="3 Children (Tuesday)", tracking=True, default=1)
+        string="3 Children (Tuesday)", tracking=True, default=0)
     tuesday_child_pax_4 = fields.Float(
-        string="4 Children (Tuesday)", tracking=True, default=1)
+        string="4 Children (Tuesday)", tracking=True, default=0)
     tuesday_child_pax_5 = fields.Float(
-        string="5 Children (Tuesday)", tracking=True, default=1)
+        string="5 Children (Tuesday)", tracking=True, default=0)
     tuesday_child_pax_6 = fields.Float(
-        string="6 Children (Tuesday)", tracking=True, default=1)
+        string="6 Children (Tuesday)", tracking=True, default=0)
 
     @api.onchange(
         'tuesday_child_pax_1', 'tuesday_child_pax_2', 'tuesday_child_pax_3',
@@ -519,22 +546,22 @@ class RateDetail(models.Model):
             'tuesday_child_pax_1', 'tuesday_child_pax_2', 'tuesday_child_pax_3',
             'tuesday_child_pax_4', 'tuesday_child_pax_5', 'tuesday_child_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Tuesday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Tuesday cannot be less than 0.") % self._fields[field].string)
 
     tuesday_infant_pax_1 = fields.Float(
-        string="1 Infant (Tuesday)", tracking=True, default=1)
+        string="1 Infant (Tuesday)", tracking=True, default=0)
     tuesday_infant_pax_2 = fields.Float(
-        string="2 Infants (Tuesday)", tracking=True, default=1)
+        string="2 Infants (Tuesday)", tracking=True, default=0)
     tuesday_infant_pax_3 = fields.Float(
-        string="3 Infants (Tuesday)", tracking=True, default=1)
+        string="3 Infants (Tuesday)", tracking=True, default=0)
     tuesday_infant_pax_4 = fields.Float(
-        string="4 Infants (Tuesday)", tracking=True, default=1)
+        string="4 Infants (Tuesday)", tracking=True, default=0)
     tuesday_infant_pax_5 = fields.Float(
-        string="5 Infants (Tuesday)", tracking=True, default=1)
+        string="5 Infants (Tuesday)", tracking=True, default=0)
     tuesday_infant_pax_6 = fields.Float(
-        string="6 Infants (Tuesday)", tracking=True, default=1)
+        string="6 Infants (Tuesday)", tracking=True, default=0)
 
     @api.onchange(
         'tuesday_infant_pax_1', 'tuesday_infant_pax_2', 'tuesday_infant_pax_3',
@@ -545,44 +572,44 @@ class RateDetail(models.Model):
             'tuesday_infant_pax_1', 'tuesday_infant_pax_2', 'tuesday_infant_pax_3',
             'tuesday_infant_pax_4', 'tuesday_infant_pax_5', 'tuesday_infant_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Tuesday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Tuesday cannot be less than 0.") % self._fields[field].string)
 
     # Pax Rates for Wednesday
     wednesday_pax_1 = fields.Float(
-        string="1 Pax (Wednesday)", tracking=True, default=1)
+        string="1 Pax (Wednesday)", tracking=True, default=0)
     wednesday_pax_2 = fields.Float(
-        string="2 Pax (Wednesday)", tracking=True, default=1)
+        string="2 Pax (Wednesday)", tracking=True, default=0)
     wednesday_pax_3 = fields.Float(
-        string="3 Pax (Wednesday)", tracking=True, default=1)
+        string="3 Pax (Wednesday)", tracking=True, default=0)
     wednesday_pax_4 = fields.Float(
-        string="4 Pax (Wednesday)", tracking=True, default=1)
+        string="4 Pax (Wednesday)", tracking=True, default=0)
     wednesday_pax_5 = fields.Float(
-        string="5 Pax (Wednesday)", tracking=True, default=1)
+        string="5 Pax (Wednesday)", tracking=True, default=0)
     wednesday_pax_6 = fields.Float(
-        string="6 Pax (Wednesday)", tracking=True, default=1)
+        string="6 Pax (Wednesday)", tracking=True, default=0)
 
     @api.onchange('wednesday_pax_1', 'wednesday_pax_2', 'wednesday_pax_3', 'wednesday_pax_4', 'wednesday_pax_5', 'wednesday_pax_6')
     def _onchange_wednesday_pax(self):
         for field in ['wednesday_pax_1', 'wednesday_pax_2', 'wednesday_pax_3', 'wednesday_pax_4', 'wednesday_pax_5', 'wednesday_pax_6']:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Wednesday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Wednesday cannot be less than 0.") % self._fields[field].string)
 
     # Child Pax Rates for Wednesday
     wednesday_child_pax_1 = fields.Float(
-        string="1 Child (Wednesday)", tracking=True, default=1)
+        string="1 Child (Wednesday)", tracking=True, default=0)
     wednesday_child_pax_2 = fields.Float(
-        string="2 Children (Wednesday)", tracking=True, default=1)
+        string="2 Children (Wednesday)", tracking=True, default=0)
     wednesday_child_pax_3 = fields.Float(
-        string="3 Children (Wednesday)", tracking=True, default=1)
+        string="3 Children (Wednesday)", tracking=True, default=0)
     wednesday_child_pax_4 = fields.Float(
-        string="4 Children (Wednesday)", tracking=True, default=1)
+        string="4 Children (Wednesday)", tracking=True, default=0)
     wednesday_child_pax_5 = fields.Float(
-        string="5 Children (Wednesday)", tracking=True, default=1)
+        string="5 Children (Wednesday)", tracking=True, default=0)
     wednesday_child_pax_6 = fields.Float(
-        string="6 Children (Wednesday)", tracking=True, default=1)
+        string="6 Children (Wednesday)", tracking=True, default=0)
 
     @api.onchange('wednesday_child_pax_1', 'wednesday_child_pax_2', 'wednesday_child_pax_3', 'wednesday_child_pax_4', 'wednesday_child_pax_5', 'wednesday_child_pax_6')
     def _onchange_wednesday_child_pax(self):
@@ -590,23 +617,23 @@ class RateDetail(models.Model):
             'wednesday_child_pax_1', 'wednesday_child_pax_2', 'wednesday_child_pax_3',
             'wednesday_child_pax_4', 'wednesday_child_pax_5', 'wednesday_child_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Wednesday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Wednesday cannot be less than 0.") % self._fields[field].string)
 
     # Infant Pax Rates for Wednesday
     wednesday_infant_pax_1 = fields.Float(
-        string="1 Infant (Wednesday)", tracking=True, default=1)
+        string="1 Infant (Wednesday)", tracking=True, default=0)
     wednesday_infant_pax_2 = fields.Float(
-        string="2 Infants (Wednesday)", tracking=True, default=1)
+        string="2 Infants (Wednesday)", tracking=True, default=0)
     wednesday_infant_pax_3 = fields.Float(
-        string="3 Infants (Wednesday)", tracking=True, default=1)
+        string="3 Infants (Wednesday)", tracking=True, default=0)
     wednesday_infant_pax_4 = fields.Float(
-        string="4 Infants (Wednesday)", tracking=True, default=1)
+        string="4 Infants (Wednesday)", tracking=True, default=0)
     wednesday_infant_pax_5 = fields.Float(
-        string="5 Infants (Wednesday)", tracking=True, default=1)
+        string="5 Infants (Wednesday)", tracking=True, default=0)
     wednesday_infant_pax_6 = fields.Float(
-        string="6 Infants (Wednesday)", tracking=True, default=1)
+        string="6 Infants (Wednesday)", tracking=True, default=0)
 
     @api.onchange(
         'wednesday_infant_pax_1', 'wednesday_infant_pax_2', 'wednesday_infant_pax_3',
@@ -617,44 +644,44 @@ class RateDetail(models.Model):
             'wednesday_infant_pax_1', 'wednesday_infant_pax_2', 'wednesday_infant_pax_3',
             'wednesday_infant_pax_4', 'wednesday_infant_pax_5', 'wednesday_infant_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Wednesday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Wednesday cannot be less than 0.") % self._fields[field].string)
 
     # Pax Rates for Thursday
     thursday_pax_1 = fields.Float(
-        string="1 Pax (Thursday)", tracking=True, default=1)
+        string="1 Pax (Thursday)", tracking=True, default=0)
     thursday_pax_2 = fields.Float(
-        string="2 Pax (Thursday)", tracking=True, default=1)
+        string="2 Pax (Thursday)", tracking=True, default=0)
     thursday_pax_3 = fields.Float(
-        string="3 Pax (Thursday)", tracking=True, default=1)
+        string="3 Pax (Thursday)", tracking=True, default=0)
     thursday_pax_4 = fields.Float(
-        string="4 Pax (Thursday)", tracking=True, default=1)
+        string="4 Pax (Thursday)", tracking=True, default=0)
     thursday_pax_5 = fields.Float(
-        string="5 Pax (Thursday)", tracking=True, default=1)
+        string="5 Pax (Thursday)", tracking=True, default=0)
     thursday_pax_6 = fields.Float(
-        string="6 Pax (Thursday)", tracking=True, default=1)
+        string="6 Pax (Thursday)", tracking=True, default=0)
 
     @api.onchange('thursday_pax_1', 'thursday_pax_2', 'thursday_pax_3', 'thursday_pax_4', 'thursday_pax_5', 'thursday_pax_6')
     def _onchange_thursday_pax(self):
         for field in ['thursday_pax_1', 'thursday_pax_2', 'thursday_pax_3', 'thursday_pax_4', 'thursday_pax_5', 'thursday_pax_6']:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Thursday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Thursday cannot be less than 0.") % self._fields[field].string)
 
     # Child Pax Rates for Thursday
     thursday_child_pax_1 = fields.Float(
-        string="1 Child (Thursday)", tracking=True, default=1)
+        string="1 Child (Thursday)", tracking=True, default=0)
     thursday_child_pax_2 = fields.Float(
-        string="2 Children (Thursday)", tracking=True, default=1)
+        string="2 Children (Thursday)", tracking=True, default=0)
     thursday_child_pax_3 = fields.Float(
-        string="3 Children (Thursday)", tracking=True, default=1)
+        string="3 Children (Thursday)", tracking=True, default=0)
     thursday_child_pax_4 = fields.Float(
-        string="4 Children (Thursday)", tracking=True, default=1)
+        string="4 Children (Thursday)", tracking=True, default=0)
     thursday_child_pax_5 = fields.Float(
-        string="5 Children (Thursday)", tracking=True, default=1)
+        string="5 Children (Thursday)", tracking=True, default=0)
     thursday_child_pax_6 = fields.Float(
-        string="6 Children (Thursday)", tracking=True, default=1)
+        string="6 Children (Thursday)", tracking=True, default=0)
 
     @api.onchange('thursday_child_pax_1', 'thursday_child_pax_2', 'thursday_child_pax_3', 'thursday_child_pax_4', 'thursday_child_pax_5', 'thursday_child_pax_6')
     def _onchange_thursday_child_pax(self):
@@ -662,23 +689,23 @@ class RateDetail(models.Model):
             'thursday_child_pax_1', 'thursday_child_pax_2', 'thursday_child_pax_3',
             'thursday_child_pax_4', 'thursday_child_pax_5', 'thursday_child_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Thursday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Thursday cannot be less than 0.") % self._fields[field].string)
 
         # Infant Pax Rates for Thursday
     thursday_infant_pax_1 = fields.Float(
-        string="1 Infant (Thursday)", tracking=True, default=1)
+        string="1 Infant (Thursday)", tracking=True, default=0)
     thursday_infant_pax_2 = fields.Float(
-        string="2 Infants (Thursday)", tracking=True, default=1)
+        string="2 Infants (Thursday)", tracking=True, default=0)
     thursday_infant_pax_3 = fields.Float(
-        string="3 Infants (Thursday)", tracking=True, default=1)
+        string="3 Infants (Thursday)", tracking=True, default=0)
     thursday_infant_pax_4 = fields.Float(
-        string="4 Infants (Thursday)", tracking=True, default=1)
+        string="4 Infants (Thursday)", tracking=True, default=0)
     thursday_infant_pax_5 = fields.Float(
-        string="5 Infants (Thursday)", tracking=True, default=1)
+        string="5 Infants (Thursday)", tracking=True, default=0)
     thursday_infant_pax_6 = fields.Float(
-        string="6 Infants (Thursday)", tracking=True, default=1)
+        string="6 Infants (Thursday)", tracking=True, default=0)
 
     @api.onchange(
         'thursday_infant_pax_1', 'thursday_infant_pax_2', 'thursday_infant_pax_3',
@@ -689,44 +716,44 @@ class RateDetail(models.Model):
             'thursday_infant_pax_1', 'thursday_infant_pax_2', 'thursday_infant_pax_3',
             'thursday_infant_pax_4', 'thursday_infant_pax_5', 'thursday_infant_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Thursday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Thursday cannot be less than 0.") % self._fields[field].string)
 
     # Pax Rates for Friday
     friday_pax_1 = fields.Float(
-        string="1 Pax (Friday)", tracking=True, default=1)
+        string="1 Pax (Friday)", tracking=True, default=0)
     friday_pax_2 = fields.Float(
-        string="2 Pax (Friday)", tracking=True, default=1)
+        string="2 Pax (Friday)", tracking=True, default=0)
     friday_pax_3 = fields.Float(
-        string="3 Pax (Friday)", tracking=True, default=1)
+        string="3 Pax (Friday)", tracking=True, default=0)
     friday_pax_4 = fields.Float(
-        string="4 Pax (Friday)", tracking=True, default=1)
+        string="4 Pax (Friday)", tracking=True, default=0)
     friday_pax_5 = fields.Float(
-        string="5 Pax (Friday)", tracking=True, default=1)
+        string="5 Pax (Friday)", tracking=True, default=0)
     friday_pax_6 = fields.Float(
-        string="6 Pax (Friday)", tracking=True, default=1)
+        string="6 Pax (Friday)", tracking=True, default=0)
 
     @api.onchange('friday_pax_1', 'friday_pax_2', 'friday_pax_3', 'friday_pax_4', 'friday_pax_5', 'friday_pax_6')
     def _onchange_friday_pax(self):
         for field in ['friday_pax_1', 'friday_pax_2', 'friday_pax_3', 'friday_pax_4', 'friday_pax_5', 'friday_pax_6']:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Friday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Friday cannot be less than 0.") % self._fields[field].string)
 
     # Child Pax Rates for Friday
     friday_child_pax_1 = fields.Float(
-        string="1 Child (Friday)", tracking=True, default=1)
+        string="1 Child (Friday)", tracking=True, default=0)
     friday_child_pax_2 = fields.Float(
-        string="2 Children (Friday)", tracking=True, default=1)
+        string="2 Children (Friday)", tracking=True, default=0)
     friday_child_pax_3 = fields.Float(
-        string="3 Children (Friday)", tracking=True, default=1)
+        string="3 Children (Friday)", tracking=True, default=0)
     friday_child_pax_4 = fields.Float(
-        string="4 Children (Friday)", tracking=True, default=1)
+        string="4 Children (Friday)", tracking=True, default=0)
     friday_child_pax_5 = fields.Float(
-        string="5 Children (Friday)", tracking=True, default=1)
+        string="5 Children (Friday)", tracking=True, default=0)
     friday_child_pax_6 = fields.Float(
-        string="6 Children (Friday)", tracking=True, default=1)
+        string="6 Children (Friday)", tracking=True, default=0)
 
     @api.onchange(
         'friday_child_pax_1', 'friday_child_pax_2', 'friday_child_pax_3',
@@ -737,23 +764,23 @@ class RateDetail(models.Model):
             'friday_child_pax_1', 'friday_child_pax_2', 'friday_child_pax_3',
             'friday_child_pax_4', 'friday_child_pax_5', 'friday_child_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Friday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Friday cannot be less than 0.") % self._fields[field].string)
 
     # Infant Pax Rates for Friday
     friday_infant_pax_1 = fields.Float(
-        string="1 Infant (Friday)", tracking=True, default=1)
+        string="1 Infant (Friday)", tracking=True, default=0)
     friday_infant_pax_2 = fields.Float(
-        string="2 Infants (Friday)", tracking=True, default=1)
+        string="2 Infants (Friday)", tracking=True, default=0)
     friday_infant_pax_3 = fields.Float(
-        string="3 Infants (Friday)", tracking=True, default=1)
+        string="3 Infants (Friday)", tracking=True, default=0)
     friday_infant_pax_4 = fields.Float(
-        string="4 Infants (Friday)", tracking=True, default=1)
+        string="4 Infants (Friday)", tracking=True, default=0)
     friday_infant_pax_5 = fields.Float(
-        string="5 Infants (Friday)", tracking=True, default=1)
+        string="5 Infants (Friday)", tracking=True, default=0)
     friday_infant_pax_6 = fields.Float(
-        string="6 Infants (Friday)", tracking=True, default=1)
+        string="6 Infants (Friday)", tracking=True, default=0)
 
     @api.onchange(
         'friday_infant_pax_1', 'friday_infant_pax_2', 'friday_infant_pax_3',
@@ -764,44 +791,44 @@ class RateDetail(models.Model):
             'friday_infant_pax_1', 'friday_infant_pax_2', 'friday_infant_pax_3',
             'friday_infant_pax_4', 'friday_infant_pax_5', 'friday_infant_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Friday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Friday cannot be less than 0.") % self._fields[field].string)
 
     # Pax Rates for Saturday
     saturday_pax_1 = fields.Float(
-        string="1 Pax (Saturday)", tracking=True, default=1)
+        string="1 Pax (Saturday)", tracking=True, default=0)
     saturday_pax_2 = fields.Float(
-        string="2 Pax (Saturday)", tracking=True, default=1)
+        string="2 Pax (Saturday)", tracking=True, default=0)
     saturday_pax_3 = fields.Float(
-        string="3 Pax (Saturday)", tracking=True, default=1)
+        string="3 Pax (Saturday)", tracking=True, default=0)
     saturday_pax_4 = fields.Float(
-        string="4 Pax (Saturday)", tracking=True, default=1)
+        string="4 Pax (Saturday)", tracking=True, default=0)
     saturday_pax_5 = fields.Float(
-        string="5 Pax (Saturday)", tracking=True, default=1)
+        string="5 Pax (Saturday)", tracking=True, default=0)
     saturday_pax_6 = fields.Float(
-        string="6 Pax (Saturday)", tracking=True, default=1)
+        string="6 Pax (Saturday)", tracking=True, default=0)
 
     @api.onchange('saturday_pax_1', 'saturday_pax_2', 'saturday_pax_3', 'saturday_pax_4', 'saturday_pax_5', 'saturday_pax_6')
     def _onchange_saturday_pax(self):
         for field in ['saturday_pax_1', 'saturday_pax_2', 'saturday_pax_3', 'saturday_pax_4', 'saturday_pax_5', 'saturday_pax_6']:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Saturday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Saturday cannot be less than 0.") % self._fields[field].string)
 
     # Child Pax Rates for Saturday
     saturday_child_pax_1 = fields.Float(
-        string="1 Child (Saturday)", tracking=True, default=1)
+        string="1 Child (Saturday)", tracking=True, default=0)
     saturday_child_pax_2 = fields.Float(
-        string="2 Children (Saturday)", tracking=True, default=1)
+        string="2 Children (Saturday)", tracking=True, default=0)
     saturday_child_pax_3 = fields.Float(
-        string="3 Children (Saturday)", tracking=True, default=1)
+        string="3 Children (Saturday)", tracking=True, default=0)
     saturday_child_pax_4 = fields.Float(
-        string="4 Children (Saturday)", tracking=True, default=1)
+        string="4 Children (Saturday)", tracking=True, default=0)
     saturday_child_pax_5 = fields.Float(
-        string="5 Children (Saturday)", tracking=True, default=1)
+        string="5 Children (Saturday)", tracking=True, default=0)
     saturday_child_pax_6 = fields.Float(
-        string="6 Children (Saturday)", tracking=True, default=1)
+        string="6 Children (Saturday)", tracking=True, default=0)
 
     @api.onchange(
         'saturday_child_pax_1', 'saturday_child_pax_2', 'saturday_child_pax_3',
@@ -812,23 +839,23 @@ class RateDetail(models.Model):
             'saturday_child_pax_1', 'saturday_child_pax_2', 'saturday_child_pax_3',
             'saturday_child_pax_4', 'saturday_child_pax_5', 'saturday_child_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Saturday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Saturday cannot be less than 0.") % self._fields[field].string)
 
     # Infant Pax Rates for Saturday
     saturday_infant_pax_1 = fields.Float(
-        string="1 Infant (Saturday)", tracking=True, default=1)
+        string="1 Infant (Saturday)", tracking=True, default=0)
     saturday_infant_pax_2 = fields.Float(
-        string="2 Infants (Saturday)", tracking=True, default=1)
+        string="2 Infants (Saturday)", tracking=True, default=0)
     saturday_infant_pax_3 = fields.Float(
-        string="3 Infants (Saturday)", tracking=True, default=1)
+        string="3 Infants (Saturday)", tracking=True, default=0)
     saturday_infant_pax_4 = fields.Float(
-        string="4 Infants (Saturday)", tracking=True, default=1)
+        string="4 Infants (Saturday)", tracking=True, default=0)
     saturday_infant_pax_5 = fields.Float(
-        string="5 Infants (Saturday)", tracking=True, default=1)
+        string="5 Infants (Saturday)", tracking=True, default=0)
     saturday_infant_pax_6 = fields.Float(
-        string="6 Infants (Saturday)", tracking=True, default=1)
+        string="6 Infants (Saturday)", tracking=True, default=0)
 
     @api.onchange(
         'saturday_infant_pax_1', 'saturday_infant_pax_2', 'saturday_infant_pax_3',
@@ -839,43 +866,43 @@ class RateDetail(models.Model):
             'saturday_infant_pax_1', 'saturday_infant_pax_2', 'saturday_infant_pax_3',
             'saturday_infant_pax_4', 'saturday_infant_pax_5', 'saturday_infant_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Saturday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Saturday cannot be less than 0.") % self._fields[field].string)
 
     # Pax Rates for Sunday
     sunday_pax_1 = fields.Float(
-        string="1 Pax (Sunday)", tracking=True, default=1)
+        string="1 Pax (Sunday)", tracking=True, default=0)
     sunday_pax_2 = fields.Float(
-        string="2 Pax (Sunday)", tracking=True, default=1)
+        string="2 Pax (Sunday)", tracking=True, default=0)
     sunday_pax_3 = fields.Float(
-        string="3 Pax (Sunday)", tracking=True, default=1)
+        string="3 Pax (Sunday)", tracking=True, default=0)
     sunday_pax_4 = fields.Float(
-        string="4 Pax (Sunday)", tracking=True, default=1)
+        string="4 Pax (Sunday)", tracking=True, default=0)
     sunday_pax_5 = fields.Float(
-        string="5 Pax (Sunday)", tracking=True, default=1)
+        string="5 Pax (Sunday)", tracking=True, default=0)
     sunday_pax_6 = fields.Float(
-        string="6 Pax (Sunday)", tracking=True, default=1)
+        string="6 Pax (Sunday)", tracking=True, default=0)
 
     @api.onchange('sunday_pax_1', 'sunday_pax_2', 'sunday_pax_3', 'sunday_pax_4', 'sunday_pax_5', 'sunday_pax_6')
     def _onchange_sunday_pax(self):
         for field in ['sunday_pax_1', 'sunday_pax_2', 'sunday_pax_3', 'sunday_pax_4', 'sunday_pax_5', 'sunday_pax_6']:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Sunday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Sunday cannot be less than 0.") % self._fields[field].string)
 
     sunday_child_pax_1 = fields.Float(
-        string="1 Child (Sunday)", tracking=True, default=1)
+        string="1 Child (Sunday)", tracking=True, default=0)
     sunday_child_pax_2 = fields.Float(
-        string="2 Children (Sunday)", tracking=True, default=1)
+        string="2 Children (Sunday)", tracking=True, default=0)
     sunday_child_pax_3 = fields.Float(
-        string="3 Children (Sunday)", tracking=True, default=1)
+        string="3 Children (Sunday)", tracking=True, default=0)
     sunday_child_pax_4 = fields.Float(
-        string="4 Children (Sunday)", tracking=True, default=1)
+        string="4 Children (Sunday)", tracking=True, default=0)
     sunday_child_pax_5 = fields.Float(
-        string="5 Children (Sunday)", tracking=True, default=1)
+        string="5 Children (Sunday)", tracking=True, default=0)
     sunday_child_pax_6 = fields.Float(
-        string="6 Children (Sunday)", tracking=True, default=1)
+        string="6 Children (Sunday)", tracking=True, default=0)
 
     @api.onchange(
         'sunday_child_pax_1', 'sunday_child_pax_2', 'sunday_child_pax_3',
@@ -886,23 +913,23 @@ class RateDetail(models.Model):
             'sunday_child_pax_1', 'sunday_child_pax_2', 'sunday_child_pax_3',
             'sunday_child_pax_4', 'sunday_child_pax_5', 'sunday_child_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Sunday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Sunday cannot be less than 0.") % self._fields[field].string)
 
     # Infant Pax Rates for Sunday
     sunday_infant_pax_1 = fields.Float(
-        string="1 Infant (Sunday)", tracking=True, default=1)
+        string="1 Infant (Sunday)", tracking=True, default=0)
     sunday_infant_pax_2 = fields.Float(
-        string="2 Infants (Sunday)", tracking=True, default=1)
+        string="2 Infants (Sunday)", tracking=True, default=0)
     sunday_infant_pax_3 = fields.Float(
-        string="3 Infants (Sunday)", tracking=True, default=1)
+        string="3 Infants (Sunday)", tracking=True, default=0)
     sunday_infant_pax_4 = fields.Float(
-        string="4 Infants (Sunday)", tracking=True, default=1)
+        string="4 Infants (Sunday)", tracking=True, default=0)
     sunday_infant_pax_5 = fields.Float(
-        string="5 Infants (Sunday)", tracking=True, default=1)
+        string="5 Infants (Sunday)", tracking=True, default=0)
     sunday_infant_pax_6 = fields.Float(
-        string="6 Infants (Sunday)", tracking=True, default=1)
+        string="6 Infants (Sunday)", tracking=True, default=0)
 
     @api.onchange(
         'sunday_infant_pax_1', 'sunday_infant_pax_2', 'sunday_infant_pax_3',
@@ -913,9 +940,9 @@ class RateDetail(models.Model):
             'sunday_infant_pax_1', 'sunday_infant_pax_2', 'sunday_infant_pax_3',
             'sunday_infant_pax_4', 'sunday_infant_pax_5', 'sunday_infant_pax_6'
         ]:
-            if getattr(self, field, 1) < 1:
+            if getattr(self, field, 1) < 0:
                 raise ValidationError(
-                    _("The value for '%s' on Sunday cannot be less than 1.") % self._fields[field].string)
+                    _("The value for '%s' on Sunday cannot be less than 0.") % self._fields[field].string)
 
     monday_checkbox = fields.Boolean(
         string="Apply Default for Monday", tracking=True)
@@ -1216,7 +1243,7 @@ class RateDetail(models.Model):
     price_type = fields.Selection([
         ('rate_meals', 'Rate and Meals Price'),
         ('room_only', 'Room Only')
-    ], string="Price Type", tracking=True)
+    ], string="Price Type", required=True, tracking=True, default='room_only')
 
     meal_pattern_id = fields.Many2one(
         'meal.pattern', string="Meal Pattern", tracking=True)
@@ -1610,7 +1637,7 @@ class RoomTypeSpecificRate(models.Model):
 class RoomNumberStore(models.Model):
     _name = 'room.number.store'
     _description = 'Room Number Store'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string="Room Name", required=True, tracking=True)
     fsm_location = fields.Many2one(
@@ -1631,8 +1658,7 @@ class RoomNumberSpecificRate(models.Model):
 
     _rec_name = 'room_number'
     # Fields for Room Type Specific Rate Model
-    rate_code_id = fields.Many2one(
-        'rate.code', string="Rate Code", required=True, tracking=True)
+    rate_code_id = fields.Many2one('rate.code', string="Rate Code", required=True, tracking=True)
     from_date = fields.Date(string="From Date", tracking=True)
     to_date = fields.Date(string="To Date", tracking=True)
 
@@ -1996,9 +2022,9 @@ class RatePromotion(models.Model):
     _description = 'Rate Promotion'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    promotion_id = fields.Char(string="Promotion ID", tracking=True)
-    description = fields.Char(string="Description", tracking=True)
-    abbreviation = fields.Char(string="Abbreviation", tracking=True)
+    promotion_id = fields.Char(string=_("Promotion ID"), tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
     buy = fields.Integer(string="Buy", tracking=True)
     get = fields.Integer(string="Get", tracking=True)
     valid_from = fields.Date(string="Validity Period From", tracking=True)
@@ -2010,13 +2036,13 @@ class MarketCategory(models.Model):
     _description = 'Market Category'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    category = fields.Many2one(
-        'rate.category', string='Category', tracking=True)
+    # category = fields.Many2one(
+    #     'rate.category', string='Category', tracking=True)
     _rec_name = "market_category"
     market_category = fields.Char(
-        string='Category', required=True, tracking=True)
-    description = fields.Char(string="Description", tracking=True)
-    abbreviation = fields.Char(string="Abbreviation", tracking=True)
+        string=_('Category'), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", tracking=True)
 
 
@@ -2026,10 +2052,11 @@ class MarketSegment(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'market_segment'
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
     market_segment = fields.Char(
-        string="Market Segment", required=True, tracking=True)
-    description = fields.Char(string="Description", tracking=True)
-    abbreviation = fields.Char(string="Abbreviation", tracking=True)
+        string=_("Market Segment"), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
     category = fields.Many2one(
         'market.category', string='Category', required=True, tracking=True)
     user_sort = fields.Integer(string="User Sort", tracking=True)
@@ -2042,9 +2069,10 @@ class SourceOfBusiness(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'source'
-    source = fields.Char(string="Source", required=True, tracking=True)
-    description = fields.Char(string="Description", tracking=True)
-    abbreviation = fields.Char(string="Abbreviation", tracking=True)
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    source = fields.Char(string=_("Source"), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False, tracking=True)
 
@@ -2055,8 +2083,8 @@ class CompanyCategory(models.Model):
 
     category = fields.Many2one(
         'rate.category', string='Category', required=True)
-    description = fields.Char(string="Description")
-    abbreviation = fields.Char(string="Abbreviation")
+    description = fields.Char(string=_("Description"), translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), translate=True)
     user_sort = fields.Integer(string="User Sort", default=0)
 
 
@@ -2068,8 +2096,8 @@ class CountryRegion(models.Model):
 
     country_ids = fields.Many2many(
         'res.country', string="Countries", required=True, tracking=True)
-    Region = fields.Char(string="Region", tracking=True, required=True)
-    abbreviation = fields.Char(string="Abbreviation", tracking=True)
+    Region = fields.Char(string=_("Region"), tracking=True, required=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0, tracking=True)
 
 
@@ -2080,9 +2108,9 @@ class ReservationStatusCode(models.Model):
     _rec_name = 'reservation'
 
     reservation = fields.Char(
-        string="Reservation Type", required=True, tracking=True)
-    description = fields.Char(string="Description", tracking=True)
-    abbreviation = fields.Char(string="Abbreviation", tracking=True)
+        string=_("Reservation Type"), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0, tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False, tracking=True)
 
@@ -2104,11 +2132,11 @@ class AllotmentCode(models.Model):
     _rec_name = 'allotment_code'
 
     allotment_code = fields.Char(
-        string="Allotment Code", required=True, tracking=True)
-    description = fields.Char(string="Description", tracking=True)
+        string=_("Allotment Code"), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), tracking=True, translate=True)
     arabic_description = fields.Char(
-        string="Arabic Description", tracking=True)
-    company = fields.Char(string="Company", tracking=True)
+        string=_("Arabic Description"), tracking=True, translate=True)
+    company = fields.Char(string=_("Company"), tracking=True, translate=True)
     active = fields.Boolean(string="Active", default=True, tracking=True)
     committed_reservations = fields.Boolean(
         string="Committed Reservations", tracking=True)
@@ -2138,8 +2166,8 @@ class AllotmentRoomType(models.Model):
     _description = 'Allotment Room Type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    room_type = fields.Char(string="Room Type", tracking=True)
-    short_name = fields.Char(string="Short Name", tracking=True)
+    room_type = fields.Char(string=_("Room Type"), tracking=True, translate=True)
+    short_name = fields.Char(string=_("Short Name"), tracking=True, translate=True)
     no_of_rooms = fields.Integer(string="Number of Rooms", tracking=True)
     no_of_pax = fields.Integer(string="Number of Pax", tracking=True)
     allotment_id = fields.Many2one(
@@ -2152,9 +2180,9 @@ class CancellationCode(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'code'
 
-    code = fields.Char(string="Code", required=True, tracking=True)
-    description = fields.Char(string="Description", tracking=True)
-    abbreviation = fields.Char(string="Abbreviation", tracking=True)
+    code = fields.Char(string=_("Code"), required=True, tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0, tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False, tracking=True)
 
@@ -2168,9 +2196,9 @@ class CountryCode(models.Model):
     country_id = fields.Many2one(
         'res.country', string="Country", required=True, tracking=True)
     country_code = fields.Char(
-        string="Country Code", compute="_compute_country_code", store=True, tracking=True)
+        string=_("Country Code"), compute="_compute_country_code", store=True, tracking=True, translate=True)
     phone_code = fields.Char(
-        string="Phone Code", compute="_compute_country_code", store=True, tracking=True)
+        string=_("Phone Code"), compute="_compute_country_code", store=True, tracking=True, translate=True)
 
     @api.depends('country_id')
     def _compute_country_code(self):
@@ -2186,7 +2214,7 @@ class HotelConfiguration(models.Model):
     # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     service_name = fields.Char(
-        string="Service Name", required=True, tracking=True)
+        string=_("Service Name"), required=True, tracking=True, translate=True)
     unit_price = fields.Float(string="Service Price",
                               readonly=True, tracking=True)
     frequency = fields.Selection(
@@ -2225,7 +2253,7 @@ class Yearly_geographical_chart(models.Model):
                               required=True, tracking=True)
     client_id = fields.Many2one(
         'res.partner', string='Client', required=True, tracking=True)
-    room_type = fields.Char(string='Room Type', required=True, tracking=True)
+    room_type = fields.Char(string=_('Room Type'), required=True, tracking=True, translate=True)
     total_rooms = fields.Integer(
         string='Total Rooms', readonly=True, tracking=True)
     available = fields.Integer(

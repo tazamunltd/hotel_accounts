@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Date: 2025-01-20 Time: 13:59:45 - Fixed date inputs and chart containers -->
+<templates xml:space="preserve">
+    <t t-name="hotel_management_odoo.NewDashBoard">
+        <div class="oh_dashboards">
+            <div class="container-fluid">
+                <!-- Date filters -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="startDate">From Date</label>
+                                            <input type="date" class="form-control" id="startDate"
+                                                   t-att-value="state.startDate" 
+                                                   t-on-change="(ev) => { state.startDate = ev.target.value; }"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="endDate">To Date</label>
+                                            <input type="date" class="form-control" id="endDate"
+                                                   t-att-value="state.endDate"
+                                                   t-on-change="(ev) => { state.endDate = ev.target.value; }"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <button class="btn btn-primary" t-on-click="() => this.applyDateFilter()">
+                                            Apply Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <t t-if="state.isLoading">
+                    <div class="text-center py-5">
+                        <i class="fa fa-spinner fa-spin fa-3x"/>
+                        <p class="mt-2">Loading dashboard data...</p>
+                    </div>
+                </t>
+
+                <t t-else="">
+                    <!-- Metrics Cards -->
+                    <div class="row mb-4">
+                        <!-- Confirmed Card -->
+                        <div class="col-md-2">
+                            <div class="card metric-card">
+                                <div class="card-body text-center d-flex align-items-center">
+                                    <div class="metric-icon bg-success-light me-3">
+                                        <i class="fa fa-check text-success"/>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 class="mb-0 text-success" t-esc="state.metrics.confirmed"/>
+                                        <p class="text-muted mb-0">Confirmed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Not Confirmed Card -->
+                        <div class="col-md-2">
+                            <div class="card metric-card">
+                                <div class="card-body text-center d-flex align-items-center">
+                                    <div class="metric-icon bg-warning-light me-3">
+                                        <i class="fa fa-clock text-warning"/>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 class="mb-0 text-warning" t-esc="state.metrics.not_confirmed"/>
+                                        <p class="text-muted mb-0">Not Confirmed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Waiting List Card -->
+                        <div class="col-md-2">
+                            <div class="card metric-card">
+                                <div class="card-body text-center d-flex align-items-center">
+                                    <div class="metric-icon bg-info-light me-3">
+                                        <i class="fa fa-hourglass text-info"/>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 class="mb-0 text-info" t-esc="state.metrics.waiting"/>
+                                        <p class="text-muted mb-0">Waiting List</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Cancel Card -->
+                        <div class="col-md-2">
+                            <div class="card metric-card">
+                                <div class="card-body text-center d-flex align-items-center">
+                                    <div class="metric-icon bg-danger-light me-3">
+                                        <i class="fa fa-times text-danger"/>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 class="mb-0 text-danger" t-esc="state.metrics.cancelled"/>
+                                        <p class="text-muted mb-0">Cancel</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Block Card -->
+                        <div class="col-md-2">
+                            <div class="card metric-card">
+                                <div class="card-body text-center d-flex align-items-center">
+                                    <div class="metric-icon bg-secondary-light me-3">
+                                        <i class="fa fa-lock text-secondary"/>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 class="mb-0 text-secondary" t-esc="state.metrics.blocked"/>
+                                        <p class="text-muted mb-0">Block</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Total Reservations Card -->
+                        <div class="col-md-2">
+                            <div class="card metric-card total-reservations">
+                                <div class="card-body text-center d-flex align-items-center">
+                                    <div class="metric-icon bg-primary-light me-3">
+                                        <i class="fa fa-calendar text-primary"/>
+                                    </div>
+                                    <div class="metric-content">
+                                        <h3 class="mb-0 text-primary" t-esc="state.metrics.total_reservations"/>
+                                        <p class="text-muted mb-0">Total Reservation</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="row">
+                        <!-- Occupancy Chart -->
+                        <div class="col-md-12 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Room Occupancy Trend</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                        <canvas id="occupancyChart"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Market Segment Chart -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Market Segments</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                        <canvas id="marketSegmentChart"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Business Source Chart -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Business Sources</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                        <canvas id="businessSourceChart"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Expectations Chart -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Future Expectations</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                        <canvas id="expectationsChart"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

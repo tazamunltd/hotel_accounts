@@ -1,4 +1,5 @@
-from odoo import api, models, fields
+from odoo import api, models, fields,_
+from odoo.exceptions import ValidationError
 
 class DepartmentCategory(models.Model):
     _name = 'department.category'
@@ -7,12 +8,12 @@ class DepartmentCategory(models.Model):
 
 
     _rec_name = 'category'
-    category = fields.Char(string="Category", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    user_sort = fields.Char(string="User Sort",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    category = fields.Char(string=_("Category"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    user_sort = fields.Char(string=_("User Sort"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
 
 class DepartmentCode(models.Model):
     _name = 'department.code'
@@ -20,11 +21,11 @@ class DepartmentCode(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'department'
-    department = fields.Char(string="Department", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    department = fields.Char(string=_("Department"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     unit_price = fields.Float(string="Unit Price", default=0.0,tracking=True)
     category = fields.Selection([
         ('room_charge', 'Room Charge'),
@@ -69,6 +70,73 @@ class DepartmentCode(models.Model):
     tax_other = fields.Boolean(string="Other Tax",tracking=True)
     tax_municipality = fields.Boolean(string="Municipality Tax",tracking=True)
 
+    charge_group = fields.Selection([
+        ('room_charge', 'Room Charge'),
+        ('food_charge', 'Food Charge'),
+        ('beverage_charge', 'Beverage Charge'),
+        ('telephone_charge', 'Telephone Charge'),
+        ('other_charge', 'Other Charge')
+    ], string="Charges")
+
+    payment_group = fields.Selection([
+        ('payment_cash', 'Cash Payment'),
+        ('payment_credit_card', 'Credit Card Payment'),
+        ('payment_other', 'Other Payment')
+    ], string="Payments")
+
+    tax_group = fields.Selection([
+        ('tax_service_charge', 'Service Charge'),
+        ('tax_vat', 'Value Added Tax'),
+        ('tax_municipality', 'Municipality Tax'),
+        ('tax_other', 'Other Tax')
+    ], string="Taxes")
+    adjustment = fields.Selection([
+        ('transfer_charge', 'Transfer charge'),
+    ], string="Adjustment")
+
+    @api.onchange('charge_group')
+    def _onchange_charge_group(self):
+        if self.charge_group:
+            self.payment_group = False
+            self.tax_group = False
+            self.adjustment = False
+
+    @api.onchange('payment_group')
+    def _onchange_payment_group(self):
+        if self.payment_group:
+            self.charge_group = False
+            self.tax_group = False
+            self.adjustment = False
+
+    @api.onchange('tax_group')
+    def _onchange_tax_group(self):
+        if self.tax_group:
+            self.charge_group = False
+            self.payment_group = False
+            self.adjustment = False
+    
+    @api.onchange('adjustment')
+    def _onchange_adjustment(self):
+        if self.adjustment:
+            self.payment_group = False
+            self.tax_group = False
+            self.charge_group = False
+
+    @api.constrains('charge_group', 'payment_group', 'tax_group', 'adjustment')
+    def _check_only_one_selected(self):
+        for record in self:
+            selected_fields = [
+                bool(record.charge_group),
+                bool(record.payment_group),
+                bool(record.tax_group),
+                bool(record.adjustment),
+            ]
+            if sum(selected_fields) > 1:
+                raise ValidationError(
+                    "You can only select one option from Charges, Payments, adjustment or Taxes."
+                )
+
+
 
     charge_type = fields.Selection(
         selection=[
@@ -101,13 +169,13 @@ class PostingItem(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'item_code'
-    item_code = fields.Char(string="Item", required=True,tracking=True)
-    description = fields.Char(string="Description",tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Desc.",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbr.",tracking=True)
+    item_code = fields.Char(string=_("Item"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"),tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Desc."),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbr."),tracking=True, translate=True)
     main_department = fields.Many2one('department.code', string="Main Department",tracking=True)
-    default_currency = fields.Char(string="Default Currency",tracking=True)
+    default_currency = fields.Char(string=_("Default Currency"),tracking=True, translate=True)
     default_value = fields.Float(string="Default Value", default=1,tracking=True)
     
     @api.onchange('default_value')
@@ -134,7 +202,7 @@ class PostingItem(models.Model):
     addition_line = fields.One2many('posting.item.addition', 'posting_item_id', string="Additions") #Dont add tracking
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     show_in_website = fields.Boolean(string="Show in Website",tracking=True)
-    website_desc = fields.Char(string='Website Description',tracking=True)
+    website_desc = fields.Char(string='Website Description',tracking=True, translate=True)
 
     posting_item_selection = fields.Selection(
         [
@@ -153,10 +221,10 @@ class PostingItemAddition(models.Model):
     # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     posting_item_id = fields.Many2one('posting.item', string="Posting Item", ondelete='cascade',tracking=True)
-    # department = fields.Char(string="Department",tracking=True)
+    # department = fields.Char(string=_("Department",tracking=True)
     department = fields.Many2one('department.code', string="Main Department",tracking=True)
     line = fields.Integer(string="Line",tracking=True)
-    name = fields.Char(string="Name",tracking=True)
+    name = fields.Char(string=_("Name"),tracking=True, translate=True)
     value = fields.Float(string="Value", default=0.0,tracking=True)
     is_entry_value = fields.Boolean(string="Entry Value", default=False,tracking=True)
     added_value = fields.Float(string="Added Value", default=0.0,tracking=True)
@@ -170,11 +238,11 @@ class DummyRoomCode(models.Model):
     _description = 'Dummy Room Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    room_number = fields.Char(string="Room Number", required=True,tracking=True)
-    description = fields.Char(string="Description",tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_desc = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbr = fields.Char(string="Arabic Abbreviation",tracking=True)
+    room_number = fields.Char(string=_("Room Number"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"),tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_desc = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbr = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     item_discount = fields.Float(string="Item Discount",tracking=True)
     company_id = fields.Many2one('res.company', string="Company",tracking=True)
     is_obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
@@ -193,11 +261,11 @@ class CurrencyCode(models.Model):
     _description = 'Currency Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    currency = fields.Char(string="Currency Code", required=True,tracking=True)
-    description = fields.Char(string="Description",tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_desc = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbr = fields.Char(string="Arabic Abbreviation",tracking=True)
+    currency = fields.Char(string=_("Currency Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"),tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_desc = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbr = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     exchange_rate = fields.Float(string="Exchange Rate", digits=(12, 4),tracking=True)
     fo_rate = fields.Float(string="F/O Rate", digits=(12, 4),tracking=True)
     rate_code_rate = fields.Float(string="Rate Code Rate", digits=(12, 4),tracking=True)
@@ -244,11 +312,11 @@ class CashBoxCode(models.Model):
     _description = 'Cash Box Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description",tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_desc = fields.Char(string="Arabic Desc",tracking=True)
-    arabic_abbr = fields.Char(string="Arabic Abbr",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"),tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_desc = fields.Char(string=_("Arabic Desc"),tracking=True, translate=True)
+    arabic_abbr = fields.Char(string=_("Arabic Abbr"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     max_per_day = fields.Integer(string="Max Per Day",tracking=True)
     exclusive = fields.Boolean(string="Exclusive", default=False,tracking=True)
@@ -269,8 +337,8 @@ class CashBoxResetValue(models.Model):
     _description = 'Cash Box Reset Value'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    currency = fields.Char(string="Currency",tracking=True)
-    department = fields.Char(string="Department",tracking=True)
+    currency = fields.Char(string=_("Currency"),tracking=True, translate=True)
+    department = fields.Char(string=_("Department"),tracking=True, translate=True)
     value = fields.Float(string="Value",tracking=True)
     cash_box_id = fields.Many2one('cash.box.code', string="Cash Box",tracking=True)
 

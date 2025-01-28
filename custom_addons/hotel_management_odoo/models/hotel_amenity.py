@@ -1,5 +1,5 @@
 
-from odoo import fields, models
+from odoo import _, fields, models
 
 
 class HotelAmenity(models.Model):
@@ -9,9 +9,9 @@ class HotelAmenity(models.Model):
     _inherit = 'mail.thread'
     _order = 'id desc'
 
-    name = fields.Char(string='Name', help="Name of the amenity",tracking=True)
+    name = fields.Char(string=_('Name'), help="Name of the amenity",tracking=True, translate=True)
     icon = fields.Image(string="Icon",
-                        help="Image of the amenity",tracking=True)
+                        help="Image of the amenity")
     description = fields.Html(string="About",
                               help="Specify the amenity description",tracking=True)
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <!-- Agent Form View -->
-    <record id="agent_view_form" model="ir.ui.view">
+    <!-- <record id="agent_view_form" model="ir.ui.view">
         <field name="name">agent.agent.view.form</field>
         <field name="model">agent.agent</field>
         <field name="arch" type="xml">
@@ -21,7 +21,60 @@
                 </sheet>
             </form>
         </field>
+    </record> -->
+    <record id="agent_view_form" model="ir.ui.view">
+        <field name="name">agent.agent.view.form</field>
+        <field name="model">agent.agent</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Header Section -->
+                        <div class="col-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-body py-2 px-3">
+                                    <h1 class="fw-bold mb-0">
+                                        <field name="name" class="form-control form-control-lg" />
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Section -->
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-image"></i>
+                                    <span class="fw-bold"> Agent Image</span>
+                                </div>
+                                <div class="card-body py-2 px-3 text-center">
+                                    <field name="image" widget="image"
+                                        class="form-control form-control-sm" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Section -->
+                        <div class="col-lg-8 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-map-marker"></i>
+                                    <span class="fw-bold"> Address</span>
+                                </div>
+                                <div class="card-body py-2 px-3">
+                                    <div class="form-group mb-1">
+                                        <label for="address" class="form-label small">Address</label>
+                                        <field name="address" class="form-control form-control-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
     </record>
+
 
     <!-- Agent Tree View -->
     <record id="agent_view_tree" model="ir.ui.view">
@@ -29,8 +82,8 @@
         <field name="model">agent.agent</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="name" string="Agent Name"/>
-                <field name="address" string="Address"/>
+                <field name="name" string="Agent Name" />
+                <field name="address" string="Address" />
             </tree>
         </field>
     </record>
@@ -41,15 +94,21 @@
         <field name="model">agent.agent</field>
         <field name="arch" type="xml">
             <kanban>
-                <field name="name"/>
-                <field name="address"/>
+                <field name="name" />
+                <field name="address" />
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click">
                             <div class="oe_kanban_details">
-                                <strong><field name="name"/></strong>
-                                <div><field name="image" widget="image"/></div>
-                                <div><field name="address"/></div>
+                                <strong>
+                                    <field name="name" />
+                                </strong>
+                                <div>
+                                    <field name="image" widget="image" />
+                                </div>
+                                <div>
+                                    <field name="address" />
+                                </div>
                             </div>
                         </div>
                     </t>
@@ -63,18 +122,19 @@
         <field name="name">Agents</field>
         <field name="res_model">agent.agent</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="view_id" ref="agent_view_tree"/>
+        <field name="view_id" ref="agent_view_tree" />
     </record>
 
     <!-- Agent Menu -->
-   <menuitem id="agent_menu" name="Agents" sequence="80"
-          parent="hotel_management_menu_root"
-          action="agent_action"/>
+    <menuitem id="agent_menu" name="Agents" sequence="80"
+        parent="hotel_management_menu_root"
+        action="agent_action" />
 
 </odoo>
 
 
-<!--custom res.partner contact with agent-->
+<!--custom
+res.partner contact with agent-->
 <!--<odoo>-->
 <!--    &lt;!&ndash; Action for the Agent menu &ndash;&gt;-->
 <!--    <record id="action_agent" model="ir.actions.act_window">-->

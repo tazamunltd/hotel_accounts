@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <!--Maintenance Team Form View-->
-    <record id="maintenance_team_view_form" model="ir.ui.view">
+    <!-- <record id="maintenance_team_view_form" model="ir.ui.view">
         <field name="name">maintenance.team.view.form</field>
         <field name="model">maintenance.team</field>
         <field name="arch" type="xml">
@@ -47,15 +47,88 @@
                 </sheet>
             </form>
         </field>
+    </record> -->
+    <record id="maintenance_team_view_form" model="ir.ui.view">
+        <field name="name">maintenance.team.view.form</field>
+        <field name="model">maintenance.team</field>
+        <field name="arch" type="xml">
+            <form string="Maintenance Team">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- General Information -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="fw-bold"> General Information</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="name" class="form-label small">Team Name</label>
+                                        <field name="name" class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="user_id" class="form-label small">Responsible
+                                            User</label>
+                                        <field name="user_id" class="form-control form-control-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <!-- Members Page -->
+                        <page string="Members">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-users"></i>
+                                    <span class="fw-bold"> Members</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <field name="member_ids" mode="kanban"
+                                        options="{'no_edit': True, 'no_create': True, 'no_open': True}">
+                                        <kanban>
+                                            <field name="image_1920" />
+                                            <field name="name" />
+                                            <templates>
+                                                <t t-name="kanban-box">
+                                                    <div t-attf-class="oe_kanban_global_click">
+                                                        <div class="o_kanban_image">
+                                                            <field name="image_1920"
+                                                                widget="image"
+                                                                class="oe_avatar" />
+                                                        </div>
+                                                        <div class="oe_kanban_details ml8">
+                                                            <div class="o_kanban_record_headings">
+                                                                <strong>
+                                                                    <field name="name" />
+                                                                </strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                            </templates>
+                                        </kanban>
+                                    </field>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
     </record>
-    <!--Maintenance Team Tree View-->
+
+    <!--Maintenance
+    Team Tree View-->
     <record id="maintenance_team_view_tree" model="ir.ui.view">
         <field name="name">maintenance.team.view.tree</field>
         <field name="model">maintenance.team</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="name"/>
-                <field name="user_id"/>
+                <field name="name" />
+                <field name="user_id" />
             </tree>
         </field>
     </record>
@@ -68,11 +141,11 @@
     </record>
     <!--    Maintenance Menu-->
     <menuitem id="maintenance_menu"
-              name="Maintenance"
-              parent="hotel_config_menu" sequence="185"/>
+        name="Maintenance"
+        parent="hotel_config_menu" sequence="185" />
     <!--    Maintenance Team Menu-->
     <menuitem id="maintenance_team_menu"
-              name="Maintenance Team"
-              parent="maintenance_menu"
-              action="maintenance_team_action"/>
+        name="Maintenance Team"
+        parent="maintenance_menu"
+        action="maintenance_team_action" />
 </odoo>

@@ -64,3 +64,4 @@ from . import rooms_forecast
 from . import revenue_forecast
 from . import reservation_summary_report
 from .import all_reservation_status_report
+from . import room_booking_dashboard

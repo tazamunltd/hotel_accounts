@@ -13,10 +13,12 @@ class FSMLocation(models.Model):
     _stage_type = "location"
     _rec_names_search = ["complete_name"]
 
-    direction = fields.Char()
+    # direction = fields.Char()
+    direction = fields.Char(string=_("Direction"), translate=True)
     partner_id = fields.Many2one(
         "res.partner",
         string="Related Partner"
+        
     )
     owner_id = fields.Many2one(
         "res.partner",
@@ -31,7 +33,8 @@ class FSMLocation(models.Model):
         domain="[('is_company', '=', False)," " ('fsm_location', '=', False)]",
         index=True,
     )
-    description = fields.Char()
+    # description = fields.Char()
+    description = fields.Char(string=_("Description"), translate=True)
     territory_id = fields.Many2one("res.territory", string="Territory")
     branch_id = fields.Many2one("res.branch", string="Branch")
     district_id = fields.Many2one("res.district", string="District")
@@ -63,7 +66,7 @@ class FSMLocation(models.Model):
         string="Sub Locations", compute="_compute_sublocation_ids"
     )
     complete_name = fields.Char(
-        compute="_compute_complete_name", recursive=True, store=True
+        compute="_compute_complete_name", recursive=True, store=True, translate=True
     )
 
     @api.model_create_multi

@@ -1,4 +1,5 @@
-from odoo import models, fields
+from odoo import _, models, fields,api
+from odoo.exceptions import ValidationError
 
 
 class RoomType(models.Model):
@@ -8,10 +9,10 @@ class RoomType(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     
 
-    room_type = fields.Char(string="Room Type", required=True,tracking=True)
-    description = fields.Char(string="Description",tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    generic_type = fields.Char(string="Generic Type",tracking=True)
+    room_type = fields.Char(string=_("Room Type"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"),tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    generic_type = fields.Char(string=_("Generic Type"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
 
@@ -21,20 +22,20 @@ class RoomSpecification(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     # Existing fields
-    room_number = fields.Char(string="Room Number", required=True,tracking=True)
-    door_sign = fields.Char(string="Door Sign",tracking=True)
-    room_type = fields.Many2one('room.type', string='Room Type', required=True,tracking=True)
-    suite = fields.Boolean(string="Suite",tracking=True)
-    connected_room = fields.Char(string="Connected Room",tracking=True)
-    type_of_bed = fields.Char(string="Type of Bed",tracking=True)
-    type_of_bath = fields.Char(string="Type of Bath",tracking=True)
+    room_number = fields.Char(string=_("Room Number"), required=True,tracking=True, translate=True)
+    door_sign = fields.Char(string=_("Door Sign"),tracking=True, translate=True)
+    room_type = fields.Many2one('room.type', string='Room Type', required=True,tracking=True, translate=True)
+    suite = fields.Boolean(string="Suite",tracking=True, translate=True)
+    connected_room = fields.Char(string=_("Connected Room"),tracking=True, translate=True)
+    type_of_bed = fields.Char(string=_("Type of Bed"),tracking=True, translate=True)
+    type_of_bath = fields.Char(string=_("Type of Bath"),tracking=True, translate=True)
     floor = fields.Integer(string="Floor #",tracking=True)
     block = fields.Integer(string="Block",tracking=True)
-    building = fields.Char(string="Building",tracking=True)
+    building = fields.Char(string=_("Building"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
 
     # New fields for the Information tab
-    pending_repairs = fields.Char(string="Pending Repairs",tracking=True)
+    pending_repairs = fields.Char(string=_("Pending Repairs"),tracking=True, translate=True)
     last_repairs = fields.Date(string="Last Repairs",tracking=True)
     room_description = fields.Text(string="Room Description",tracking=True)
     notes = fields.Text(string="Notes",tracking=True)
@@ -42,12 +43,12 @@ class RoomSpecification(models.Model):
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
     no_smoking = fields.Boolean(string="No Smoking", default=False,tracking=True)
     max_pax = fields.Integer(string="Max Pax",tracking=True)
-    section_hk = fields.Char(string="Section (H.K.,tracking=True)",tracking=True)
-    telephone_ext = fields.Char(string="Telephone Ext.",tracking=True)
-    disability_features = fields.Char(string="Disability Features",tracking=True)
-    extra_features = fields.Char(string="Extra Features",tracking=True)
-    rate_code = fields.Char(string="Rate Code",tracking=True)
-    rate_posting_item = fields.Char(string="Rate Posting Item",tracking=True)
+    section_hk = fields.Char(string=_("Section (H.K.)"),tracking=True, translate=True)
+    telephone_ext = fields.Char(string=_("Telephone Ext."),tracking=True, translate=True)
+    disability_features = fields.Char(string=_("Disability Features"),tracking=True, translate=True)
+    extra_features = fields.Char(string=_("Extra Features"),tracking=True, translate=True)
+    rate_code = fields.Char(string=_("Rate Code"),tracking=True, translate=True)
+    rate_posting_item = fields.Char(string=_("Rate Posting Item"),tracking=True, translate=True)
 
     # Radio button fields
     count_in_statistics = fields.Selection([
@@ -80,15 +81,24 @@ class MealCode(models.Model):
     _rec_name = 'meal_code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    meal_code = fields.Char(string="Meal Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
-    # posting_item = fields.Char(string="Posting Item",tracking=True)
+
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    meal_code = fields.Char(string=_("Meal Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
+    # posting_item = fields.Char(string=_("Posting Item"),tracking=True)
     posting_item = fields.Many2one('posting.item',string="Posting Item", ondelete="cascade",tracking=True)
     price_pax = fields.Float(string="Price/Pax",tracking=True)
     price_child = fields.Float(string="Price/Child",tracking=True)
+    @api.constrains('price_pax', 'price_child')
+    def _check_prices(self):
+        for record in self:
+            if record.price_pax < 0:
+                raise ValidationError("The Price cannot be less than 0.")
+            if record.price_child < 0:
+                raise ValidationError("The Child Price cannot be less than 0.")
     price_infant = fields.Float(string="Price/Infant",tracking=True)
     user_sort = fields.Integer(string="User Sort",tracking=True)
     notes = fields.Text(string="Notes",tracking=True)
@@ -113,12 +123,13 @@ class MealPattern(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'meal_pattern'
-    meal_pattern = fields.Char(string="Meal Pattern", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
-    # meal_posting_item = fields.Char(string="Meal Posting Item",tracking=True)
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    meal_pattern = fields.Char(string=_("Meal Pattern"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
+    # meal_posting_item = fields.Char(string=_("Meal Posting Item",tracking=True)
     meal_posting_item = fields.Many2one('posting.item',string="Meal Posting Item",ondelete="cascade",tracking=True)
     user_sort = fields.Integer(string="User Sort",tracking=True)
     meals_list_ids = fields.One2many('meal.list', 'meal_pattern_id', string="Meals List") #
@@ -131,23 +142,33 @@ class MealList(models.Model):
 
     line = fields.Integer(string="Line", required=True,tracking=True)
     meal_code = fields.Many2one('meal.code', string="Meal Code", required=True,tracking=True)
-    name = fields.Char(string="Name",tracking=True)
+    name = fields.Char(string=_("Name"),tracking=True)
     quantity = fields.Integer(string="Quantity", default=1,tracking=True)
     apply_on_arrival = fields.Boolean(string="Apply on Arrival", default=False,tracking=True)
     apply_on_departure = fields.Boolean(string="Apply on Departure", default=False,tracking=True)
     apply_during_stay = fields.Boolean(string="Apply During Stay", default=False,tracking=True)
     meal_pattern_id = fields.Many2one('meal.pattern', string="Meal Pattern", ondelete='cascade',tracking=True)
+    price = fields.Float(string="Price/Pax", tracking=True)  # Add a field to store the price of the meal_code
+    price_child = fields.Float(string="Price/Child", tracking=True)
+    
+    @api.onchange('meal_code')
+    def _onchange_meal_code(self):
+        for record in self:
+            if record.meal_code:
+                # Fetch the price from the selected meal_code
+                record.price = record.meal_code.price_pax  # Assuming `price_pax` is the field in `meal.code` that stores the price
+                record.price_child = record.meal_code.price_child  # Assuming `price_child` exists in `meal.code`
 
 class AuthorizedCode(models.Model):
     _name = 'authorized.code'
     _description = 'Authorized Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort",tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
 
@@ -164,11 +185,11 @@ class ComplimentaryCode(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'code'
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
     
@@ -183,12 +204,13 @@ class OutOfOrderCode(models.Model):
     _name = 'out.of.order.code'
     _description = 'Out of Order Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'code'
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
 
@@ -196,12 +218,13 @@ class RoomOnHoldCode(models.Model):
     _name = 'room.on.hold.code'
     _description = 'Room on Hold Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'code'
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
 
@@ -212,11 +235,11 @@ class VipCode(models.Model):
     # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'code'
-    code = fields.Char(string="Code", required=True)
-    description = fields.Char(string="Description", required=True)
-    abbreviation = fields.Char(string="Abbreviation")
-    arabic_description = fields.Char(string="Arabic Description")
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation")
+    code = fields.Char(string=_("Code"), required=True)
+    description = fields.Char(string=_("Description"),  translate=True, required=True)
+    abbreviation = fields.Char(string=_("Abbreviation"), translate=True)
+    # arabic_description = fields.Char(string=_("Arabic Description"), translate=True)
+    # arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"), translate=True)
     level = fields.Integer(string="Level", default=0)
     user_sort = fields.Integer(string="User Sort", default=0)
     obsolete = fields.Boolean(string="Obsolete", default=False)
@@ -224,14 +247,14 @@ class VipCode(models.Model):
 class HouseCode(models.Model):
     _name = 'house.code'
     _description = 'House Code'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    # _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'code'
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     level = fields.Integer(string="Level", default=0,tracking=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
@@ -241,11 +264,11 @@ class SafeDepositCode(models.Model):
     _description = 'Safe Deposit Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
 
@@ -255,11 +278,11 @@ class HotelCode(models.Model):
     _description = 'Hotel Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     number_of_rooms = fields.Integer(string="Number of Rooms",tracking=True)
     number_of_stars = fields.Integer(string="Number of Stars",tracking=True)
     notes = fields.Text(string="Notes",tracking=True)
@@ -269,11 +292,11 @@ class RentableAsset(models.Model):
     _description = 'Rentable Asset'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_description = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbreviation = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
     
     # Default Type options
@@ -303,7 +326,7 @@ class RentableAsset(models.Model):
     
     default_quantity = fields.Integer(string="Def. Quantity", default=0,tracking=True)
     price = fields.Float(string="Price", default=0.0,tracking=True)
-    posting_item = fields.Char(string="Posting Item",tracking=True)
+    posting_item = fields.Char(string=_("Posting Item"),tracking=True)
     free = fields.Boolean(string="Free", default=False,tracking=True)
     
     # Return Check options
@@ -327,6 +350,6 @@ class TelephoneExtension(models.Model):
     _description = 'Telephone Extension'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    extension_number = fields.Char(string="Telephone Extension", required=True,tracking=True)
-    room_number = fields.Char(string="Room Number", required=True,tracking=True)
+    extension_number = fields.Char(string=_("Telephone Extension"), required=True,tracking=True, translate=True)
+    room_number = fields.Char(string=_("Room Number"), required=True,tracking=True, translate=True)
     comments = fields.Text(string="Comments",tracking=True)

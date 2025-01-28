@@ -9,7 +9,7 @@
  */
 
 // Core Owl imports
-import { Component, onWillStart, useState, onError, onWillDestroy } from "@odoo/owl";
+import { Component, onWillStart, useState, onError, onWillDestroy, onMounted } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { debounce } from "@web/core/utils/timing";
@@ -26,6 +26,7 @@ class OfflineSearchWidgetError extends Error {
         this.code = code;
         this.details = details;
         this.timestamp = new Date().toISOString();
+        this.modelService = useService('model');
     }
 
     /**
@@ -48,21 +49,35 @@ class OfflineSearchWidgetError extends Error {
  * OfflineSearchWidget: Main component for hotel booking and guest information
  * Modified: 2025-01-09T00:23:08+05:00
  */
+    /**
+     * OfflineSearchWidget: A component for managing hotel bookings and guest information.
+     * Provides functionality for searching room availability, handling bookings,
+     * managing guest data, and interfacing with backend services to 
+     * fetch and update necessary information.
+     * Includes comprehensive error handling and state management.
+     */
 export class OfflineSearchWidget extends Component {
     static template = "hotel_management_odoo.OfflineSearchWidget";
     static components = {};
-
+    static props = {
+        currentBookingId: { type: Number, default: false },
+        // Other props
+    };
     /**
      * Setup component
      * Modified: 2025-01-10T22:14:59+05:00
      */
     setup() {
+        // Memoize currentBookingId to prevent unexpected resets
+        this.memoizedBookingId = this.props.currentBookingId || false;
+
         super.setup();
         // Initialize services
         this.notification = useService("notification");
         this.orm = useService("orm");
         this.user = useService("user");
         this.companyService = useService("company");
+        this.systemDateNotification = useService("system_date_notification");
 
         this.state = useState({
             // Default values
@@ -96,14 +111,25 @@ export class OfflineSearchWidget extends Component {
                 { name: 'total_rooms', label: 'Total Rooms', visible: true },
                 { name: 'rate', label: 'Rate', visible: false },
                 { name: 'capacity', label: 'Capacity', visible: false }
-            ]
+            ],
+            // currentBookingId: false, // Store current booking ID
         });
 
         // System date polling interval (in milliseconds)
-        this.systemDatePollInterval = 300; // 300 milliseconds
-        this.systemDatePollTimer = null;
+        this.POLL_INTERVAL = 5000; // Poll every 5 seconds
+        this.pollTimer = null;
 
-//         Debounce the updateSystemDate function
+        // Start polling when component is mounted
+        onMounted(() => {
+            this.startPolling();
+        });
+
+        // Clean up polling when component is destroyed
+        onWillDestroy(() => {
+            this.stopPolling();
+        });
+
+        // Debounce the updateSystemDate function
         this.debouncedUpdateSystemDate = debounce(
             this.updateSystemDate.bind(this), 300);
 
@@ -120,6 +146,15 @@ export class OfflineSearchWidget extends Component {
 //            await this.fetchContacts();
 //            await this.fetchGroups();
         });
+        try {
+            // Load search results if not already present
+            if (!this.state.searchResults || this.state.searchResults.length === 0) {
+                this.loadSearchResults();
+            }
+        } catch (error) {
+            console.error('Error during initialization:', error);
+        }
+
     }
 
     /**
@@ -198,7 +233,8 @@ export class OfflineSearchWidget extends Component {
             // Added group booking state - 2025-01-10T20:37:37+05:00
             groupBooking: null,
             groupBookingSearch: "",
-            filteredGroupBookings: []
+            filteredGroupBookings: [],
+            // currentBookingId: false, // Store current booking ID
         });
 
 //        // Debounce the updateSystemDate function
@@ -226,6 +262,7 @@ export class OfflineSearchWidget extends Component {
 
                 // Start system date polling
                 this.startSystemDatePolling();
+                
             } catch (error) {
                 this.handleWidgetError(error);
             } finally {
@@ -238,6 +275,15 @@ export class OfflineSearchWidget extends Component {
              this.isDestroyed = true;
             this.stopSystemDatePolling();
         });
+
+        try {
+            // Load search results if not already present
+            if (!this.state.searchResults || this.state.searchResults.length === 0) {
+                this.loadSearchResults();
+            }
+        } catch (error) {
+            console.error('Error during initialization:', error);
+        }
     }
 
     /**
@@ -267,56 +313,120 @@ export class OfflineSearchWidget extends Component {
     }
 
     /**
+     * Start polling for system date changes
+     * @private
+     */
+    startPolling() {
+        // Initial update
+        this.updateSystemDate();
+
+        // Set up periodic polling
+        this.pollTimer = setInterval(() => {
+            if (!this.isDestroyed) {
+                this.updateSystemDate();
+            }
+        }, this.POLL_INTERVAL);
+
+        console.log('Started polling for system date changes');
+    }
+
+    /**
+     * Stop polling for system date changes
+     * @private
+     */
+    stopPolling() {
+        if (this.pollTimer) {
+            clearInterval(this.pollTimer);
+            this.pollTimer = null;
+            console.log('Stopped polling for system date changes');
+        }
+    }
+
+    /**
      * Update system date from backend
-     * Modified: 2025-01-08T23:59:08+05:00
+     * Modified: 2025-01-15T00:38:59+05:00
      */
     async updateSystemDate() {
         try {
-//            console.log("in the update system date start::",this.state.hotel);
+            // Check if component is destroyed before proceeding
             if (this.isDestroyed) {
-                console.warn("Component is destroyed; update system date  aborted.");
+                console.warn("Component is destroyed; update system date aborted.");
                 return;
             }
-//            console.log("in the update system date process::",this.state.hotel);
-//            if (!this.state.hotel) return;
 
-            // Fetch current hotel's system date
-            const [hotel] = await this.orm.searchRead(
+            // Validate hotel selection
+            if (!this.state.hotel) {
+                // Don't throw error during polling, just return
+                return;
+            }
+
+            // Fetch hotel's system date from res.company
+            const companies = await this.orm.searchRead(
                 'res.company',
                 [['id', '=', this.state.hotel]],
-                ['system_date'],
+                ['system_date', 'name'],
                 { limit: 1 }
             );
 
-            if (hotel && hotel.system_date) {
-                const newSystemDate = this.formatDateString(hotel.system_date);
+            // Check again if component is destroyed after async call
+            if (this.isDestroyed) {
+                console.warn("Component was destroyed during system date update.");
+                return;
+            }
 
-                // Only update if date has changed
-                if (newSystemDate !== this.state.systemDate) {
-                    this.state.systemDate = newSystemDate;
-                    this.state.lastSystemDateUpdate = new Date().toISOString();
+            if (!companies || !companies.length) {
+                console.warn(`Company not found for hotel ID ${this.state.hotel}`);
+                return;
+            }
 
-                    // If check-in date is invalid or not set, set it to system date
-                    if (!this.state.checkInDate || !this.validateCheckInDate(this.state.checkInDate)) {
-                        this.state.checkInDate = newSystemDate;
-                        this.updateMaxCheckOutDate();
-                        this.updateCheckOutDate();
-                    }
+            const company = companies[0];
+            if (!company.system_date) {
+                console.warn(`No system_date found for company ${company.name} (${company.id})`);
+                return;
+            }
 
-                    // Notify user of date change
-                    this.notification.add(
-                        _t("System date has been updated to: ") + this.formatDateForDisplay(newSystemDate),
-                        { type: 'info', sticky: false }
+            const parsedDate = new Date(company.system_date);
+            const newSystemDate = parsedDate.toISOString().split('T')[0];
+            
+            // Only update and notify if system date has changed and component is still alive
+            if (!this.isDestroyed && this.state.systemDate !== newSystemDate) {
+                console.log('System date changed:', {
+                    company: company.name,
+                    companyId: company.id,
+                    oldDate: this.state.systemDate,
+                    newDate: newSystemDate,
+                    rawDate: company.system_date
+                });
+                
+                // Update state
+                this.state.systemDate = newSystemDate;
+                this.state.checkInDate = newSystemDate;
+
+                // Update related dates
+                this.updateMaxCheckOutDate();
+                this.updateCheckOutDate();
+
+                // Get the system date notification service and notify about the change
+                const systemDateService = this.env.services.system_date_notification;
+                if (systemDateService) {
+                    systemDateService.broadcastSystemDateChange(
+                        newSystemDate,
+                        {
+                            id: company.id,
+                            name: company.name,
+                            system_date: company.system_date
+                        }
                     );
-                    this.notification.add(_t('Check-in date updated to system date'), {
-                        type: 'info',
-                        sticky: false
-                    });
+                } else {
+                    console.warn('System date notification service not available');
                 }
             }
         } catch (error) {
-//            console.error('Error updating system date:', error);
-//            this.handleWidgetError(error);
+            console.error('Error updating system date:', error);
+            // Don't throw during polling, just log the error
+            if (!(error instanceof OfflineSearchWidgetError)) {
+                console.error('Unexpected error during system date update:', error);
+            }
         }
     }
 
@@ -558,51 +668,41 @@ export class OfflineSearchWidget extends Component {
         }
 
         this.state.hotel = firstCompany.id;
-//        console.log("First company", firstCompany);
+
+        // Parse the datetime system date
+        const parsedDate = new Date(firstCompany.system_date);
+        this.state.systemDate = parsedDate.toISOString().split('T')[0];
+        this.state.checkInDate = this.state.systemDate;
 
         // Validate and set system date
         if (firstCompany.system_date) {
-//            console.log("TEST")
             try {
                 const systemDate = new Date(firstCompany.system_date);
                 if (isNaN(systemDate.getTime())) {
                     throw new Error('Invalid date format');
                 }
-//                this.state.systemDate = systemDate.toISOString().slice(0, 10);
-//
-//                console.log("systemDate", systemDate, typeof(this.state.systemDate), typeof(systemDate));
-//
-//                // Format the date to dd-mm-yyyy
-//                const formattedDate = systemDate.toLocaleDateString('en-GB');
-//                const finalFormattedDate = formattedDate.replace(/\//g, '-');
-//                console.log("finalFormattedDate", finalFormattedDate);
-//                this.state.systemDate = finalFormattedDate;
-//                this.state.checkInDate = finalFormattedDate;
-                this.state.systemDate = new Date().toISOString().slice(0, 10);
-                this.state.checkInDate = this.state.systemDate;
+
+                this.state.systemDate = '';
+                this.state.checkInDate = '';
                 this.state.noOfNights = this.state.noOfNights || 1;
-
-//                console.log(this.state.noOfNights);
-
-//                const checkInDateObj = new Date(finalFormattedDate); // Use the original Date object for manipulation
-//                checkInDateObj.setDate(checkInDateObj.getDate() + this.state.noOfNights); // Add the number of nights
-//                const checkOutFormatted = checkInDateObj.toLocaleDateString('en-GB').replace(/\//g, '-'); // Format to dd-mm-yyyy
-//                this.state.checkOutDate = checkOutFormatted;
 
                 this.updateCheckOutDate();
                 this.render();
             } catch (dateError) {
                 console.warn('Date initialization failed:', dateError);
                 // Fallback to current date
-                this.state.systemDate = new Date().toISOString().slice(0, 10);
-                this.state.checkInDate = this.state.systemDate;
+                this.state.systemDate = '';
+                this.state.checkInDate = '';
+            } finally {
+                // Ensure some basic initialization always occurs
+                this.state.noOfNights = this.state.noOfNights || 1;
             }
         }
     }
 
     /**
-     * Initialize Default Hotel with Comprehensive Validation
-     * @param {Object} firstCompany - First company from the list
+     * Initialize Default Contact with Comprehensive Validation
+     * @param {Object} firstContact - First contact from the list
      */
     initializeDefaultContact(firstContact) {
         if (!firstContact) {
@@ -625,10 +725,18 @@ export class OfflineSearchWidget extends Component {
         try {
             const hotelId = this.state.hotel;
 
+            const roomTypeIds = await this.orm.search(
+              'room.type',
+              [['obsolete', '=', false]]
+            );
+
+
             // Get room types through hotel.inventory with overbooking info
             const inventoryItems = await this.orm.searchRead(
                 'hotel.inventory',
-                [['company_id', '=', hotelId]],
+                [['company_id', '=', hotelId],
+                  ['room_type', 'in', roomTypeIds]
+                ],
                 [
                     'room_type',
                     'total_room_count',
@@ -673,6 +781,7 @@ export class OfflineSearchWidget extends Component {
                 hotelInventory[hotelKey].totalOverbookingRooms += item.overbooking_allowed ? (item.overbooking_rooms || 0) : 0;
                 hotelInventory[hotelKey].totalWebReservations += item.web_allowed_reservations || 0;
                 hotelInventory[hotelKey].totalPax += item.pax || 0;
+                console.log(roomTypeName);
                 hotelInventory[hotelKey].roomTypes.add(roomTypeName);
 
                 // Initialize room type inventory if not exists
@@ -1251,7 +1360,7 @@ export class OfflineSearchWidget extends Component {
 
     /**
      * Search for available rooms
-     * Modified: 2025-01-09T15:46:05+05:00
+     * Modified: 2025-01-15T02:32:34+05:00
      * @returns {Promise<void>}
      */
     async searchRooms() {
@@ -1261,45 +1370,117 @@ export class OfflineSearchWidget extends Component {
             this.state.searchPerformed = true;
             this.state.searchError = null;
             this.state.isSearching = true;
-            console.log("this.state.roomType", this.state.roomType);
+            console.log("Starting room search for", this.state.rooms, "rooms");
 
-            const results = await this.orm.call(
+            // First get all available room types with 0 rooms
+            const availableRooms = await this.orm.call(
                 'room.search',
                 'search_available_rooms',
                 [
                     this.state.checkInDate,
                     this.state.checkOutDate,
-                    this.state.rooms,
+                    0, // Search with 0 rooms to get all available types
                     this.state.hotel,
                     this.state.roomType
                 ]
             );
 
-            console.log('Raw results from server:', results); // Debug log
+            console.log("Available room types:", availableRooms);
 
-            let filteredResults = results;
-
+            let roomTypes = availableRooms;
             if (this.state.roomType) {
-                const roomTypeId = Number(this.state.roomType); // Convert to a number if it's not already
-                filteredResults = results.filter(result => Number(result.room_type_id) === roomTypeId);
-                console.log("TEST", filteredResults);
+                const roomTypeId = Number(this.state.roomType);
+                roomTypes = availableRooms.filter(result => Number(result.room_type_id) === roomTypeId);
             }
 
-            console.log('filtered results from server:', filteredResults);
+            if (Array.isArray(roomTypes) && roomTypes.length > 0) {
+                let remainingRoomsToSearch = this.state.rooms;
+                console.log("Rooms to allocate:", remainingRoomsToSearch);
 
-            if (Array.isArray(filteredResults)) {
-                // Add derived fields including actualFreeToSell and overbooked
-                this.state.searchResults = filteredResults.map(room => {
-                    const minFreeToSell = room.min_free_to_sell || 0;
-                    const total_overbooking_rooms = room.total_overbooking_rooms || 0;
-                    const actualFreeToSell = minFreeToSell - total_overbooking_rooms;
-
+                // Initialize room types with actual free to sell
+                const processedRooms = roomTypes.map(room => {
+                    const actualFree = room.min_free_to_sell - room.total_overbooking_rooms;
+                    console.log(`${room.room_type_name.en_US}: actual_free=${actualFree} (min_free=${room.min_free_to_sell}, overbooking=${room.total_overbooking_rooms})`);
                     return {
                         ...room,
-                        actualFreeToSell: actualFreeToSell > 0 ? actualFreeToSell : 0,
-                        overbooked: actualFreeToSell < 0 ? Math.abs(actualFreeToSell) : 0
+                        freeToBook: room.min_free_to_sell,
+                        actualFreeToSell: actualFree,
+                        remainingActualFree: actualFree,
+                        remainingOverbooking: room.total_overbooking_rooms,
+                        searched_rooms: 0,
+                        overbooked: 0
                     };
                 });
+
+                // First Phase: Use actual free to sell capacity
+                // Sort by actual free to sell in descending order
+                processedRooms.sort((a, b) => b.actualFreeToSell - a.actualFreeToSell);
+                console.log("Phase 1 - Room types sorted by actual free to sell:", 
+                    processedRooms.map(r => `${r.room_type_name}: ${r.actualFreeToSell}`));
+
+                for (const room of processedRooms) {
+                    if (remainingRoomsToSearch <= 0) break;
+
+                    if (room.actualFreeToSell > 0) {
+                        const allocatedRooms = Math.min(remainingRoomsToSearch, room.actualFreeToSell);
+                        room.searched_rooms = allocatedRooms;
+                        remainingRoomsToSearch -= allocatedRooms;
+                        console.log(`Phase 1: Allocated ${allocatedRooms} rooms to ${room.room_type_name.en_US}`);
+                    }
+                }
+
+                console.log("After Phase 1 - Remaining rooms:", remainingRoomsToSearch);
+
+                // Second Phase: Use overbooking if needed
+                if (remainingRoomsToSearch > 0) {
+                    // Sort by actual free to sell for overbooking priority
+                    processedRooms.sort((a, b) => b.actualFreeToSell - a.actualFreeToSell);
+                    console.log("Phase 2 - Room types sorted for overbooking:", 
+                        processedRooms.map(r => `${r.room_type_name}: actual_free=${r.actualFreeToSell}, overbooking=${r.remainingOverbooking}`));
+
+                    for (const room of processedRooms) {
+                        if (remainingRoomsToSearch <= 0) break;
+
+                        if (room.has_overbooking && room.total_overbooking_rooms > 0) {
+                            const additionalRooms = Math.min(remainingRoomsToSearch, room.total_overbooking_rooms);
+                            room.searched_rooms += additionalRooms;
+                            room.overbooked = additionalRooms;
+                            remainingRoomsToSearch -= additionalRooms;
+                            console.log(`Phase 2: Allocated ${additionalRooms} overbooking rooms to ${room.room_type_name.en_US}`);
+                        }
+                    }
+                }
+
+                // Only include rooms that have allocations
+                this.state.searchResults = processedRooms
+                    .filter(room => room.searched_rooms > 0)
+                    .map(room => ({
+                        ...room,
+                        actualFreeToSell: room.actualFreeToSell
+                    }));
+
+                console.log("Final allocations:", 
+                    this.state.searchResults.map(r => 
+                        `${r.room_type_name}: ${r.searched_rooms} (actual=${r.searched_rooms - r.overbooked}, overbooked=${r.overbooked})`
+                    ));
+
+                const totalAllocatedRooms = this.state.searchResults.reduce((sum, room) => sum + room.searched_rooms, 0);
+
+                // Disable search button if no rooms could be allocated
+                const searchButton = document.querySelector('.search-button');
+                if (searchButton) {
+                    searchButton.disabled = totalAllocatedRooms === 0;
+                }
+
+                // Show notification if not all rooms could be allocated
+                if (remainingRoomsToSearch > 0) {
+                    this.notification.add(
+                        _t(`Could not allocate all requested rooms. ${remainingRoomsToSearch} rooms remain unallocated.`),
+                        { type: 'warning', sticky: true }
+                    );
+                }
+            } else {
+                console.log("No room types available for the selected criteria");
             }
         } catch (error) {
             console.error('Error during room search:', error);
@@ -1320,24 +1501,19 @@ export class OfflineSearchWidget extends Component {
      * Modified: 2025-01-09T15:46:05+05:00
      * @returns {Promise<void>}
      */
-    async actionSearchRooms(recordId) {
+    async actionSearchRoomTypes(recordId) {
         try {
+            debugger;
             const results = await this.orm.call(
                 'room.booking',
                 'action_search_rooms',
-                [[recordId]]
+                [[recordId]],
+                {}
             );
-
             console.log('calling action_search_rooms server:', results);
+            return results;
         } catch (error) {
             console.error('Error action search rooms:', error);
-//            this.state.searchError = error.message || _t('An error occurred while searching rooms');
-//            this.notification.add(this.state.searchError, {
-//                type: 'danger',
-//                sticky: true,
-//                title: _t('Search Error')
-//            });
-//            this.state.searchResults = [];
         } finally {
             this.state.isSearching = false;
         }
@@ -1429,212 +1605,304 @@ export class OfflineSearchWidget extends Component {
         };
         this.render();
     }
-
-    /**
-     * Sync booking data with the currently open room.booking form
-     * @param {number} roomTypeId - ID of the room type to book
-     * Modified: 2025-01-10T22:28:28+05:00
-     */
-    async createBooking(roomTypeId) {
-        console.log('Starting createBooking with Room Type ID:', roomTypeId);
+    async createallBookings() {
         try {
-            // Validate required fields
-            if (!this.state.hotel) {
-                throw new Error('Hotel is required');
+            if (!this.state.searchResults || this.state.searchResults.length === 0) {
+                throw new Error('No search results available');
             }
+            // debugger;
+            // call create booking method for each room type
+            for (const room of this.state.searchResults) {
+                console.log('Processing room:', JSON.stringify(room, null, 2));
 
-//            // Validate required fields
-//            if (!this.state.guestContact) {
-//                throw new Error('Contact is required for creating booking');
-//            }
-
-            // Prepare the booking data
-            const bookingData = {
-                company_id: this.state.hotel,
-                room_count: this.state.rooms,
-                checkin_date: this.state.checkInDate,
-                no_of_nights: this.state.noOfNights,
-                checkout_date: this.state.checkOutDate,
-                adult_count: this.state.adults,
-                child_count: this.state.children,
-                infant_count: this.state.infants,
-//                partner_id: this.state.guestContact,
-//                group_booking: this.state.guestGroup ?? '',
-                state: 'not_confirmed',
-                hotel_room_type: roomTypeId,
-            };
-
-            console.log('Booking Data to be sent:', bookingData);
-
-            try {
-                // Create a new record first
-                console.log('Creating new booking record...');
-                const newRecordId = await this.orm.call(
-                    'room.booking',
-                    'create',
-                    [bookingData]
-                );
-
-                console.log('New record created with ID:', newRecordId);
-                await this.actionSearchRooms(newRecordId);
-
-                if (newRecordId) {
-                    // Open the form view with the new record
-                    const action = {
-                        type: 'ir.actions.act_window',
-                        res_model: 'room.booking',
-                        res_id: newRecordId,
-                        views: [[false, 'form']],
-                        target: 'current',
-                        flags: {
-                            mode: 'edit'
-                        }
-                    };
-
-                    // Execute the action to open the form view
-                    await this.env.services.action.doAction(action);
-
-                    this.notification.add('Booking created successfully!', {
-                        type: 'success',
-                        sticky: false
-                    });
-                } else {
-                    throw new Error('Failed to create booking record');
+                if (!room.room_type_id) {
+                    console.error('Room type ID missing for room:', room);
+                    continue;
                 }
-            } catch (writeError) {
-                console.error('Booking creation error:', {
-                    error: writeError,
-                    message: writeError.message,
-                    name: writeError.name,
-                    data: writeError.data,
-                    stack: writeError.stack
-                });
-                throw writeError;
+
+                await this.createBookingAndLoad(room.room_type_id);
             }
 
-        } catch (error) {
-            console.error('Detailed error information:', {
-                message: error.message,
-                name: error.name,
-                stack: error.stack,
-                cause: error.cause,
-                data: error.data
+            this.notification.add('All rooms added to booking successfully!', {
+                type: 'success'
             });
-
-            this.notification.add(`Failed to create booking: ${error.message}`, {
+        } catch (error) {
+            console.error('Search Error:', error);
+            this.notification.add(`Failed to create bookings: ${error.message}`, {
                 type: 'danger',
                 sticky: true
             });
         }
     }
 
-    /**
-     * Handle room booking action
-     * @param {number} roomTypeId - ID of the room type to book
-     */
-    async bookRoom(roomTypeId) {
+    async createBookingAndLoad(roomTypeId) {
         try {
-            // Create action context with pre-filled values
-            const context = {
-                default_hotel_room_type_id: roomTypeId,
-                default_company_id: this.state.hotel,
-                default_checkin_date: this.state.checkInDate,
-                default_checkout_date: this.state.checkOutDate,
-                default_adult_count: this.state.adults,
-                default_child_count: this.state.children,
-                default_infant_count: this.state.infants,
-                default_room_count: this.state.rooms
-            };
-
-            // Open the room booking form view
-            await this.action.doAction({
-                type: 'ir.actions.act_window',
-                res_model: 'room.booking',
-                view_mode: 'form',
-                view_type: 'form',
-                views: [[false, 'form']],
-                target: 'current',
-                context: context,
+            await this.createBooking(roomTypeId);
+            await this.loadSearchResults();
+            // Force UI update
+            this.render();
+            this.notification.add('Search results updated. \n' + this.state.searchResults , {
+                type: 'success'
             });
         } catch (error) {
-            console.error('Error creating booking:', error);
-            this.notification.notify({
-                title: 'Error',
-                message: 'Failed to create booking. Please try again.',
-                type: 'danger'
+            console.error('Error in createBookingAndLoad:', error);
+            this.notification.add(`Failed to create booking and load results: ${error.message}`, {
+                type: 'danger',
+                sticky: true
             });
+        }
+    }
+    /**
+     * Create booking for a specific room type
+     * Modified: 2025-01-18T00:50:26+05:00
+     * @param {number} roomTypeId - ID of the room type to book
+     */
+    async createBooking(roomTypeId) {
+        try {
+            // Save current search results before creating booking
+            this.saveSearchResults();
+
+            // Validate required fields
+            if (!this.state.hotel) {
+                throw new Error('Hotel is required');
+            }
+
+            // Store current search results
+            const originalSearchResults = [...this.state.searchResults];
+
+            // Get system date from the selected hotel
+            const hotel = this.state.hotels.find(h => h.id === this.state.hotel);
+            if (!hotel) {
+                throw new Error('Selected hotel not found');
+            }
+
+            // Find the search index for the selected room type
+            const searchidx = this.state.searchResults.findIndex(r => r.room_type_id === roomTypeId);
+            if (searchidx === -1) {
+                throw new Error('Selected room type not found in search results');
+            }
+
+            // Prepare booking context
+            let context_ = {
+                company_id: this.state.hotel,
+                room_count: this.state.searchResults[searchidx].searched_rooms,
+                checkin_date: this.state.checkInDate,
+                no_of_nights: this.state.noOfNights,
+                checkout_date: this.state.checkOutDate,
+                adult_count: this.state.adults,
+                child_count: this.state.children,
+                infant_count: this.state.infants,
+                hotel_room_type: roomTypeId,
+            };
+
+            // Check if we're in a new booking context
+            let isNewBooking = false;
+            let recordId;
+            let currentTitle = this.env.services.title.current;
+
+            if (this.isExistingBooking()) {
+                recordId = await this.getCurrentBookingId(currentTitle);
+            } else {
+                isNewBooking = true;
+            }
+
+            // Handle booking creation/update
+            if (isNewBooking) {
+                // Create new booking
+                recordId = await this.orm.call(
+                    'room.booking',
+                    'create',
+                    [context_],
+                );
+
+                const action = {
+                    type: 'ir.actions.act_window',
+                    res_model: 'room.booking',
+                    res_id: recordId,
+                    views: [[false, 'form']],
+                    target: 'current',
+                    flags: {
+                        mode: 'edit'
+                    }
+                };
+                await this.actionSearchRoomTypes(recordId);
+                await this.env.services.action.doAction(action);
+
+                this.notification.add('Booking created successfully!', {
+                    type: 'success',
+                });
+            } else {
+                const action = {
+                    type: 'ir.actions.act_window',
+                    res_model: 'room.booking',
+                    res_id: recordId,
+                    views: [[false, 'form']],
+                    target: 'current',
+                    flags: {
+                        mode: 'edit'
+                    },
+                    context: context_
+                };
+                let editresult = await this.orm.call('room.booking', 'write', [recordId, context_]);
+                await this.actionSearchRoomTypes(recordId);
+                console.log('editresult:', editresult);
+                await this.env.services.action.doAction(action);
+                console.log('action:', action);
+                this.notification.add('Booking updated successfully!', {
+                    type: 'success',
+                });
+            }
+
+            try {
+                // Remove the specific room type from the temporary results
+                const updatedSearchResults = originalSearchResults.filter(
+                    result => result.room_type_id !== roomTypeId
+                );
+                // Repopulate searchResults with updated results
+                this.state.searchResults = updatedSearchResults;
+
+                // Save the updated search results
+                this.saveSearchResults();
+
+                // Force UI update
+                this.render();
+            } catch (error) {
+                console.error('Error updating search results:', error);
+                throw error;
+            }
+        } catch (error) {
+            console.error('Booking Creation Error:', error);
+            this.notification.add(`Failed to create booking: ${error.message}`, {
+                type: 'danger',
+                sticky: true
+            });
+            throw error;
         }
     }
 
     /**
-     * Search Group Bookings based on input
-     * @date 2025-01-07T20:20:32+05:00
-     * Adjusted to use company field correctly linked to res.partner
+     * Get the current booking ID using ORM service
+     * Modified: 2025-01-17T13:10:42+05:00
+     * @returns {Promise<number>} Returns the current record ID or -1 if not found
      */
-    async onGroupBookingSearch() {
+    async getCurrentBookingId(currentTitle) {
         try {
-            // Safely get search term with fallback
-            const searchTerm = (this.state.groupBookingSearch || '').trim();
+            currentTitle = currentTitle.split('-')[1];
+            currentTitle = currentTitle.trim();
+            console.log('Current Title:', currentTitle);
 
-            // Early return if no search term
-            if (!searchTerm) {
-                this.state.filteredGroupBookings = [];
-                return;
-            }
-
-            // Construct search domain
-            const domain = [
-                '|', '|', '|', '|',
-                ['name', 'ilike', searchTerm],
-                ['group_name', 'ilike', searchTerm],
-                ['company.name', 'ilike', searchTerm],
-                ['company.email', 'ilike', searchTerm],
-                ['company.phone', 'ilike', searchTerm]
-            ];
-
-            // Fetch group bookings with related details
-            const groupBookings = await this.orm.searchRead(
-                'group.booking',
-                domain,
-                [
-                    'id',        // Unique identifier
-                    'name',      // Booking name
-                    'group_name', // Specific group name
-                    'company'    // Related company information
-                ],
-                {
-                    limit: 50,
-                    context: {
-                        lang: this.env.lang,
-                        tz: this.env.context.tz
-                    }
-                }
+            // Get the current active id using search_read
+            const result = await this.orm.searchRead(
+                'room.booking',  // model name
+                [['name', '=', currentTitle]], // domain
+                ['id'],  // fields to fetch
+                { limit: 1, order: 'create_date desc' }  // options
             );
 
-            // Transform results safely
-            this.state.filteredGroupBookings = groupBookings.map(groupBooking => ({
-                id: groupBooking.id || null,
-                name: groupBooking.name || '',
-                groupName: groupBooking.group_name || '',
-                companyName: groupBooking.company ? groupBooking.company[1] : '',
-                contactDetails: {
-                    email: groupBooking.company ?
-                        (this.orm.read('res.partner', [groupBooking.company[0]], ['email'])[0]?.email || '') : '',
-                    phone: '',
-                    address: ''
-                }
-            }));
+            console.log('Current Booking ID:', result && result[0] ? result[0].id : null);
+            return result && result[0] ? result[0].id : null;
 
-        } catch (error) {
-            // Comprehensive error handling
-            console.error('Group Booking Search Error', error);
-
-            // User-friendly notification
-            alert('Search failed. Please try again.');
-
-            // Reset filtered bookings on error
-            this.state.filteredGroupBookings = [];
         }
+        catch (error) {
+            console.error('Error retrieving current booking ID:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Save search results and booking parameters to local storage
+     */
+    saveSearchResults() {
+        try {
+            debugger;
+            const dataToSave = {
+                searchResults: this.state.searchResults,
+                checkInDate: this.state.checkInDate,
+                checkOutDate: this.state.checkOutDate,
+                companyId: this.state.hotel,
+                noOfNights: this.state.noOfNights,
+            };
+            const dataJSON = JSON.stringify(dataToSave);
+            localStorage.setItem('bookingSearchData', dataJSON);
+        } catch (error) {
+            console.error('Error saving booking search data:', error);
+        }
+    }
+
+    /**
+     * Load search results and booking parameters from local storage
+     */
+    async loadSearchResults() {
+        try {
+            debugger;
+            const dataJSON = localStorage.getItem('bookingSearchData');
+            if (dataJSON && this.isExistingBooking()) {
+                const data = JSON.parse(dataJSON);
+                
+                // Set search state
+                this.state.searchResults = data.searchResults || [];
+                this.state.searchPerformed = true;
+                this.state.isSearching = false;
+                this.state.searchError = null;
+                
+                // Set booking parameters
+                this.state.checkInDate = data.checkInDate || '';
+                this.state.checkOutDate = data.checkOutDate || '';
+                this.state.hotel = data.companyId || null;
+                this.state.noOfNights = data.noOfNights || 0;
+                
+                // Force UI update
+                this.render();
+                
+                // Log for debugging
+                console.log('Loaded search results:', {
+                    results: this.state.searchResults,
+                    searchPerformed: this.state.searchPerformed
+                });
+            } else {
+                this.loadDefaultValues();
+            }
+        } catch (error) {
+            console.error('Error loading booking search data:', error);
+            // Reset search state on error
+            // this.state.searchResults = [];
+            this.state.searchPerformed = false;
+            this.state.isSearching = false;
+            this.state.searchError = error.message;
+            // Force UI update on error
+            this.render();
+        }
+    }
+
+    /**
+     * Clear stored booking data
+     */
+    clearStoredBookingData() {
+        try {
+            localStorage.removeItem('bookingSearchData');
+        } catch (error) {
+            console.error('Error clearing booking search data:', error);
+        }
+    }
+
+    /**
+     * Check if the current context is an existing booking
+     * @returns {boolean} True if in existing booking context
+     */
+    isExistingBooking() {
+        const currentTitle = this.env.services.title.current;
+        return !(currentTitle.includes('New') || currentTitle.includes('Room Booking'));
+    }
+
+    /**
+     * Load default values for booking form
+     */
+    loadDefaultValues() {
+        // this.state.searchResults = [];
+        this.state.checkInDate = '';
+        this.state.checkOutDate = '';
+        this.state.hotel = null;
+        this.state.noOfNights = 0;
     }
 }
 

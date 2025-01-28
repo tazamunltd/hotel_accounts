@@ -16,18 +16,18 @@ class HotelRoom(models.Model):
     housekeeping_staff_status = fields.Many2one(
         'housekeeping.staff.status', string="HouseKeeping Staff Status", tracking=True)
 
-    door_sign = fields.Char(string="Door Sign", tracking=True)
+    door_sign = fields.Char(string=_("Door Sign"), tracking=True, translate=True)
     suite = fields.Boolean(string="Suite", tracking=True)
-    connected_room = fields.Char(string="Connected Room", tracking=True)
-    type_of_bed = fields.Char(string="Type of Bed", tracking=True)
-    type_of_bath = fields.Char(string="Type of Bath", tracking=True)
+    connected_room = fields.Char(string=_("Connected Room"), tracking=True, translate=True)
+    type_of_bed = fields.Char(string=_("Type of Bed"), tracking=True, translate=True)
+    type_of_bath = fields.Char(string=_("Type of Bath"), tracking=True, translate=True)
     block = fields.Integer(string="Block", tracking=True)
-    building = fields.Char(string="Building", tracking=True)
+    building = fields.Char(string=_("Building"), tracking=True, translate=True)
     user_sort = fields.Integer(
         string="User Sort", compute="_compute_user_sort", tracking=True)
 
     # New fields for the Information tab
-    pending_repairs = fields.Char(string="Pending Repairs", tracking=True)
+    pending_repairs = fields.Char(string=_("Pending Repairs"), tracking=True, translate=True)
     last_repairs = fields.Date(string="Last Repairs", tracking=True)
     room_description = fields.Text(string="Room Description", tracking=True)
     notes = fields.Text(string="Notes", tracking=True)
@@ -35,23 +35,22 @@ class HotelRoom(models.Model):
     obsolete = fields.Boolean(string="Obsolete", default=False, tracking=True)
     no_smoking = fields.Boolean(
         string="No Smoking", default=False, tracking=True)
-    max_pax = fields.Integer(string="Max Pax", tracking=True)
+    # max_pax = fields.Integer(string="Max Pax", tracking=True)
     section_hk = fields.Char(
-        string="Section (H.K.,tracking=True)", tracking=True)
-    telephone_ext = fields.Char(string="Telephone Ext.", tracking=True)
+        string=_("Section (H.K.)"), tracking=True, translate=True)
+    telephone_ext = fields.Char(string=_("Telephone Ext."), tracking=True, translate=True)
     disability_features = fields.Char(
-        string="Disability Features", tracking=True)
-    extra_features = fields.Char(string="Extra Features", tracking=True)
+        string=_("Disability Features"), tracking=True, translate=True)
+    extra_features = fields.Char(string=_("Extra Features"), tracking=True, translate=True)
     rate_code = fields.Many2one('rate.code', string="Rate Code", tracking=True)
-    rate_posting_item = fields.Char(string="Rate Posting Item", tracking=True)
+    rate_posting_item = fields.Char(string=_("Rate Posting Item"), tracking=True, translate=True)
 
     @tools.ormcache()
     def _get_default_uom_id(self):
         """Method for getting the default uom id"""
         return self.env.ref('uom.product_uom_unit')
 
-    name = fields.Char(string='Name', help="Name of the Room",
-                       index='trigram', required=True)
+    name = fields.Char(string="Name", index='trigram', required=True, translate=True)
 
     # @api.onchange('name')
     # def _check_name_validity(self):
@@ -106,20 +105,26 @@ class HotelRoom(models.Model):
     room_amenities_ids = fields.Many2many("hotel.amenity",
                                           string="Room Amenities",
                                           help="List of room amenities.", tracking=True)
-    floor_id = fields.Many2one('hotel.floor', string='Floor',
-                               help="Automatically selects the Floor",
-                               tracking=True)
+    # floor_id = fields.Many2one('hotel.floor', string='Floor',
+    #                            help="Automatically selects the Floor",
+    #                            tracking=True)
+    floor_id = fields.Many2one(
+        'fsm.location',
+        string="Floor",
+        domain=[('dynamic_selection_id', '=', 4)], tracking=True)
+
+
     user_id = fields.Many2one('res.users', string="User",
                               related='floor_id.user_id',
                               help="Automatically selects the manager",
                               tracking=True)
-    room_type = fields.Selection([('single', 'Single'),
-                                  ('double', 'Double'),
-                                  ('dormitory', 'Dormitory')],
-                                 required=True, string="Room Type",
-                                 help="Automatically selects the Room Type",
-                                 tracking=True,
-                                 default="single")
+    # room_type = fields.Selection([('single', 'Single'),
+    #                               ('double', 'Double'),
+    #                               ('dormitory', 'Dormitory')],
+    #                              required=True, string="Room Type",
+    #                              help="Automatically selects the Room Type",
+    #                              tracking=True,
+    #                              default="single")
     num_person = fields.Integer(string='Max Pax',
                                 required=True,
                                 help="Automatically chooses the No. of Persons",

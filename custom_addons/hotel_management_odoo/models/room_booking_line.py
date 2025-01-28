@@ -271,6 +271,7 @@ class RoomBookingLine(models.Model):
                 # Search for all bookings overlapping the current booking's date range
                 overlapping_bookings = self.env['room.booking.line'].search([
                     ('checkin_date', '<', record.checkout_date),
+                    ('booking_id.state', 'in', ['confirmed','block','check_in']),
                     ('checkout_date', '>', record.checkin_date),
                     ('room_id', '!=', False),
                     ('id', '!=', record.id)  # Exclude current record
@@ -605,8 +606,10 @@ class RoomBookingLine(models.Model):
             current_id = self.id
         _logger.info(f"checking room booking line id value: {current_id} {self.checkin_date} {self.checkout_date}")
         if current_id is not None:
-            checkin_date = self.checkin_date
-            checkout_date = self.checkout_date
+            # checkin_date = self.checkin_date
+            checkin_date = self.booking_id.checkin_date
+            checkout_date = self.booking_id.checkout_date
+            print("checkin_date", checkin_date, "checkout_date", checkout_date)
 
             # Convert to datetime if they are strings
             if isinstance(checkin_date, str):
@@ -628,9 +631,7 @@ class RoomBookingLine(models.Model):
             _logger.info(f"Conflicting Bookings {len(conflicting_bookings)} {conflicting_bookings}")
 
             if conflicting_bookings:
-                raise ValidationError(
-                    "This room is already assigned to another booking. Please select a different room."
-                )
+                raise ValidationError("This room is already assigned to another booking. Please select a different room.")
 
         if self.booking_id:
             existing_room_ids = self.booking_id.room_line_ids.filtered(
@@ -972,8 +973,7 @@ class RoomBookingLine(models.Model):
         for record in self:
             if record.booking_id:
                 # Fetch the booking record to get the parent_booking_id
-                booking_record = self.env['room.booking'].browse(
-                    record.booking_id.id)
+                booking_record = self.env['room.booking'].browse(record.booking_id.id)
                 parent_booking_id = booking_record.parent_booking_id
                 counter_write = 0
                 if parent_booking_id:
@@ -996,8 +996,7 @@ class RoomBookingLine(models.Model):
                                 # print(f"Room Booking Line ID: {line.id}, Counter: {line.counter}")
             parent_booking = record.booking_id
             # Retrieve room bookings associated with the parent_booking_id
-            room_bookings = self.env['room.booking'].search(
-                [('parent_booking_id', '=', parent_booking.id)])
+            room_bookings = self.env['room.booking'].search([('parent_booking_id', '=', parent_booking.id)])
             # print(f"Room bookings for parent_booking_id {parent_booking.id}: {room_bookings}")
             if 'room_id' in vals and 'id' in vals:
                 room_id = vals.get("room_id")
@@ -1017,18 +1016,15 @@ class RoomBookingLine(models.Model):
                                 {'room_id': room_id})
                         return
                     else:
-                        print(
-                            f"No Room Booking Line found with ID: {record_id}")
+                        print(f"No Room Booking Line found with ID: {record_id}")
                 else:
-                    print(
-                        f"Skipping write operation for non-integer ID: {record_id}")
+                    print(f"Skipping write operation for non-integer ID: {record_id}")
 
             if 'hotel_room_type' in vals:
                 room_type = vals.get("hotel_room_type")
                 # print('536', room_type)
                 related_room_type = vals.get("related_hotel_room_type")
-                super(RoomBookingLine, record).write(
-                    {'hotel_room_type': room_type, 'related_hotel_room_type': room_type, 'room_id': False})
+                super(RoomBookingLine, record).write({'hotel_room_type': room_type, 'related_hotel_room_type': room_type, 'room_id': False})
 
             if 'room_id' in vals and 'id' not in vals:
                 # print('588', vals)
@@ -1038,8 +1034,7 @@ class RoomBookingLine(models.Model):
                 old_room_id = record.room_id
                 # print("477",old_room_id.id)
                 if room_id:
-                    super(RoomBookingLine, record).write(
-                        {'room_id': new_room_id, 'state': 'block'})
+                    super(RoomBookingLine, record).write({'room_id': new_room_id, 'state': 'block'})
                     # print(f"Updating room_id for record {record.id} to {room_id}")
 
                 if new_room_id:
@@ -1058,8 +1053,10 @@ class RoomBookingLine(models.Model):
                                 'state': 'block',  # Update state to block for reassigned room
                                 'room_line_ids': [(0, 0, {
                                     'room_id': new_room_id,
-                                    'checkin_date': record.checkin_date,
-                                    'checkout_date': record.checkout_date,
+                                    # 'checkin_date': record.checkin_date,
+                                    'checkin_date': parent_booking.checkin_date,
+                                    # 'checkout_date': record.checkout_date,
+                                    'checkout_date': parent_booking.checkout_date,
                                     'uom_qty': 1,
                                     'adult_count': record.adult_count,
                                     'child_count': record.child_count,
@@ -1087,8 +1084,10 @@ class RoomBookingLine(models.Model):
                         'hotel_room_type': parent_booking.hotel_room_type.id,
                         'group_booking': parent_booking.group_booking.id,
                         'room_line_ids': [],  # No room_line_ids since room_id is unlinked
-                        'checkin_date': record.checkin_date,
-                        'checkout_date': record.checkout_date,
+                        # 'checkin_date': record.checkin_date,
+                        'checkin_date': parent_booking.checkin_date,
+                        # 'checkout_date': record.checkout_date,
+                        'checkout_date': parent_booking.checkout_date,
                         'state': 'not_confirmed',  # Ensure state is set to 'not_confirmed'
                         'is_room_line_readonly': False,
                     }
@@ -1213,7 +1212,16 @@ class RoomBookingLine(models.Model):
                                     'hotel_room_type': record.hotel_room_type.id,
                                     'counter': counter,
                                 })],
-                                'posting_item_ids': [(6, 0, parent_booking.posting_item_ids.ids)],
+                                'posting_item_ids': [(0, 0, {
+                                    'posting_item_id': posting_item.posting_item_id.id,
+                                    'item_code': posting_item.item_code,
+                                    'description': posting_item.description,
+                                    'posting_item_selection': posting_item.posting_item_selection,
+                                    'from_date': posting_item.from_date,
+                                    'to_date': posting_item.to_date,
+                                    'default_value': posting_item.default_value,
+                                }) for posting_item in parent_booking.posting_item_ids],
+                                # 'posting_item_ids': [(6, 0, parent_booking.posting_item_ids.ids)],
                                 'checkin_date': parent_booking.checkin_date,
                                 'checkout_date': parent_booking.checkout_date,
                                 'state': 'block',
@@ -1307,6 +1315,8 @@ class RoomBookingLine(models.Model):
                 result = lines_to_update.write({'room_id': line.room_id.id})
         return result
 
+    
+    
     def _delete_child_booking_records(self, counter, parent_booking):
         """Helper function to delete child booking records."""
         # Find all child bookings related to this parent booking

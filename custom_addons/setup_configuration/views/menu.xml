@@ -225,12 +225,12 @@
         groups="base.group_system"/>
 
     <!-- Submenu: Allotment Codes -->
-    <menuitem id="sub_menu_allotment_codes"
+    <!-- <menuitem id="sub_menu_allotment_codes"
         name="Allotment Codes"
         action="action_allotment_code"
         parent="menu_hotel_configuration"
         sequence="8"
-        groups="base.group_system"/>
+        groups="base.group_system"/> -->
 
     <!-- Submenu: Cancellation Codes -->
     <menuitem id="sub_menu_cancellation_codes"

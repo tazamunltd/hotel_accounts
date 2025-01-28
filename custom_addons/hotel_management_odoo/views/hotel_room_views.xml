@@ -6,30 +6,78 @@
         <field name="model">hotel.room</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="name" string="Room Name" optional='show'/>
-                <field name="room_type_name" string="Room Type" optional='show'/>
+                <field name="name" string="Room Name" optional='show' />
+                <field name="room_type_name" string="Room Type" optional='show' />
                 <!-- <field name="room_type"/> -->
-                <field name="floor_id" string="Floor" optional='show'/>
-                <field name="list_price" optional='show'/>
-                <field name="status" optional='show'/>
+                <field name="floor_id" string="Floor" optional='show' />
+                <field name="list_price" optional='show' />
+                <!-- <field name="status" optional='show' /> -->
+                <field name="fsm_location" optional='show' />
+                <field name="num_person" optional='show' />
             </tree>
         </field>
     </record>
+    <record id="hotel_room_view_graph" model="ir.ui.view">
+        <field name="name">hotel.room.view.graph</field>
+        <field name="model">hotel.room</field>
+        <field name="arch" type="xml">
+            <graph string="Rooms Analysis" type="bar">
+                <field name="room_type_name" type="row" />
+                <field name="list_price" type="measure" />
+            </graph>
+        </field>
+    </record>
+    <record id="hotel_room_view_kanban" model="ir.ui.view">
+        <field name="name">hotel.room.view.kanban</field>
+        <field name="model">hotel.room</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name" />
+                <field name="room_type_name" />
+                <field name="floor_id" />
+                <field name="list_price" />
+                <!-- <field name="status" /> -->
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div>
+                                <strong><field name="name" /></strong>
+                            </div>
+                            <div>
+                                <span>Room Type:</span> <field name="room_type_name" />
+                            </div>
+                            <div>
+                                <span>Floor:</span> <field name="floor_id" />
+                            </div>
+                            <div>
+                                <span>Price:</span> <field name="list_price" />
+                            </div>
+                            <!-- <div>
+                                <span>Status:</span> <field name="status" />
+                            </div> -->
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
 
     <record id="hotel_room_search_view" model="ir.ui.view">
         <field name="name">hotel.room.search</field>
         <field name="model">hotel.room</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name" string="Room Name"/>
-                <field name="room_type_name" string="Room Type"/>
-                <filter name="room_type_filter" string="Room Type" domain="[('room_type_name', '!=', False)]"/>
+                <field name="name" string="Room Name" />
+                <field name="room_type_name" string="Room Type" />
+                <filter name="room_type_filter" string="Room Type"
+                    domain="[('room_type_name', '!=', False)]" />
             </search>
         </field>
     </record>
 
-    <!--    Hotel Room form view-->
-    <record id="hotel_room_view_form" model="ir.ui.view">
+    <!--    Hotel Room form view(old)-->
+    <!-- <record id="hotel_room_view_form" model="ir.ui.view">
         <field name="name">hotel.room.view.form</field>
         <field name="model">hotel.room</field>
         <field name="arch" type="xml">
@@ -38,7 +86,8 @@
                     <field name="status" widget="statusbar" readonly="1"/>
                 </header>
                 <sheet>
-                    <field name="room_image" widget="image" class="oe_avatar" options="{'preview_image': 'room_image'}"/>
+                    <field name="room_image" widget="image" class="oe_avatar" options="{'preview_image':
+    'room_image'}"/>
 
                     <div class="oe_title">
                         <label for="name" string="Room Name"/>
@@ -46,7 +95,6 @@
                             <field name="name"/>
                         </h1>
                         <h2>
-                            <!--                            <label for="hotel_id" string="Hotel"/>-->
                             <field name="company_id"/>
                         </h2>
                         <h2>
@@ -69,7 +117,6 @@
                                 <group>
                                     <field name="obsolete"/>
                                     <field name="no_smoking"/>
-                                    <!-- <field name="max_pax"/> -->
                                     <field name="section_hk"/>
                                     <field name="telephone_ext"/>
                                     <field name="disability_features"/>
@@ -93,11 +140,8 @@
                         <page string="Location">
                             <group>
                                 <group>
-                                    <!-- <field name="block"/>
-                                    <field name="building"/>
-                                    <field name="user_sort"/> -->
+                                
                                     <field name="fsm_location"/>
-                                    <!-- <button string="Floor Plan" type="object" name="action_view_floor_plan"/> -->
                                 </group>
                             </group>
 
@@ -128,20 +172,369 @@
                 </div>
             </form>
         </field>
+    </record> -->
+
+    <record id="hotel_room_view_form" model="ir.ui.view">
+        <field name="name">hotel.room.view.form</field>
+        <field name="model">hotel.room</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Room">
+                <!-- <header>
+                    <field name="status" widget="statusbar" readonly="1" />
+                </header> -->
+                <sheet>
+                    <field name="room_image" widget="image" class="oe_avatar"
+                        options="{'preview_image': 'room_image'}" />
+
+                    <div class="oe_title">
+                        <label for="name" string="Room Name" class="form-label small" />
+                        <h1 class="fw-bold text-primary">
+                            <field name="name" />
+                        </h1>
+                        <h2 class="text-secondary">
+                            <field name="company_id" readonly="1"/>
+                        </h2>
+                        <h2 class="text-muted" style="display:none;">
+                            <field name="is_room_avail" invisible="1" />
+                        </h2>
+                    </div>
+                    <notebook>
+                        <page name="information_hotel_room" string="Information">
+                            <div class="row g-2">
+                                <!-- Room Information -->
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-bed"></i>
+                                            <span class="fw-bold"> Room Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="user_id"
+                                                            class="form-label small">Room Manager</label>
+                                                        <field name="user_id" select="2"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="room_type_name"
+                                                            class="form-label small">Room Type</label>
+                                                        <field name="room_type_name"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="list_price"
+                                                            class="form-label small">Rent</label>
+                                                        <field name="list_price" widget="monetary"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="num_person"
+                                                            class="form-label small">Number of
+                                                            Persons</label>
+                                                        <field name="num_person"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <field name="uom_id" invisible="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="taxes_ids"
+                                                            class="form-label small">Customer Taxes</label>
+                                                        <field name="taxes_ids"
+                                                            widget="many2many_tags"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="floor_id"
+                                                            class="form-label small">Floor</label>
+                                                        <field name="floor_id"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="door_sign"
+                                                            class="form-label small">Door Sign</label>
+                                                        <field name="door_sign"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <field name="suite" />
+                                                        <label for="suite" class="form-label small">
+                                                            Suite</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="connected_room"
+                                                            class="form-label small">Connected Room</label>
+                                                        <field name="connected_room"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="type_of_bed"
+                                                            class="form-label small">Type of Bed</label>
+                                                        <field name="type_of_bed"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="type_of_bath"
+                                                            class="form-label small">Type of Bath</label>
+                                                        <field name="type_of_bath"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Housekeeping and Maintenance -->
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-broom"></i>
+                                            <span class="fw-bold"> Housekeeping and Maintenance</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <field name="obsolete" />
+                                                        <label for="obsolete"
+                                                            class="form-label small">Obsolete</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="no_smoking" />
+                                                        <label for="no_smoking"
+                                                            class="form-label small">No Smoking</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="section_hk"
+                                                            class="form-label small">Housekeeping
+                                                            Section</label>
+                                                        <field name="section_hk"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="telephone_ext"
+                                                            class="form-label small">Telephone
+                                                            Extension</label>
+                                                        <field name="telephone_ext"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="disability_features"
+                                                            class="form-label small">Disability
+                                                            Features</label>
+                                                        <field name="disability_features"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="extra_features"
+                                                            class="form-label small">Extra Features</label>
+                                                        <field name="extra_features"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="housekeeping_staff_status"
+                                                            class="form-label small">Housekeeping
+                                                            Staff Status</label>
+                                                        <field name="housekeeping_staff_status"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="maintenance_status"
+                                                            class="form-label small">Maintenance
+                                                            Status</label>
+                                                        <field name="maintenance_status"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pricing Information -->
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-tag"></i>
+                                            <span class="fw-bold"> Pricing Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="rate_code"
+                                                            class="form-label small">Rate Code</label>
+                                                        <field name="rate_code"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="rate_posting_item"
+                                                            class="form-label small">Rate Posting
+                                                            Item</label>
+                                                        <field name="rate_posting_item"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+
+                        <page string="Location">
+                            <div class="row g-2">
+                                <div class="col-lg-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-map-marker-alt"></i>
+                                            <span class="fw-bold"> Location</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="fsm_location" class="form-label small">FSM
+                                                    Location</label>
+                                                <field name="fsm_location"
+                                                    class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <page string="Amenities">
+                            <div class="row g-2">
+                                <div class="col-lg-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-concierge-bell"></i>
+                                            <span class="fw-bold"> Amenities</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="room_amenities_ids"
+                                                    class="form-label small">Room Amenities</label>
+                                                <field name="room_amenities_ids"
+                                                    widget="many2many_tags"
+                                                    class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <page string="Descriptions">
+                            <div class="row g-2">
+                                <div class="col-lg-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-align-left"></i>
+                                            <span class="fw-bold"> Descriptions</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="description" class="form-label small">
+                                                    Description</label>
+                                                <field name="description" colspan="4" nolabel="1"
+                                                    class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <page string="Repairs">
+                            <div class="row g-2">
+                                <div class="col-lg-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-tools"></i>
+                                            <span class="fw-bold"> Repairs</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="pending_repairs"
+                                                            class="form-label small">Pending Repairs</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="pending_repairs"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="last_repairs"
+                                                            class="form-label small">Last Repairs</label>
+                                                        <field name="last_repairs"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="room_description"
+                                                            class="form-label small">Room
+                                                            Description</label>
+                                                        <field name="room_description"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="notes" class="form-label small">
+                                                            Notes</label>
+                                                        <field name="notes"
+                                                            class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                    <field name="activity_ids" />
+                </div>
+            </form>
+        </field>
     </record>
+
 
     <record id="view_hotel_room_pivot" model="ir.ui.view">
         <field name="name">hotel.room.pivot</field>
         <field name="model">hotel.room</field>
         <field name="arch" type="xml">
             <pivot string="Hotel Room Analysis">
-                <field name="room_type_name" type="row"/>
-                <field name="company_id" type="row"/>
-                <field name="floor_id" type="row"/>
-                <field name="fsm_location" type="row"/>
-                <field name="rate_code" type="row"/>
-                <field name="list_price" type="measure"/>
-                <field name="num_person" type="measure"/>
+                <field name="room_type_name" type="row" />
+                <field name="company_id" type="row" />
+                <field name="floor_id" type="row" />
+                <field name="fsm_location" type="row" />
+                <field name="rate_code" type="row" />
+                <field name="list_price" type="measure" />
+                <field name="num_person" type="measure" />
             </pivot>
         </field>
     </record>
@@ -152,35 +545,45 @@
         <field name="name">Rooms</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hotel.room</field>
-        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
         <field name="context">{'default_is_room_avail':True}</field>
     </record>
-    <!--Room Menu-->
-    <!-- <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action" parent="hotel_config_menu" sequence="20"/> -->
+    <!--Room
+    Menu-->
+    <!-- <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action"
+    parent="hotel_config_menu" sequence="20"/> -->
 
 
-    <menuitem id="hotel_codes" name="Codes" parent="hotel_config_menu" sequence="1"/>
+    <menuitem id="hotel_codes" name="Codes" parent="hotel_config_menu" sequence="1" />
 
-    <menuitem id="sub_menu_rate_code" name="Rate Code" parent="hotel_codes" action="setup_configuration.action_rate_code" sequence="1" />
-
-
-    <menuitem id="sub_menu_rate_promotion" name="Rate Promotions" parent="hotel_codes" action="setup_configuration.action_rate_promotion" sequence="2" />
-
-    <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action" parent="hotel_codes" sequence="3"/>
-
-    <menuitem id="sub_menu_meal_codes" name="Meal Codes" parent="hotel_codes" action="setup_configuration.action_meal_code" sequence="4" />
-
-    <menuitem id="sub_menu_telephone_extension" name="Telephone Extension" parent="hotel_codes" action="setup_configuration.action_telephone_extension" sequence="5" />
-
-    <menuitem id="sub_menu_department_codes" name="Department Codes" parent="hotel_codes" action="setup_configuration.action_department_code" sequence="6" />
-
-    <menuitem id="sub_menu_posting_items" name="Posting Items" parent="hotel_codes" action="setup_configuration.action_posting_item" sequence="7" />
-
-    <menuitem id="sub_menu_dummy_room_codes" name="Dummy Room Codes" parent="hotel_codes" action="setup_configuration.action_dummy_room_code" sequence="8" />
+    <menuitem id="sub_menu_rate_code" name="Rate Code" parent="hotel_codes"
+        action="setup_configuration.action_rate_code" sequence="1" />
 
 
-    <menuitem id="sub_menu_budget_entries" name="Budget Entries" parent="hotel_codes" action="setup_configuration.action_budget_entry" sequence="9" />
+    <menuitem id="sub_menu_rate_promotion" name="Rate Promotions" parent="hotel_codes"
+        action="setup_configuration.action_rate_promotion" sequence="2" />
 
-    <menuitem id="sub_menu_cash_box_codes" name="Cash Box Codes" parent="hotel_codes" action="setup_configuration.action_cash_box_code" sequence="10" />
+    <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action" parent="hotel_codes"
+        sequence="3" />
+
+    <menuitem id="sub_menu_meal_codes" name="Meal Codes" parent="hotel_codes"
+        action="setup_configuration.action_meal_code" sequence="4" />
+    
+
+    <menuitem id="sub_menu_meal_pattern" name="Meal Pattern" parent="hotel_codes" action="setup_configuration.action_meal_pattern" sequence="5" />
+
+
+    <menuitem id="sub_menu_telephone_extension" name="Telephone Extension" parent="hotel_codes" action="setup_configuration.action_telephone_extension" sequence="6" />
+
+    <menuitem id="sub_menu_department_codes" name="Department Codes" parent="hotel_codes" action="setup_configuration.action_department_code" sequence="7" />
+
+    <menuitem id="sub_menu_posting_items" name="Posting Items" parent="hotel_codes" action="setup_configuration.action_posting_item" sequence="8" />
+
+    <menuitem id="sub_menu_dummy_room_codes" name="Dummy Room Codes" parent="hotel_codes" action="setup_configuration.action_dummy_room_code" sequence="9" />
+
+
+    <menuitem id="sub_menu_budget_entries" name="Budget Entries" parent="hotel_codes" action="setup_configuration.action_budget_entry" sequence="10" />
+
+    <menuitem id="sub_menu_cash_box_codes" name="Cash Box Codes" parent="hotel_codes" action="setup_configuration.action_cash_box_code" sequence="11" />
 
 </odoo>

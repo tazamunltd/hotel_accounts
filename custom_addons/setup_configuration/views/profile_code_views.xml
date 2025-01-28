@@ -12,8 +12,8 @@
                         <field name="code"/>
                         <field name="description"/>
                         <field name="abbreviation"/>
-                        <field name="arabic_desc"/>
-                        <field name="arabic_abbr"/>
+                        <!-- <field name="arabic_desc"/>
+                        <field name="arabic_abbr"/> -->
                         <field name="user_sort"/>
                         <field name="obsolete"/>
                         <field name="address_type"/>
@@ -55,8 +55,8 @@
                         <field name="code"/>
                         <field name="description"/>
                         <field name="abbreviation"/>
-                        <field name="arabic_desc"/>
-                        <field name="arabic_abbr"/>
+                        <!-- <field name="arabic_desc"/>
+                        <field name="arabic_abbr"/> -->
                         <field name="user_sort"/>
                         <field name="obsolete"/>
                     </group>
@@ -103,8 +103,8 @@
                                 <field name="code"/>
                                 <field name="description"/>
                                 <field name="abbreviation"/>
-                                <field name="arabic_desc"/>
-                                <field name="arabic_abbr"/>
+                                <!-- <field name="arabic_desc"/>
+                                <field name="arabic_abbr"/> -->
                                 <field name="user_sort"/>
                                 <field name="obsolete"/>
                             </group>
@@ -154,8 +154,8 @@
                     <field name="code"/>
                     <field name="description"/>
                     <field name="abbreviation"/>
-                    <field name="arabic_desc"/>
-                    <field name="arabic_abbr"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
                     <field name="valid_extensions"/>
                 </group>
                 
@@ -205,8 +205,8 @@
                     <field name="code"/>
                     <field name="description"/>
                     <field name="abbreviation"/>
-                    <field name="arabic_desc"/>
-                    <field name="arabic_abbr"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
                     <field name="number_mask"/>
                     <field name="department_id"/>
                 </group>
@@ -253,8 +253,8 @@
                     <field name="code"/>
                     <field name="description"/>
                     <field name="abbreviation"/>
-                    <field name="arabic_desc"/>
-                    <field name="arabic_abbr"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
                     <field name="obsolete"/>
                 </group>
 
@@ -300,8 +300,8 @@
                     <field name="category"/>
                     <field name="description"/>
                     <field name="abbreviation"/>
-                    <field name="arabic_desc"/>
-                    <field name="arabic_abbr"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
                     <field name="user_sort"/>
                     <field name="restrict"/>
                     <field name="obsolete"/>
@@ -319,8 +319,8 @@
                 <field name="category"/>
                 <field name="description"/>
                 <field name="abbreviation"/>
-                <field name="arabic_desc"/>
-                <field name="arabic_abbr"/>
+                <!-- <field name="arabic_desc"/>
+                <field name="arabic_abbr"/> -->
                 <field name="user_sort"/>
                 <field name="restrict"/>
                 <field name="obsolete"/>

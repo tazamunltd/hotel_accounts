@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Offline Search Widget XML Template
-    Modified: 2025-01-10T12:06:50+05:00
+    Modified: 2025-01-15T15:11:33+05:00
     Purpose: Enhanced UI with Bootstrap accordion for hotel booking and guest information
     Key Features:
     - Dynamic hotel booking form with accordion sections
@@ -46,6 +46,7 @@
                                                 class="form-select" 
                                                 t-model="state.hotel"
                                                 t-on-change="onHotelChange"
+                                                disabled="False"
                                             >
                                                 <option value="">Select Hotel</option>
                                                 <t t-foreach="state.hotels" t-as="hotel" t-key="hotel.id">
@@ -54,6 +55,8 @@
                                                     </option>
                                                 </t>
                                             </select>
+                                            <input type="hidden" t-att-name="'hotel'" t-att-value="state.hotel"/>
+
                                         </div>
                                     </div>
                                     
@@ -210,54 +213,43 @@
                                             />
                                         </div>
                                     </div>
-                                    <!-- Added Guest Contact and Group fields - 2025-01-10T11:58:35+05:00 -->
-<!--                                    <div class="col-md-3">-->
-<!--                                        <div class="form-group">-->
-<!--                                            <label for="guest-contact" class="form-label">Guest Contact</label>-->
-<!--                                            <select-->
-<!--                                                id="contact"-->
-<!--                                                class="form-select"-->
-<!--                                                t-model="state.guestContact"-->
-<!--                                            >-->
-<!--                                                <option value="">Select Contact</option>-->
-<!--                                                <t t-foreach="state.contacts" t-as="contact" t-key="contact.id">-->
-<!--                                                    <option t-att-value="contact.id">-->
-<!--                                                        <t t-esc="contact.name || 'Unnamed Contact'"/>-->
-<!--                                                    </option>-->
-<!--                                                </t>-->
-<!--                                            </select>-->
-
-<!--&lt;!&ndash;                                            <input &ndash;&gt;-->
-<!--&lt;!&ndash;                                                type="text" &ndash;&gt;-->
-<!--&lt;!&ndash;                                                id="guest-contact" &ndash;&gt;-->
-<!--&lt;!&ndash;                                                class="form-control" &ndash;&gt;-->
-<!--&lt;!&ndash;                                                t-att-value="state.guestContact" &ndash;&gt;-->
-<!--&lt;!&ndash;                                            />                                         &ndash;&gt;-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                    <div class="col-md-3">-->
-<!--                                        <div class="form-group">-->
-<!--                                            <label for="guest-group" class="form-label">Guest Group</label>-->
-<!--                                            <select-->
-<!--                                                id="group"-->
-<!--                                                class="form-select"-->
-<!--                                                t-model="state.guestGroup"-->
-<!--                                            >-->
-<!--                                                <option value="">Select Group</option>-->
-<!--                                                <t t-foreach="state.groups" t-as="group" t-key="group.id">-->
-<!--                                                    <option t-att-value="group.id">-->
-<!--                                                        <t t-esc="group.name || 'Unnamed Group'"/>-->
-<!--                                                    </option>-->
-<!--                                                </t>-->
-<!--                                            </select>-->
-<!--&lt;!&ndash;                                            <input &ndash;&gt;-->
-<!--&lt;!&ndash;                                                type="text" &ndash;&gt;-->
-<!--&lt;!&ndash;                                                id="guest-group" &ndash;&gt;-->
-<!--&lt;!&ndash;                                                class="form-control"&ndash;&gt;-->
-<!--&lt;!&ndash;                                                t-att-value="state.guestGroup" &ndash;&gt;-->
-<!--&lt;!&ndash;                                            />&ndash;&gt;-->
-<!--                                        </div>-->
-<!--                                    </div>-->
+                                    <!-- Guest Contact and Group fields - 2025-01-10T11:58:35+05:00 -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="guest-contact" class="form-label">Guest Contact</label>
+                                            <!-- Modified: 2025-01-16T10:00:00+05:00 
+                                                 Guest contact input field placeholder syntax fixed
+                                                 Input type: text
+                                                 ID: guest-contact
+                                                 Class: form-control
+                                                 Placeholder: Enter guest contact
+                                            -->
+                                            <input 
+                                                type="text" 
+                                                id="guest-contact" 
+                                                class="form-control"
+                                                placeholder="Enter guest contact"
+                                                t-model="state.guestContact"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="guest-group" class="form-label">Guest Group</label>
+                                            <select 
+                                                id="group" 
+                                                class="form-select" 
+                                                t-model="state.guestGroup"
+                                            >
+                                                <option value="">Select Group</option>
+                                                <t t-foreach="state.groups" t-as="group" t-key="group.id">
+                                                    <option t-att-value="group.id">
+                                                        <t t-esc="group.name || 'Unnamed Group'"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -278,33 +270,43 @@
 
                     <!-- Search Results Grid -->
                     <div class="search-results mt-4" t-if="state.searchResults and state.searchResults.length">
-                        <h5 class="mb-3">Available Room Types</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Available Room Types</h5>
+                            <button 
+                                class="btn btn-success" 
+                                t-on-click="() => this.createallBookings()"
+                            >
+                                Create Booking For All Searched Rooms
+                            </button>
+                        </div>
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>Room Type</th>
-                                    <th>Company</th>
-                                    <th>Free to Sell</th>
-                                    <th>Total Rooms</th>
-                                    <th>Total Overbooking Rooms</th>
+                                    <th>Hotel</th>
+                                    <th>Rooms Searched</th>
+                                    <th>Rooms with Overbooking</th>
+                                    <th>Available For Sale</th>
+                                    <th>Overbooking Allowed</th>
                                     <th>Overbooked</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-foreach="state.searchResults" t-as="room" t-key="room.room_type_id">
                                     <tr>
-                                        <td><t t-esc="room.room_type_name"/></td>
+                                        <td><t t-esc="room.room_type_name.en_US"/></td>
                                         <td><t t-esc="room.company_name"/></td>
+                                        <td><t t-esc="room.searched_rooms"/></td>
+                                        <td><t t-esc="room.freeToBook"/></td>
                                         <td><t t-esc="room.actualFreeToSell"/></td>
-                                        <td><t t-esc="room.total_rooms"/></td>
                                         <td><t t-esc="room.total_overbooking_rooms"/></td>
                                         <td><t t-esc="room.overbooked"/></td>
                                         <td>
                                             <button 
                                                 class="btn btn-primary" 
-                                                t-on-click="() => this.createBooking(room.room_type_id)"
+                                                t-on-click="() => this.createBookingAndLoad(room.room_type_id)"
                                             >
-                                                Create Booking
+                                                Create Booking For Selected Room Type
                                             </button>
                                         </td>
                                     </tr>

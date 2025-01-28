@@ -49,7 +49,7 @@ class MealsByNationalityForecast(models.Model):
         _logger.info("Started run_process_by_meals_by_nationality_forecast")
 
         # Scoped deletion to current company
-        self.search([('company_id', '=', self.env.company.id)]).unlink()
+        self.search([]).unlink()
         _logger.info("Existing records for the current company deleted")
 
         query = """
@@ -69,6 +69,10 @@ date_series AS (
     FROM parameters p
 ),
 
+/* ----------------------------------------------------------------------------
+   1) LATEST LINE STATUS:
+   For each booking line and report date, determine the latest status as of that date.
+   ---------------------------------------------------------------------------- */
 latest_line_status AS (
     SELECT DISTINCT ON (rbl.id, ds.report_date)
            rbl.id AS booking_line_id,
@@ -79,82 +83,223 @@ latest_line_status AS (
            rt.id AS room_type_id,
            rbls.status AS final_status,
            rbls.change_time,
-           rb.house_use,
-           rb.complementary,
+           rb.house_use AS house_use,
+           rb.complementary AS complementary,
            rbl.adult_count,
            rb.child_count,
            rb.infant_count,
            rb.nationality,
            rb.meal_pattern,
            mp.meal_pattern AS meal_pattern_name,
-           rb.nationality AS nationality_id
+		   rb.nationality AS nationality_id
     FROM room_booking_line rbl
     CROSS JOIN date_series ds
-    JOIN room_booking rb ON rb.id = rbl.booking_id
-    JOIN hotel_room hr ON hr.id = rbl.room_id
-    JOIN room_type rt ON rt.id = hr.room_type_name
+    JOIN room_booking rb    ON rb.id = rbl.booking_id
+    JOIN hotel_room hr      ON hr.id = rbl.room_id
+    JOIN room_type rt       ON rt.id = hr.room_type_name
     LEFT JOIN room_booking_line_status rbls
            ON rbls.booking_line_id = rbl.id
            AND rbls.change_time::date <= ds.report_date
-    LEFT JOIN public.meal_pattern mp ON mp.id = rb.meal_pattern
+    LEFT JOIN public.meal_pattern mp 
+           ON mp.id = rb.meal_pattern
     ORDER BY rbl.id, ds.report_date, rbls.change_time DESC NULLS LAST
 ),
 
-expected_arrivals AS (
-    SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        lls.meal_pattern_name,
-        lls.nationality_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count,
-        SUM(lls.adult_count) AS expected_arrivals_adults,
-        SUM(lls.child_count) AS expected_arrivals_children,
-        SUM(lls.infant_count) AS expected_arrivals_infants,
-        SUM(lls.adult_count + lls.child_count + lls.infant_count) AS expected_arrivals_total
-    FROM latest_line_status lls
-    WHERE lls.checkin_date = lls.report_date
-      AND lls.final_status IN ('confirmed', 'block')
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.meal_pattern_name, lls.nationality_id
-),
-
-expected_departures AS (
-    SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        lls.meal_pattern_name,
-        lls.nationality_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count,
-        SUM(lls.adult_count) AS expected_departures_adults,
-        SUM(lls.child_count) AS expected_departures_children,
-        SUM(lls.infant_count) AS expected_departures_infants,
-        SUM(lls.adult_count + lls.child_count + lls.infant_count) AS expected_departures_total
-    FROM latest_line_status lls
-    WHERE lls.checkout_date = lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.meal_pattern_name, lls.nationality_id
-),
-
+/* ----------------------------------------------------------------------------
+   2) IN-HOUSE:
+   Lines with status 'check_in' covering the report date.
+   ---------------------------------------------------------------------------- */
 in_house AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        lls.meal_pattern_name,
-        lls.nationality_id,
-        COUNT(DISTINCT lls.booking_line_id) AS in_house_count,
-        SUM(lls.adult_count) AS in_house_adults,
-        SUM(lls.child_count) AS in_house_children,
-        SUM(lls.infant_count) AS in_house_infants,
-        SUM(lls.adult_count + lls.child_count + lls.infant_count) AS in_house_total
-    FROM latest_line_status lls
-    WHERE lls.checkin_date <= lls.report_date
-      AND lls.checkout_date > lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.meal_pattern_name, lls.nationality_id
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        mp.meal_pattern AS meal_pattern_name,
+		sub.nationality_id,
+        COUNT(DISTINCT sub.booking_line_number) AS in_house_count,
+        SUM(sub.adult_count) AS in_house_adults,
+        SUM(sub.child_count) AS in_house_children,
+        SUM(sub.infant_count) AS in_house_infants,
+        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS in_house_total
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type rt
+    CROSS JOIN public.meal_pattern mp
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.adult_count,
+               qry.child_count,
+               qry.infant_count,
+			   qry.nationality_id
+        FROM (
+            SELECT 
+                rbl.id AS booking_line_number,
+                rbl.adult_count,
+                rb.child_count,
+                rb.infant_count,
+                rbls.status,
+                rbls.change_time,
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rb.meal_pattern,
+				rb.nationality AS nationality_id,
+                rbl.checkin_date::date,
+                rbl.checkout_date::date
+            FROM room_booking_line rbl
+            JOIN room_booking rb    ON rb.id = rbl.booking_id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id     = rc.id
+          AND qry.room_type_id   = rt.id
+          AND qry.meal_pattern   = mp.id
+          /* Lines that physically cover ds.report_date: [checkin_date, checkout_date) */
+          AND qry.checkin_date <= ds.report_date
+          AND qry.checkout_date > ds.report_date
+          /* Must have had status='check_in' as of or before ds.report_date */
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id,
+        mp.meal_pattern,
+		sub.nationality_id
 ),
 
+/* ----------------------------------------------------------------------------
+   3) EXPECTED ARRIVALS:
+   Lines that arrive on the report date with status 'confirmed' or 'block'.
+   ---------------------------------------------------------------------------- */
+expected_arrivals AS (
+    SELECT
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        mp.meal_pattern AS meal_pattern_name,
+		sub.nationality_id,
+        COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count,
+        SUM(sub.adult_count) AS expected_arrivals_adults,
+        SUM(sub.child_count) AS expected_arrivals_children,
+        SUM(sub.infant_count) AS expected_arrivals_infants,
+        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS expected_arrivals_total
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type rt
+    CROSS JOIN public.meal_pattern mp
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.adult_count,
+               qry.child_count,
+               qry.infant_count,
+			   qry.nationality_id
+        FROM (
+            SELECT 
+                rbl.id AS booking_line_number,
+                rbl.adult_count,
+                rb.child_count,
+                rb.infant_count,
+                rbls.status,
+                rbls.change_time,
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rb.meal_pattern,
+				rb.nationality AS nationality_id,
+                rbl.checkin_date::date
+            FROM room_booking_line rbl
+            JOIN room_booking rb    ON rb.id = rbl.booking_id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+          AND qry.meal_pattern  = mp.id
+          /* Lines arriving on ds.report_date */
+          AND qry.checkin_date = ds.report_date
+          /* Must have status 'confirmed' or 'block' as of ds.report_date */
+          AND qry.status IN ('confirmed', 'block')
+          AND qry.change_time::date <= ds.report_date
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id,
+        mp.meal_pattern,
+		sub.nationality_id
+),
+
+/* ----------------------------------------------------------------------------
+   4) EXPECTED DEPARTURES:
+   Lines that depart on the report date with status 'check_in'.
+   ---------------------------------------------------------------------------- */
+expected_departures AS (
+    SELECT
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        mp.meal_pattern AS meal_pattern_name,
+		sub.nationality_id,
+        COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count,
+        SUM(sub.adult_count) AS expected_departures_adults,
+        SUM(sub.child_count) AS expected_departures_children,
+        SUM(sub.infant_count) AS expected_departures_infants,
+        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS expected_departures_total
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type rt
+    CROSS JOIN public.meal_pattern mp
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.adult_count,
+               qry.child_count,
+               qry.infant_count,
+			   qry.nationality_id
+        FROM (
+            SELECT 
+                rbl.id AS booking_line_number,
+                rbl.adult_count,
+                rb.child_count,
+                rb.infant_count,
+                rbls.status,
+                rbls.change_time,
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rb.meal_pattern,
+				rb.nationality AS nationality_id,
+                rbl.checkout_date::date
+            FROM room_booking_line rbl
+            JOIN room_booking rb    ON rb.id = rbl.booking_id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+          AND qry.meal_pattern  = mp.id
+          /* Lines departing on ds.report_date */
+          AND qry.checkout_date = ds.report_date
+          /* Must have status 'check_in' as of ds.report_date */
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id,
+        mp.meal_pattern,
+		sub.nationality_id
+),
+
+/* ----------------------------------------------------------------------------
+   5) INVENTORY:
+   Total room counts per company and room type.
+   ---------------------------------------------------------------------------- */
 inventory AS (
     SELECT
         hi.company_id,
@@ -164,99 +309,138 @@ inventory AS (
     GROUP BY hi.company_id, hi.room_type
 ),
 
+/* ----------------------------------------------------------------------------
+   6) FINAL REPORT:
+   Combine all metrics into a comprehensive report.
+   ---------------------------------------------------------------------------- */
 final_report AS (
     SELECT
         ds.report_date,
         rc.id AS company_id,
         rc.name AS company_name,
         rt.id AS room_type_id,
-        rt.room_type AS room_type_name,
-        ea.meal_pattern_name AS meal_pattern,
+        COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
+
+        mp.id AS meal_pattern_id,
+        COALESCE(jsonb_extract_path_text(mp.meal_pattern::jsonb, 'en_US'),'N/A') AS meal_pattern,
+		COALESCE(ea.nationality_id, ed.nationality_id, ih.nationality_id) AS nationality_id,
+
+        COALESCE(inv.total_room_count, 0) AS total_rooms,
+
         COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
         COALESCE(ea.expected_arrivals_adults, 0) AS expected_arrivals_adults,
         COALESCE(ea.expected_arrivals_children, 0) AS expected_arrivals_children,
         COALESCE(ea.expected_arrivals_infants, 0) AS expected_arrivals_infants,
         COALESCE(ea.expected_arrivals_total, 0) AS expected_arrivals_total,
+
         COALESCE(ed.expected_departures_count, 0) AS expected_departures,
         COALESCE(ed.expected_departures_adults, 0) AS expected_departures_adults,
         COALESCE(ed.expected_departures_children, 0) AS expected_departures_children,
         COALESCE(ed.expected_departures_infants, 0) AS expected_departures_infants,
         COALESCE(ed.expected_departures_total, 0) AS expected_departures_total,
+
         COALESCE(ih.in_house_count, 0) AS in_house,
         COALESCE(ih.in_house_adults, 0) AS in_house_adults,
         COALESCE(ih.in_house_children, 0) AS in_house_children,
         COALESCE(ih.in_house_infants, 0) AS in_house_infants,
-        COALESCE(ih.in_house_total, 0) AS in_house_total,
-        COALESCE(ih.nationality_id, ea.nationality_id, ed.nationality_id) AS nationality_id
+        COALESCE(ih.in_house_total, 0) AS in_house_total
     FROM date_series ds
     CROSS JOIN res_company rc
     CROSS JOIN room_type rt
-    LEFT JOIN inventory inv ON inv.company_id = rc.id AND inv.room_type_id = rt.id
-    LEFT JOIN expected_arrivals ea ON ea.company_id = rc.id AND ea.room_type_id = rt.id AND ea.report_date = ds.report_date
-    LEFT JOIN expected_departures ed ON ed.company_id = rc.id AND ed.room_type_id = rt.id AND ed.report_date = ds.report_date
-    LEFT JOIN in_house ih ON ih.company_id = rc.id AND ih.room_type_id = rt.id AND ih.report_date = ds.report_date
+    CROSS JOIN public.meal_pattern mp  -- CROSS JOIN to include all meal patterns
+    LEFT JOIN inventory inv
+        ON inv.company_id = rc.id
+        AND inv.room_type_id = rt.id
+    LEFT JOIN expected_arrivals ea
+        ON ea.company_id = rc.id
+        AND ea.room_type_id = rt.id
+        AND ea.meal_pattern_name = mp.meal_pattern
+        AND ea.report_date = ds.report_date
+    LEFT JOIN expected_departures ed
+        ON ed.company_id = rc.id
+        AND ed.room_type_id = rt.id
+        AND ed.meal_pattern_name = mp.meal_pattern
+        AND ed.report_date = ds.report_date
+    LEFT JOIN in_house ih
+        ON ih.company_id = rc.id
+        AND ih.room_type_id = rt.id
+        AND ih.meal_pattern_name = mp.meal_pattern
+        AND ih.report_date = ds.report_date
+),
+final_with_nationality AS (
+    SELECT
+        fr.*,
+        rc_country.name->>'en_US' AS nationality
+    FROM final_report fr
+    LEFT JOIN res_country rc_country
+        ON rc_country.id = fr.nationality_id
 )
 
 SELECT
-    fr.report_date,
-    fr.company_id,  -- Include company_id
-    fr.company_name,
-    fr.room_type_name,
-    fr.meal_pattern,
-    rc_country.name->>'en_US' AS nationality,  -- Extract English value from JSON
-    SUM(fr.expected_arrivals) AS expected_arrivals,
-    SUM(fr.expected_arrivals_adults) AS expected_arrivals_adults,
-    SUM(fr.expected_arrivals_children) AS expected_arrivals_children,
-    SUM(fr.expected_arrivals_infants) AS expected_arrivals_infants,
-    SUM(fr.expected_arrivals_total) AS expected_arrivals_total,
-    SUM(fr.expected_departures) AS expected_departures,
-    SUM(fr.expected_departures_adults) AS expected_departures_adults,
-    SUM(fr.expected_departures_children) AS expected_departures_children,
-    SUM(fr.expected_departures_infants) AS expected_departures_infants,
-    SUM(fr.expected_departures_total) AS expected_departures_total,
-    SUM(fr.in_house) AS in_house,
-    SUM(fr.in_house_adults) AS in_house_adults,
-    SUM(fr.in_house_children) AS in_house_children,
-    SUM(fr.in_house_infants) AS in_house_infants,
-    SUM(fr.in_house_total) AS in_house_total,
-    
-    -- **Added Columns**
-    -- Total Pax: Sum of arrivals, departures, and in-house counts
-   -- SUM(fr.expected_arrivals) + SUM(fr.expected_departures) + SUM(fr.in_house) AS total_pax,
+    frwn.report_date,
+    frwn.company_id,
+    frwn.company_name,
+    frwn.room_type_name,
+    frwn.meal_pattern,
+    frwn.nationality,
+    -- Summations
+    SUM(frwn.expected_arrivals) AS expected_arrivals,
+    SUM(frwn.expected_arrivals_adults) AS expected_arrivals_adults,
+    SUM(frwn.expected_arrivals_children) AS expected_arrivals_children,
+    SUM(frwn.expected_arrivals_infants) AS expected_arrivals_infants,
+    SUM(frwn.expected_arrivals_total) AS expected_arrivals_total,
 
-    -- Total Adults: Sum of adults from arrivals, departures, and in-house
-    SUM(fr.expected_arrivals_adults) + SUM(fr.in_house_adults) AS total_adults,
+    SUM(frwn.expected_departures) AS expected_departures,
+    SUM(frwn.expected_departures_adults) AS expected_departures_adults,
+    SUM(frwn.expected_departures_children) AS expected_departures_children,
+    SUM(frwn.expected_departures_infants) AS expected_departures_infants,
+    SUM(frwn.expected_departures_total) AS expected_departures_total,
 
-    -- Total Children: Sum of children from arrivals, departures, and in-house
-    SUM(fr.expected_arrivals_children) + SUM(fr.expected_departures_children) + SUM(fr.in_house_children) AS total_children,
+    SUM(frwn.in_house) AS in_house,
+    SUM(frwn.in_house_adults) AS in_house_adults,
+    SUM(frwn.in_house_children) AS in_house_children,
+    SUM(frwn.in_house_infants) AS in_house_infants,
+    SUM(frwn.in_house_total) AS in_house_total,
 
-    -- Total Infants: Sum of infants from arrivals, departures, and in-house
-    SUM(fr.expected_arrivals_infants) + SUM(fr.expected_departures_infants) + SUM(fr.in_house_infants) AS total_infants,
+    (SUM(frwn.expected_arrivals_adults)
+      + SUM(frwn.expected_departures_adults)
+      + SUM(frwn.in_house_adults)) AS total_adults,
 
-    -- Total of All: Sum of all pax categories
-    (SUM(fr.expected_arrivals) + SUM(fr.expected_departures) + SUM(fr.in_house)) +
-    (SUM(fr.expected_arrivals_adults) + SUM(fr.expected_departures_adults) + SUM(fr.in_house_adults)) +
-    (SUM(fr.expected_arrivals_children) + SUM(fr.expected_departures_children) + SUM(fr.in_house_children)) +
-    (SUM(fr.expected_arrivals_infants) + SUM(fr.expected_departures_infants) + SUM(fr.in_house_infants))
-    AS total_of_all
+    (SUM(frwn.expected_arrivals_children)
+      + SUM(frwn.expected_departures_children)
+      + SUM(frwn.in_house_children)) AS total_children,
 
-FROM final_report fr
-LEFT JOIN res_country rc_country ON fr.nationality_id = rc_country.id
-GROUP BY 
-    fr.report_date, 
-    fr.company_id,  -- Include in GROUP BY
-    fr.company_name, 
-    fr.room_type_name, 
-    fr.meal_pattern,
-    rc_country.name->>'en_US'  -- Adjust GROUP BY to match SELECT
-ORDER BY 
-    fr.report_date, 
-    fr.company_id,  -- Include in ORDER BY
-    fr.company_name, 
-    fr.room_type_name, 
-    fr.meal_pattern,
-    rc_country.name->>'en_US';
+    (SUM(frwn.expected_arrivals_infants)
+      + SUM(frwn.expected_departures_infants)
+      + SUM(frwn.in_house_infants)) AS total_infants,
 
+    (
+      (SUM(frwn.expected_arrivals) + SUM(frwn.expected_departures) + SUM(frwn.in_house))
+      + (SUM(frwn.expected_arrivals_adults) + SUM(frwn.expected_departures_adults) + SUM(frwn.in_house_adults))
+      + (SUM(frwn.expected_arrivals_children) + SUM(frwn.expected_departures_children) + SUM(frwn.in_house_children))
+      + (SUM(frwn.expected_arrivals_infants) + SUM(frwn.expected_departures_infants) + SUM(frwn.in_house_infants))
+    ) AS total_of_all
+
+FROM final_with_nationality frwn
+WHERE (
+    -- Only keep meal patterns actually in use
+    COALESCE(frwn.expected_arrivals, 0)
+    + COALESCE(frwn.expected_departures, 0)
+    + COALESCE(frwn.in_house, 0)
+) > 0
+GROUP BY
+    frwn.report_date,
+    frwn.company_id,
+    frwn.company_name,
+    frwn.room_type_name,
+    frwn.meal_pattern,
+    frwn.nationality
+ORDER BY
+    frwn.report_date,
+    frwn.company_id,
+    frwn.room_type_name,
+    frwn.meal_pattern,
+    frwn.nationality;
 
         """
 
@@ -303,7 +487,7 @@ ORDER BY
                 else:
                     continue
 
-                total_adults = expected_arrivals_adults + in_house_adults
+                total_adults = expected_arrivals_adults + expected_departures_adults + in_house_adults
 
                 records_to_create.append({
                     'report_date': report_date,

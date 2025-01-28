@@ -73,12 +73,15 @@ class AllReservationStatusReport(models.Model):
         query = """
         WITH 
     room_types AS (
-        SELECT 
-            rt.id AS room_type_id,
-            rt.room_type,
-            rt.description AS room_type_name
-        FROM room_type rt
-    ),
+    SELECT 
+        rt.id AS room_type_id,
+        rt.room_type,
+        COALESCE(
+            jsonb_extract_path_text(rt.description::jsonb, 'en_US'), 
+            'N/A'
+        ) AS room_type_name
+    FROM room_type rt
+),
     transformed AS (
         SELECT
             rb.company_id,
@@ -89,7 +92,7 @@ class AllReservationStatusReport(models.Model):
                 ELSE rb.state
             END AS state,
             rb.state AS original_state, 
-            COALESCE(gb.name, 'N/A') AS group_booking_name,
+            COALESCE(jsonb_extract_path_text(gb.name::jsonb, 'en_US'),'N/A') AS group_booking_name,
             rb.room_count,
             rb.adult_count,
             rbl.room_id, -- Fetching room_id from room_booking_line_status
@@ -99,8 +102,8 @@ class AllReservationStatusReport(models.Model):
             (rb.checkout_date - rb.checkin_date) AS no_of_nights,
             rb.vip,
             rb.house_use,
-            COALESCE(mc.meal_code, 'N/A') AS meal_pattern_code,
-            COALESCE(cc.code, 'N/A') AS complementary_code,
+            COALESCE(jsonb_extract_path_text(mc.meal_code::jsonb, 'en_US'),'N/A') AS meal_pattern_code,
+            COALESCE(jsonb_extract_path_text(cc.code::jsonb, 'en_US'),'N/A') AS complementary_code,
             COALESCE(jsonb_extract_path_text(rc_country.name::jsonb, 'en_US'), 'N/A') AS nationality,
             rb.date_order,
             rp.id AS partner_id,
@@ -136,7 +139,7 @@ SELECT
     t.room_count,
     t.adult_count,
     t.room_id,
-    hr.name AS room_name, -- Displaying name field from hotel_room
+    COALESCE(jsonb_extract_path_text(hr.name::jsonb, 'en_US')) AS room_name, -- Displaying name field from hotel_room
     t.hotel_room_type,
     rt.room_type_name,
     t.checkin_date,

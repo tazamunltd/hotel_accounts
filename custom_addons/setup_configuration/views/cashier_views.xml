@@ -33,42 +33,107 @@
         </field>
     </record> -->
     <record id="view_department_category_form" model="ir.ui.view">
-    <field name="name">department.category.form</field>
-    <field name="model">department.category</field>
-    <field name="arch" type="xml">
-        <form string="Department Category">
-            <sheet>
-                <group>
-                    <field name="category"/>
-                    <field name="description"/>
-                </group>
-                <group>
-                    <field name="abbreviation"/>
-                    <field name="user_sort"/>
-                </group>
-                <group>
-                    <field name="arabic_description"/>
-                    <field name="arabic_abbreviation"/>
-                </group>
-            </sheet>
-            <div class="oe_chatter">
-                <field name="message_follower_ids"/>
-                <field name="activity_ids"/>
-                <field name="message_ids"/>
-            </div>
-        </form>
-    </field>
-</record>
+        <field name="name">department.category.form</field>
+        <field name="model">department.category</field>
+        <field name="arch" type="xml">
+            <form string="Department Category">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- General Information Section -->
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="fw-bold"> General Information</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="category" class="form-label small">Category</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="category" placeholder="Enter Category" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+    Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description" placeholder="Enter Description" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Details Section -->
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-cogs"></i>
+                                    <span class="fw-bold"> Additional Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+    Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation" placeholder="Enter Abbreviation" />
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="user_sort" class="form-label small">User Sort</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="user_sort" placeholder="Enter User Sort" />
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arabic Details Section -->
+                        <!-- <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-language"></i>
+                                    <span class="fw-bold"> Arabic Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_description" class="form-label small">Arabic
+    Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_description" placeholder="Enter Arabic Description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_abbreviation" class="form-label small">Arabic
+    Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbreviation" placeholder="Enter Arabic Abbreviation" />
+                                    </div>
+                                </div>
+                            </div> 
+                        </div> -->
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" />
+                    <field name="activity_ids" widget="mail_activity" />
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
 
     <record id="view_department_category_tree" model="ir.ui.view">
         <field name="name">department.category.tree</field>
         <field name="model">department.category</field>
         <field name="arch" type="xml">
             <tree string="Department Category">
-                <field name="category" optional='show'/>
-                <field name="description" optional='show'/>
-                <field name="abbreviation" optional='show'/>
-                <field name="user_sort" optional='show'/>
+                <field name="category" optional='show' />
+                <field name="description" optional='show' />
+                <field name="abbreviation" optional='show' />
+                <!-- <field name="user_sort" optional='show' /> -->
             </tree>
         </field>
     </record>
@@ -77,17 +142,22 @@
         <field name="model">department.category</field>
         <field name="arch" type="xml">
             <kanban string="Department Category">
-                <field name="category"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="user_sort"/>
+                <field name="category" />
+                <field name="description" />
+                <field name="abbreviation" />
+                <!-- <field name="user_sort" /> -->
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_card oe_kanban_global_click">
-                            <strong><field name="category"/></strong>
-                            <div>Description: <field name="description"/></div>
-                            <div>Abbreviation: <field name="abbreviation"/></div>
-                            <div>User Sort: <field name="user_sort"/></div>
+                            <strong>
+                                <field name="category" />
+                            </strong>
+                            <div>Description: <field name="description" />
+                            </div>
+                            <div>Abbreviation: <field name="abbreviation" />
+                            </div>
+                            <!-- <div>User Sort: <field name="user_sort" />
+                            </div> -->
                         </div>
                     </t>
                 </templates>
@@ -99,8 +169,8 @@
         <field name="model">department.category</field>
         <field name="arch" type="xml">
             <pivot string="Department Category">
-                <field name="category" type="row"/>
-                <field name="abbreviation" type="row"/>
+                <field name="category" type="row" />
+                <field name="abbreviation" type="row" />
                 <!-- <field name="user_sort" type="measure"/> -->
             </pivot>
         </field>
@@ -110,13 +180,12 @@
         <field name="model">department.category</field>
         <field name="arch" type="xml">
             <graph string="Department Category" type="bar">
-                <field name="category" type="row"/>
-                <field name="abbreviation" type="row"/>
+                <field name="category" type="row" />
+                <field name="abbreviation" type="row" />
                 <!-- <field name="user_sort" type="measure"/> -->
             </graph>
         </field>
     </record>
-
 
 
     <record id="view_department_category_search" model="ir.ui.view">
@@ -127,22 +196,20 @@
                 <field name="category" string="Category" />
                 <field name="description" string="Description" />
                 <field name="abbreviation" string="Abbreviation" />
-                <field name="user_sort" string="User Sort" />
+                <!-- <field name="user_sort" string="User Sort" /> -->
             </search>
         </field>
     </record>
 
 
-    
-    <!-- Form View for Department Code -->
-    <record id="view_department_code_form" model="ir.ui.view">
+    <!-- Form View for Department Code(old) -->
+    <!-- <record id="view_department_code_form" model="ir.ui.view">
         <field name="name">department.code.form</field>
         <field name="model">department.code</field>
         <field name="arch" type="xml">
             <form string="Department Code">
                 <sheet>
                     <notebook>
-                        <!-- Main Tab -->
                         <page string="Main">
                             <group>
                                 <field name="department"/>
@@ -157,32 +224,19 @@
                             <group string="Function">
                                 <field name="function_type"/>
                                 <separator string="Charges"/>
-                                <!-- <field name="charge_room"/>
-                                <field name="charge_food"/>
-                                <field name="charge_beverage"/>
-                                <field name="charge_telephone"/>
-                                <field name="charge_other"/>
-                                
+                                <field name="charge_group" widget="radio"/>
+
                                 <separator string="Payments"/>
-                                <field name="payment_cash"/>
-                                <field name="payment_credit_card"/>
-                                <field name="payment_other"/>
+                                <field name="payment_group" widget="radio"/>
 
                                 <separator string="Taxes"/>
-                                <field name="tax_service_charge"/>
-                                <field name="tax_vat"/>
-                                <field name="tax_municipality"/>
-                                <field name="tax_other"/> -->
-                                <field name="charge_type" widget="radio"/> 
+                                <field name="tax_group" widget="radio"/>
+                                
+                         
                             </group>
                         </page>
 
-                        <!-- GI Accounts Tab -->
-                        <!-- <page string="GI Accounts">
-                            <group>
-                                <field name="default_account_id"/>
-                            </group>
-                        </page> -->
+                     
                     </notebook>
                 </sheet>
                   <div class="oe_chatter">
@@ -192,7 +246,266 @@
                 </div>
             </form>
         </field>
+    </record> -->
+
+    <!-- <record id="view_department_code_form" model="ir.ui.view">
+        <field name="name">department.code.form</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <form string="Department Code">
+                <sheet>
+                    <notebook>
+                        <page string="Main">
+                            <div class="row g-2">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-building"></i>
+                                            <span class="fw-bold"> Department Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="department" class="form-label small">
+    Department</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="department" placeholder="Enter Department" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="description" class="form-label small">
+    Description</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="description" placeholder="Enter Description" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="abbreviation" class="form-label small">
+    Abbreviation</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="abbreviation" placeholder="Enter Abbreviation" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="arabic_description" class="form-label small">Arabic Description</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="arabic_description" placeholder="Enter Arabic Description" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="arabic_abbreviation" class="form-label small">Arabic Abbreviation</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="arabic_abbreviation" placeholder="Enter Arabic Abbreviation" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="unit_price" class="form-label small">Unit
+    Price</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="unit_price" placeholder="Enter Unit Price" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="dept_category" class="form-label small">Department
+    Category</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="dept_category" placeholder="Enter Category" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="user_sort" class="form-label small">User
+    Sort</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="user_sort" placeholder="Enter User Sort" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-cogs"></i>
+                                            <span class="fw-bold"> Function</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="function_type" class="form-label small">Function
+                                                    Type</label>
+                                                <field name="function_type" placeholder="Enter Function Type"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="charge_group" class="form-label small">Charges
+                                                    Type</label>
+                                                <field name="charge_group" widget="radio" placeholder="Enter Charge Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="adjustment" class="form-label small">Adjustment
+                                                    Type</label>
+                                                <field name="adjustment" widget="radio" placeholder="Enter Adjustment Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="payment_group" class="form-label small">Payments
+                                                    Type</label>
+                                                <field name="payment_group" widget="radio" placeholder="Enter Payment Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="tax_group" class="form-label small">Taxes
+                                                    Type</label>
+                                                <field name="tax_group" widget="radio" placeholder="Enter Taxes Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="payment_group" widget="radio"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="tax_group" class="form-label small">Taxes Type</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="tax_group" widget="radio"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+
+    <record id="view_department_code_form" model="ir.ui.view">
+        <field name="name">department.code.form</field>
+        <field name="model">department.code</field>
+        <field name="arch" type="xml">
+            <form string="Department Code">
+                <sheet>
+                    <notebook>
+                        <!-- Main Tab -->
+                        <page string="Main">
+                            <div class="row g-2">
+                                <!-- Department Information -->
+                                <div class="col-lg-7 col-md-7 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-building"></i>
+                                            <span class="fw-bold"> Department Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="department" class="form-label small">
+    Department</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="department" placeholder="Enter Department" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="description" class="form-label small">
+    Description</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="description" placeholder="Enter Description" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="abbreviation" class="form-label small">
+    Abbreviation</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="abbreviation" placeholder="Enter Abbreviation" />
+                                            </div>
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="arabic_description" class="form-label small">Arabic Description</label>
+                                            </div> -->
+                                            <!-- <div class="form-control form-control-sm">
+                                                <field name="arabic_description" placeholder="Enter Arabic Description" />
+                                            </div> -->
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="arabic_abbreviation" class="form-label small">Arabic Abbreviation</label>
+                                            </div> -->
+                                            <!-- <div class="form-control form-control-sm">
+                                                <field name="arabic_abbreviation" placeholder="Enter Arabic Abbreviation" />
+                                            </div> -->
+                                            <div class="form-group mb-1">
+                                                <label for="unit_price" class="form-label small">Unit
+    Price</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="unit_price" placeholder="Enter Unit Price" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="dept_category" class="form-label small">Department
+    Category</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="dept_category" placeholder="Enter Category" />
+                                            </div>
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="user_sort" class="form-label small">User
+    Sort</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="user_sort" placeholder="Enter User Sort" />
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Function Information -->
+                                <div class="col-lg-5 col-md-5 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-cogs"></i>
+                                            <span class="fw-bold"> Function</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="function_type" class="form-label small">Function
+    Type</label>
+                                                <field name="function_type" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Function Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="charge_group" class="form-label small">Charges
+    Type</label>
+                                                <field name="charge_group" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Charge Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="adjustment" class="form-label small">Adjustment
+    Type</label>
+                                                <field name="adjustment" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Adjustment Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="payment_group" class="form-label small">Payments
+    Type</label>
+                                                <field name="payment_group" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Payment Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="tax_group" class="form-label small">Taxes
+    Type</label>
+                                                <field name="tax_group" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Taxes Type" />
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
     </record>
+
 
     <!-- Tree View for Department Code -->
     <record id="view_department_code_tree" model="ir.ui.view">
@@ -200,13 +513,13 @@
         <field name="model">department.code</field>
         <field name="arch" type="xml">
             <tree string="Department Codes">
-                <field name="department" optional='show'/>
-                <field name="description" optional='show'/>
-                <field name="abbreviation" optional='show'/>
-                <field name="unit_price" optional='show'/>
-                <field name="category" optional='show'/>
-                <field name="charge_type" optional='show'/> 
-                <field name="user_sort" optional='show'/>
+                <field name="department" optional='show' />
+                <field name="description" optional='show' />
+                <field name="abbreviation" optional='show' />
+                <field name="unit_price" optional='show' />
+                <field name="category" optional='show' />
+                <field name="charge_type" optional='show' />
+                <!-- <field name="user_sort" optional='show' /> -->
             </tree>
         </field>
     </record>
@@ -215,21 +528,29 @@
         <field name="model">department.code</field>
         <field name="arch" type="xml">
             <kanban string="Department Codes">
-                <field name="department"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="unit_price"/>
-                <field name="category"/>
-                <field name="user_sort"/>
+                <field name="department" />
+                <field name="description" />
+                <field name="abbreviation" />
+                <field name="unit_price" />
+                <field name="category" />
+                <!-- <field name="user_sort" /> -->
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_card oe_kanban_global_click">
-                            <strong><field name="department"/></strong>
-                            <div><field name="description"/></div>
-                            <div>Abbreviation: <field name="abbreviation"/></div>
-                            <div>Unit Price: <field name="unit_price"/></div>
-                            <div>Category: <field name="category"/></div>
-                            <div>User Sort: <field name="user_sort"/></div>
+                            <strong>
+                                <field name="department" />
+                            </strong>
+                            <div>
+                                <field name="description" />
+                            </div>
+                            <div>Abbreviation: <field name="abbreviation" />
+                            </div>
+                            <div>Unit Price: <field name="unit_price" />
+                            </div>
+                            <div>Category: <field name="category" />
+                            </div>
+                            <!-- <div>User Sort: <field name="user_sort" />
+                            </div> -->
                         </div>
                     </t>
                 </templates>
@@ -241,9 +562,9 @@
         <field name="model">department.code</field>
         <field name="arch" type="xml">
             <pivot string="Department Codes">
-                <field name="department" type="row"/>
-                <field name="category" type="row"/>
-                <field name="unit_price" type="measure"/>
+                <field name="department" type="row" />
+                <field name="category" type="row" />
+                <field name="unit_price" type="measure" />
             </pivot>
         </field>
     </record>
@@ -252,9 +573,9 @@
         <field name="model">department.code</field>
         <field name="arch" type="xml">
             <graph string="Department Codes" type="bar">
-                <field name="department" type="row"/>
-                <field name="category" type="row"/>
-                <field name="unit_price" type="measure"/>
+                <field name="department" type="row" />
+                <field name="category" type="row" />
+                <field name="unit_price" type="measure" />
             </graph>
         </field>
     </record>
@@ -271,8 +592,6 @@
     </record> -->
 
 
-
-
     <record id="view_department_code_search" model="ir.ui.view">
         <field name="name">department.code.search</field>
         <field name="model">department.code</field>
@@ -283,15 +602,14 @@
                 <field name="abbreviation" string="Abbreviation" />
                 <field name="unit_price" string="Unit Price" />
                 <field name="category" string="Category" />
-                <field name="user_sort" string="User Sort" />
+                <!-- <field name="user_sort" string="User Sort" /> -->
             </search>
         </field>
     </record>
 
 
-    
     <!-- Form View for Posting Item -->
-    <record id="view_posting_item_form" model="ir.ui.view">
+    <!-- <record id="view_posting_item_form" model="ir.ui.view">
         <field name="name">posting.item.form</field>
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
@@ -299,55 +617,271 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="item_code"/>
-                            <field name="description"/>
-                            <field name="abbreviation"/>
-                            <field name="arabic_description"/>
-                            <field name="arabic_abbreviation"/>
-                            <field name="main_department"/>
+                            <field name="item_code" />
+                            <field name="description" />
+                            <field name="abbreviation" />
+                            <field name="arabic_description" /> 
+                            <field name="arabic_abbreviation" /> 
+                            <field name="main_department" />
                         </group>
                         <group>
-                            <field name="default_currency"/>
-                            <field name="default_value"/>
-                            <field name="entry_value_type"/>
-                            <field name="fixed_value"/>
-                            <field name="dummy_room_discount"/>
-                            <field name="posting_item_selection" widget='radio'/>
-                            <field name="show_in_website"/>
-                            <field name="website_desc" string="Website Description" invisible="show_in_website==False"/>
-                            <field name="taxes"/>
+                            <field name="default_currency" />
+                            <field name="default_value" />
+                            <field name="entry_value_type" />
+                            <field name="fixed_value" />
+                            <field name="dummy_room_discount" />
+                            <field name="posting_item_selection" widget='radio' />
+                            <field name="show_in_website" />
+                            <field name="website_desc" string="Website Description" invisible="show_in_website==False" />
+                            <field name="taxes" />
                         </group>
                     </group>
 
                     <group string="Default Settings">
-                        <field name="allow_change_sign"/>
-                        <field name="require_authorization"/>
-                        <field name="default_sign"/>
-                        <field name="entry_require_authorization"/>
-                        <field name="user_sort"/>
+                        <field name="allow_change_sign" />
+                        <field name="require_authorization" />
+                        <field name="default_sign" />
+                        <field name="entry_require_authorization" />
                     </group>
 
-                    <!-- Additions Section -->
                     <group string="Additions">
                         <field name="addition_line">
-                            <tree string="Additions" >
-                                <field name="line"/>
-                                <field name="department"/>
-                                <field name="name"/>
-                                <field name="value"/>
-                                <field name="is_entry_value"/>
-                                <field name="added_value"/>
-                                <field name="value_per_pax_child"/>
-                                <field name="value_per_room"/>
-                                <field name="percentage_of_additions"/>
+                            <tree string="Additions">
+                                <field name="line" />
+                                <field name="department" />
+                                <field name="name" />
+                                <field name="value" />
+                                <field name="is_entry_value" />
+                                <field name="added_value" />
+                                <field name="value_per_pax_child" />
+                                <field name="value_per_room" />
+                                <field name="percentage_of_additions" />
                             </tree>
                         </field>
                     </group>
                 </sheet>
-                  <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    
+    <record id="view_posting_item_form" model="ir.ui.view">
+        <field name="name">posting.item.form</field>
+        <field name="model">posting.item</field>
+        <field name="arch" type="xml">
+            <form string="Posting Item">
+                <sheet>
+                    <notebook>
+                        <!-- Main Tab -->
+                        <page string="Main">
+                            <div class="row g-2">
+                                <!-- General Information -->
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span class="fw-bold"> General Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="item_code" class="form-label small">Item
+    Code</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="item_code" placeholder="Enter Item Code" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="description" class="form-label small">
+    Description</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="description" placeholder="Enter Description" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="abbreviation" class="form-label small">
+    Abbreviation</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="abbreviation" placeholder="Enter Abbreviation" />
+                                            </div>
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="arabic_description" class="form-label small">Arabic Description</label>
+                                            </div> -->
+                                            <!-- <div class="form-control form-control-sm">
+                                                <field name="arabic_description" placeholder="Enter Arabic Description" />
+                                            </div> -->
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="arabic_abbreviation" class="form-label small">Arabic Abbreviation</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="arabic_abbreviation" placeholder="Enter Arabic Abbreviation" />
+                                            </div> -->
+                                            <div class="form-group mb-1">
+                                                <label for="main_department" class="form-label small">Main Department</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="main_department" placeholder="Enter Main Department" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Information -->
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-cogs"></i>
+                                            <span class="fw-bold"> Additional Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="default_currency" class="form-label small">Default Currency</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="default_currency" placeholder="Enter Default Currency" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="default_value" class="form-label small">Default
+    Value</label>
+                                                <field name="default_value" class="form-control form-control-sm" placeholder="Enter Default Value" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="entry_value_type" class="form-label small">Entry Value Type</label>
+                                                <field name="entry_value_type" class="form-control form-control-sm" placeholder="Enter Entry Value Type" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="fixed_value" placeholder="Enter Fixed Value" />
+                                                <label for="fixed_value" class="form-label small">Fixed
+    Value</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="dummy_room_discount" placeholder="Enter Room Discount" />
+                                                <label for="dummy_room_discount" class="form-label small">Dummy Room Discount</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="posting_item_selection" class="form-label small">Posting Item Selection</label>
+                                                <field name="posting_item_selection" widget='radio' />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="show_in_website" />
+                                                <label for="show_in_website" class="form-label small">Show in Website</label>
+                                            </div>
+                                            <div class="form-group mb-1" invisible="show_in_website==False">
+                                                <label for="website_desc" class="form-label small">Website
+    Description</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="website_desc" class="form-control form-control-sm" placeholder="Enter Website Description" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="taxes" class="form-label small">Taxes</label>
+                                                <field name="taxes" class="form-control form-control-sm" placeholder="Enter Taxes" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <!-- Default Settings Tab -->
+                        <page string="Default Settings">
+                            <div class="row g-2">
+                                <div class="col-lg-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-sliders-h"></i>
+                                            <span class="fw-bold"> Default Settings</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <field name="allow_change_sign" />
+                                                <label for="allow_change_sign" class="form-label small">Allow Change Sign</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="require_authorization" />
+                                                <label for="require_authorization" class="form-label small">Require Authorization</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="default_sign" class="form-label small">Default
+    Sign</label>
+                                                <field name="default_sign" class="form-control form-control-sm" placeholder="Enter Default Sign" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="entry_require_authorization" />
+                                                <label for="entry_require_authorization" class="form-label small">Entry Require
+    Authorization</label>
+                                            </div>
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="user_sort" class="form-label small">User
+    Sort</label>
+                                                <field name="user_sort" class="form-control form-control-sm" placeholder="Enter User Sort" />
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <!-- Additions Tab -->
+                        <!-- <page string="Additions">
+                            <div class="row g-2">
+                                <div class="col-lg-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-plus"></i>
+                                            <span class="fw-bold"> Additions</span>
+                                        </div>
+                                        <div class="card-body py-2 px-4">
+                                            <div class="form-group mb-1">
+                                                <label for="addition_line" class="form-label small">Addition
+                                                    Line</label>
+                                                <field name="addition_line">
+                                                    <tree string="Additions">
+                                                        <field name="line" />
+                                                        <field name="department" />
+                                                        <field name="name" />
+                                                        <field name="value" />
+                                                        <field name="is_entry_value" />
+                                                        <field name="added_value" />
+                                                        <field name="value_per_pax_child" />
+                                                        <field name="value_per_room" />
+                                                        <field name="percentage_of_additions" />
+                                                    </tree>
+                                                </field>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page> -->
+                        <page string="Additions">
+                            <group>
+                                <field name="addition_line">
+                                    <tree string="Additions">
+                                        <field name="line" />
+                                        <field name="department" />
+                                        <field name="name" />
+                                        <field name="value" />
+                                        <field name="is_entry_value" />
+                                        <field name="added_value" />
+                                        <field name="value_per_pax_child" />
+                                        <field name="value_per_room" />
+                                        <field name="percentage_of_additions" />
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
                 </div>
             </form>
         </field>
@@ -358,13 +892,13 @@
         <field name="name">posting.item.tree</field>
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
-            <tree string="Posting Items" >
-                <field name="item_code" optional='show'/>
-                <field name="description" optional='show'/>
-                <field name="abbreviation" optional='show'/>
-                <field name="main_department" optional='show'/>
-                <field name="default_currency" optional='show'/>
-                <field name="default_value" optional='show'/>
+            <tree string="Posting Items">
+                <field name="item_code" optional='show' />
+                <field name="description" optional='show' />
+                <field name="abbreviation" optional='show' />
+                <field name="main_department" optional='show' />
+                <field name="default_currency" optional='show' />
+                <field name="default_value" optional='show' />
             </tree>
         </field>
     </record>
@@ -373,21 +907,28 @@
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
             <kanban string="Posting Items">
-                <field name="item_code"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="main_department"/>
-                <field name="default_currency"/>
-                <field name="default_value"/>
+                <field name="item_code" />
+                <field name="description" />
+                <field name="abbreviation" />
+                <field name="main_department" />
+                <field name="default_currency" />
+                <field name="default_value" />
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_card oe_kanban_global_click">
-                            <strong><field name="item_code"/></strong>
-                            <div>Description: <field name="description"/></div>
-                            <div>Abbreviation: <field name="abbreviation"/></div>
-                            <div>Main Department: <field name="main_department"/></div>
-                            <div>Default Currency: <field name="default_currency"/></div>
-                            <div>Default Value: <field name="default_value"/></div>
+                            <strong>
+                                <field name="item_code" />
+                            </strong>
+                            <div>Description: <field name="description" />
+                            </div>
+                            <div>Abbreviation: <field name="abbreviation" />
+                            </div>
+                            <div>Main Department: <field name="main_department" />
+                            </div>
+                            <div>Default Currency: <field name="default_currency" />
+                            </div>
+                            <div>Default Value: <field name="default_value" />
+                            </div>
                         </div>
                     </t>
                 </templates>
@@ -399,10 +940,10 @@
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
             <pivot string="Posting Items">
-                <field name="item_code" type="row"/>
-                <field name="main_department" type="row"/>
-                <field name="default_currency" type="row"/>
-                <field name="default_value" type="measure"/>
+                <field name="item_code" type="row" />
+                <field name="main_department" type="row" />
+                <field name="default_currency" type="row" />
+                <field name="default_value" type="measure" />
             </pivot>
         </field>
     </record>
@@ -411,54 +952,205 @@
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
             <graph string="Posting Items" type="bar">
-                <field name="item_code" type="row"/>
-                <field name="main_department" type="row"/>
-                <field name="default_currency" type="row"/>
-                <field name="default_value" type="measure"/>
+                <field name="item_code" type="row" />
+                <field name="main_department" type="row" />
+                <field name="default_currency" type="row" />
+                <field name="default_value" type="measure" />
             </graph>
+        </field>
+    </record>
+    <record id="view_posting_item_search" model="ir.ui.view">
+        <field name="name">posting.item.search</field>
+        <field name="model">posting.item</field>
+        <field name="arch" type="xml">
+            <search string="Posting Item Search">
+                <field name="item_code" string="Item Code"/>
+                <field name="description" string="Description"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <field name="main_department" string="Main Department"/>
+                <field name="default_currency" string="Currency"/>
+                <field name="default_value" string="Default Value"/>
+            </search>
         </field>
     </record>
 
 
 
-
-
-
-    <!-- Form View for Dummy Room Code -->
-    <record id="view_dummy_room_code_form" model="ir.ui.view">
+    <!-- Form View for Dummy Room Code(old) -->
+    <!-- <record id="view_dummy_room_code_form" model="ir.ui.view">
         <field name="name">dummy.room.code.form</field>
         <field name="model">dummy.room.code</field>
         <field name="arch" type="xml">
             <form string="Dummy Room Code">
                 <sheet>
                     <group>
-                        <field name="room_number"/>
-                        <field name="description"/>
-                        <field name="abbreviation"/>
-                        <field name="arabic_desc"/>
-                        <field name="arabic_abbr"/>
-                        <field name="item_discount"/>
-                        <field name="company_id"/>
-                        <field name="is_obsolete"/>
-                        <field name="auto_reopen_room_account"/>
-                        <field name="auto_payment_posting"/>
+                        <field name="room_number" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="arabic_desc" />
+                        <field name="arabic_abbr" />
+                        <field name="item_discount" />
+                        <field name="company_id" />
+                        <field name="is_obsolete" />
+                        <field name="auto_reopen_room_account" />
+                        <field name="auto_payment_posting" />
                     </group>
                     <group string="Applicable Taxes">
-                        <field name="service_charge"/>
-                        <field name="value_added_tax"/>
-                        <field name="municipality_tax"/>
-                        <field name="head_tax"/>
-                        <field name="entertainment_tax"/>
+                        <field name="service_charge" />
+                        <field name="value_added_tax" />
+                        <field name="municipality_tax" />
+                        <field name="head_tax" />
+                        <field name="entertainment_tax" />
                     </group>
                 </sheet>
-                  <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
                 </div>
             </form>
         </field>
+    </record> -->
+    <record id="view_dummy_room_code_form" model="ir.ui.view">
+        <field name="name">dummy.room.code.form</field>
+        <field name="model">dummy.room.code</field>
+        <field name="arch" type="xml">
+            <form string="Dummy Room Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- General Information -->
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="fw-bold"> General Information</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="room_number" class="form-label small">Room
+                                            Number</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="room_number" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+    Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+    Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation" />
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="arabic_desc" class="form-label small">Arabic
+    Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_desc" />
+                                    </div> -->
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="arabic_abbr" class="form-label small">Arabic
+    Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbr" />
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="fw-bold"> Discount and Company</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="item_discount" class="form-label small">Item
+    Discount</label>
+                                        <field name="item_discount" class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="company_id" class="form-label small">Company</label>
+                                        <field name="company_id" class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="is_obsolete" widget="boolean_toggle" />
+                                        <label for="is_obsolete" class="form-label small">Is
+                                            Obsolete</label>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="auto_reopen_room_account" widget="boolean_toggle" />
+                                        <label for="auto_reopen_room_account" class="form-label small">Auto Reopen Room Account</label>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="auto_payment_posting" widget="boolean_toggle" />
+                                        <label for="auto_payment_posting" class="form-label small">Auto
+    Payment Posting</label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <!-- Applicable Taxes -->
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-tag"></i>
+                                    <span class="fw-bold"> Applicable Taxes</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="row g-2">
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group mb-1">
+                                                <field name="service_charge" />
+                                                <label for="service_charge" class="form-label small">Service
+                                                    Charge</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="value_added_tax" />
+                                                <label for="value_added_tax" class="form-label small">Value Added Tax</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group mb-1">
+                                                <field name="municipality_tax" />
+                                                <label for="municipality_tax" class="form-label small">Municipality Tax</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="head_tax" />
+                                                <label for="head_tax" class="form-label small">Head
+    Tax</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="entertainment_tax" />
+                                                <label for="entertainment_tax" class="form-label small">Entertainment Tax</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Chatter Section -->
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" />
+                        <field name="activity_ids" />
+                        <field name="message_ids" />
+                    </div>
+                </sheet>
+            </form>
+        </field>
     </record>
+
 
     <!-- Tree View for Dummy Room Code -->
     <record id="view_dummy_room_code_tree" model="ir.ui.view">
@@ -466,45 +1158,155 @@
         <field name="model">dummy.room.code</field>
         <field name="arch" type="xml">
             <tree string="Dummy Room Codes">
-                <field name="room_number"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="item_discount"/>
-                <field name="company_id"/>
-                <field name="is_obsolete"/>
+                <field name="room_number" />
+                <field name="description" />
+                <field name="abbreviation" />
+                <field name="item_discount" />
+                <field name="company_id" />
+                <field name="is_obsolete" />
             </tree>
         </field>
     </record>
 
     <!-- Form View for Currency Code -->
-    <record id="view_currency_code_form" model="ir.ui.view">
+    <!-- <record id="view_currency_code_form" model="ir.ui.view">
         <field name="name">currency.code.form</field>
         <field name="model">currency.code</field>
         <field name="arch" type="xml">
             <form string="Currency Code">
                 <sheet>
                     <group>
-                        <field name="currency"/>
-                        <field name="description"/>
-                        <field name="abbreviation"/>
-                        <field name="arabic_desc"/>
-                        <field name="arabic_abbr"/>
-                        <field name="exchange_rate"/>
+                        <field name="currency" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="arabic_desc" />
+                        <field name="arabic_abbr" />
+                        <field name="exchange_rate" />
                     </group>
                     <group string="Rates">
-                        <field name="fo_rate"/>
-                        <field name="use_fo_default"/>
-                        <field name="rate_code_rate"/>
-                        <field name="use_rate_code_default"/>
-                        <field name="cash_rate"/>
-                        <field name="use_cash_default"/>
+                        <field name="fo_rate" />
+                        <field name="use_fo_default" />
+                        <field name="rate_code_rate" />
+                        <field name="use_rate_code_default" />
+                        <field name="cash_rate" />
+                        <field name="use_cash_default" />
                     </group>
                 </sheet>
-                  <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
                 </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_currency_code_form" model="ir.ui.view">
+        <field name="name">currency.code.form</field>
+        <field name="model">currency.code</field>
+        <field name="arch" type="xml">
+            <form string="Currency Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- General Information -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="fw-bold"> General Information</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="currency" class="form-label small">Currency</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="currency" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+    Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+    Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation" />
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="arabic_desc" class="form-label small">Arabic
+    Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_desc" />
+                                    </div> -->
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="arabic_abbr" class="form-label small">Arabic
+    Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbr" />
+                                    </div> -->
+                                    <div class="form-group mb-1">
+                                        <label for="exchange_rate" class="form-label small">Exchange
+    Rate</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="exchange_rate" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rates Information -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-tag"></i>
+                                    <span class="fw-bold"> Rates</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="fo_rate" class="form-label small">FO Rate</label>
+                                        <field name="fo_rate" class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="use_fo_default" widget="boolean_toggle" />
+                                        <label for="use_fo_default" class="form-label small">Use FO
+    Default</label>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="rate_code_rate" class="form-label small">Rate
+    Code Rate</label>
+                                        <field name="rate_code_rate" class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="use_rate_code_default" widget="boolean_toggle" />
+                                        <label for="use_rate_code_default" class="form-label small">Use
+    Rate Code Default</label>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="cash_rate" class="form-label small">Cash Rate</label>
+                                        <field name="cash_rate" class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="use_cash_default" widget="boolean_toggle" />
+                                        <label for="use_cash_default" class="form-label small">Use
+    Cash Default</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chatter Section -->
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" />
+                        <field name="message_ids" />
+                    </div>
+                </sheet>
             </form>
         </field>
     </record>
@@ -515,35 +1317,116 @@
         <field name="model">currency.code</field>
         <field name="arch" type="xml">
             <tree string="Currency Codes">
-                <field name="currency" optional='show'/>
-                <field name="description" optional='show'/>
-                <field name="abbreviation" optional='show'/>
-                <field name="exchange_rate" optional='show'/>
+                <field name="currency" optional='show' />
+                <field name="description" optional='show' />
+                <field name="abbreviation" optional='show' />
+                <field name="exchange_rate" optional='show' />
             </tree>
         </field>
     </record>
 
-    <!-- Form View for Budget Entry -->
-    <record id="view_budget_entry_form" model="ir.ui.view">
+    <!-- Form View for Budget Entry(old) -->
+    <!-- <record id="view_budget_entry_form" model="ir.ui.view">
         <field name="name">budget.entry.form</field>
         <field name="model">budget.entry</field>
         <field name="arch" type="xml">
             <form string="Budget Entry">
                 <group>
-                    <field name="month"/>
-                    <field name="rooms"/>
-                    <field name="pax"/>
-                    <field name="child"/>
-                    <field name="infant"/>
-                    <field name="revenue"/>
+                    <field name="month" />
+                    <field name="rooms" />
+                    <field name="pax" />
+                    <field name="child" />
+                    <field name="infant" />
+                    <field name="revenue" />
                 </group>
                 <group>
-                    <button string="Companies" type="object" name="action_view_companies"/>
-                    <button string="Departments" type="object" name="action_view_departments"/>
+                    <button string="Companies" type="object" name="action_view_companies" />
+                    <button string="Departments" type="object" name="action_view_departments" />
                 </group>
-             <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="message_ids"/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+
+    <record id="view_budget_entry_form" model="ir.ui.view">
+        <field name="name">budget.entry.form</field>
+        <field name="model">budget.entry</field>
+        <field name="arch" type="xml">
+            <form string="Budget Entry">
+                <sheet>
+                    <notebook>
+                        <!-- General Information Tab -->
+                        <page string="General Information">
+                            <div class="row g-2">
+                                <!-- Budget Details -->
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span class="fw-bold"> Budget Details</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="month" class="form-label small">Month</label>
+                                                <field name="month" class="form-control form-control-sm" placeholder="Enter Month" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="rooms" class="form-label small">Rooms</label>
+                                                <field name="rooms" class="form-control form-control-sm" placeholder="Enter Number of Rooms" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="pax" class="form-label small">PAX</label>
+                                                <field name="pax" class="form-control form-control-sm" placeholder="Enter PAX" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="child" class="form-label small">Child</label>
+                                                <field name="child" class="form-control form-control-sm" placeholder="Enter Number of Children" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="infant" class="form-label small">Infant</label>
+                                                <field name="infant" class="form-control form-control-sm" placeholder="Enter Number of Infants" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="revenue" class="form-label small">
+    Revenue</label>
+                                                <field name="revenue" class="form-control form-control-sm" placeholder="Enter Revenue" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <!-- Actions Tab -->
+                        <page string="Actions">
+                            <div class="row g-2">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-cogs"></i>
+                                            <span class="fw-bold"> Actions</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <button string="Companies" type="object" name="action_view_companies" class="btn btn-primary btn-sm" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <button string="Departments" type="object" name="action_view_departments" class="btn btn-secondary btn-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
                 </div>
             </form>
         </field>
@@ -555,17 +1438,60 @@
         <field name="model">budget.entry</field>
         <field name="arch" type="xml">
             <tree string="Budget Entries">
-                <field name="month"/>
-                <field name="rooms"/>
-                <field name="pax"/>
-                <field name="child"/>
-                <field name="infant"/>
-                <field name="revenue"/>
+                <field name="month" />
+                <field name="rooms" />
+                <field name="pax" />
+                <field name="child" />
+                <field name="infant" />
+                <field name="revenue" />
             </tree>
         </field>
     </record>
 
     <!-- Form View for Cash Box Code -->
+    <!-- <record id="view_cash_box_code_form" model="ir.ui.view">
+        <field name="name">cash.box.code.form</field>
+        <field name="model">cash.box.code</field>
+        <field name="arch" type="xml">
+            <form string="Cash Box Code">
+                <sheet>
+                    <notebook>
+                        <page string="General">
+                            <group>
+                                <field name="code" />
+                                <field name="description" />
+                                <field name="abbreviation" />
+                                <field name="arabic_desc" />
+                                <field name="arabic_abbr" />
+                                <field name="user_sort" />
+                                <field name="max_per_day" />
+                                <field name="exclusive" />
+                                <field name="reset_upon_opening" />
+                                <field name="status" />
+                            </group>
+                        </page>
+
+                        <page string="Reset Values">
+                            <group>
+                                <field name="reset_value_ids" widget="one2many_list">
+                                    <tree string="Reset Values">
+                                        <field name="currency" />
+                                        <field name="department" />
+                                        <field name="value" />
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
     <record id="view_cash_box_code_form" model="ir.ui.view">
         <field name="name">cash.box.code.form</field>
         <field name="model">cash.box.code</field>
@@ -573,44 +1499,150 @@
             <form string="Cash Box Code">
                 <sheet>
                     <notebook>
-                        <!-- General Tab -->
+                        <!-- General Section -->
                         <page string="General">
-                            <group>
-                                <field name="code"/>
-                                <field name="description"/>
-                                <field name="abbreviation"/>
-                                <field name="arabic_desc"/>
-                                <field name="arabic_abbr"/>
-                                <field name="user_sort"/>
-                                <field name="max_per_day"/>
-                                <field name="exclusive"/>
-                                <field name="reset_upon_opening"/>
-                                <field name="status"/>
-                            </group>
+                            <div class="row g-2">
+                                <!-- Column 1 -->
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span class="fw-bold"> General Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="code" class="form-label small">Code</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="code" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="description" class="form-label small">
+    Description</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="description" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="abbreviation" class="form-label small">
+    Abbreviation</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="abbreviation" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Column 2 -->
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-language"></i>
+                                            <span class="fw-bold"> Arabic Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="arabic_desc" class="form-label small">Arabic
+    Description</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="arabic_desc" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="arabic_abbr" class="form-label small">Arabic
+    Abbreviation</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="arabic_abbr" />
+                                            </div> -->
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="user_sort" class="form-label small">User
+    Sort</label>
+                                                <field name="user_sort" class="form-control form-control-sm" />
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Column 3 -->
+                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-cogs"></i>
+                                            <span class="fw-bold"> Additional Information</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="max_per_day" class="form-label small">Max
+    Per Day</label>
+                                                <field name="max_per_day" class="form-control form-control-sm" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="exclusive" widget="boolean_toggle" />
+                                                <label for="exclusive" class="form-label small">
+    Exclusive</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="reset_upon_opening" widget="boolean_toggle" />
+                                                <label for="reset_upon_opening" class="form-label small">Reset Upon Opening</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="status" class="form-label small">Status</label>
+                                                <field name="status" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </page>
 
-                        <!-- Reset Values Tab -->
+                        <!-- Reset Values Section -->
+                        <!-- <page string="Reset Values">
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-sync-alt"></i>
+                                            <span class="fw-bold"> Reset Values</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <field name="reset_value_ids" widget="one2many_list">
+                                                <tree string="Reset Values" class="table table-sm table-bordered">
+                                                    <field name="currency" />
+                                                    <field name="department" />
+                                                    <field name="value" />
+                                                </tree>
+                                            </field>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page> -->
                         <page string="Reset Values">
                             <group>
                                 <field name="reset_value_ids" widget="one2many_list">
-                                    <tree string="Reset Values">
-                                        <field name="currency"/>
-                                        <field name="department"/>
-                                        <field name="value"/>
+                                    <tree>
+                                        <field name="currency" />
+                                        <field name="department" />
+                                        <field name="value" />
                                     </tree>
                                 </field>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
-                  <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
+
+                <!-- Chatter Section -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="activity_ids" />
+                    <field name="message_ids" />
                 </div>
             </form>
         </field>
     </record>
+
 
     <!-- Tree View for Cash Box Code -->
     <record id="view_cash_box_code_tree" model="ir.ui.view">
@@ -618,10 +1650,10 @@
         <field name="model">cash.box.code</field>
         <field name="arch" type="xml">
             <tree string="Cash Box Codes">
-                <field name="code"/>
-                <field name="description"/>
-                <field name="abbreviation"/>
-                <field name="user_sort"/>
+                <field name="code" />
+                <field name="description" />
+                <field name="abbreviation" />
+                <!-- <field name="user_sort" /> -->
             </tree>
         </field>
     </record>

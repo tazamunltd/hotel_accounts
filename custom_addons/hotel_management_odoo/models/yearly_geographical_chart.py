@@ -57,25 +57,13 @@ class YearlyGeographicalChart(models.Model):
         query = """
         WITH parameters AS (
     SELECT
-        COALESCE(
-          (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
-          CURRENT_DATE
-        ) AS from_date,
-        COALESCE(
-          (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
-          CURRENT_DATE
-        ) AS to_date
+        COALESCE((SELECT MIN(rb.checkin_date::date) FROM room_booking rb), CURRENT_DATE) AS from_date,
+        COALESCE((SELECT MAX(rb.checkout_date::date) FROM room_booking rb), CURRENT_DATE) AS to_date
 ),
 date_series AS (
     SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
     FROM parameters p
 ),
-
-/* ----------------------------------------------------------------------------
-   1) LATEST_LINE_STATUS:
-   Determine the latest booking line status for each date and booking line.
-   Incorporate nationality.
----------------------------------------------------------------------------- */
 latest_line_status AS (
     SELECT DISTINCT ON (rbl.id, ds.report_date)
            rbl.id AS booking_line_id,
@@ -86,12 +74,15 @@ latest_line_status AS (
            rt.id                   AS room_type_id,
            rbls.status             AS final_status,
            rbls.change_time,
+           rb.house_use            AS house_use,
+           rb.complementary        AS complementary,
            rb.nationality          AS nationality_id
     FROM room_booking_line rbl
     CROSS JOIN date_series ds
-    JOIN room_booking rb        ON rb.id = rbl.booking_id
-    JOIN hotel_room hr          ON hr.id = rbl.room_id
-    JOIN room_type rt           ON rt.id = hr.room_type_name
+    JOIN room_booking rb    ON rb.id = rbl.booking_id
+    JOIN hotel_room hr      ON hr.id = rbl.room_id
+    JOIN room_type rt       ON rt.id = hr.room_type_name
+    JOIN group_booking gb       ON rb.group_booking = gb.id 
     LEFT JOIN room_booking_line_status rbls
            ON rbls.booking_line_id = rbl.id
            AND rbls.change_time::date <= ds.report_date
@@ -100,63 +91,150 @@ latest_line_status AS (
        ds.report_date,
        rbls.change_time DESC NULLS LAST
 ),
-
-/* ----------------------------------------------------------------------------
-   2) IN-HOUSE:
-   Count bookings with status 'check_in' for each group.
----------------------------------------------------------------------------- */
 in_house AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        lls.nationality_id,
-        COUNT(DISTINCT lls.booking_line_id) AS in_house_count
-    FROM latest_line_status lls
-    WHERE lls.checkin_date <= lls.report_date
-      AND lls.checkout_date >= lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.nationality_id
-),
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        sub.nationality_id,
+        COUNT(DISTINCT sub.booking_line_number) AS in_house_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
 
-/* ----------------------------------------------------------------------------
-   3) EXPECTED ARRIVALS:
-   Count bookings arriving on the report_date.
----------------------------------------------------------------------------- */
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.nationality_id
+             
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date,
+                rbl.checkout_date,
+                rbl.id              AS booking_line_number,
+                rbls.status,
+                rbls.change_time,
+                rb.nationality          AS nationality_id
+            FROM room_booking rb
+            JOIN room_booking_line rbl
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+            JOIN res_partner rp
+                  ON rb.partner_id = rp.id
+			JOIN group_booking gb       ON rb.group_booking = gb.id 
+        ) AS qry
+        WHERE qry.company_id     = rc.id
+          AND qry.room_type_id   = rt.id
+          AND qry.checkin_date::date <= ds.report_date
+          AND qry.checkout_date::date > ds.report_date
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id,
+        sub.nationality_id
+),
 expected_arrivals AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        lls.nationality_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
-    FROM latest_line_status lls
-    WHERE lls.checkin_date = lls.report_date
-      AND lls.final_status IN ('confirmed', 'block')
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.nationality_id
-),
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        sub.nationality_id,
+        COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
 
-/* ----------------------------------------------------------------------------
-   4) EXPECTED DEPARTURES:
-   Count bookings departing on the report_date.
----------------------------------------------------------------------------- */
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.nationality_id
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date    AS checkin_dt,
+                rb.name,
+                rbls.status,
+                rbl.id              AS booking_line_number,
+                rbls.change_time,
+                rb.nationality          AS nationality_id
+            FROM room_booking rb
+            JOIN room_booking_line rbl 
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+            JOIN res_partner rp
+                  ON rb.partner_id = rp.id
+		
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+          AND qry.status        IN ('confirmed','block')
+          AND qry.change_time::date <= ds.report_date
+          AND qry.checkin_dt::date   = ds.report_date
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id,
+        sub.nationality_id
+),
 expected_departures AS (
     SELECT
-        lls.report_date,
-        lls.company_id,
-        lls.room_type_id,
-        lls.nationality_id,
-        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
-    FROM latest_line_status lls
-    WHERE lls.checkout_date = lls.report_date
-      AND lls.final_status = 'check_in'
-    GROUP BY lls.report_date, lls.company_id, lls.room_type_id, lls.nationality_id
-),
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        sub.nationality_id,
+        COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
 
-/* ----------------------------------------------------------------------------
-   5) MASTER_KEYS:
-   Create a master list of all relevant keys from in_house, expected_arrivals, and expected_departures.
----------------------------------------------------------------------------- */
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number,
+               qry.nationality_id
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date,
+                rbl.checkout_date,
+                rbl.id              AS booking_line_number,
+                rbls.status,
+                rbls.change_time,
+                rb.nationality          AS nationality_id
+            FROM room_booking rb
+            JOIN room_booking_line rbl
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+            JOIN res_partner rp
+                  ON rb.partner_id = rp.id
+			JOIN group_booking gb       ON rb.group_booking = gb.id 
+        ) AS qry
+        WHERE qry.company_id    = rc.id
+          AND qry.room_type_id  = rt.id
+          AND qry.checkout_date::date = ds.report_date
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id,
+        sub.nationality_id
+),
 master_keys AS (
     SELECT report_date, company_id, room_type_id, nationality_id
     FROM in_house
@@ -167,11 +245,6 @@ master_keys AS (
     SELECT report_date, company_id, room_type_id, nationality_id
     FROM expected_departures
 ),
-
-/* ----------------------------------------------------------------------------
-   6) FINAL REPORT:
-   Combine in_house, expected_arrivals, and expected_departures to calculate expected_in_house.
----------------------------------------------------------------------------- */
 final_report AS (
     SELECT
         mk.report_date,
@@ -181,11 +254,10 @@ final_report AS (
         COALESCE(ih.in_house_count, 0) AS in_house_count,
         COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals_count,
         COALESCE(ed.expected_departures_count, 0) AS expected_departures_count,
-        -- Prevent negative values
         GREATEST(
-            (COALESCE(ih.in_house_count, 0)
-             + COALESCE(ea.expected_arrivals_count, 0)
-             - COALESCE(ed.expected_departures_count, 0)),
+            COALESCE(ih.in_house_count, 0)
+            + COALESCE(ea.expected_arrivals_count, 0)
+            - COALESCE(ed.expected_departures_count, 0),
             0
         ) AS expected_in_house
     FROM master_keys mk
@@ -203,37 +275,35 @@ final_report AS (
         ON mk.report_date = ed.report_date
        AND mk.company_id = ed.company_id
        AND mk.room_type_id = ed.room_type_id
-       AND mk.nationality_id = ed.nationality_id
+       AND mk.nationality_id= ed.nationality_id
 )
-
 SELECT
-    rc.id AS "Company ID",
-    rc.name AS "Company Name",
-    cr."Region" AS "Region",
-    jsonb_extract_path_text(rc_country.name::jsonb, 'en_US') AS "Country",  -- Extract English value
-    fr.report_date AS "Date",
-    rt.room_type AS "Room Type",
-    SUM(COALESCE(fr.expected_in_house, 0)) AS "Expected In House"
+    fr.report_date,
+    fr.company_id,
+    rc.name AS company_name,
+    fr.room_type_id,
+    COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
+    jsonb_extract_path_text(cr."Region"::jsonb, 'en_US') AS "Region",
+    jsonb_extract_path_text(rc_country.name::jsonb, 'en_US') AS "Country",
+    fr.expected_in_house
 FROM final_report fr
+
 LEFT JOIN res_company rc ON fr.company_id = rc.id
 LEFT JOIN res_country rc_country ON fr.nationality_id = rc_country.id
 LEFT JOIN country_region_res_country_rel crrc ON rc_country.id = crrc.res_country_id
 LEFT JOIN country_region cr ON crrc.country_region_id = cr.id
-LEFT JOIN room_type rt ON fr.room_type_id = rt.id
-GROUP BY 
-    rc.id, 
-    rc.name, 
+LEFT JOIN room_type rt ON fr.room_type_id = rt.id	
+
+WHERE cr."Region" IS NOT NULL
+   OR rc_country.name IS NOT NULL
+ORDER BY
+    fr.report_date,
+    rc.name,
+    rt.room_type,
     cr."Region", 
-    jsonb_extract_path_text(rc_country.name::jsonb, 'en_US'),  -- Must match the SELECT
-    fr.report_date, 
-    rt.room_type
-ORDER BY 
-    rc.id, 
-    rc.name, 
-    cr."Region", 
-    jsonb_extract_path_text(rc_country.name::jsonb, 'en_US'), 
-    fr.report_date, 
-    rt.room_type;
+    jsonb_extract_path_text(rc_country.name::jsonb, 'en_US');
+
+	
         """
         self.env.cr.execute(query)
         results = self.env.cr.fetchall()
@@ -242,22 +312,21 @@ ORDER BY
         # Initialize records_to_create as an empty list
         records_to_create = []
 
+        current_company_id = self.env.company.id
+
         for result in results:
             try:
-                if result[1]:
-                    company_id = result[0]
-                    if company_id != self.env.company.id:
-                        continue  
-                    # print(result[1])  
-                else:
-                    continue
+                record_company_id = result[1]
+                if record_company_id != current_company_id:
+                    continue  # Skip records not belonging to the current company
+                
                 records_to_create.append({
-                    'company_id': result[0],              # Company ID
-                    'report_date': result[4],             # Date
-                    'region': result[2],                  # Region
-                    'nationality': result[3],             # Country (Nationality)
-                    'room_type': result[5],               # Room Type
-                    'expected_inhouse': float(result[6] or 0),  # Expected In House
+                    'company_id': record_company_id,               # Company ID
+                    'report_date': result[0],                      # Report Date
+                    'region': result[5],                           # Region
+                    'nationality': result[6],                      # Country (Nationality)
+                    'room_type': result[4],                        # Room Type
+                    'expected_inhouse': float(result[7] or 0),      # Expected In House
                 })
                             # 'total_rooms': int(result[6] or 0),        # Total Rooms
                     # 'available': int(result[7] or 0),          # Available Rooms

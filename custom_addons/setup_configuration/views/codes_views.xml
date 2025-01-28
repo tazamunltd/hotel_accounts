@@ -14,8 +14,8 @@
                             <group>
                                 <field name="description"/>
                                 <field name="abbreviation"/>
-                                <field name="arabic_desc"/>
-                                <field name="arabic_abbr"/>
+                                <!-- <field name="arabic_desc"/>
+                                <field name="arabic_abbr"/> -->
                                 <field name="length"/>
                             </group>
                             <group>
@@ -48,8 +48,8 @@
             <tree string="Additional Attributes">
                 <field name="description"/>
                 <field name="abbreviation"/>
-                <field name="arabic_desc"/>
-                <field name="arabic_abbr"/>
+                <!-- <field name="arabic_desc"/>
+                <field name="arabic_abbr"/> -->
                 <field name="length"/>
                 <field name="type"/>
                 <field name="entity_target"/>
@@ -138,9 +138,9 @@
                         <field name="description"/>
                     </group>
                     <group>
-                        <field name="arabic_desc"/>
+                        <!-- <field name="arabic_desc"/> -->
                         <field name="abbreviation"/>
-                        <field name="arabic_abbr"/>
+                        <!-- <field name="arabic_abbr"/> -->
                     </group>
                     <group>
                         <field name="user_sort"/>

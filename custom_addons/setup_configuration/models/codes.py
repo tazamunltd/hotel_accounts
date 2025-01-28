@@ -1,14 +1,14 @@
-from odoo import api, models, fields
+from odoo import _, api, models, fields
 
 class AdditionalAttribute(models.Model):
     _name = 'additional.attribute'
     _description = 'Additional Attribute'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    description = fields.Char(string="Description", required=True,tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_desc = fields.Char(string="Arabic Description",tracking=True)
-    arabic_abbr = fields.Char(string="Arabic Abbreviation",tracking=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_desc = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    arabic_abbr = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     length = fields.Integer(string="Length",tracking=True)
 
     type = fields.Selection([
@@ -36,8 +36,8 @@ class Template(models.Model):
         ('posting', 'Posting'),
         ('other', 'Other')], string="Usage", required=True,tracking=True)
     
-    name = fields.Char(string="Name", required=True,tracking=True)
-    description = fields.Char(string="Description",tracking=True)
+    name = fields.Char(string=_("Name"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"),tracking=True, translate=True)
     language = fields.Selection([
         ('default', 'Interface Default'),
         ('no', 'No'),
@@ -45,10 +45,10 @@ class Template(models.Model):
         ('english', 'English')], string="Language", default='default',tracking=True)
     
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
-    host = fields.Char(string="Host",tracking=True)
-    extension = fields.Char(string="Extension", default="Htm",tracking=True)
+    host = fields.Char(string=_("Host"),tracking=True, translate=True)
+    extension = fields.Char(string=_("Extension"), default="Htm",tracking=True, translate=True)
     file_size = fields.Integer(string="File Size",tracking=True)
-    file_name = fields.Char(string="File Name",tracking=True)
+    file_name = fields.Char(string=_("File Name"),tracking=True, translate=True)
     is_obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
 
     # Placeholder for storing template content
@@ -72,11 +72,11 @@ class CommentCategory(models.Model):
     _description = 'Comment Category'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    code = fields.Char(string="Code", required=True,tracking=True)
-    description = fields.Char(string="Description", required=True,tracking=True)
-    arabic_desc = fields.Char(string="Arabic Description",tracking=True)
-    abbreviation = fields.Char(string="Abbreviation",tracking=True)
-    arabic_abbr = fields.Char(string="Arabic Abbreviation",tracking=True)
+    code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
+    description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
+    arabic_desc = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
+    abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
+    arabic_abbr = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
 
@@ -91,9 +91,9 @@ class TracePredefinedText(models.Model):
     _description = 'Trace Predefined Text'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    number = fields.Char(string="Number", required=True,tracking=True)
-    text = fields.Char(string="Text",tracking=True)
-    arabic_text = fields.Char(string="Arabic Text",tracking=True)
+    number = fields.Char(string=_("Number"), required=True,tracking=True, translate=True)
+    text = fields.Char(string=_("Text"),tracking=True, translate=True)
+    arabic_text = fields.Char(string=_("Arabic Text"),tracking=True, translate=True)
     department = fields.Selection([
         ('user', 'User'),
         ('front_desk', 'Front Desk'),
@@ -114,7 +114,7 @@ class MessagePredefinedText(models.Model):
     _description = 'Message Predefined Text'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    number = fields.Char(string="Number", required=True,tracking=True)
+    number = fields.Char(string=_("Number"), required=True,tracking=True, translate=True)
     text = fields.Text(string="Text", required=True,tracking=True)
     arabic_text = fields.Text(string="Arabic Text",tracking=True)
 
@@ -123,7 +123,7 @@ class LocatorsPredefinedText(models.Model):
     _description = 'Locators Predefined Text'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    number = fields.Char(string="Number", required=True,tracking=True)
-    text = fields.Char(string="Text", required=True,tracking=True)
-    arabic_text = fields.Char(string="Arabic Text",tracking=True)
+    number = fields.Char(string=_("Number"), required=True,tracking=True, translate=True)
+    text = fields.Char(string=_("Text"), required=True,tracking=True, translate=True)
+    arabic_text = fields.Char(string=_("Arabic Text"),tracking=True, translate=True)
 

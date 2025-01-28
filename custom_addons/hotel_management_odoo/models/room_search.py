@@ -183,6 +183,7 @@ class RoomSearch(models.Model):
                 rt.id,
                 rt.room_type
             FROM room_type rt
+            where rt.obsolete = False
            -- WHERE %(room_type_id)s IS NULL OR rt.id = CAST(%(room_type_id)s AS INTEGER)
         ),
         companies AS (
@@ -235,25 +236,82 @@ class RoomSearch(models.Model):
         ),
         expected_arrivals AS (
             SELECT
-                lls.report_date,
-                lls.company_id,
-                lls.room_type_id,
-                COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
-            FROM latest_line_status lls
-            WHERE lls.checkin_date = lls.report_date
-              AND lls.final_status IN ('confirmed', 'block')
-            GROUP BY lls.report_date, lls.company_id, lls.room_type_id
-        ),
+                ds.report_date,
+                rc.id AS company_id,
+                rt.id AS room_type_id,
+                COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count
+            FROM date_series ds
+            CROSS JOIN res_company rc
+            CROSS JOIN room_type   rt
+            LEFT JOIN LATERAL (
+                SELECT DISTINCT ON (qry.booking_line_number)
+                       qry.booking_line_number
+            FROM (
+                SELECT 
+                    rb.company_id,
+                    rbl.hotel_room_type AS room_type_id,
+                    rbl.checkin_date    AS checkin_dt,
+                    rb.name,
+                    rbls.status,
+                    rbl.id              AS booking_line_number,
+                    rbls.change_time
+                FROM room_booking rb
+                JOIN room_booking_line rbl 
+                      ON rbl.booking_id = rb.id
+                JOIN room_booking_line_status rbls
+                      ON rbls.booking_line_id = rbl.id
+            ) AS qry
+            WHERE qry.company_id    = rc.id
+              AND qry.room_type_id  = rt.id
+              AND qry.status        IN ('confirmed','block')
+              AND qry.change_time::date <= ds.report_date
+              AND qry.checkin_dt::date   = ds.report_date
+    
+            ORDER BY qry.booking_line_number, qry.change_time DESC
+            ) AS sub ON TRUE
+            GROUP BY ds.report_date, rc.id, rt.id
+            ),
+
         expected_departures AS (
             SELECT
-                lls.report_date,
-                lls.company_id,
-                lls.room_type_id,
-                COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
-            FROM latest_line_status lls
-            WHERE lls.checkout_date = lls.report_date
-              AND lls.final_status = 'check_in'
-            GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+            ds.report_date,
+            rc.id AS company_id,
+            rt.id AS room_type_id,
+            COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count
+            FROM date_series ds
+            CROSS JOIN res_company rc
+            CROSS JOIN room_type   rt
+        
+            LEFT JOIN LATERAL (
+                SELECT DISTINCT ON (qry.booking_line_number)
+                       qry.booking_line_number
+                FROM (
+                SELECT 
+                    rb.company_id,
+                    rbl.hotel_room_type AS room_type_id,
+                    rbl.checkin_date,
+                    rbl.checkout_date,
+                    rbl.id              AS booking_line_number,
+                    rbls.status,
+                    rbls.change_time
+                FROM room_booking rb
+                JOIN room_booking_line rbl
+                      ON rbl.booking_id = rb.id
+                JOIN room_booking_line_status rbls
+                      ON rbls.booking_line_id = rbl.id
+            ) AS qry
+            WHERE qry.company_id    = rc.id
+              AND qry.room_type_id  = rt.id
+              AND qry.checkout_date::date = ds.report_date
+              AND qry.status = 'check_in'
+              AND qry.change_time::date <= ds.report_date
+            ORDER BY qry.booking_line_number, qry.change_time DESC
+            ) AS sub ON TRUE
+       
+            GROUP BY 
+                ds.report_date,
+                rc.id,
+                rt.id
         ),
         house_use_cte AS (
             SELECT
@@ -440,7 +498,6 @@ class RoomSearch(models.Model):
             da.company_id,
             da.company_name,
             da.overbooking_rooms
-        /* Only include results where minimum free_to_sell across all dates >= requested room count */
         HAVING MIN(da.free_to_sell) >= %(room_count)s
         ORDER BY da.company_name, da.room_type_name;
         """

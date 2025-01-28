@@ -320,22 +320,39 @@ addToSelected(bookingName) {
         let domain = [];
         let actionName = '';
         
-        const systemDate2 = await this.fetchSystemDate();
-        console.log('system date', systemDate2)
-
-        function convertToISOFormat(dateString) {
-            const [day, month, year] = dateString.split('/'); // Split the input string
-            return `${year}-${month}-${day}`; // Rearrange into YYYY-MM-DD format
-        }
+        // const systemDate = await this.fetchSystemDate();
+        // console.log('system date:', systemDate, 'type:', typeof systemDate);
         
-        // Convert and log the result
-        const systemDate = convertToISOFormat(systemDate2);
-        console.log('Formatted Date:', systemDate);
+        const systemDateString = await this.fetchSystemDate();
+        console.log('system date', systemDateString);
+
+        // Convert the string to a Date object
+        const [day, month, year] = systemDateString.split('/').map(Number);
+        const systemDate = new Date(year, month - 1, day); // Month is 0-based in JavaScript
+
+        // Ensure systemDate has time set to 00:00:00
+        systemDate.setHours(0, 0, 0, 0);
+        // systemDate.setHours(0, 0, 0, 0); // Ensure system_date has time set to 00:00:00
+
+        // Calculate the next day based on system_date
+        const nextDate = new Date(systemDate);
+        nextDate.setDate(systemDate.getDate() + 1);
+        
+
+        // function convertToISOFormat(dateString) {
+        //     const [day, month, year] = dateString.split('/'); // Split the input string
+        //     return `${year}-${month}-${day}`; // Rearrange into YYYY-MM-DD format
+        // }
+        
+        // // Convert and log the result
+        // const systemDate = convertToISOFormat(systemDate2);
+        // console.log('Formatted Date:', systemDate);
         // Define filter-specific domains and action names
         if (filter_name === "today_checkin") {
             
             domain = [
-                ['checkin_date', '=', systemDate],
+                ['checkin_date', '>=', nextDate.toISOString().slice(0, 10)],
+                ['checkin_date', '<=', nextDate.toISOString().slice(0, 10)],
                 // ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
                 // ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'block'],
@@ -344,16 +361,19 @@ addToSelected(bookingName) {
             actionName = 'Today Check-Ins';
         } else if (filter_name === "today_checkout") {
             domain = [
-                ['checkout_date', '=', systemDate],
+                ['checkout_date', '>=', nextDate.toISOString().slice(0, 10)],
+                ['checkout_date', '<=', nextDate.toISOString().slice(0, 10)],
                 // ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
                 // ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'check_in'],
 //                ['parent_booking_name', '!=', false]
             ];
+            console.log("Domain :", domain);
             actionName = 'Today Check-Outs';
         }else if (filter_name === "actual_checkin") {
             domain = [
-                ['checkin_date', '=', systemDate],
+                ['checkin_date', '>=', nextDate.toISOString().slice(0, 10)],
+                ['checkin_date', '<=', nextDate.toISOString().slice(0, 10)],
                 // ['checkin_date', '>=', new Date().toISOString().slice(0, 10)],
                 // ['checkin_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'check_in'],
@@ -362,12 +382,14 @@ addToSelected(bookingName) {
             actionName = 'Actual Check-Ins';
         }else if (filter_name === "actual_checkout") {
             domain = [
-                ['checkout_date', '=', systemDate],
+                ['checkout_date', '>=', nextDate.toISOString().slice(0, 10)],
+                ['checkout_date', '<=', nextDate.toISOString().slice(0, 10)],
                 // ['checkout_date', '>=', new Date().toISOString().slice(0, 10)],
                 // ['checkout_date', '<', new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().slice(0, 10)],
                 ['state', '=', 'check_out'],
 //                ['parent_booking_name', '!=', false]
             ];
+            console.log("Domain departure:", domain);
             actionName = 'Actual Check-Outs';
         } else if (filter_name === "not_confirm") {
             domain = [['state', '=', 'not_confirmed']];
@@ -391,6 +413,31 @@ addToSelected(bookingName) {
             domain = [['state', '=', 'check_out']];
             actionName = 'Check-Out';
         }
+
+        else if (filter_name === "vacant") {
+            // Redirect to the specific URL
+            window.location.href =
+              "/web#action=425&model=room.booking&view_type=list&cids=27&menu_id=306";
+            return; // Exit after redirection
+    }
+
+    //     if (filter_name === "vacant") {
+    //     // Redirect to the specific action without filtering by state
+    //     this.action.doAction({
+    //         type: "ir.actions.act_window",
+    //         res_model: "room.booking",
+    //         view_mode: "list",
+    //         name: "Default",
+    //         target: "current",
+    //         domain: [
+    //             ['company_id', '=', this.companyService.currentCompany.id] // Only filter by company
+    //         ],
+    //         context: { debug: 1 },
+    //         views: [[false, "list"]],
+    //         action: 425, // Use the specific action ID
+    //     });
+    //     return; // Exit the method since we handled the Vacant button
+    // }
 
         if (domain.length > 0) {
             // Get the ID of the tree view from the ORM

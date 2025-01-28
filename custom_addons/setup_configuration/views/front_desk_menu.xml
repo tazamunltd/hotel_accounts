@@ -126,12 +126,12 @@
               />
 
 
-    <menuitem id="sub_menu_meal_pattern"
+    <!-- <menuitem id="sub_menu_meal_pattern"
               name="Meal Pattern"
               action="action_meal_pattern"
               parent="menu_hotel_configuration"
               sequence="11"
-              groups="base.group_system"/>
+              groups="base.group_system"/> -->
 
     <!-- Submenu: Complimentary Codes -->
     <menuitem id="sub_menu_complimentary_code"

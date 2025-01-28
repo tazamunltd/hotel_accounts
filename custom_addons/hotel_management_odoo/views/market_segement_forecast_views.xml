@@ -9,7 +9,7 @@
                     <field name="report_date" optional="show"/>
                     <field name="company_id" optional="show"/>
                     <field name="room_type_name" optional="show"/>
-                    <field name="market_segment_name" optional="show"/>
+                    <field name="market_segment" optional="show"/>
                     <field name="expected_arrivals" optional="show"/>
                     <field name="expected_arrivals_adults" optional="show"/>
                     <field name="expected_arrivals_children" optional="show"/>
@@ -40,7 +40,7 @@
                     <field name="report_date" type="row"/>
                     <field name="company_id" type="row"/>
                     <field name="room_type_name" type="row"/>
-                    <field name="market_segment_name" type="row"/>
+                    <field name="market_segment" type="row"/>
                     <field name="expected_arrivals" type="measure"/>
                     <field name="expected_arrivals_adults" type="measure"/>
                     <field name="expected_arrivals_children" type="measure"/>
@@ -70,7 +70,7 @@
                     <field name="report_date" type="row"/>
                     <field name="company_id" type="row"/>
                     <field name="room_type_name" type="row"/>
-                    <field name="market_segment_name" type="row"/>
+                    <field name="market_segment" type="row"/>
                     <field name="expected_arrivals" type="measure"/>
                     <field name="expected_arrivals_adults" type="measure"/>
                     <field name="expected_arrivals_children" type="measure"/>

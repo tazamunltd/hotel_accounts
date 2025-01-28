@@ -1,7 +1,7 @@
 # Copyright (C) 2018 - TODAY, Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class FSMPerson(models.Model):
@@ -21,7 +21,7 @@ class FSMPerson(models.Model):
     )
     category_ids = fields.Many2many("fsm.category", string="Categories")
     calendar_id = fields.Many2one("resource.calendar", string="Working Schedule")
-    mobile = fields.Char()
+    mobile = fields.Char(string=_("Mobile"), translate=True)
     territory_ids = fields.Many2many("res.territory", string="Territories")
     active = fields.Boolean(default=True)
     active_partner = fields.Boolean(

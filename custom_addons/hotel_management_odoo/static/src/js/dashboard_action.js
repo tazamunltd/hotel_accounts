@@ -3,77 +3,89 @@ import { registry } from '@web/core/registry';
 import { useService } from "@web/core/utils/hooks";
 const { Component, onWillStart, onMounted, useState } = owl;
 
-/* Date: 2025-01-13 Time: 01:39:40
+/* Date: 2025-01-20 Time: 13:21:47
  * Custom Dashboard Component for Hotel Management
  * Handles room metrics and chart visualizations
  */
 class CustomDashBoard extends Component {
+    // Date: 2025-01-19 Time: 22:36:54
+    // Static props description for Odoo 17 compatibility
+    static props = {
+        action: { type: Object, optional: true },
+        actionId: { type: Number, optional: true },
+        className: { type: String, optional: true },
+    };
+
     setup() {
         this.action = useService("action");
         this.orm = useService("orm");
+        this.notification = useService("notification");
         
-        // Initialize chart instances
-        this.charts = {
-            occupancyStatus: null,
-            dailyOccupancy: null,
-            arrivalsVsDepartures: null,
-            roomTypeDistribution: null,
-            roomStatusByType: null,
-            roomAvailabilityTimeline: null
-        };
-        
-        // Initialize state with all required metrics
+        // Initialize state
         this.state = useState({
-            // Room metrics
+            currentTab: 'olddashboard',
             expected_arrivals: 0,
             out_of_order: 0,
             rooms_on_hold: 0,
             out_of_service: 0,
             inhouse: 0,
             expected_departures: 0,
-            house_use_count: 0,
-            complementary_use_count: 0,
-            available: 0,
-            expected_inhouse: 0,
-            free_to_sell: 0,
             total_rooms: 0,
-            reserved: 0,
-            
-            // Chart data
+            free_to_sell: 0,
             occupancyHistory: {
                 dates: [],
                 rates: []
             },
-            arrivalsVsDepartures: {
-                dates: [],
+            daily_occupancy_data: {
+                labels: [],
+                data: []
+            },
+            arrivals_vs_departures_data: {
+                labels: [],
                 arrivals: [],
                 departures: []
             },
-            roomTypeDistribution: {
-                types: [],
-                counts: []
+            room_type_distribution_data: {
+                labels: [],
+                data: []
             },
-            roomStatusByType: {
-                types: [],
-                available: [],
-                occupied: [],
-                reserved: [],
-                outOfOrder: []
+            room_status_by_type_data: {
+                labels: []
             },
-            availabilityTimeline: {
+            room_availability_timeline_data: {
                 dates: [],
                 available: [],
                 total: []
             }
         });
 
+        // Initialize chart instances
+        this.charts = {};
+
         // Setup lifecycle hooks
         onWillStart(async () => {
-            await this._getInitialState();
+            try {
+                await this._getInitialState();
+            } catch (error) {
+                console.error('Error in onWillStart:', error);
+                this.notification.add("Failed to initialize dashboard", { type: 'danger' });
+            }
         });
 
         onMounted(() => {
-            this.renderAllCharts();
+            try {
+                // Ensure Chart.js is loaded
+                if (typeof Chart === 'undefined') {
+                    throw new Error('Chart.js not loaded. Please check the manifest file.');
+                }
+                // Only render charts if we're in old dashboard
+                if (this.state.currentTab === 'olddashboard') {
+                    this.renderAllCharts();
+                }
+            } catch (error) {
+                console.error('Error in onMounted:', error);
+                this.notification.add("Failed to initialize charts", { type: 'danger' });
+            }
         });
     }
 
@@ -95,15 +107,36 @@ class CustomDashBoard extends Component {
         }
     }
 
-    /* Date: 2025-01-13 Time: 02:04:55
-     * Method to render all charts
+    /* Date: 2025-01-19 Time: 22:25:56
+     * Method to render all charts with error handling
      */
     async renderAllCharts() {
         try {
+            console.log("Starting chart render");
             // Cleanup existing charts
             this.cleanupCharts();
 
+            // Verify canvas elements exist
+            const canvasIds = [
+                'roomOccupancyStatusChart',
+                'dailyOccupancyChart',
+                'arrivalsVsDeparturesChart',
+                'roomTypeDistributionChart',
+                'roomStatusByTypeChart',
+                'roomAvailabilityTimelineChart'
+            ];
+
+            for (const id of canvasIds) {
+                const canvas = document.getElementById(id);
+                console.log(`Checking canvas ${id}:`, canvas ? 'Found' : 'Not found');
+                if (!canvas) {
+                    console.error(`Canvas element not found: ${id}`);
+                    return;
+                }
+            }
+
             // Render each chart
+            console.log("Rendering individual charts");
             await Promise.all([
                 this.renderRoomOccupancyStatusChart(),
                 this.renderDailyOccupancyChart(),
@@ -112,8 +145,10 @@ class CustomDashBoard extends Component {
                 this.renderRoomStatusByTypeChart(),
                 this.renderRoomAvailabilityTimelineChart()
             ]);
+            
+            console.log("All charts rendered successfully");
         } catch (error) {
-            console.error('Error rendering charts:', error);
+            console.error('Error fetching initial state:', error);
         }
     }
 
@@ -199,7 +234,7 @@ class CustomDashBoard extends Component {
         try {
             console.log("Fetching occupancy history");
             const result = await this.orm.call(
-                'hotel.room.result',
+                'hotel.room.result',  // Using correct model name
                 'get_occupancy_history',
                 [this.env.services.company.currentCompany.id, 7]  // Fetch last 7 days
             );
@@ -280,7 +315,6 @@ class CustomDashBoard extends Component {
     renderRoomOccupancyChart() {
         const ctx = document.getElementById('roomOccupancyChart');
         if (!ctx) return;
-
         if (window.Chart) {
             new window.Chart(ctx, {
                 type: 'pie',
@@ -749,11 +783,13 @@ class CustomDashBoard extends Component {
      * Method to cleanup existing charts before re-rendering
      */
     cleanupCharts() {
+        // Cleanup existing chart instances
         Object.values(this.charts).forEach(chart => {
-            if (chart) {
+            if (chart && typeof chart.destroy === 'function') {
                 chart.destroy();
             }
         });
+        this.charts = {};
     }
 
     async getArrivalsVsDepartures() {
@@ -971,25 +1007,10 @@ class CustomDashBoard extends Component {
         this.getRoomAvailabilityTimeline();
     }
 
-    cleanupCharts() {
-        const charts = [
-            'roomOccupancyStatusChart',
-            'dailyOccupancyChart',
-            'arrivalsVsDeparturesChart',
-            'roomTypeDistributionChart',
-            'roomStatusByTypeChart',
-            'roomAvailabilityTimelineChart'
-        ];
-        
-        charts.forEach(chartId => {
-            const chartElement = document.getElementById(chartId);
-            if (chartElement) {
-                const chart = Chart.getChart(chartElement);
-                if (chart) {
-                    chart.destroy();
-                }
-            }
-        });
+    async handleTabChange(tab) {
+        // Re-fetch data and render charts
+        await this._getInitialState();
+        this.renderAllCharts();
     }
 }
 
