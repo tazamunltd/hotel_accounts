@@ -75,4 +75,4 @@ EXPOSE 8069 8071
 EXPOSE 5432
 
 # Run Odoo
-CMD ["python", "/opt/odoo-tazamun/odoo-bin", "-c", "/opt/odoo-tazamun/odoo.conf", "-i", "base"]
+# CMD ["python", "/opt/odoo-tazamun/odoo-bin", "-c", "/opt/odoo-tazamun/odoo.conf", "-i", "base"]
