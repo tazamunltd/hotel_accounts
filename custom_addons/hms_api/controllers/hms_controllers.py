@@ -455,10 +455,11 @@ class WebAppController(http.Controller):
 
         all_hotels = []
         for hotel in companies:
-            all_hotels.append({
-                "id": hotel.id,
-                "name": hotel.name
-            })
+            if hotel.rate_code:
+                all_hotels.append({
+                    "id": hotel.id,
+                    "name": hotel.name
+                })
 
         return {"status": "success", "hotels": all_hotels}
 
@@ -525,8 +526,9 @@ class WebAppController(http.Controller):
                 rate_code = hotel.rate_code
                 print("HOTEL RATE CODE", rate_code.code)
             else:
-                rate_code = default_rate_code
-                print("DEFAULT RATE CODE", rate_code.code)
+                continue
+                # rate_code = default_rate_code
+                # print("DEFAULT RATE CODE", rate_code.code)
 
             rate_details = request.env['rate.detail'].sudo().search([
                 ('rate_code_id', '=', rate_code.id),
@@ -613,6 +615,8 @@ class WebAppController(http.Controller):
                 all_rooms.append(available_rooms_dict)
 
             hotel_data['room_types'] = all_rooms
+            if hotel_data['total_available_rooms'] <= 0:
+                continue
             all_hotels_data.append(hotel_data)
 
         services_data = self.get_model_data('hotel.service', ['id', 'name', 'unit_price'])
@@ -729,6 +733,7 @@ class WebAppController(http.Controller):
         else:
             rate_code = default_rate_code
             print("DEFAULT RATE CODE", rate_code.code)
+            return {"status": "error", "message": "Rate Code not found"}
 
         rate_details = request.env['rate.detail'].sudo().search([
             ('rate_code_id', '=', rate_code.id),
