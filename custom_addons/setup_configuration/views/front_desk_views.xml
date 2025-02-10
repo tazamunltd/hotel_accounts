@@ -38,13 +38,17 @@
                             <div class="card-body py-1 px-2">
                                 <div class="row g-2">
                                     <div class="col-md-6">
+                                        <div class="form-control form-control-sm">
+                                            <field name="company_id"
+                                            />
+                                        </div> 
                                         <div class="form-group mb-1">
                                             <label for="room_type" class="form-label small">Room
                                                 Type</label>
                                         </div>
                                         <div class="form-control form-control-sm">
                                             <field name="room_type"
-                                               />
+                                            />
                                         </div>
                                         <div class="form-group mb-1">
                                             <label for="description" class="form-label small">
@@ -52,7 +56,7 @@
                                         </div>
                                         <div class="form-control form-control-sm">
                                             <field name="description"
-                                                 />
+                                            />
                                         </div>
                                         <div class="form-group mb-1">
                                             <label for="abbreviation" class="form-label small">
@@ -60,18 +64,18 @@
                                         </div>
                                         <div class="form-control form-control-sm">
                                             <field name="abbreviation"
-                                                />
+                                            />
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group mb-1">
+                                        <!-- <div class="form-group mb-1">
                                             <label for="generic_type" class="form-label small">Generic
                                                 Type</label>
                                         </div>
                                         <div class="form-control form-control-sm">
                                             <field name="generic_type"
-                                                />
-                                        </div>
+                                            />
+                                        </div> -->
                                         <!-- <div class="form-group mb-1">
                                             <label for="user_sort" class="form-label small">User
                                                 Sort</label>
@@ -112,7 +116,7 @@
                 <field name="room_type" />
                 <field name="description" />
                 <field name="abbreviation" />
-                <field name="generic_type" />
+                <!-- <field name="generic_type" /> -->
                 <!-- <field name="user_sort" /> -->
                 <field name="obsolete" />
             </tree>
@@ -126,7 +130,7 @@
                 <field name="room_type" />
                 <field name="description" />
                 <field name="abbreviation" />
-                <field name="generic_type" />
+                <!-- <field name="generic_type" /> -->
                 <!-- <field name="user_sort" /> -->
                 <field name="obsolete" />
                 <templates>
@@ -137,7 +141,7 @@
                             </strong>
                             <div>Description: <field name="description" /></div>
                             <div>Abbreviation: <field name="abbreviation" /></div>
-                            <div>Generic Type: <field name="generic_type" /></div>
+                            <!-- <div>Generic Type: <field name="generic_type" /></div> -->
                             <!-- <div>User Sort: <field name="user_sort" /></div> -->
                             <div>Obsolete: <field name="obsolete" /></div>
                         </div>
@@ -152,7 +156,7 @@
         <field name="arch" type="xml">
             <pivot string="Room Types">
                 <field name="room_type" type="row" />
-                <field name="generic_type" type="row" />
+                <!-- <field name="generic_type" type="row" /> -->
                 <field name="abbreviation" type="row" />
                 <!-- <field name="user_sort" type="measure" /> -->
                 <!-- <field name="obsolete" type="measure"/> -->
@@ -165,7 +169,7 @@
         <field name="arch" type="xml">
             <graph string="Room Types" type="bar">
                 <field name="room_type" type="row" />
-                <field name="generic_type" type="row" />
+                <!-- <field name="generic_type" type="row" /> -->
                 <field name="abbreviation" type="row" />
                 <!-- <field name="user_sort" type="measure" /> -->
                 <!-- <field name="obsolete" type="measure"/> -->
@@ -183,7 +187,7 @@
                 <field name="room_type" string="Room Type" />
                 <field name="description" string="Description" />
                 <field name="abbreviation" string="Abbreviation" />
-                <field name="generic_type" string="Generic Type" />
+                <!-- <field name="generic_type" string="Generic Type" /> -->
                 <!-- <field name="user_sort" string="User Sort" /> -->
                 <!-- <field name="obsolete" string="Obsolete" /> -->
             </search>
@@ -549,7 +553,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-1">
                                             <label for="company_id" class="form-label small">Hotel
-                                                </label>
+                                            </label>
                                         </div>
                                         <div class="form-control form-control-sm">
                                             <field name="company_id" readonly="1"
@@ -579,14 +583,15 @@
                                             <field name="abbreviation"
                                             />
                                         </div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <div class="form-group mb-1">
                                             <label for="posting_item" class="form-label small">Posting
                                                 Item</label>
                                             <field name="posting_item"
                                                 class="form-control form-control-sm" />
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
+
                                         <div class="form-group mb-1">
                                             <label for="price_pax" class="form-label small">Price
                                                 Per Pax</label>
@@ -599,12 +604,7 @@
                                             <field name="price_child"
                                                 class="form-control form-control-sm" />
                                         </div>
-                                        <!-- <div class="form-group mb-1">
-                                            <label for="user_sort" class="form-label small">User
-                                                Sort</label>
-                                            <field name="user_sort"
-                                                class="form-control form-control-sm" />
-                                        </div> -->
+
                                     </div>
                                 </div>
                             </div>
@@ -648,11 +648,15 @@
                         <div class="card mb-2 shadow-sm">
                             <div class="card-header py-1 px-2">
                                 <i class="fa fa-list-alt"></i>
-                                <span class="fw-bold"> Type</span>
+                                <span class="fw-bold"> Meal Code Sub Type</span>
                             </div>
                             <div class="card-body py-1 px-2">
-                                <div class="form-group mb-1">
+                                <!-- <div class="form-group mb-1">
                                     <field name="type" widget="radio"
+                                        class="o_field_widget" />
+                                </div> -->
+                                 <div class="form-group mb-1">
+                                    <field name="meal_code_sub_type" 
                                         class="o_field_widget" />
                                 </div>
                             </div>
@@ -682,6 +686,49 @@
             </tree>
         </field>
     </record>
+     <record id="view_meal_code_sub_type_form" model="ir.ui.view">
+        <field name="name">meal.code.sub.type.form</field>
+        <field name="model">meal.code.sub.type</field>
+        <field name="arch" type="xml">
+            <form string="Meal Code Sub Type">
+                <div class="row g-2">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-cutlery"></i>
+                                <span class="fw-bold"> Meal Code Sub Type Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="form-group mb-1">
+                                    <label for="name" class="form-label small">Name</label>
+                                    <div class="form-control form-control-sm">
+                                        <field name="name" />
+                                    </div>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="company_id" class="form-label small">Company</label>
+                                    <div class="form-control form-control-sm">
+                                        <field name="company_id" readonly="1" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="view_meal_code_sub_type_tree" model="ir.ui.view">
+        <field name="name">meal.code.sub.type.tree</field>
+        <field name="model">meal.code.sub.type</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Code Sub Type">
+                <field name="name"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+    
     <record id="view_meal_code_kanban" model="ir.ui.view">
         <field name="name">meal.code.kanban</field>
         <field name="model">meal.code</field>
@@ -816,77 +863,75 @@
                                 <span class="fw-bold"> Meal Details</span>
                             </div>
                             <div class="card-body py-1 px-2">
-                                <div class="form-group mb-1">
-                                    <label for="company_id" class="form-label small">Hotel</label>
+                                <div class="row g-2">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group mb-1">
+                                            <label for="company_id" class="form-label small">Hotel</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="company_id" readonly="1" />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="meal_pattern" class="form-label small">Meal
+                                                Pattern</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="meal_pattern" />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="description" class="form-label small">
+                                                Description</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="description" />
+                                        </div>
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group mb-1">
+                                            <label for="abbreviation" class="form-label small">
+                                                Abbreviation</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="abbreviation" />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="meal_posting_item" class="form-label small">Meal
+                                                Posting Item</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="meal_posting_item"
+                                            />
+                                        </div>
+
+                                        <div class="form-group mb-1">
+                                            <label for="taxes" class="form-label small">Taxes</label>
+                                            <field name="taxes" class="form-control form-control-sm" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-control form-control-sm">
-                                    <field name="company_id"  readonly="1"/>
-                                </div>
-                                <div class="form-group mb-1">
-                                    <label for="meal_pattern" class="form-label small">Meal Pattern</label>
-                                </div>
-                                <div class="form-control form-control-sm">
-                                    <field name="meal_pattern" />
-                                </div>
-                                <div class="form-group mb-1">
-                                    <label for="description" class="form-label small">Description</label>
-                                </div>
-                                <div class="form-control form-control-sm">
-                                    <field name="description" />
-                                </div>
-                                <div class="form-group mb-1">
-                                    <label for="abbreviation" class="form-label small">Abbreviation</label>
-                                </div>
-                                <div class="form-control form-control-sm">
-                                    <field name="abbreviation" />
-                                </div>
-                                <div class="form-group mb-1">
-                                    <label for="meal_posting_item" class="form-label small">Meal
-                                        Posting Item</label>
-                                </div>
-                                <div class="form-control form-control-sm">
-                                    <field name="meal_posting_item"
-                                    />
-                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-list-alt"></i>
+                                <span class="fw-bold"> Meal Pattern Sub Type</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
                                 <!-- <div class="form-group mb-1">
-                                    <label for="user_sort" class="form-label small">User Sort</label>
-                                    <field name="user_sort" class="form-control form-control-sm" />
+                                    <field name="type" widget="radio"
+                                        class="o_field_widget" />
                                 </div> -->
-                                <div class="form-group mb-1">
-                                    <label for="taxes" class="form-label small">Taxes</label>
-                                    <field name="taxes" class="form-control form-control-sm" />
+                                 <div class="form-group mb-1">
+                                    <field name="meal_pattern_sub_type" 
+                                        class="o_field_widget" />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Arabic Details -->
-                    <!-- <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="card mb-2 shadow-sm">
-                            <div class="card-header py-1 px-2">
-                                <i class="fa fa-language"></i>
-                                <span class="fw-bold"> Arabic Details</span>
-                            </div> 
-                            <div class="card-body py-1 px-2">
-                                <div class="form-group mb-1">
-                                    <label for="arabic_description" class="form-label small">Arabic
-                                        Description</label>
-                                </div>
-                                <div class="form-control form-control-sm">
-                                    <field name="arabic_description"
-                                    />
-                                </div>
-                                <div class="form-group mb-1">
-                                    <label for="arabic_abbreviation" class="form-label small">Arabic
-                                        Abbreviation</label>
-                                </div>
-                                <div class="form-control form-control-sm">
-                                    <field name="arabic_abbreviation"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
 
                     <!-- Meals List -->
                     <div class="col-lg-12 col-md-12 col-sm-12">
@@ -905,8 +950,8 @@
                                         <field name="apply_on_arrival" />
                                         <field name="apply_on_departure" />
                                         <field name="apply_during_stay" />
-                                        <field name="price" />
-                                        <field name="price_child" />
+                                        <field name="price" readonly="1"/>
+                                        <field name="price_child" readonly="1"/>
                                     </tree>
                                 </field>
                             </div>
@@ -935,6 +980,8 @@
             </tree>
         </field>
     </record>
+
+
     <record id="view_meal_pattern_kanban" model="ir.ui.view">
         <field name="name">meal.pattern.kanban</field>
         <field name="model">meal.pattern</field>
@@ -996,6 +1043,35 @@
                 <field name="meal_posting_item" string="Meal Posting Item" />
             </search>
         </field>
+    </record>
+     <record id="view_meal_pattern_sub_type_form" model="ir.ui.view">
+        <field name="name">meal.pattern.sub.type.form</field>
+        <field name="model">meal.pattern.sub.type</field>
+        <field name="arch" type="xml">
+            <form string="Meal Pattern Sub Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="company_id" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+     <record id="view_meal_pattern_sub_type_tree" model="ir.ui.view">
+        <field name="name">meal.pattern.sub.type.tree</field>
+        <field name="model">meal.pattern.sub.type</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Pattern Sub Type">
+                <field name="name"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="action_meal_pattern_sub_type" model="ir.actions.act_window">
+        <field name="name"> Meal Pattern Sub Types</field>
+        <field name="res_model">meal.pattern.sub.type</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
 
@@ -1241,8 +1317,8 @@
                                             placeholder="Enter User Sort" />
                                     </div> -->
                                     <div class="form-group mb-1">
+                                        <field name="obsolete" />
                                         <label for="obsolete" class="form-label small">Obsolete</label>
-                                        <field name="obsolete" class="form-control form-control-sm" />
                                     </div>
                                 </div>
                             </div>
@@ -1830,7 +1906,7 @@
                         <!-- <field name="arabic_abbreviation" /> -->
                     </group>
                     <group>
-                        <field name="level" />
+                        <!-- <field name="level" /> -->
                         <!-- <field name="user_sort" /> -->
                         <field name="obsolete" />
                     </group>
@@ -1848,7 +1924,7 @@
                 <field name="code" />
                 <field name="description" />
                 <field name="abbreviation" />
-                <field name="level" />
+                <!-- <field name="level" /> -->
                 <!-- <field name="user_sort" /> -->
                 <field name="obsolete" />
             </tree>
@@ -1862,7 +1938,7 @@
                 <field name="code" />
                 <field name="description" />
                 <field name="abbreviation" />
-                <field name="level" />
+                <!-- <field name="level" /> -->
                 <!-- <field name="user_sort" /> -->
                 <field name="obsolete" />
                 <templates>
@@ -1873,7 +1949,7 @@
                             </strong>
                             <div>Description: <field name="description" /></div>
                             <div>Abbreviation: <field name="abbreviation" /></div>
-                            <div>Level: <field name="level" /></div>
+                            <!-- <div>Level: <field name="level" /></div> -->
                             <div>User Sort: <field name="user_sort" /></div>
                             <div>Obsolete: <field name="obsolete" /></div>
                         </div>
@@ -1888,7 +1964,7 @@
         <field name="arch" type="xml">
             <pivot string="House Codes">
                 <field name="code" type="row" />
-                <field name="level" type="row" />
+                <!-- <field name="level" type="row" /> -->
                 <field name="abbreviation" type="row" />
                 <!-- <field name="user_sort" type="measure" /> -->
                 <!-- <field name="obsolete" type="measure"/> -->
@@ -1901,7 +1977,7 @@
         <field name="arch" type="xml">
             <graph string="House Codes" type="bar">
                 <field name="code" type="row" />
-                <field name="level" type="row" />
+                <!-- <field name="level" type="row" /> -->
                 <field name="abbreviation" type="row" />
                 <!-- <field name="user_sort" type="measure" /> -->
                 <!-- <field name="obsolete" type="measure"/> -->
@@ -1918,7 +1994,7 @@
                 <field name="code" string="Code" />
                 <field name="description" string="Description" />
                 <field name="abbreviation" string="Abbreviation" />
-                <field name="level" string="Level" />
+                <!-- <field name="level" string="Level" /> -->
                 <!-- <field name="user_sort" string="User Sort" /> -->
                 <field name="obsolete" string="Obsolete" />
             </search>

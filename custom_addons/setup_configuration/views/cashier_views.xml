@@ -55,7 +55,7 @@
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="description" class="form-label small">
-    Description</label>
+                                            Description</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="description" placeholder="Enter Description" />
@@ -74,7 +74,7 @@
                                 <div class="card-body py-1 px-2">
                                     <div class="form-group mb-1">
                                         <label for="abbreviation" class="form-label small">
-    Abbreviation</label>
+                                            Abbreviation</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="abbreviation" placeholder="Enter Abbreviation" />
@@ -399,24 +399,27 @@
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
                                                 <label for="department" class="form-label small">
-    Department</label>
+                                                    Department</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="department" placeholder="Enter Department" />
+                                                <field name="department"
+                                                    placeholder="Enter Department" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="description" class="form-label small">
-    Description</label>
+                                                    Description</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="description" placeholder="Enter Description" />
+                                                <field name="description"
+                                                    placeholder="Enter Description" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="abbreviation" class="form-label small">
-    Abbreviation</label>
+                                                    Abbreviation</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="abbreviation" placeholder="Enter Abbreviation" />
+                                                <field name="abbreviation"
+                                                    placeholder="Enter Abbreviation" />
                                             </div>
                                             <!-- <div class="form-group mb-1">
                                                 <label for="arabic_description" class="form-label small">Arabic Description</label>
@@ -432,17 +435,19 @@
                                             </div> -->
                                             <div class="form-group mb-1">
                                                 <label for="unit_price" class="form-label small">Unit
-    Price</label>
+                                                    Price</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="unit_price" placeholder="Enter Unit Price" />
+                                                <field name="unit_price"
+                                                    placeholder="Enter Unit Price" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="dept_category" class="form-label small">Department
-    Category</label>
+                                                    Category</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="dept_category" placeholder="Enter Category" />
+                                                <field name="dept_category"
+                                                    placeholder="Enter Category" />
                                             </div>
                                             <!-- <div class="form-group mb-1">
                                                 <label for="user_sort" class="form-label small">User
@@ -465,28 +470,43 @@
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
                                                 <label for="function_type" class="form-label small">Function
-    Type</label>
-                                                <field name="function_type" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Function Type" />
+                                                    Type</label>
+                                                <field name="function_type"
+                                                    class="form-control form-control-sm"
+                                                    style="padding: 2px 6px;"
+                                                    placeholder="Enter Function Type" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="charge_group" class="form-label small">Charges
-    Type</label>
-                                                <field name="charge_group" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Charge Type" />
+                                                    Type</label>
+                                                <field name="charge_group" widget="radio"
+                                                    class="form-control form-control-sm"
+                                                    style="padding: 2px 6px;"
+                                                    placeholder="Enter Charge Type" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="adjustment" class="form-label small">Adjustment
-    Type</label>
-                                                <field name="adjustment" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Adjustment Type" />
+                                                    Type</label>
+                                                <field name="adjustment" widget="radio"
+                                                    class="form-control form-control-sm"
+                                                    style="padding: 2px 6px;"
+                                                    placeholder="Enter Adjustment Type" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="payment_group" class="form-label small">Payments
-    Type</label>
-                                                <field name="payment_group" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Payment Type" />
+                                                    Type</label>
+                                                <field name="payment_group" widget="radio"
+                                                    class="form-control form-control-sm"
+                                                    style="padding: 2px 6px;"
+                                                    placeholder="Enter Payment Type" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="tax_group" class="form-label small">Taxes
-    Type</label>
-                                                <field name="tax_group" widget="radio" class="form-control form-control-sm" style="padding: 2px 6px;" placeholder="Enter Taxes Type" />
+                                                    Type</label>
+                                                <field name="tax_group" widget="radio"
+                                                    class="form-control form-control-sm"
+                                                    style="padding: 2px 6px;"
+                                                    placeholder="Enter Taxes Type" />
                                             </div>
                                         </div>
 
@@ -668,7 +688,7 @@
             </form>
         </field>
     </record> -->
-    
+
     <record id="view_posting_item_form" model="ir.ui.view">
         <field name="name">posting.item.form</field>
         <field name="model">posting.item</field>
@@ -688,25 +708,34 @@
                                         </div>
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
-                                                <label for="item_code" class="form-label small">Item
-    Code</label>
+                                                <label for="company_id" class="form-label small">Hotel</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="item_code" placeholder="Enter Item Code" />
+                                                <field name="company_id" readonly="1" placeholder="Enter Item Code" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="item_code" class="form-label small">Item
+                                                    Code</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="item_code"
+                                                    placeholder="Enter Item Code" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="description" class="form-label small">
-    Description</label>
+                                                    Description</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="description" placeholder="Enter Description" />
+                                                <field name="description"
+                                                    placeholder="Enter Description" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="abbreviation" class="form-label small">
-    Abbreviation</label>
+                                                    Abbreviation</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="abbreviation" placeholder="Enter Abbreviation" />
+                                                <field name="abbreviation"
+                                                    placeholder="Enter Abbreviation" />
                                             </div>
                                             <!-- <div class="form-group mb-1">
                                                 <label for="arabic_description" class="form-label small">Arabic Description</label>
@@ -721,10 +750,12 @@
                                                 <field name="arabic_abbreviation" placeholder="Enter Arabic Abbreviation" />
                                             </div> -->
                                             <div class="form-group mb-1">
-                                                <label for="main_department" class="form-label small">Main Department</label>
+                                                <label for="main_department"
+                                                    class="form-label small">Main Department</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="main_department" placeholder="Enter Main Department" />
+                                                <field name="main_department"
+                                                    placeholder="Enter Main Department" />
                                             </div>
                                         </div>
                                     </div>
@@ -739,47 +770,63 @@
                                         </div>
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
-                                                <label for="default_currency" class="form-label small">Default Currency</label>
+                                                <label for="default_currency"
+                                                    class="form-label small">Default Currency</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="default_currency" placeholder="Enter Default Currency" />
+                                                <field name="default_currency"
+                                                    placeholder="Enter Default Currency" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="default_value" class="form-label small">Default
-    Value</label>
-                                                <field name="default_value" class="form-control form-control-sm" placeholder="Enter Default Value" />
+                                                    Value</label>
+                                                <field name="default_value"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Default Value" />
                                             </div>
                                             <div class="form-group mb-1">
-                                                <label for="entry_value_type" class="form-label small">Entry Value Type</label>
-                                                <field name="entry_value_type" class="form-control form-control-sm" placeholder="Enter Entry Value Type" />
+                                                <label for="entry_value_type"
+                                                    class="form-label small">Entry Value Type</label>
+                                                <field name="entry_value_type"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Entry Value Type" />
                                             </div>
                                             <div class="form-group mb-1">
-                                                <field name="fixed_value" placeholder="Enter Fixed Value" />
+                                                <field name="fixed_value"
+                                                    placeholder="Enter Fixed Value" />
                                                 <label for="fixed_value" class="form-label small">Fixed
-    Value</label>
+                                                    Value</label>
                                             </div>
                                             <div class="form-group mb-1">
-                                                <field name="dummy_room_discount" placeholder="Enter Room Discount" />
-                                                <label for="dummy_room_discount" class="form-label small">Dummy Room Discount</label>
+                                                <field name="dummy_room_discount"
+                                                    placeholder="Enter Room Discount" />
+                                                <label for="dummy_room_discount"
+                                                    class="form-label small">Dummy Room Discount</label>
                                             </div>
                                             <div class="form-group mb-1">
-                                                <label for="posting_item_selection" class="form-label small">Posting Item Selection</label>
+                                                <label for="posting_item_selection"
+                                                    class="form-label small">Posting Item Selection</label>
                                                 <field name="posting_item_selection" widget='radio' />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="show_in_website" />
-                                                <label for="show_in_website" class="form-label small">Show in Website</label>
+                                                <label for="show_in_website"
+                                                    class="form-label small">Show in Website</label>
                                             </div>
-                                            <div class="form-group mb-1" invisible="show_in_website==False">
+                                            <div class="form-group mb-1"
+                                                invisible="show_in_website==False">
                                                 <label for="website_desc" class="form-label small">Website
-    Description</label>
+                                                    Description</label>
                                             </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="website_desc" class="form-control form-control-sm" placeholder="Enter Website Description" />
+                                            <div class="form-control form-control-sm"  invisible="show_in_website==False">
+                                                <field name="website_desc"
+                                                    placeholder="Enter Website Description" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="taxes" class="form-label small">Taxes</label>
-                                                <field name="taxes" class="form-control form-control-sm" placeholder="Enter Taxes" />
+                                                <field name="taxes"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Taxes" />
                                             </div>
                                         </div>
                                     </div>
@@ -799,21 +846,26 @@
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
                                                 <field name="allow_change_sign" />
-                                                <label for="allow_change_sign" class="form-label small">Allow Change Sign</label>
+                                                <label for="allow_change_sign"
+                                                    class="form-label small">Allow Change Sign</label>
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="require_authorization" />
-                                                <label for="require_authorization" class="form-label small">Require Authorization</label>
+                                                <label for="require_authorization"
+                                                    class="form-label small">Require Authorization</label>
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="default_sign" class="form-label small">Default
-    Sign</label>
-                                                <field name="default_sign" class="form-control form-control-sm" placeholder="Enter Default Sign" />
+                                                    Sign</label>
+                                                <field name="default_sign"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Default Sign" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="entry_require_authorization" />
-                                                <label for="entry_require_authorization" class="form-label small">Entry Require
-    Authorization</label>
+                                                <label for="entry_require_authorization"
+                                                    class="form-label small">Entry Require
+                                                    Authorization</label>
                                             </div>
                                             <!-- <div class="form-group mb-1">
                                                 <label for="user_sort" class="form-label small">User
@@ -964,16 +1016,15 @@
         <field name="model">posting.item</field>
         <field name="arch" type="xml">
             <search string="Posting Item Search">
-                <field name="item_code" string="Item Code"/>
-                <field name="description" string="Description"/>
-                <field name="abbreviation" string="Abbreviation"/>
-                <field name="main_department" string="Main Department"/>
-                <field name="default_currency" string="Currency"/>
-                <field name="default_value" string="Default Value"/>
+                <field name="item_code" string="Item Code" />
+                <field name="description" string="Description" />
+                <field name="abbreviation" string="Abbreviation" />
+                <field name="main_department" string="Main Department" />
+                <field name="default_currency" string="Currency" />
+                <field name="default_value" string="Default Value" />
             </search>
         </field>
     </record>
-
 
 
     <!-- Form View for Dummy Room Code(old) -->
@@ -1035,14 +1086,14 @@
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="description" class="form-label small">
-    Description</label>
+                                            Description</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="description" />
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="abbreviation" class="form-label small">
-    Abbreviation</label>
+                                            Abbreviation</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="abbreviation" />
@@ -1074,12 +1125,14 @@
                                 <div class="card-body py-1 px-2">
                                     <div class="form-group mb-1">
                                         <label for="item_discount" class="form-label small">Item
-    Discount</label>
-                                        <field name="item_discount" class="form-control form-control-sm" />
+                                            Discount</label>
+                                        <field name="item_discount"
+                                            class="form-control form-control-sm" />
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="company_id" class="form-label small">Company</label>
-                                        <field name="company_id" class="form-control form-control-sm" />
+                                        <field name="company_id"
+                                            class="form-control form-control-sm" />
                                     </div>
                                     <div class="form-group mb-1">
                                         <field name="is_obsolete" widget="boolean_toggle" />
@@ -1087,13 +1140,15 @@
                                             Obsolete</label>
                                     </div>
                                     <div class="form-group mb-1">
-                                        <field name="auto_reopen_room_account" widget="boolean_toggle" />
-                                        <label for="auto_reopen_room_account" class="form-label small">Auto Reopen Room Account</label>
+                                        <field name="auto_reopen_room_account"
+                                            widget="boolean_toggle" />
+                                        <label for="auto_reopen_room_account"
+                                            class="form-label small">Auto Reopen Room Account</label>
                                     </div>
                                     <div class="form-group mb-1">
                                         <field name="auto_payment_posting" widget="boolean_toggle" />
                                         <label for="auto_payment_posting" class="form-label small">Auto
-    Payment Posting</label>
+                                            Payment Posting</label>
                                     </div>
                                 </div>
                             </div>
@@ -1117,22 +1172,25 @@
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="value_added_tax" />
-                                                <label for="value_added_tax" class="form-label small">Value Added Tax</label>
+                                                <label for="value_added_tax"
+                                                    class="form-label small">Value Added Tax</label>
                                             </div>
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                             <div class="form-group mb-1">
                                                 <field name="municipality_tax" />
-                                                <label for="municipality_tax" class="form-label small">Municipality Tax</label>
+                                                <label for="municipality_tax"
+                                                    class="form-label small">Municipality Tax</label>
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="head_tax" />
                                                 <label for="head_tax" class="form-label small">Head
-    Tax</label>
+                                                    Tax</label>
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="entertainment_tax" />
-                                                <label for="entertainment_tax" class="form-label small">Entertainment Tax</label>
+                                                <label for="entertainment_tax"
+                                                    class="form-label small">Entertainment Tax</label>
                                             </div>
                                         </div>
                                     </div>
@@ -1223,14 +1281,14 @@
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="description" class="form-label small">
-    Description</label>
+                                            Description</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="description" />
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="abbreviation" class="form-label small">
-    Abbreviation</label>
+                                            Abbreviation</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="abbreviation" />
@@ -1251,7 +1309,7 @@
                                     </div> -->
                                     <div class="form-group mb-1">
                                         <label for="exchange_rate" class="form-label small">Exchange
-    Rate</label>
+                                            Rate</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="exchange_rate" />
@@ -1275,17 +1333,18 @@
                                     <div class="form-group mb-1">
                                         <field name="use_fo_default" widget="boolean_toggle" />
                                         <label for="use_fo_default" class="form-label small">Use FO
-    Default</label>
+                                            Default</label>
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="rate_code_rate" class="form-label small">Rate
-    Code Rate</label>
-                                        <field name="rate_code_rate" class="form-control form-control-sm" />
+                                            Code Rate</label>
+                                        <field name="rate_code_rate"
+                                            class="form-control form-control-sm" />
                                     </div>
                                     <div class="form-group mb-1">
                                         <field name="use_rate_code_default" widget="boolean_toggle" />
                                         <label for="use_rate_code_default" class="form-label small">Use
-    Rate Code Default</label>
+                                            Rate Code Default</label>
                                     </div>
                                     <div class="form-group mb-1">
                                         <label for="cash_rate" class="form-label small">Cash Rate</label>
@@ -1294,7 +1353,7 @@
                                     <div class="form-group mb-1">
                                         <field name="use_cash_default" widget="boolean_toggle" />
                                         <label for="use_cash_default" class="form-label small">Use
-    Cash Default</label>
+                                            Cash Default</label>
                                     </div>
                                 </div>
                             </div>
@@ -1371,28 +1430,40 @@
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
                                                 <label for="month" class="form-label small">Month</label>
-                                                <field name="month" class="form-control form-control-sm" placeholder="Enter Month" />
+                                                <field name="month"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Month" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="rooms" class="form-label small">Rooms</label>
-                                                <field name="rooms" class="form-control form-control-sm" placeholder="Enter Number of Rooms" />
+                                                <field name="rooms"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Number of Rooms" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="pax" class="form-label small">PAX</label>
-                                                <field name="pax" class="form-control form-control-sm" placeholder="Enter PAX" />
+                                                <field name="pax"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter PAX" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="child" class="form-label small">Child</label>
-                                                <field name="child" class="form-control form-control-sm" placeholder="Enter Number of Children" />
+                                                <field name="child"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Number of Children" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="infant" class="form-label small">Infant</label>
-                                                <field name="infant" class="form-control form-control-sm" placeholder="Enter Number of Infants" />
+                                                <field name="infant"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Number of Infants" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="revenue" class="form-label small">
-    Revenue</label>
-                                                <field name="revenue" class="form-control form-control-sm" placeholder="Enter Revenue" />
+                                                    Revenue</label>
+                                                <field name="revenue"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Revenue" />
                                             </div>
                                         </div>
                                     </div>
@@ -1411,10 +1482,14 @@
                                         </div>
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
-                                                <button string="Companies" type="object" name="action_view_companies" class="btn btn-primary btn-sm" />
+                                                <button string="Companies" type="object"
+                                                    name="action_view_companies"
+                                                    class="btn btn-primary btn-sm" />
                                             </div>
                                             <div class="form-group mb-1">
-                                                <button string="Departments" type="object" name="action_view_departments" class="btn btn-secondary btn-sm" />
+                                                <button string="Departments" type="object"
+                                                    name="action_view_departments"
+                                                    class="btn btn-secondary btn-sm" />
                                             </div>
                                         </div>
                                     </div>
@@ -1518,14 +1593,14 @@
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="description" class="form-label small">
-    Description</label>
+                                                    Description</label>
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="description" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="abbreviation" class="form-label small">
-    Abbreviation</label>
+                                                    Abbreviation</label>
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="abbreviation" />
@@ -1575,21 +1650,25 @@
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
                                                 <label for="max_per_day" class="form-label small">Max
-    Per Day</label>
-                                                <field name="max_per_day" class="form-control form-control-sm" />
+                                                    Per Day</label>
+                                                <field name="max_per_day"
+                                                    class="form-control form-control-sm" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="exclusive" widget="boolean_toggle" />
                                                 <label for="exclusive" class="form-label small">
-    Exclusive</label>
+                                                    Exclusive</label>
                                             </div>
                                             <div class="form-group mb-1">
-                                                <field name="reset_upon_opening" widget="boolean_toggle" />
-                                                <label for="reset_upon_opening" class="form-label small">Reset Upon Opening</label>
+                                                <field name="reset_upon_opening"
+                                                    widget="boolean_toggle" />
+                                                <label for="reset_upon_opening"
+                                                    class="form-label small">Reset Upon Opening</label>
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="status" class="form-label small">Status</label>
-                                                <field name="status" class="form-control form-control-sm" />
+                                                <field name="status"
+                                                    class="form-control form-control-sm" />
                                             </div>
                                         </div>
                                     </div>

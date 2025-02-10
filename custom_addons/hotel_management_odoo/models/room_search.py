@@ -176,142 +176,120 @@ class RoomSearch(models.Model):
         WITH parameters AS (
             SELECT 
                 %(from_date)s::date AS from_date,
-                %(to_date)s::date AS to_date
-        ),
-        room_types AS (
-            SELECT 
-                rt.id,
-                rt.room_type
-            FROM room_type rt
-            where rt.obsolete = False
-           -- WHERE %(room_type_id)s IS NULL OR rt.id = CAST(%(room_type_id)s AS INTEGER)
-        ),
-        companies AS (
-            SELECT 
-                c.id,
-                c.name
-            FROM res_company c
-            WHERE c.id = CAST(%(company_id)s AS INTEGER)
-        ),
-        date_series AS (
+                %(to_date)s::date AS to_date,
+                CAST(%(company_id)s AS INTEGER) as company_id
+        
+            ),
+
+date_series AS (
             SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
             FROM parameters p
         ),
-        latest_line_status AS (
-            SELECT DISTINCT ON (rbl.id, ds.report_date)
-                   rbl.id AS booking_line_id,
-                   ds.report_date,
-                   rb.checkin_date::date   AS checkin_date,
-                   rb.checkout_date::date  AS checkout_date,
-                   hr.company_id,
-                   rt.id                   AS room_type_id,
-                   rbls.status             AS final_status,
-                   rbls.change_time,
-                   rb.house_use            AS house_use,
-                   rb.complementary        AS complementary
-            FROM room_booking_line rbl
-            CROSS JOIN date_series ds
-            JOIN room_booking rb ON rb.id = rbl.booking_id
-            JOIN hotel_room hr ON hr.id = rbl.room_id
-            JOIN room_types rt ON rt.id = hr.room_type_name
-            LEFT JOIN room_booking_line_status rbls
-                   ON rbls.booking_line_id = rbl.id
-                   AND rbls.change_time::date <= ds.report_date
-            ORDER BY
-               rbl.id,
-               ds.report_date,
-               rbls.change_time DESC NULLS LAST
+        system_date_company AS (
+            select id as company_id 
+            , system_date::date	from res_company rc where  rc.id = (SELECT company_id FROM parameters)
         ),
+        base_data AS (
+            SELECT
+                rb.id AS booking_id,
+                rb.company_id,
+                rb.checkin_date::date AS checkin_date,
+                rb.checkout_date::date AS checkout_date,
+                rbl.id AS booking_line_id,
+                rbl.room_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbls.status,
+                rbls.change_time,
+                rb.house_use,
+                rb.complementary
+            FROM room_booking rb
+            JOIN room_booking_line rbl ON rb.id = rbl.booking_id
+            LEFT JOIN room_booking_line_status rbls ON rbl.id = rbls.booking_line_id
+            WHERE rb.company_id = (SELECT company_id FROM parameters)
+        ),
+        
+        latest_line_status AS (
+            SELECT DISTINCT ON (bd.booking_line_id, ds.report_date)
+                   bd.booking_line_id,
+                   ds.report_date,
+                   bd.checkin_date,
+                   bd.checkout_date,
+                   bd.company_id,
+                   bd.room_type_id,
+                   bd.status AS final_status,
+                   bd.change_time,
+                   bd.house_use,
+                   bd.complementary
+            FROM base_data bd
+            JOIN date_series ds 
+              ON ds.report_date >= bd.checkin_date 
+              AND ds.report_date <= bd.checkout_date
+            WHERE bd.change_time::date <= ds.report_date
+            ORDER BY
+               bd.booking_line_id,
+               ds.report_date,
+               bd.change_time DESC NULLS LAST
+        ),
+        
         in_house AS (
             SELECT
-                lls.report_date,    
+                lls.report_date,
                 lls.company_id,
                 lls.room_type_id,
                 COUNT(DISTINCT lls.booking_line_id) AS in_house_count
             FROM latest_line_status lls
-            WHERE lls.checkin_date <= lls.report_date
-              AND lls.checkout_date > lls.report_date
-              AND lls.final_status = 'check_in'
-            GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+            WHERE lls.final_status = 'check_in'
+              AND lls.report_date >= lls.checkin_date 
+              AND lls.report_date <= lls.checkout_date
+            GROUP BY 
+                lls.report_date,
+                lls.company_id,
+                lls.room_type_id
+        ),
+        
+        yesterday_in_house AS (
+            SELECT
+                lls.report_date,
+                lls.company_id,
+                lls.room_type_id,
+                COUNT(DISTINCT lls.booking_line_id) AS in_house_count
+            FROM latest_line_status lls
+            WHERE lls.final_status = 'check_in'
+              -- AND lls.report_date BETWEEN lls.checkin_date AND lls.checkout_date
+              AND lls.report_date - interval '1 day' >= lls.checkin_date 
+              AND lls.report_date - interval '1 day' <= lls.checkout_date
+            GROUP BY 
+                lls.report_date,
+                lls.company_id,
+                lls.room_type_id
         ),
         expected_arrivals AS (
-            SELECT
-                ds.report_date,
-                rc.id AS company_id,
-                rt.id AS room_type_id,
-                COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count
-            FROM date_series ds
-            CROSS JOIN res_company rc
-            CROSS JOIN room_type   rt
-            LEFT JOIN LATERAL (
-                SELECT DISTINCT ON (qry.booking_line_number)
-                       qry.booking_line_number
-            FROM (
-                SELECT 
-                    rb.company_id,
-                    rbl.hotel_room_type AS room_type_id,
-                    rbl.checkin_date    AS checkin_dt,
-                    rb.name,
-                    rbls.status,
-                    rbl.id              AS booking_line_number,
-                    rbls.change_time
-                FROM room_booking rb
-                JOIN room_booking_line rbl 
-                      ON rbl.booking_id = rb.id
-                JOIN room_booking_line_status rbls
-                      ON rbls.booking_line_id = rbl.id
-            ) AS qry
-            WHERE qry.company_id    = rc.id
-              AND qry.room_type_id  = rt.id
-              AND qry.status        IN ('confirmed','block')
-              AND qry.change_time::date <= ds.report_date
-              AND qry.checkin_dt::date   = ds.report_date
-    
-            ORDER BY qry.booking_line_number, qry.change_time DESC
-            ) AS sub ON TRUE
-            GROUP BY ds.report_date, rc.id, rt.id
-            ),
-
+            SELECT 
+                lls.report_date,
+                lls.company_id,
+                lls.room_type_id,
+                COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
+            FROM latest_line_status lls
+            WHERE lls.checkin_date = lls.report_date
+              AND lls.final_status IN ('confirmed', 'block')
+            GROUP BY 
+                lls.report_date,
+                lls.company_id,
+                lls.room_type_id
+        ),
         expected_departures AS (
             SELECT
-            ds.report_date,
-            rc.id AS company_id,
-            rt.id AS room_type_id,
-            COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count
-            FROM date_series ds
-            CROSS JOIN res_company rc
-            CROSS JOIN room_type   rt
-        
-            LEFT JOIN LATERAL (
-                SELECT DISTINCT ON (qry.booking_line_number)
-                       qry.booking_line_number
-                FROM (
-                SELECT 
-                    rb.company_id,
-                    rbl.hotel_room_type AS room_type_id,
-                    rbl.checkin_date,
-                    rbl.checkout_date,
-                    rbl.id              AS booking_line_number,
-                    rbls.status,
-                    rbls.change_time
-                FROM room_booking rb
-                JOIN room_booking_line rbl
-                      ON rbl.booking_id = rb.id
-                JOIN room_booking_line_status rbls
-                      ON rbls.booking_line_id = rbl.id
-            ) AS qry
-            WHERE qry.company_id    = rc.id
-              AND qry.room_type_id  = rt.id
-              AND qry.checkout_date::date = ds.report_date
-              AND qry.status = 'check_in'
-              AND qry.change_time::date <= ds.report_date
-            ORDER BY qry.booking_line_number, qry.change_time DESC
-            ) AS sub ON TRUE
-       
+                lls.report_date,
+                lls.company_id,
+                lls.room_type_id,
+                COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
+            FROM latest_line_status lls
+            WHERE lls.checkout_date = lls.report_date
+              AND lls.final_status = 'check_in'
             GROUP BY 
-                ds.report_date,
-                rc.id,
-                rt.id
+                lls.report_date,
+                lls.company_id,
+                lls.room_type_id
         ),
         house_use_cte AS (
             SELECT
@@ -321,9 +299,9 @@ class RoomSearch(models.Model):
                 COUNT(DISTINCT lls.booking_line_id) AS house_use_count
             FROM latest_line_status lls
             WHERE lls.house_use = TRUE
-              AND lls.final_status = 'check_in'
+              AND lls.final_status in ('check_in', 'check_out')
               AND lls.checkin_date <= lls.report_date
-              AND lls.checkout_date > lls.report_date
+              AND lls.checkout_date >= lls.report_date
             GROUP BY lls.report_date, lls.company_id, lls.room_type_id
         ),
         complementary_use_cte AS (
@@ -334,9 +312,9 @@ class RoomSearch(models.Model):
                 COUNT(DISTINCT lls.booking_line_id) AS complementary_use_count
             FROM latest_line_status lls
             WHERE lls.complementary = TRUE
-              AND lls.final_status = 'check_in'
+              AND lls.final_status in ('check_in', 'check_out')
               AND lls.checkin_date <= lls.report_date
-              AND lls.checkout_date > lls.report_date
+              AND lls.checkout_date >= lls.report_date
             GROUP BY lls.report_date, lls.company_id, lls.room_type_id
         ),
         inventory AS (
@@ -360,7 +338,7 @@ class RoomSearch(models.Model):
               ON ds.report_date BETWEEN ooo.from_date AND ooo.to_date
             JOIN hotel_room hr
               ON hr.id = ooo.room_number
-            JOIN room_types rt
+            JOIN room_type rt
               ON hr.room_type_name = rt.id
             GROUP BY rt.id, hr.company_id, ds.report_date
         ),
@@ -375,7 +353,7 @@ class RoomSearch(models.Model):
               ON ds.report_date BETWEEN roh.from_date AND roh.to_date
             JOIN hotel_room hr
               ON hr.id = roh.room_number
-            JOIN room_types rt
+            JOIN room_type rt
               ON hr.room_type_name = rt.id
             GROUP BY rt.id, hr.company_id, ds.report_date
         ),
@@ -391,115 +369,126 @@ class RoomSearch(models.Model):
               AND (hm.repair_ends_by IS NULL OR ds.report_date <= hm.repair_ends_by)
             JOIN hotel_room hr
               ON hr.room_type_name = hm.room_type
-            JOIN room_types rt
+            JOIN room_type rt
               ON hr.room_type_name = rt.id
             GROUP BY rt.id, hr.company_id, ds.report_date
         ),
-        daily_availability AS (
-            SELECT 
+        final_report AS (
+            SELECT
                 ds.report_date,
-                rt.id AS room_type_id,
-                rt.room_type AS room_type_name,
-                c.id AS company_id,
-                c.name AS company_name,
-                COALESCE(i.total_room_count, 0) AS total_rooms,
-                COALESCE(i.overbooking_rooms, 0) AS overbooking_rooms,
-                COALESCE(i.overbooking_allowed, FALSE) AS overbooking_allowed,
-                COALESCE(ih.in_house_count, 0) AS in_house,
-                COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
-                COALESCE(ed.expected_departures_count, 0) AS expected_departures,
-                COALESCE(hu.house_use_count, 0) AS house_use,
-                COALESCE(cu.complementary_use_count, 0) AS complementary_use,
-                COALESCE(oo.out_of_order_count, 0) AS out_of_order,
-                COALESCE(rh.rooms_on_hold_count, 0) AS rooms_on_hold,
-                COALESCE(os.out_of_service_count, 0) AS out_of_service,
-                /* Calculate free_to_sell for each day */
-                CASE 
-                    WHEN i.overbooking_allowed THEN
-                        GREATEST(0,
-                            i.total_room_count + i.overbooking_rooms
-                            - (COALESCE(ih.in_house_count, 0)
-                               + COALESCE(ea.expected_arrivals_count, 0)
-                               - COALESCE(ed.expected_departures_count, 0)
-                               + COALESCE(hu.house_use_count, 0)
-                               + COALESCE(cu.complementary_use_count, 0)
-                               + COALESCE(oo.out_of_order_count, 0)
-                               + COALESCE(rh.rooms_on_hold_count, 0)
-                               + COALESCE(os.out_of_service_count, 0))
-                        )
-                    ELSE
-                        GREATEST(0,
-                            i.total_room_count
-                            - (COALESCE(ih.in_house_count, 0)
-                               + COALESCE(ea.expected_arrivals_count, 0)
-                               - COALESCE(ed.expected_departures_count, 0)
-                               + COALESCE(hu.house_use_count, 0)
-                               + COALESCE(cu.complementary_use_count, 0)
-                               + COALESCE(oo.out_of_order_count, 0)
-                               + COALESCE(rh.rooms_on_hold_count, 0)
-                               + COALESCE(os.out_of_service_count, 0))
-                        )
-                END AS free_to_sell
+                rc.id                    AS company_id,
+                rc.name                  AS company_name,
+                rt.id                    AS room_type_id,
+                COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
+                COALESCE(inv.total_room_count, 0)           AS total_rooms,
+                COALESCE(inv.overbooking_rooms, 0)          AS overbooking_rooms,
+                COALESCE(inv.overbooking_allowed, false)    AS overbooking_allowed,
+                COALESCE(ooo.out_of_order_count, 0)         AS out_of_order,
+                COALESCE(roh.rooms_on_hold_count, 0)        AS rooms_on_hold,
+                COALESCE(oos.out_of_service_count, 0)       AS out_of_service,
+                COALESCE(ih.in_house_count, 0)              AS in_house,
+                COALESCE(ea.expected_arrivals_count, 0)     AS expected_arrivals,
+                COALESCE(ed.expected_departures_count, 0)   AS expected_departures,
+                COALESCE(hc.house_use_count, 0)             AS house_use_count,
+                COALESCE(cc.complementary_use_count, 0)     AS complementary_use_count,
+                (COALESCE(inv.total_room_count, 0)
+                 - COALESCE(ooo.out_of_order_count, 0)
+                 - COALESCE(roh.rooms_on_hold_count, 0))    AS available_rooms,
+                GREATEST(0, 
+              -- Use ih.in_house_count when system_date is today, otherwise use yh.in_house_count
+              COALESCE(
+                  CASE 
+                      WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+                      ELSE yh.in_house_count 
+                  END, 0
+              ) 
+              + COALESCE(ea.expected_arrivals_count, 0)
+              - LEAST(COALESCE(ed.expected_departures_count, 0), 
+                      COALESCE(
+                          CASE 
+                              WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+                              ELSE yh.in_house_count 
+                          END, 0
+                      )
+              )
+            ) AS expected_in_house
             FROM date_series ds
-            CROSS JOIN room_types rt
-            CROSS JOIN companies c
-            LEFT JOIN inventory i
-                ON i.room_type_id = rt.id
-                AND i.company_id = c.id
-            LEFT JOIN in_house ih
-                ON ih.room_type_id = rt.id
-                AND ih.company_id = c.id
-                AND ih.report_date = ds.report_date
-            LEFT JOIN expected_arrivals ea
-                ON ea.room_type_id = rt.id
-                AND ea.company_id = c.id
-                AND ea.report_date = ds.report_date
-            LEFT JOIN expected_departures ed
-                ON ed.room_type_id = rt.id
-                AND ed.company_id = c.id
-                AND ed.report_date = ds.report_date
-            LEFT JOIN house_use_cte hu
-                ON hu.room_type_id = rt.id
-                AND hu.company_id = c.id
-                AND hu.report_date = ds.report_date
-            LEFT JOIN complementary_use_cte cu
-                ON cu.room_type_id = rt.id
-                AND cu.company_id = c.id
-                AND cu.report_date = ds.report_date
-            LEFT JOIN out_of_order oo
-                ON oo.room_type_id = rt.id
-                AND oo.company_id = c.id
-                AND oo.report_date = ds.report_date
-            LEFT JOIN rooms_on_hold rh
-                ON rh.room_type_id = rt.id
-                AND rh.company_id = c.id
-                AND rh.report_date = ds.report_date
-            LEFT JOIN out_of_service os
-                ON os.room_type_id = rt.id
-                AND os.company_id = c.id
-                AND os.report_date = ds.report_date
+             LEFT JOIN res_company rc ON rc.id = (SELECT company_id FROM parameters) 
+            -- CROSS JOIN res_company rc
+            CROSS JOIN room_type rt
+            INNER JOIN inventory inv ON inv.company_id = rc.id AND inv.room_type_id = rt.id
+            LEFT JOIN out_of_order ooo ON ooo.company_id = rc.id AND ooo.room_type_id = rt.id AND ooo.report_date = ds.report_date
+            LEFT JOIN rooms_on_hold roh ON roh.company_id = rc.id AND roh.room_type_id = rt.id AND roh.report_date = ds.report_date
+            LEFT JOIN out_of_service oos ON oos.company_id = rc.id AND oos.room_type_id = rt.id AND oos.report_date = ds.report_date
+            LEFT JOIN in_house ih ON ih.company_id = rc.id AND ih.room_type_id = rt.id AND ih.report_date = ds.report_date
+            LEFT JOIN expected_arrivals ea ON ea.company_id = rc.id AND ea.room_type_id = rt.id AND ea.report_date = ds.report_date
+            LEFT JOIN expected_departures ed ON ed.company_id = rc.id AND ed.room_type_id = rt.id AND ed.report_date = ds.report_date
+            LEFT JOIN house_use_cte hc ON hc.company_id = rc.id AND hc.room_type_id = rt.id AND hc.report_date = ds.report_date
+            LEFT JOIN complementary_use_cte cc ON cc.company_id = rc.id AND cc.room_type_id = rt.id AND cc.report_date = ds.report_date
+            LEFT JOIN yesterday_in_house yh ON yh.company_id = rc.id AND yh.room_type_id = rt.id AND yh.report_date = ds.report_date
+            LEFT JOIN system_date_company sdc on sdc.company_id = rc.id
         )
-        /* Final selection with minimum free_to_sell check */
-        SELECT 
-            da.room_type_id,
-            da.room_type_name,
-            da.company_id,
-            da.company_name,
-            MIN(da.free_to_sell) as min_free_to_sell,
-            MIN(da.total_rooms) as total_rooms,
-            BOOL_OR(da.overbooking_allowed) as has_overbooking,
-            da.overbooking_rooms as total_overbooking_rooms
-        FROM daily_availability da
-        WHERE da.report_date BETWEEN (SELECT from_date FROM parameters) 
-                                AND (SELECT to_date FROM parameters)
-        GROUP BY 
-            da.room_type_id,
-            da.room_type_name,
-            da.company_id,
-            da.company_name,
-            da.overbooking_rooms
-        HAVING MIN(da.free_to_sell) >= %(room_count)s
-        ORDER BY da.company_name, da.room_type_name;
+        SELECT
+          fr.room_type_id,
+          fr.room_type_name, 
+          fr.company_id,
+          fr.company_name,
+          CASE 
+        WHEN BOOL_OR(fr.overbooking_allowed) THEN
+            CASE
+                WHEN SUM(fr.available_rooms) < 0 OR SUM(fr.overbooking_rooms) < 0 OR SUM(fr.expected_in_house) < 0 THEN 0
+                ELSE GREATEST(0, SUM(fr.available_rooms) + SUM(fr.overbooking_rooms) - SUM(fr.expected_in_house))
+            END
+        ELSE
+            CASE
+                WHEN SUM(fr.available_rooms) < 0 OR SUM(fr.expected_in_house) < 0 THEN 0
+                ELSE GREATEST(0, SUM(fr.available_rooms) - SUM(fr.expected_in_house))
+            END
+    END AS min_free_to_sell,
+    
+          SUM(fr.total_rooms) AS total_rooms,
+          BOOL_OR(fr.overbooking_allowed) AS has_overbooking,
+          SUM(fr.overbooking_rooms) AS total_overbooking_rooms
+        FROM final_report fr
+        where fr.report_date BETWEEN (SELECT from_date FROM parameters) 
+                                        AND (SELECT to_date - interval '1 day' FROM parameters) 
+                                        
+        GROUP BY
+          fr.report_date,
+          fr.company_id,
+          fr.company_name,
+          fr.room_type_id,
+          fr.room_type_name
+          HAVING 
+			    fr.room_type_id NOT IN (
+        SELECT fr2.room_type_id 
+        FROM final_report fr2
+        WHERE fr2.report_date BETWEEN (SELECT from_date FROM parameters) 
+                                AND (SELECT to_date - INTERVAL '1 day' FROM parameters)
+        GROUP BY fr2.room_type_id, fr2.report_date
+        HAVING 
+            CASE 
+                WHEN BOOL_OR(fr2.overbooking_allowed) THEN
+                    CASE
+                        WHEN SUM(fr2.available_rooms) < 0 
+                             OR SUM(fr2.overbooking_rooms) < 0 
+                             OR SUM(fr2.expected_in_house) < 0 
+                        THEN 0
+                        ELSE GREATEST(0, SUM(fr2.available_rooms) + SUM(fr2.overbooking_rooms) - SUM(fr2.expected_in_house))
+                    END
+                ELSE
+                    CASE
+                        WHEN SUM(fr2.available_rooms) < 0 
+                             OR SUM(fr2.expected_in_house) < 0 
+                        THEN 0
+                        ELSE GREATEST(0, SUM(fr2.available_rooms) - SUM(fr2.expected_in_house))
+                    END
+            END < %(room_count)s  -- Exclude any room_type_id with min_free_to_sell < 1 on any date
+    )
+        ORDER BY
+          fr.report_date,
+          fr.company_name,
+          fr.room_type_name;
         """
 
     def action_cancel(self):

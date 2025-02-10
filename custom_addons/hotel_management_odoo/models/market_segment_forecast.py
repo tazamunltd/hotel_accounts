@@ -30,6 +30,41 @@ class MarketSegmentForecastReport(models.Model):
     expected_in_house_children = fields.Integer(string='Exp.Inhouse Children')
     expected_in_house_infants = fields.Integer(string='Exp.Inhouse Infants')
 
+    @api.model
+    def search_available_rooms(self, from_date, to_date):
+        """
+        Search for available rooms based on the provided criteria.
+        """
+        domain = [
+            ('report_date', '>=', from_date),
+            ('report_date', '<=', to_date),
+        ]
+
+        results = self.search(domain)
+
+        return results.read([
+            'report_date',
+            'company_id',
+            'room_type_name',
+            'market_segment',
+            'expected_arrivals',
+            'expected_arrivals_adults',
+            'expected_arrivals_children',
+            'expected_arrivals_infants',
+            'expected_departures',
+            'expected_departures_adults',
+            'expected_departures_children',
+            'expected_departures_infants',
+            'in_house', 
+            'in_house_adults',
+            'in_house_children',
+            'in_house_infants',
+            'expected_in_house',
+            'expected_in_house_adults',
+            'expected_in_house_children',
+            'expected_in_house_infants'
+        ])
+
     
 
 
@@ -50,257 +85,121 @@ class MarketSegmentForecastReport(models.Model):
         # Delete existing records
         self.search([]).unlink()
         _logger.info("Existing records deleted")
+        system_date = self.env.company.system_date.date()
+        from_date = system_date - datetime.timedelta(days=7)
+        to_date = system_date + datetime.timedelta(days=7)
+        get_company = self.env.company.id
+
+        
+#         query = """
+#         WITH parameters AS (
+#     SELECT
+#         COALESCE(
+#             (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
+#             CURRENT_DATE
+#         ) AS from_date,
+#         COALESCE(
+#             (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
+#             CURRENT_DATE
+#         ) AS to_date
+# ),
+
 
         query = """
-        WITH parameters AS (
+            WITH parameters AS (
     SELECT
         COALESCE(
-            (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
-            CURRENT_DATE
+          (SELECT MIN(rb.checkin_date::date) 
+           FROM room_booking rb 
+           WHERE rb.company_id = %s), 
+          CURRENT_DATE
         ) AS from_date,
         COALESCE(
-            (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
-            CURRENT_DATE
-        ) AS to_date
+          (SELECT MAX(rb.checkout_date::date) 
+           FROM room_booking rb 
+           WHERE rb.company_id = %s), 
+          CURRENT_DATE
+        ) AS to_date,
+        %s AS company_id
 ),
+
 date_series AS (
     SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
     FROM parameters p
 ),
 
-/* ----------------------------------------------------------------------------
-   1) LATEST LINE STATUS:
-   For each booking line and report date, determine the latest status as of that date.
-   ---------------------------------------------------------------------------- */
-latest_line_status AS (
-    SELECT DISTINCT ON (rbl.id, ds.report_date)
-           rbl.id AS booking_line_id,
-           ds.report_date,
-           rb.checkin_date::date AS checkin_date,
-           rb.checkout_date::date AS checkout_date,
-           hr.company_id,
-           rt.id AS room_type_id,
-           rbls.status AS final_status,
-           rbls.change_time,
-           rb.house_use AS house_use,
-           rb.complementary AS complementary,
-           rbl.adult_count,
-           rb.child_count,
-           rb.infant_count,
-           rb.nationality,
-           rb.meal_pattern,
-           COALESCE(ms.market_segment ->> 'en_US', 'Unknown') AS market_segment_name  
-    FROM room_booking_line rbl
-    CROSS JOIN date_series ds
-    JOIN room_booking rb    ON rb.id = rbl.booking_id
-    JOIN hotel_room hr      ON hr.id = rbl.room_id
-    JOIN room_type rt       ON rt.id = hr.room_type_name
-    LEFT JOIN room_booking_line_status rbls
-           ON rbls.booking_line_id = rbl.id
-           AND rbls.change_time::date <= ds.report_date
-    LEFT JOIN public.market_segment ms
-           ON ms.id = rb.market_segment-- Updated foreign key reference
-    ORDER BY rbl.id, ds.report_date, rbls.change_time DESC NULLS LAST
-),
-
-/* ----------------------------------------------------------------------------
-   2) IN-HOUSE:
-   Lines with status 'check_in' covering the report date.
-   ---------------------------------------------------------------------------- */
-in_house AS (
+base_data AS (
     SELECT
-        ds.report_date,
-        ms.market_segment_name,  -- Using source_of_business
-        rc.id AS company_id,
-        rt.id AS room_type_id,
-        COUNT(DISTINCT sub.booking_line_number) AS in_house_count,
-        SUM(sub.adult_count) AS in_house_adults,
-        SUM(sub.child_count) AS in_house_children,
-        SUM(sub.infant_count) AS in_house_infants,
-        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS in_house_total
-    FROM date_series ds
-    CROSS JOIN res_company rc
-    CROSS JOIN room_type rt
-    CROSS JOIN (
-        SELECT 
-            ms.id AS market_segment_id,
-            COALESCE(ms.market_segment ->> 'en_US', 'Unknown') AS market_segment_name
-        FROM public.market_segment ms
-    ) ms  -- Cross join with source_business
-    LEFT JOIN LATERAL (
-        SELECT DISTINCT ON (qry.booking_line_number)
-               qry.booking_line_number,
-               qry.adult_count,
-               qry.child_count,
-               qry.infant_count
-        FROM (
-            SELECT 
-                rbl.id AS booking_line_number,
-                rbl.adult_count,
-                rb.child_count,
-                rb.infant_count,
-                rbls.status,
-                rbls.change_time,
-                rb.company_id,
-                rbl.hotel_room_type AS room_type_id,
-                rb.market_segment,  -- Included source_of_business
-                rbl.checkin_date::date,
-                rbl.checkout_date::date
-            FROM room_booking_line rbl
-            JOIN room_booking rb    ON rb.id = rbl.booking_id
-            JOIN room_booking_line_status rbls
-                  ON rbls.booking_line_id = rbl.id
-        ) AS qry
-        WHERE qry.company_id     = rc.id
-          AND qry.room_type_id   = rt.id
-          AND qry.market_segment = ms.market_segment_id  -- Updated to use source_of_business
-          /* Lines that physically cover ds.report_date: [checkin_date, checkout_date) */
-          AND qry.checkin_date <= ds.report_date
-          AND qry.checkout_date > ds.report_date
-          /* Must have had status='check_in' as of or before ds.report_date */
-          AND qry.status = 'check_in'
-          AND qry.change_time::date <= ds.report_date
-        ORDER BY qry.booking_line_number, qry.change_time DESC
-    ) AS sub ON TRUE
-    GROUP BY 
-        ds.report_date,
-        ms.market_segment_name,  -- Grouped by source_of_business
-        rc.id,
-        rt.id
+        rb.id AS booking_id,
+        rb.company_id,
+        rb.partner_id AS customer_id,
+        rp.name AS customer_name,
+        rb.nationality AS nationality_id,
+        ms.market_segment AS market_segment,  
+        rb.checkin_date::date AS checkin_date,
+        rb.checkout_date::date AS checkout_date,
+        rbl.id AS booking_line_id,
+        rbl.room_id,
+        rbl.hotel_room_type AS room_type_id,
+        rbl.adult_count,
+        rb.child_count,
+        rb.infant_count,
+        rbls.status,
+        rbls.change_time,
+        rb.house_use,
+        rb.complementary
+    FROM room_booking rb
+    JOIN room_booking_line rbl ON rb.id = rbl.booking_id
+    LEFT JOIN room_booking_line_status rbls ON rbl.id = rbls.booking_line_id
+    LEFT JOIN res_partner rp ON rb.partner_id = rp.id
+    LEFT JOIN public.market_segment ms ON rb.market_segment = ms.id
 ),
 
-/* ----------------------------------------------------------------------------
-   3) EXPECTED ARRIVALS:
-   Lines that arrive on the report date with status 'confirmed' or 'block'.
-   ---------------------------------------------------------------------------- */
 expected_arrivals AS (
     SELECT
-        ds.report_date,
-        ms.market_segment_name,  -- Using source_of_business
-        rc.id AS company_id,
-        rt.id AS room_type_id,
-        COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count,
-        SUM(sub.adult_count) AS expected_arrivals_adults,
-        SUM(sub.child_count) AS expected_arrivals_children,
-        SUM(sub.infant_count) AS expected_arrivals_infants,
-        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS expected_arrivals_total
-    FROM date_series ds
-    CROSS JOIN res_company rc
-    CROSS JOIN room_type rt
-    CROSS JOIN (
-        SELECT 
-            ms.id AS market_segment_id,
-            COALESCE(ms.market_segment ->> 'en_US', 'Unknown') AS market_segment_name
-        FROM public.market_segment ms
-    ) ms
-    LEFT JOIN LATERAL (
-        SELECT DISTINCT ON (qry.booking_line_number)
-               qry.booking_line_number,
-               qry.adult_count,
-               qry.child_count,
-               qry.infant_count
-        FROM (
-            SELECT 
-                rbl.id AS booking_line_number,
-                rbl.adult_count,
-                rb.child_count,
-                rb.infant_count,
-                rbls.status,
-                rbls.change_time,
-                rb.company_id,
-                rbl.hotel_room_type AS room_type_id,
-                rb.market_segment,  -- Included source_of_business
-                rbl.checkin_date::date
-            FROM room_booking_line rbl
-            JOIN room_booking rb    ON rb.id = rbl.booking_id
-            JOIN room_booking_line_status rbls
-                  ON rbls.booking_line_id = rbl.id
-        ) AS qry
-        WHERE qry.company_id    = rc.id
-          AND qry.room_type_id  = rt.id
-          AND qry.market_segment = ms.market_segment_id  -- Updated to use source_of_business
-          /* Lines arriving on ds.report_date */
-          AND qry.checkin_date = ds.report_date
-          /* Must have status 'confirmed' or 'block' as of ds.report_date */
-          AND qry.status IN ('confirmed', 'block')
-          AND qry.change_time::date <= ds.report_date
-        ORDER BY qry.booking_line_number, qry.change_time DESC
-    ) AS sub ON TRUE
-    GROUP BY 
-        ds.report_date,
-        ms.market_segment_name, -- Grouped by source_of_business
-        rc.id,
-        rt.id
+        bd.checkin_date AS report_date,
+        bd.company_id,
+        bd.room_type_id,
+        bd.market_segment,
+        COUNT(DISTINCT bd.booking_line_id) AS expected_arrivals_count,
+        SUM(bd.adult_count) AS expected_arrivals_adults,
+        SUM(bd.child_count) AS expected_arrivals_children,
+        SUM(bd.infant_count) AS expected_arrivals_infants
+    FROM base_data bd
+    WHERE bd.status IN ('confirmed', 'block')
+    GROUP BY bd.checkin_date, bd.company_id, bd.room_type_id, bd.market_segment
 ),
 
-/* ----------------------------------------------------------------------------
-   4) EXPECTED DEPARTURES:
-   Lines that depart on the report date with status 'check_in'.
-   ---------------------------------------------------------------------------- */
 expected_departures AS (
     SELECT
-        ds.report_date,
-        ms.market_segment_name,  -- Using source_of_business
-        rc.id AS company_id,
-        rt.id AS room_type_id,
-        COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count,
-        SUM(sub.adult_count) AS expected_departures_adults,
-        SUM(sub.child_count) AS expected_departures_children,
-        SUM(sub.infant_count) AS expected_departures_infants,
-        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS expected_departures_total
-    FROM date_series ds
-    CROSS JOIN res_company rc
-    CROSS JOIN room_type rt
-    CROSS JOIN (
-        SELECT 
-            ms.id AS market_segment_id,
-            COALESCE(ms.market_segment ->> 'en_US', 'Unknown') AS market_segment_name
-        FROM public.market_segment ms
-    ) ms  -- Cross join with source_business
-    LEFT JOIN LATERAL (
-        SELECT DISTINCT ON (qry.booking_line_number)
-               qry.booking_line_number,
-               qry.adult_count,
-               qry.child_count,
-               qry.infant_count
-        FROM (
-            SELECT 
-                rbl.id AS booking_line_number,
-                rbl.adult_count,
-                rb.child_count,
-                rb.infant_count,
-                rbls.status,
-                rbls.change_time,
-                rb.company_id,
-                rbl.hotel_room_type AS room_type_id,
-                rb.market_segment,  -- Included source_of_business
-                rbl.checkout_date::date
-            FROM room_booking_line rbl
-            JOIN room_booking rb    ON rb.id = rbl.booking_id
-            JOIN room_booking_line_status rbls
-                  ON rbls.booking_line_id = rbl.id
-        ) AS qry
-        WHERE qry.company_id    = rc.id
-          AND qry.room_type_id  = rt.id
-          AND qry.market_segment = ms.market_segment_id  -- Updated to use source_of_business
-          /* Lines departing on ds.report_date */
-          AND qry.checkout_date = ds.report_date
-          /* Must have status 'check_in' as of ds.report_date */
-          AND qry.status = 'check_in'
-          AND qry.change_time::date <= ds.report_date
-        ORDER BY qry.booking_line_number, qry.change_time DESC
-    ) AS sub ON TRUE
-    GROUP BY 
-        ds.report_date,
-        ms.market_segment_name,  -- Grouped by source_of_business
-        rc.id,
-        rt.id
+        bd.checkout_date AS report_date,
+        bd.company_id,
+        bd.room_type_id,
+        bd.market_segment,
+        COUNT(DISTINCT bd.booking_line_id) AS expected_departures_count,
+        SUM(bd.adult_count) AS expected_departures_adults,
+        SUM(bd.child_count) AS expected_departures_children,
+        SUM(bd.infant_count) AS expected_departures_infants
+    FROM base_data bd
+    WHERE bd.status = 'check_in'
+    GROUP BY bd.checkout_date, bd.company_id, bd.room_type_id, bd.market_segment
 ),
 
-/* ----------------------------------------------------------------------------
-   5) INVENTORY:
-   Total room counts per company and room type.
-   ---------------------------------------------------------------------------- */
+in_house AS (
+    SELECT
+        bd.checkin_date AS report_date,
+        bd.company_id,
+        bd.room_type_id,
+        bd.market_segment,
+        COUNT(DISTINCT bd.booking_line_id) AS in_house_count,
+        SUM(bd.adult_count) AS in_house_adults,
+        SUM(bd.child_count) AS in_house_children,
+        SUM(bd.infant_count) AS in_house_infants
+    FROM base_data bd
+    WHERE bd.status = 'check_in'
+    GROUP BY bd.checkin_date, bd.company_id, bd.room_type_id, bd.market_segment
+),
+
 inventory AS (
     SELECT
         hi.company_id,
@@ -310,10 +209,6 @@ inventory AS (
     GROUP BY hi.company_id, hi.room_type
 ),
 
-/* ----------------------------------------------------------------------------
-   6) FINAL REPORT:
-   Combine all metrics into a comprehensive report.
-   ---------------------------------------------------------------------------- */
 final_report AS (
     SELECT
         ds.report_date,
@@ -321,66 +216,37 @@ final_report AS (
         rc.name AS company_name,
         rt.id AS room_type_id,
         COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
-        COALESCE(ms.market_segment_name, 'Unknown') AS market_segment_name,
-        
+        ms.id AS market_segment_id,
+        COALESCE(jsonb_extract_path_text(ms.market_segment::jsonb, 'en_US'),'N/A') AS market_segment,
         COALESCE(inv.total_room_count, 0) AS total_rooms,
-
         COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
         COALESCE(ea.expected_arrivals_adults, 0) AS expected_arrivals_adults,
         COALESCE(ea.expected_arrivals_children, 0) AS expected_arrivals_children,
         COALESCE(ea.expected_arrivals_infants, 0) AS expected_arrivals_infants,
-        COALESCE(ea.expected_arrivals_total, 0) AS expected_arrivals_total,
-
         COALESCE(ed.expected_departures_count, 0) AS expected_departures,
         COALESCE(ed.expected_departures_adults, 0) AS expected_departures_adults,
         COALESCE(ed.expected_departures_children, 0) AS expected_departures_children,
         COALESCE(ed.expected_departures_infants, 0) AS expected_departures_infants,
-        COALESCE(ed.expected_departures_total, 0) AS expected_departures_total,
-
         COALESCE(ih.in_house_count, 0) AS in_house,
         COALESCE(ih.in_house_adults, 0) AS in_house_adults,
         COALESCE(ih.in_house_children, 0) AS in_house_children,
-        COALESCE(ih.in_house_infants, 0) AS in_house_infants,
-        COALESCE(ih.in_house_total, 0) AS in_house_total
+        COALESCE(ih.in_house_infants, 0) AS in_house_infants
     FROM date_series ds
     CROSS JOIN res_company rc
     CROSS JOIN room_type rt
-    CROSS JOIN (
-        SELECT 
-            ms.id AS market_segment_id,
-            COALESCE(ms.market_segment ->> 'en_US', 'Unknown') AS market_segment_name
-        FROM public.market_segment ms
-    ) ms -- Changed from market_segment to source_of_business
-    LEFT JOIN inventory inv
-        ON inv.company_id = rc.id
-        AND inv.room_type_id = rt.id
-    LEFT JOIN expected_arrivals ea
-        ON ea.company_id = rc.id
-        AND ea.room_type_id = rt.id
-        AND ea.market_segment_name = ms.market_segment_name  -- Updated join condition
-        AND ea.report_date = ds.report_date
-    LEFT JOIN expected_departures ed
-        ON ed.company_id = rc.id
-        AND ed.room_type_id = rt.id
-        AND ed.market_segment_name = ms.market_segment_name  -- Updated join condition
-        AND ed.report_date = ds.report_date
-    LEFT JOIN in_house ih
-        ON ih.company_id = rc.id
-        AND ih.room_type_id = rt.id
-       AND ih.market_segment_name = ms.market_segment_name  -- Updated join condition
-        AND ih.report_date = ds.report_date
+    CROSS JOIN public.market_segment ms
+    LEFT JOIN inventory inv ON inv.company_id = rc.id AND inv.room_type_id = rt.id
+    LEFT JOIN expected_arrivals ea ON ea.company_id = rc.id AND ea.room_type_id = rt.id AND ea.market_segment = ms.market_segment AND ea.report_date = ds.report_date
+    LEFT JOIN expected_departures ed ON ed.company_id = rc.id AND ed.room_type_id = rt.id AND ed.market_segment = ms.market_segment AND ed.report_date = ds.report_date
+    LEFT JOIN in_house ih ON ih.company_id = rc.id AND ih.room_type_id = rt.id AND ih.market_segment = ms.market_segment AND ih.report_date = ds.report_date
 ),
 
-/* ----------------------------------------------------------------------------
-   7) EXPECTED IN-HOUSE:
-   Calculate expected_in_house as in_house + expected_arrivals - expected_departures.
-   ---------------------------------------------------------------------------- */
 expected_in_house AS (
     SELECT
         fr.report_date,
         fr.company_id,
         fr.room_type_id,
-        fr.market_segment_name,
+        fr.market_segment AS market_segment_name,
         GREATEST(
             (COALESCE(fr.in_house, 0) + COALESCE(fr.expected_arrivals, 0) - COALESCE(fr.expected_departures, 0)),
             0
@@ -404,54 +270,39 @@ SELECT
     fr.report_date,
     fr.company_id,
     fr.room_type_name,
-    fr.market_segment_name,  -- Included source_of_business in the output
+    fr.market_segment,
 
-    -- Expected Arrivals
-    fr.expected_arrivals,
-    fr.expected_arrivals_adults,
-    fr.expected_arrivals_children,
-    fr.expected_arrivals_infants,
+    SUM(fr.expected_arrivals) AS expected_arrivals,
+    SUM(fr.expected_arrivals_adults) AS expected_arrivals_adults,
+    SUM(fr.expected_arrivals_children) AS expected_arrivals_children,
+    SUM(fr.expected_arrivals_infants) AS expected_arrivals_infants,
 
-    -- Expected Departures
-    fr.expected_departures,
-    fr.expected_departures_adults,
-    fr.expected_departures_children,
-    fr.expected_departures_infants,
+    SUM(fr.expected_departures) AS expected_departures,
+    SUM(fr.expected_departures_adults) AS expected_departures_adults,
+    SUM(fr.expected_departures_children) AS expected_departures_children,
+    SUM(fr.expected_departures_infants) AS expected_departures_infants,
 
-    -- In-House
-    fr.in_house,
-    fr.in_house_adults,
-    fr.in_house_children,
-    fr.in_house_infants,
+    SUM(fr.in_house) AS in_house,
+    SUM(fr.in_house_adults) AS in_house_adults,
+    SUM(fr.in_house_children) AS in_house_children,
+    SUM(fr.in_house_infants) AS in_house_infants,
 
-    -- Expected In-House
-    ei.expected_in_house,
-    ei.expected_in_house_adults,
-    ei.expected_in_house_children,
-    ei.expected_in_house_infants
+    SUM(eih.expected_in_house) AS expected_in_house,
+    SUM(eih.expected_in_house_adults) AS expected_in_house_adults,
+    SUM(eih.expected_in_house_children) AS expected_in_house_children,
+    SUM(eih.expected_in_house_infants) AS expected_in_house_infants
 
+    
 FROM final_report fr
-
-JOIN expected_in_house ei
-    ON fr.report_date = ei.report_date
-    AND fr.company_id = ei.company_id
-    AND fr.room_type_id = ei.room_type_id
-    AND fr.market_segment_name= ei.market_segment_name
-WHERE (
-    -- Only keep source_of_business actually in use
-    COALESCE(fr.expected_arrivals, 0)
-    + COALESCE(fr.expected_departures, 0)
-    + COALESCE(fr.in_house, 0)
-) > 0
-ORDER BY
-    fr.report_date,
-    fr.company_id,
-    fr.room_type_name,
-    fr.market_segment_name;
-
+LEFT JOIN expected_in_house eih ON fr.report_date = eih.report_date AND fr.company_id = eih.company_id AND fr.room_type_id = eih.room_type_id AND fr.market_segment = eih.market_segment_name
+WHERE (COALESCE(fr.expected_arrivals, 0) + COALESCE(fr.expected_departures, 0) + COALESCE(fr.in_house, 0)) > 0
+GROUP BY fr.report_date, fr.company_id, fr.room_type_name, fr.market_segment
+ORDER BY fr.report_date, fr.company_id, fr.room_type_name, fr.market_segment;
     """
 
-        self.env.cr.execute(query)
+        # self.env.cr.execute(query)
+        # self.env.cr.execute(query, (from_date, to_date))
+        self.env.cr.execute(query, (get_company, get_company, get_company))
         results = self.env.cr.fetchall()
         _logger.info(f"Query executed successfully. {len(results)} results fetched")
 
@@ -512,7 +363,7 @@ ORDER BY
                     })
 
             except Exception as e:
-                _logger.error(f"Error processing record: {str(e)}, Data: {result}")
+                _logger.error(f"Error processing record Market Segment: {str(e)}, Data: {result}")
                 continue
 
         if records_to_create:

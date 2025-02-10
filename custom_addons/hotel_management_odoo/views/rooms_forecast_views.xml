@@ -72,7 +72,7 @@
         <field name="name">rooms.forecast.tree</field>
         <field name="model">rooms.forecast.report</field>
         <field name="arch" type="xml">
-            <tree string="Hotel Room Results">
+            <tree string="Hotel Room Results" js_class="hotel_room_result_filter">
                 <field name="report_date" optional="show"/>
                 <field name="room_type_name" optional="show"/>
                 <field name="total_rooms" optional="show" />

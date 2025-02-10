@@ -587,13 +587,26 @@ class RoomBookingLine(models.Model):
             'room_id': room_id,
         })
 
+    @api.constrains('room_id')
+    def _check_duplicate_room(self):
+        for rec in self:
+            if rec.booking_id:
+                existing_room_ids = rec.booking_id.room_line_ids.filtered(
+                    lambda line: line.id != rec.id).mapped('room_id.id')
+                _logger.info(f"VALIDATION: Existing Room IDs: {existing_room_ids}, Selected: {rec.room_id.id}")
+                if rec.room_id.id in existing_room_ids:
+                    raise ValidationError("This room is already assigned to the current booking. Please select a different room.")
+
     @api.onchange('room_id')
     def _onchange_room_id(self):
         """Update booking state based on room_id value and log changes."""
         # if not self.id:
         #     return
-        if not self.id or not self.room_id:
-            return
+        if self.booking_id:
+            existing_room_ids = self.booking_id.room_line_ids.filtered(lambda line: line.id != self.id).mapped('room_id.id')
+            _logger.info(f"EXISTING ROOM IDS {existing_room_ids}")
+            if self.room_id.id in existing_room_ids:
+                raise ValidationError("This room is already assigned to the current booking. Please select a different room.") 
         _logger.info(f"checking room booking line id value: {self.id}")
         if isinstance(self.id, NewId):
             id_str_room = str(self.id)
@@ -605,6 +618,8 @@ class RoomBookingLine(models.Model):
         else:
             current_id = self.id
         _logger.info(f"checking room booking line id value: {current_id} {self.checkin_date} {self.checkout_date}")
+        if not self.id or not self.room_id:
+            return
         if current_id is not None:
             # checkin_date = self.checkin_date
             checkin_date = self.booking_id.checkin_date
@@ -632,15 +647,11 @@ class RoomBookingLine(models.Model):
 
             if conflicting_bookings:
                 raise ValidationError("This room is already assigned to another booking. Please select a different room.")
-
+                return
         if self.booking_id:
-            existing_room_ids = self.booking_id.room_line_ids.filtered(
-                lambda line: line.id != self.id).mapped('room_id.id')
-            # existing_room_ids.write({'state':'block'})
-            # print("393", existing_room_ids)
+            existing_room_ids = self.booking_id.room_line_ids.filtered(lambda line: line.id != self.id).mapped('room_id.id')
             _logger.info(f"EXISTING ROOM IDS {existing_room_ids}")
             if self.room_id.id in existing_room_ids:
-                # Reset the field and raise a warning
                 raise ValidationError("This room is already assigned to the current booking. Please select a different room.")
 
             if self.room_id is None:

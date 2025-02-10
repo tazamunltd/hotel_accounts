@@ -5,13 +5,12 @@
         <field name="name">monthly.groups.charts.tree</field>
         <field name="model">monthly.groups.charts</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree js_class="hotel_room_result_filter">
                 <field name="report_date" optional="show"/>
                 <field name="room_type" optional="show"/>
                 <field name="company_id" optional="show"/>
                 <field name="group_booking" optional="show"/>
                 <field name="expected_inhouse" optional="show"/> 
-                
             </tree>
         </field>
     </record>

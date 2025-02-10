@@ -13,17 +13,13 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="startDate">From Date</label>
-                                            <input type="date" class="form-control" id="startDate"
-                                                   t-att-value="state.startDate" 
-                                                   t-on-change="(ev) => { state.startDate = ev.target.value; }"/>
+                                            <input type="date" class="form-control" id="startDate" t-att-value="state.startDate" t-on-change="(ev) => { state.startDate = ev.target.value; }"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="endDate">To Date</label>
-                                            <input type="date" class="form-control" id="endDate"
-                                                   t-att-value="state.endDate"
-                                                   t-on-change="(ev) => { state.endDate = ev.target.value; }"/>
+                                            <input type="date" class="form-control" id="endDate" t-att-value="state.endDate" t-on-change="(ev) => { state.endDate = ev.target.value; }"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 d-flex align-items-end">
@@ -147,7 +143,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Market Segment Chart -->
                         <div class="col-md-6 mb-4">
                             <div class="card">
@@ -159,7 +155,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Business Source Chart -->
                         <div class="col-md-6 mb-4">
                             <div class="card">
@@ -171,7 +167,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Expectations Chart -->
                         <div class="col-md-6 mb-4">
                             <div class="card">
@@ -183,6 +179,74 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Booking By Country</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                        <canvas id="countryChart"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Arrival vs Departure</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+<!--                                       <div id="arrivalDepartureChart" style="height: 300px; width: 100%;"></div>-->
+                                            <canvas id="arrivalDepartureChart"></canvas>
+<!--                                         <div id="arrivalDepartureChart" style="height: 300px; width: 100%;"></div>-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Room Type Distribution</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                            <canvas id="roomTypeDistribution"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    <div class="col-md-3 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Availability</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                            <canvas id="inventoryChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Sales Data</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                            <canvas id="salesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Expectations</h5>
+                                    <div class="chart-container" style="position: relative; height:300px; width:100%;">
+                                            <canvas id="forecastChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+
                     </div>
                 </t>
             </div>

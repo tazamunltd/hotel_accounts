@@ -73,7 +73,7 @@
                         class="btn btn-info border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px;">
                         <i class="fa fa-sign-in fa-2x mb-1 text-white"></i>
-                        <span class="text-white">Today's Check-In (<t
+                        <span class="text-white">Arrival (<t
                                 t-esc="dashboardData.today_checkin" />)</span>
                     </a>
                 </div>
@@ -84,7 +84,7 @@
                         class="btn border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px; background-color: #6f42c1;">
                         <i class="fa fa-sign-out fa-2x mb-1 text-white"></i>
-                        <span class="text-white fw-bold">Today's Check-Out (<t
+                        <span class="text-white fw-bold">Departure (<t
                                 t-esc="dashboardData.today_checkout" />)</span>
                     </a>
                 </div>

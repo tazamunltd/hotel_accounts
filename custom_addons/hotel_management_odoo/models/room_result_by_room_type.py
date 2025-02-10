@@ -1,3 +1,4 @@
+from datetime import timedelta
 from odoo import models, fields, api
 import logging
 import sys
@@ -28,9 +29,19 @@ class RoomResultByRoomType(models.Model):
     sort_order = fields.Integer(string='Sort Order', readonly=True)
 
     @api.model
+    def search_available_rooms(self, from_date, to_date):
+        domain = [
+            ('report_date', '>=', from_date),
+            ('report_date', '<=', to_date),
+        ]
+        results = self.search(domain)
+        return results.read([
+            'report_date', 'room_type', 'expected_inhouse', 'company_id'
+        ])
+
+    @api.model
     def action_generate_results(self):
         """Generate and update room results by client."""
-        print("line 34")
         try:
             # Call the run_process method to execute the query and process results
             self.run_process_by_room_type()
@@ -45,19 +56,31 @@ class RoomResultByRoomType(models.Model):
         # SQL Query (modified)
         self.env.cr.execute("DELETE FROM room_result_by_room_type")
         _logger.info("Existing records deleted")
-        print("line 47")
+        system_date = self.env.company.system_date.date()
+        from_date = system_date - timedelta(days=7)
+        to_date = system_date + timedelta(days=7)
+        get_company = self.env.company.id
         query = """
             
 WITH parameters AS (
     SELECT
         COALESCE(
-          (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
+          (SELECT MIN(rb.checkin_date::date) 
+           FROM room_booking rb 
+           WHERE rb.company_id = %s), 
           CURRENT_DATE
         ) AS from_date,
         COALESCE(
-          (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
+          (SELECT MAX(rb.checkout_date::date) 
+           FROM room_booking rb 
+           WHERE rb.company_id = %s), 
           CURRENT_DATE
-        ) AS to_date
+        ) AS to_date,
+        %s AS company_id
+),
+system_date_company AS (
+	select id as company_id 
+	, system_date::date	from res_company rc where  rc.id = (SELECT company_id FROM parameters)
 ),
 date_series AS (
     SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
@@ -103,6 +126,55 @@ latest_line_status AS (
    2) IN-HOUSE:
    Lines in final_status='check_in' with date in [checkin_date,checkout_date).
    ---------------------------------------------------------------------------- */
+
+yesterday_in_house AS (
+    SELECT
+        ds.report_date,
+        rc.id AS company_id,
+        rt.id AS room_type_id,
+        COUNT(DISTINCT sub.booking_line_number) AS in_house_count
+    FROM date_series ds
+    CROSS JOIN res_company rc
+    CROSS JOIN room_type   rt
+
+    LEFT JOIN LATERAL (
+        SELECT DISTINCT ON (qry.booking_line_number)
+               qry.booking_line_number
+        FROM (
+            SELECT 
+                rb.company_id,
+                rbl.hotel_room_type AS room_type_id,
+                rbl.checkin_date,
+                rbl.checkout_date,
+                rbl.id              AS booking_line_number,
+                rbls.status,
+                rbls.change_time
+            FROM room_booking rb
+            JOIN room_booking_line rbl
+                  ON rbl.booking_id = rb.id
+            JOIN room_booking_line_status rbls
+                  ON rbls.booking_line_id = rbl.id
+        ) AS qry
+        WHERE qry.company_id     = rc.id
+          AND qry.room_type_id   = rt.id
+
+          /* Lines that physically cover ds.report_date: [checkin_date, checkout_date) */
+          AND qry.checkin_date::date <= ds.report_date - interval '1 day'
+          AND qry.checkout_date::date >= ds.report_date - interval '1 day'
+
+          /* Must have had status='check_in' as of or before ds.report_date */
+          AND qry.status = 'check_in'
+          AND qry.change_time::date <= ds.report_date
+
+        ORDER BY qry.booking_line_number, qry.change_time DESC
+    ) AS sub ON TRUE
+
+    GROUP BY 
+        ds.report_date,
+        rc.id,
+        rt.id
+),
+
 in_house AS (
     SELECT
         ds.report_date,
@@ -399,16 +471,36 @@ final_report AS (
           - COALESCE(roh.rooms_on_hold_count, 0)
         ) AS available_rooms,
 
-        /* expected_in_house = in_house + arrivals - departures */
-        ( COALESCE(ih.in_house_count, 0)
+        /* expected_in_house = in_house + arrivals - departures 
+        GREATEST(0,( COALESCE(yh.in_house_count, 0)
           + COALESCE(ea.expected_arrivals_count, 0)
           - COALESCE(ed.expected_departures_count, 0)
-        ) AS expected_in_house
+        )) AS expected_in_house */
+
+        GREATEST(0, 
+      -- Use ih.in_house_count when system_date is today, otherwise use yh.in_house_count
+      COALESCE(
+          CASE 
+              WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+              ELSE yh.in_house_count 
+          END, 0
+      ) 
+      + COALESCE(ea.expected_arrivals_count, 0)
+      - LEAST(COALESCE(ed.expected_departures_count, 0), 
+              COALESCE(
+                  CASE 
+                      WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+                      ELSE yh.in_house_count 
+                  END, 0
+              )
+      )
+    ) AS expected_in_house
     FROM date_series ds
-    CROSS JOIN res_company rc
+    LEFT JOIN res_company rc ON rc.id = (SELECT company_id FROM parameters)
+    
     CROSS JOIN room_type rt
 
-    LEFT JOIN inventory           inv ON inv.company_id   = rc.id
+    INNER JOIN inventory           inv ON inv.company_id   = rc.id
                                     AND inv.room_type_id = rt.id
 
     LEFT JOIN out_of_order        ooo ON ooo.company_id   = rc.id
@@ -426,6 +518,10 @@ final_report AS (
     LEFT JOIN in_house            ih  ON ih.company_id    = rc.id
                                     AND ih.room_type_id   = rt.id
                                     AND ih.report_date    = ds.report_date
+    
+LEFT JOIN yesterday_in_house            yh  ON yh.company_id    = rc.id
+                                    AND yh.room_type_id   = rt.id
+                                    AND yh.report_date    = ds.report_date
 
     LEFT JOIN expected_arrivals   ea  ON ea.company_id    = rc.id
                                     AND ea.room_type_id   = rt.id
@@ -442,6 +538,8 @@ final_report AS (
     LEFT JOIN complementary_use_cte cc ON cc.company_id   = rc.id
                                     AND cc.room_type_id   = rt.id
                                     AND cc.report_date    = ds.report_date
+
+    LEFT JOIN system_date_company sdc on sdc.company_id = rc.id
 )
 
 /* ----------------------------------------------------------------------------
@@ -510,10 +608,11 @@ ORDER BY
   fr.room_type_name;
            
         """
-        self.env.cr.execute(query)
+        # self.env.cr.execute(query)
+        # self.env.cr.execute(query, (from_date, to_date))
+        self.env.cr.execute(query, (get_company, get_company, get_company))
         results = self.env.cr.fetchall()
         _logger.info(f"Query executed successfully. {len(results)} results fetched")
-        print('line 355 running room type')
 
         records_to_create = []
         # DEFAULT_COMPANY_ID = 1

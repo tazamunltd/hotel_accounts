@@ -96,6 +96,8 @@ export class OfflineSearchWidget extends Component {
             searchPerformed: false,
             searchError: null,
             isSearching: false,
+//             contacts: [],        // loaded from res.partner in fetchContacts()
+    contactId: null,     // the currently selected contact ID
 //            guestContact: "",
 //            guestGroup: "",
             // Other state properties
@@ -143,7 +145,7 @@ export class OfflineSearchWidget extends Component {
                 await this.fetchRoomTypes();
                 await this.updateSystemDate()
             }
-//            await this.fetchContacts();
+            await this.fetchContacts();
 //            await this.fetchGroups();
         });
         try {
@@ -1379,7 +1381,7 @@ export class OfflineSearchWidget extends Component {
                 [
                     this.state.checkInDate,
                     this.state.checkOutDate,
-                    0, // Search with 0 rooms to get all available types
+                    this.state.rooms, // Search with 0 rooms to get all available types this.state.rooms
                     this.state.hotel,
                     this.state.roomType
                 ]
@@ -1400,7 +1402,7 @@ export class OfflineSearchWidget extends Component {
                 // Initialize room types with actual free to sell
                 const processedRooms = roomTypes.map(room => {
                     const actualFree = room.min_free_to_sell - room.total_overbooking_rooms;
-                    console.log(`${room.room_type_name.en_US}: actual_free=${actualFree} (min_free=${room.min_free_to_sell}, overbooking=${room.total_overbooking_rooms})`);
+                    console.log(`${room.room_type_name}: actual_free=${actualFree} (min_free=${room.min_free_to_sell}, overbooking=${room.total_overbooking_rooms})`);
                     return {
                         ...room,
                         freeToBook: room.min_free_to_sell,
@@ -1425,7 +1427,7 @@ export class OfflineSearchWidget extends Component {
                         const allocatedRooms = Math.min(remainingRoomsToSearch, room.actualFreeToSell);
                         room.searched_rooms = allocatedRooms;
                         remainingRoomsToSearch -= allocatedRooms;
-                        console.log(`Phase 1: Allocated ${allocatedRooms} rooms to ${room.room_type_name.en_US}`);
+                        console.log(`Phase 1: Allocated ${allocatedRooms} rooms to ${room.room_type_name}`);
                     }
                 }
 
@@ -1446,7 +1448,7 @@ export class OfflineSearchWidget extends Component {
                             room.searched_rooms += additionalRooms;
                             room.overbooked = additionalRooms;
                             remainingRoomsToSearch -= additionalRooms;
-                            console.log(`Phase 2: Allocated ${additionalRooms} overbooking rooms to ${room.room_type_name.en_US}`);
+                            console.log(`Phase 2: Allocated ${additionalRooms} overbooking rooms to ${room.room_type_name}`);
                         }
                     }
                 }
@@ -1638,12 +1640,12 @@ export class OfflineSearchWidget extends Component {
     async createBookingAndLoad(roomTypeId) {
         try {
             await this.createBooking(roomTypeId);
-            await this.loadSearchResults();
+            //await this.loadSearchResults();
             // Force UI update
             this.render();
-            this.notification.add('Search results updated. \n' + this.state.searchResults , {
-                type: 'success'
-            });
+//            this.notification.add('Search results updated. \n' + this.state.searchResults , {
+//                type: 'success'
+//            });
         } catch (error) {
             console.error('Error in createBookingAndLoad:', error);
             this.notification.add(`Failed to create booking and load results: ${error.message}`, {
@@ -1660,12 +1662,22 @@ export class OfflineSearchWidget extends Component {
     async createBooking(roomTypeId) {
         try {
             // Save current search results before creating booking
-            this.saveSearchResults();
+//            this.saveSearchResults();
 
             // Validate required fields
             if (!this.state.hotel) {
                 throw new Error('Hotel is required');
             }
+
+             if (!this.state.contactId) {
+                this.notification.add(
+                    "Please select a valid Contact (Partner) before creating a booking.",
+                    { type: "danger", sticky: true }
+                );
+                return;
+            }
+
+
 
             // Store current search results
             const originalSearchResults = [...this.state.searchResults];
@@ -1693,6 +1705,8 @@ export class OfflineSearchWidget extends Component {
                 child_count: this.state.children,
                 infant_count: this.state.infants,
                 hotel_room_type: roomTypeId,
+                is_offline_search: false,
+                partner_id: this.state.contactId,
             };
 
             // Check if we're in a new booking context
@@ -1754,15 +1768,15 @@ export class OfflineSearchWidget extends Component {
             }
 
             try {
-                // Remove the specific room type from the temporary results
-                const updatedSearchResults = originalSearchResults.filter(
-                    result => result.room_type_id !== roomTypeId
-                );
-                // Repopulate searchResults with updated results
-                this.state.searchResults = updatedSearchResults;
-
-                // Save the updated search results
-                this.saveSearchResults();
+//                // Remove the specific room type from the temporary results
+//                const updatedSearchResults = originalSearchResults.filter(
+//                    result => result.room_type_id !== roomTypeId
+//                );
+//                // Repopulate searchResults with updated results
+//                this.state.searchResults = updatedSearchResults;
+//
+//                // Save the updated search results
+//                this.saveSearchResults();
 
                 // Force UI update
                 this.render();
@@ -1904,6 +1918,17 @@ export class OfflineSearchWidget extends Component {
         this.state.hotel = null;
         this.state.noOfNights = 0;
     }
+
+    /**
+     * Handle user changing the Contact dropdown
+     * @param {Event} ev
+     */
+    onContactChange(ev) {
+        const selectedId = parseInt(ev.target.value) || null;
+        this.state.contactId = selectedId;
+        console.log("Selected contactId:", this.state.contactId);
+    }
+
 }
 
 // Register the widget

@@ -30,6 +30,40 @@ class SourceOfBuisnessForecast(models.Model):
     expected_in_house_children = fields.Integer(string='Exp.Inhouse Children')
     expected_in_house_infants = fields.Integer(string='Exp.Inhouse Infants')
     
+    @api.model
+    def search_available_rooms(self, from_date, to_date):
+        """
+        Search for available rooms based on the provided criteria.
+        """
+        domain = [
+            ('report_date', '>=', from_date),
+            ('report_date', '<=', to_date),
+        ]
+
+        results = self.search(domain)
+
+        return results.read([
+            'report_date',
+            'company_id',
+            'room_type_name',
+            'source_of_business',
+            'expected_arrivals',
+            'expected_arrivals_adults',
+            'expected_arrivals_children',
+            'expected_arrivals_infants',
+            'expected_departures',
+            'expected_departures_adults',
+            'expected_departures_children',
+            'expected_departures_infants',
+            'in_house',
+            'in_house_adults',
+            'in_house_children',
+            'in_house_infants',
+            'expected_in_house',
+            'expected_in_house_adults',
+            'expected_in_house_children',
+            'expected_in_house_infants'
+        ])
 
 
     @api.model
@@ -42,6 +76,19 @@ class SourceOfBuisnessForecast(models.Model):
             _logger.error(f"Error generating booking results: {str(e)}")
             raise ValueError(f"Error generating booking results: {str(e)}")
 
+#             query = """
+#         WITH parameters AS (
+#     SELECT
+#         COALESCE(
+#             (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
+#             CURRENT_DATE
+#         ) AS from_date,
+#         COALESCE(
+#             (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
+#             CURRENT_DATE
+#         ) AS to_date
+# ),
+
     def run_process_by_source_of_buisness_forecast(self):
         """Execute the SQL query and process the results."""
         _logger.info("Started run_process_by_source_of_buisness_forecast")
@@ -50,388 +97,195 @@ class SourceOfBuisnessForecast(models.Model):
         self.search([]).unlink()
         _logger.info("Existing records deleted")
 
+        system_date = self.env.company.system_date.date()
+        from_date = system_date - datetime.timedelta(days=7)
+        to_date = system_date + datetime.timedelta(days=7)
+        get_company = self.env.company.id
+
+
         query = """
-        WITH parameters AS (
+WITH parameters AS (
     SELECT
         COALESCE(
-            (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
-            CURRENT_DATE
+          (SELECT MIN(rb.checkin_date::date) 
+           FROM room_booking rb 
+           WHERE rb.company_id = %s), 
+          CURRENT_DATE
         ) AS from_date,
         COALESCE(
-            (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
-            CURRENT_DATE
-        ) AS to_date
+          (SELECT MAX(rb.checkout_date::date) 
+           FROM room_booking rb 
+           WHERE rb.company_id = %s), 
+          CURRENT_DATE
+        ) AS to_date,
+        %s AS company_id
 ),
 date_series AS (
     SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
     FROM parameters p
 ),
-
-/* ----------------------------------------------------------------------------
-   1) LATEST LINE STATUS:
-   For each booking line and report date, determine the latest status as of that date.
-   ---------------------------------------------------------------------------- */
-latest_line_status AS (
-    SELECT DISTINCT ON (rbl.id, ds.report_date)
-           rbl.id AS booking_line_id,
-           ds.report_date,
-           rb.checkin_date::date AS checkin_date,
-           rb.checkout_date::date AS checkout_date,
-           hr.company_id,
-           rt.id AS room_type_id,
-           rbls.status AS final_status,
-           rbls.change_time,
-           rb.house_use AS house_use,
-           rb.complementary AS complementary,
-           rbl.adult_count,
-           rb.child_count,
-           rb.infant_count,
-           rb.nationality,
-           rb.meal_pattern,
-           sb.source ->> 'en_US' AS source_of_business  -- Extracted source_of_business
-    FROM room_booking_line rbl
-    CROSS JOIN date_series ds
-    JOIN room_booking rb    ON rb.id = rbl.booking_id
-    JOIN hotel_room hr      ON hr.id = rbl.room_id
-    JOIN room_type rt       ON rt.id = hr.room_type_name
-    LEFT JOIN room_booking_line_status rbls
-           ON rbls.booking_line_id = rbl.id
-           AND rbls.change_time::date <= ds.report_date
-    LEFT JOIN public.source_business sb  -- Joined with source_business
-           ON sb.id = rb.source_of_business  -- Updated foreign key reference
-    ORDER BY rbl.id, ds.report_date, rbls.change_time DESC NULLS LAST
+base_data AS (
+    SELECT
+        rb.id AS booking_id,
+        rb.company_id,
+        rb.partner_id AS customer_id,
+        rp.name AS customer_name,
+        rb.nationality AS nationality_id,
+        sb.source ->> 'en_US' AS source_of_business,  -- Extracted source_of_business  
+        rb.checkin_date::date AS checkin_date,
+        rb.checkout_date::date AS checkout_date,
+        rbl.id AS booking_line_id,
+        rbl.room_id,
+        rbl.hotel_room_type AS room_type_id,
+        rbl.adult_count,
+        rb.child_count,
+        rb.infant_count,
+        rbls.status,
+        rbls.change_time,
+        rb.house_use,
+        rb.complementary
+    FROM room_booking rb
+    JOIN room_booking_line rbl ON rb.id = rbl.booking_id
+    LEFT JOIN room_booking_line_status rbls ON rbl.id = rbls.booking_line_id
+    LEFT JOIN res_partner rp ON rb.partner_id = rp.id
+	LEFT JOIN public.source_business sb ON sb.id = rb.source_of_business  -- Joined with source_business
 ),
-
-/* ----------------------------------------------------------------------------
-   2) IN-HOUSE:
-   Lines with status 'check_in' covering the report date.
-   ---------------------------------------------------------------------------- */
 in_house AS (
     SELECT
-        ds.report_date,
-        sb.source ->> 'en_US' AS source_of_business,  -- Using source_of_business
-        rc.id AS company_id,
-        rt.id AS room_type_id,
-        COUNT(DISTINCT sub.booking_line_number) AS in_house_count,
-        SUM(sub.adult_count) AS in_house_adults,
-        SUM(sub.child_count) AS in_house_children,
-        SUM(sub.infant_count) AS in_house_infants,
-        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS in_house_total
-    FROM date_series ds
-    CROSS JOIN res_company rc
-    CROSS JOIN room_type rt
-    CROSS JOIN public.source_business sb  -- Cross join with source_business
-    LEFT JOIN LATERAL (
-        SELECT DISTINCT ON (qry.booking_line_number)
-               qry.booking_line_number,
-               qry.adult_count,
-               qry.child_count,
-               qry.infant_count
-        FROM (
-            SELECT 
-                rbl.id AS booking_line_number,
-                rbl.adult_count,
-                rb.child_count,
-                rb.infant_count,
-                rbls.status,
-                rbls.change_time,
-                rb.company_id,
-                rbl.hotel_room_type AS room_type_id,
-                rb.source_of_business,  -- Included source_of_business
-                rbl.checkin_date::date,
-                rbl.checkout_date::date
-            FROM room_booking_line rbl
-            JOIN room_booking rb    ON rb.id = rbl.booking_id
-            JOIN room_booking_line_status rbls
-                  ON rbls.booking_line_id = rbl.id
-        ) AS qry
-        WHERE qry.company_id     = rc.id
-          AND qry.room_type_id   = rt.id
-          AND qry.source_of_business = sb.id  -- Updated to use source_of_business
-          /* Lines that physically cover ds.report_date: [checkin_date, checkout_date) */
-          AND qry.checkin_date <= ds.report_date
-          AND qry.checkout_date > ds.report_date
-          /* Must have had status='check_in' as of or before ds.report_date */
-          AND qry.status = 'check_in'
-          AND qry.change_time::date <= ds.report_date
-        ORDER BY qry.booking_line_number, qry.change_time DESC
-    ) AS sub ON TRUE
-    GROUP BY 
-        ds.report_date,
-        sb.source,  -- Grouped by source_of_business
-        rc.id,
-        rt.id
+        bd.checkin_date AS report_date,
+        bd.company_id,
+        bd.room_type_id,
+        bd.nationality_id,
+        bd.source_of_business,
+        COUNT(DISTINCT bd.booking_line_id) AS in_house_count,
+        SUM(bd.adult_count) AS in_house_adults,
+        SUM(bd.child_count) AS in_house_children,
+        SUM(bd.infant_count) AS in_house_infants
+    FROM base_data bd
+    WHERE bd.status = 'check_in'
+    GROUP BY bd.checkin_date, bd.company_id, bd.room_type_id, bd.nationality_id, bd.source_of_business
 ),
-
-/* ----------------------------------------------------------------------------
-   3) EXPECTED ARRIVALS:
-   Lines that arrive on the report date with status 'confirmed' or 'block'.
-   ---------------------------------------------------------------------------- */
+yesterday_in_house AS (
+    SELECT
+        bd.checkin_date AS report_date,
+        bd.company_id,
+        bd.room_type_id,
+        bd.nationality_id,
+        bd.source_of_business,
+        COUNT(DISTINCT bd.booking_line_id) AS yesterday_in_house_count
+    FROM base_data bd
+    WHERE bd.status = 'check_in' AND bd.checkin_date = CURRENT_DATE - INTERVAL '1 day'
+    GROUP BY bd.checkin_date, bd.company_id, bd.room_type_id, bd.nationality_id, bd.source_of_business
+),
 expected_arrivals AS (
     SELECT
-        ds.report_date,
-        sb.source ->> 'en_US' AS source_of_business,  -- Using source_of_business
-        rc.id AS company_id,
-        rt.id AS room_type_id,
-        COUNT(DISTINCT sub.booking_line_number) AS expected_arrivals_count,
-        SUM(sub.adult_count) AS expected_arrivals_adults,
-        SUM(sub.child_count) AS expected_arrivals_children,
-        SUM(sub.infant_count) AS expected_arrivals_infants,
-        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS expected_arrivals_total
-    FROM date_series ds
-    CROSS JOIN res_company rc
-    CROSS JOIN room_type rt
-    CROSS JOIN public.source_business sb  -- Cross join with source_business
-    LEFT JOIN LATERAL (
-        SELECT DISTINCT ON (qry.booking_line_number)
-               qry.booking_line_number,
-               qry.adult_count,
-               qry.child_count,
-               qry.infant_count
-        FROM (
-            SELECT 
-                rbl.id AS booking_line_number,
-                rbl.adult_count,
-                rb.child_count,
-                rb.infant_count,
-                rbls.status,
-                rbls.change_time,
-                rb.company_id,
-                rbl.hotel_room_type AS room_type_id,
-                rb.source_of_business,  -- Included source_of_business
-                rbl.checkin_date::date
-            FROM room_booking_line rbl
-            JOIN room_booking rb    ON rb.id = rbl.booking_id
-            JOIN room_booking_line_status rbls
-                  ON rbls.booking_line_id = rbl.id
-        ) AS qry
-        WHERE qry.company_id    = rc.id
-          AND qry.room_type_id  = rt.id
-          AND qry.source_of_business = sb.id  -- Updated to use source_of_business
-          /* Lines arriving on ds.report_date */
-          AND qry.checkin_date = ds.report_date
-          /* Must have status 'confirmed' or 'block' as of ds.report_date */
-          AND qry.status IN ('confirmed', 'block')
-          AND qry.change_time::date <= ds.report_date
-        ORDER BY qry.booking_line_number, qry.change_time DESC
-    ) AS sub ON TRUE
-    GROUP BY 
-        ds.report_date,
-        sb.source,  -- Grouped by source_of_business
-        rc.id,
-        rt.id
+        bd.checkin_date AS report_date,
+        bd.company_id,
+        bd.room_type_id,
+        bd.nationality_id,
+        bd.source_of_business,
+        COUNT(DISTINCT bd.booking_line_id) AS expected_arrivals_count,
+        SUM(bd.adult_count) AS expected_arrivals_adults,
+        SUM(bd.child_count) AS expected_arrivals_children,
+        SUM(bd.infant_count) AS expected_arrivals_infants
+    FROM base_data bd
+    WHERE bd.status IN ('confirmed', 'block')
+    GROUP BY bd.checkin_date, bd.company_id, bd.room_type_id, bd.nationality_id, bd.source_of_business
 ),
-
-/* ----------------------------------------------------------------------------
-   4) EXPECTED DEPARTURES:
-   Lines that depart on the report date with status 'check_in'.
-   ---------------------------------------------------------------------------- */
 expected_departures AS (
     SELECT
-        ds.report_date,
-        sb.source ->> 'en_US' AS source_of_business,  -- Using source_of_business
-        rc.id AS company_id,
-        rt.id AS room_type_id,
-        COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count,
-        SUM(sub.adult_count) AS expected_departures_adults,
-        SUM(sub.child_count) AS expected_departures_children,
-        SUM(sub.infant_count) AS expected_departures_infants,
-        SUM(sub.adult_count + sub.child_count + sub.infant_count) AS expected_departures_total
-    FROM date_series ds
-    CROSS JOIN res_company rc
-    CROSS JOIN room_type rt
-    CROSS JOIN public.source_business sb  -- Cross join with source_business
-    LEFT JOIN LATERAL (
-        SELECT DISTINCT ON (qry.booking_line_number)
-               qry.booking_line_number,
-               qry.adult_count,
-               qry.child_count,
-               qry.infant_count
-        FROM (
-            SELECT 
-                rbl.id AS booking_line_number,
-                rbl.adult_count,
-                rb.child_count,
-                rb.infant_count,
-                rbls.status,
-                rbls.change_time,
-                rb.company_id,
-                rbl.hotel_room_type AS room_type_id,
-                rb.source_of_business,  -- Included source_of_business
-                rbl.checkout_date::date
-            FROM room_booking_line rbl
-            JOIN room_booking rb    ON rb.id = rbl.booking_id
-            JOIN room_booking_line_status rbls
-                  ON rbls.booking_line_id = rbl.id
-        ) AS qry
-        WHERE qry.company_id    = rc.id
-          AND qry.room_type_id  = rt.id
-          AND qry.source_of_business = sb.id  -- Updated to use source_of_business
-          /* Lines departing on ds.report_date */
-          AND qry.checkout_date = ds.report_date
-          /* Must have status 'check_in' as of ds.report_date */
-          AND qry.status = 'check_in'
-          AND qry.change_time::date <= ds.report_date
-        ORDER BY qry.booking_line_number, qry.change_time DESC
-    ) AS sub ON TRUE
-    GROUP BY 
-        ds.report_date,
-        sb.source,  -- Grouped by source_of_business
-        rc.id,
-        rt.id
+        bd.checkout_date AS report_date,
+        bd.company_id,
+        bd.room_type_id,
+        bd.nationality_id,
+        bd.source_of_business,
+        COUNT(DISTINCT bd.booking_line_id) AS expected_departures_count,
+        SUM(bd.adult_count) AS expected_departures_adults,
+        SUM(bd.child_count) AS expected_departures_children,
+        SUM(bd.infant_count) AS expected_departures_infants
+    FROM base_data bd
+    WHERE bd.status = 'check_in'
+    GROUP BY bd.checkout_date, bd.company_id, bd.room_type_id, bd.nationality_id, bd.source_of_business
 ),
-
-/* ----------------------------------------------------------------------------
-   5) INVENTORY:
-   Total room counts per company and room type.
-   ---------------------------------------------------------------------------- */
-inventory AS (
-    SELECT
-        hi.company_id,
-        hi.room_type AS room_type_id,
-        SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count
-    FROM hotel_inventory hi
-    GROUP BY hi.company_id, hi.room_type
-),
-
-/* ----------------------------------------------------------------------------
-   6) FINAL REPORT:
-   Combine all metrics into a comprehensive report.
-   ---------------------------------------------------------------------------- */
 final_report AS (
     SELECT
         ds.report_date,
-        rc.id AS company_id,
-        rc.name AS company_name,
-        rt.id AS room_type_id,
-        COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
-        COALESCE(jsonb_extract_path_text(sb.source::jsonb, 'en_US'),'N/A') AS source_of_business,  -- Extracted source_of_business
-        
-        COALESCE(inv.total_room_count, 0) AS total_rooms,
-
-        COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
+        bd.company_id,
+        bd.room_type_id,
+        bd.nationality_id,
+        bd.source_of_business,
+        COALESCE(inh.in_house_count, 0) AS in_house_count,
+        COALESCE(inh.in_house_adults, 0) AS in_house_adults,
+        COALESCE(inh.in_house_children, 0) AS in_house_children,
+        COALESCE(inh.in_house_infants, 0) AS in_house_infants,
+        COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals_count,
         COALESCE(ea.expected_arrivals_adults, 0) AS expected_arrivals_adults,
         COALESCE(ea.expected_arrivals_children, 0) AS expected_arrivals_children,
         COALESCE(ea.expected_arrivals_infants, 0) AS expected_arrivals_infants,
-        COALESCE(ea.expected_arrivals_total, 0) AS expected_arrivals_total,
-
-        COALESCE(ed.expected_departures_count, 0) AS expected_departures,
+        COALESCE(ed.expected_departures_count, 0) AS expected_departures_count,
         COALESCE(ed.expected_departures_adults, 0) AS expected_departures_adults,
         COALESCE(ed.expected_departures_children, 0) AS expected_departures_children,
         COALESCE(ed.expected_departures_infants, 0) AS expected_departures_infants,
-        COALESCE(ed.expected_departures_total, 0) AS expected_departures_total,
-
-        COALESCE(ih.in_house_count, 0) AS in_house,
-        COALESCE(ih.in_house_adults, 0) AS in_house_adults,
-        COALESCE(ih.in_house_children, 0) AS in_house_children,
-        COALESCE(ih.in_house_infants, 0) AS in_house_infants,
-        COALESCE(ih.in_house_total, 0) AS in_house_total
-    FROM date_series ds
-    CROSS JOIN res_company rc
-    CROSS JOIN room_type rt
-    CROSS JOIN public.source_business sb  -- Changed from market_segment to source_of_business
-    LEFT JOIN inventory inv
-        ON inv.company_id = rc.id
-        AND inv.room_type_id = rt.id
-    LEFT JOIN expected_arrivals ea
-        ON ea.company_id = rc.id
-        AND ea.room_type_id = rt.id
-        AND ea.source_of_business = sb.source ->> 'en_US'  -- Updated join condition
-        AND ea.report_date = ds.report_date
-    LEFT JOIN expected_departures ed
-        ON ed.company_id = rc.id
-        AND ed.room_type_id = rt.id
-        AND ed.source_of_business = sb.source ->> 'en_US'  -- Updated join condition
-        AND ed.report_date = ds.report_date
-    LEFT JOIN in_house ih
-        ON ih.company_id = rc.id
-        AND ih.room_type_id = rt.id
-        AND ih.source_of_business = sb.source ->> 'en_US'  -- Updated join condition
-        AND ih.report_date = ds.report_date
-),
-
-/* ----------------------------------------------------------------------------
-   7) EXPECTED IN-HOUSE:
-   Calculate expected_in_house as in_house + expected_arrivals - expected_departures.
-   ---------------------------------------------------------------------------- */
-expected_in_house AS (
-    SELECT
-        fr.report_date,
-        fr.company_id,
-        fr.room_type_id,
-        fr.source_of_business,
         GREATEST(
-            (COALESCE(fr.in_house, 0) + COALESCE(fr.expected_arrivals, 0) - COALESCE(fr.expected_departures, 0)),
+            COALESCE(inh.in_house_count, 0) + COALESCE(ea.expected_arrivals_count, 0) - COALESCE(ed.expected_departures_count, 0),
             0
         ) AS expected_in_house,
         GREATEST(
-            (COALESCE(fr.in_house_adults, 0) + COALESCE(fr.expected_arrivals_adults, 0) - COALESCE(fr.expected_departures_adults, 0)),
+            COALESCE(inh.in_house_adults, 0) + COALESCE(ea.expected_arrivals_adults, 0) - COALESCE(ed.expected_departures_adults, 0),
             0
         ) AS expected_in_house_adults,
         GREATEST(
-            (COALESCE(fr.in_house_children, 0) + COALESCE(fr.expected_arrivals_children, 0) - COALESCE(fr.expected_departures_children, 0)),
+            COALESCE(inh.in_house_children, 0) + COALESCE(ea.expected_arrivals_children, 0) - COALESCE(ed.expected_departures_children, 0),
             0
         ) AS expected_in_house_children,
         GREATEST(
-            (COALESCE(fr.in_house_infants, 0) + COALESCE(fr.expected_arrivals_infants, 0) - COALESCE(fr.expected_departures_infants, 0)),
+            COALESCE(inh.in_house_infants, 0) + COALESCE(ea.expected_arrivals_infants, 0) - COALESCE(ed.expected_departures_infants, 0),
             0
         ) AS expected_in_house_infants
-    FROM final_report fr
+    FROM date_series ds
+    JOIN base_data bd ON ds.report_date BETWEEN bd.checkin_date AND bd.checkout_date
+    LEFT JOIN in_house inh ON ds.report_date = inh.report_date AND bd.company_id = inh.company_id AND bd.room_type_id = inh.room_type_id AND bd.nationality_id = inh.nationality_id AND bd.source_of_business = inh.source_of_business
+    LEFT JOIN yesterday_in_house yih ON ds.report_date = yih.report_date AND bd.company_id = yih.company_id AND bd.room_type_id = yih.room_type_id AND bd.nationality_id = yih.nationality_id AND bd.source_of_business = yih.source_of_business
+    LEFT JOIN expected_arrivals ea ON ds.report_date = ea.report_date AND bd.company_id = ea.company_id AND bd.room_type_id = ea.room_type_id AND bd.nationality_id = ea.nationality_id AND bd.source_of_business = ea.source_of_business
+    LEFT JOIN expected_departures ed ON ds.report_date = ed.report_date AND bd.company_id = ed.company_id AND bd.room_type_id = ed.room_type_id AND bd.nationality_id = ed.nationality_id AND bd.source_of_business = ed.source_of_business
 )
-
 SELECT
     fr.report_date,
     fr.company_id,
-    fr.room_type_name,
-    fr.source_of_business,  -- Included source_of_business in the output
-
-    -- Expected Arrivals
-    fr.expected_arrivals,
-    fr.expected_arrivals_adults,
-    fr.expected_arrivals_children,
-    fr.expected_arrivals_infants,
-
-    -- Expected Departures
-    fr.expected_departures,
-    fr.expected_departures_adults,
-    fr.expected_departures_children,
-    fr.expected_departures_infants,
-
-    -- In-House
-    fr.in_house,
+    COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
+    fr.source_of_business,
+    fr.expected_in_house,
+    fr.expected_in_house_adults,
+    fr.expected_in_house_children,
+    fr.expected_in_house_infants,
+    fr.in_house_count,
     fr.in_house_adults,
     fr.in_house_children,
     fr.in_house_infants,
-
-    -- Expected In-House
-    ei.expected_in_house,
-    ei.expected_in_house_adults,
-    ei.expected_in_house_children,
-    ei.expected_in_house_infants
-
+    fr.expected_arrivals_count,
+    fr.expected_arrivals_adults,
+    fr.expected_arrivals_children,
+    fr.expected_arrivals_infants,
+    fr.expected_departures_count,
+    fr.expected_departures_adults,
+    fr.expected_departures_children,
+    fr.expected_departures_infants
 FROM final_report fr
-
-JOIN expected_in_house ei
-    ON fr.report_date = ei.report_date
-    AND fr.company_id = ei.company_id
-    AND fr.room_type_id = ei.room_type_id
-    AND fr.source_of_business = ei.source_of_business
-WHERE (
-    -- Only keep source_of_business actually in use
-    COALESCE(fr.expected_arrivals, 0)
-    + COALESCE(fr.expected_departures, 0)
-    + COALESCE(fr.in_house, 0)
-) > 0
+JOIN res_company rc ON fr.company_id = rc.id
+JOIN room_type rt ON fr.room_type_id = rt.id
+LEFT JOIN res_country rc_country ON rc_country.id = fr.nationality_id
+LEFT JOIN country_region_res_country_rel crrc ON rc_country.id = crrc.res_country_id
+LEFT JOIN country_region cr ON crrc.country_region_id = cr.id
+GROUP BY fr.source_of_business, fr.report_date, fr.company_id, rc.name, fr.room_type_id, rt.room_type, fr.expected_in_house, fr.expected_in_house_adults, fr.expected_in_house_children, fr.expected_in_house_infants, fr.in_house_count, fr.in_house_adults, fr.in_house_children, fr.in_house_infants, fr.expected_arrivals_count, fr.expected_arrivals_adults, fr.expected_arrivals_children, fr.expected_arrivals_infants, fr.expected_departures_count, fr.expected_departures_adults, fr.expected_departures_children, fr.expected_departures_infants
 ORDER BY
     fr.report_date,
-    fr.company_id,
-    fr.room_type_name,
-    fr.source_of_business;
-
-
+    rc.name,
+    rt.room_type;
         """
 
-        self.env.cr.execute(query)
+        # self.env.cr.execute(query)
+        # self.env.cr.execute(query, (from_date, to_date))
+        self.env.cr.execute(query, (get_company, get_company, get_company))
         results = self.env.cr.fetchall()
         _logger.info(f"Query executed successfully. {len(results)} results fetched")
 
@@ -492,7 +346,7 @@ ORDER BY
                     })
 
             except Exception as e:
-                _logger.error(f"Error processing record: {str(e)}, Data: {result}")
+                _logger.error(f"Error processing record Source of Business Forecast: {str(e)}, Data: {result}")
                 continue
 
         if records_to_create:

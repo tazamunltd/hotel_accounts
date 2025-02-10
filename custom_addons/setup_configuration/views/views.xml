@@ -962,14 +962,14 @@
                                                 <field name="to_date"
                                                     placeholder="Select End Date" />
                                             </div>
-                                            <div class="form-group mb-1">
+                                            <!-- <div class="form-group mb-1">
                                                 <label for="posting_item" class="form-label">Posting
                                                     Item</label>
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="posting_item"
                                                     placeholder="Select Posting Item" />
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -2032,6 +2032,10 @@
                                 </div>
                                 <div class="card-body py-1 px-2">
                                     <div class="form-group mb-2">
+                                        <label for="company_id" class="form-label">Hotel</label>
+                                        <field name="company_id" class="form-control" readonly="1" />
+                                    </div>
+                                    <div class="form-group mb-2">
                                         <label for="rate_code_id" class="form-label">Rate Code</label>
                                         <field name="rate_code_id" class="form-control" readonly="1" />
                                     </div>
@@ -2677,6 +2681,10 @@
                                     <span class="fw-bold"> General Information</span>
                                 </div>
                                 <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="company_id" class="form-label">Hotel</label>
+                                        <field name="company_id" class="form-control" readonly="1" />
+                                    </div>
                                     <div class="form-group mb-1">
                                         <label for="rate_code_id" class="form-label">Rate Code</label>
                                         <field name="rate_code_id" class="form-control" readonly="1" />

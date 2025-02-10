@@ -5,11 +5,11 @@
         <field name="name">monthly.allotment.charts.tree</field>
         <field name="model">monthly.allotment.charts</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree js_class="hotel_room_result_filter">
                 <field name="report_date" optional="show"/>
                 <field name="room_type" optional="show"/>
                 <field name="source_of_business" optional="show"/>
-                <field name="inhouse" optional="show"/>
+                <!-- <field name="inhouse" optional="show"/> -->
                 <field name="expected_inhouse" optional="show"/>
             </tree>
         </field>
@@ -24,7 +24,7 @@
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="source_of_business" type="row"/>
-                <field name="inhouse" type="measure"/>
+                <!-- <field name="inhouse" type="measure"/> -->
                 <field name="expected_inhouse" type="measure"/>
             </graph>
         </field>
@@ -39,7 +39,7 @@
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="source_of_business" type="row"/>
-                <field name="inhouse" type="measure"/>
+                <!-- <field name="inhouse" type="measure"/> -->
                 <field name="expected_inhouse" type="measure"/>
             </pivot>
         </field>

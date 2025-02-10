@@ -475,6 +475,8 @@ class RoomBooking(models.Model):
     )
     active = fields.Boolean(string="Active", default=True)
 
+    is_offline_search = fields.Boolean(string="Is Offline search", default=True)
+
     def action_archive_as_delete(self):
         """Validate states and archive records."""
         # Define allowed states
@@ -511,19 +513,20 @@ class RoomBooking(models.Model):
     def _compute_is_checkin_in_past(self):
         # Fetch system_date from the company configuration
         system_date = self.env.company.system_date.date()
-        if system_date:
-            # Ensure system_date is correctly formatted to a date
-            system_date = system_date.date() if isinstance(system_date, datetime) else fields.Date.to_date(system_date)
-        else:
-            print("System Date is not set!")
+        # if system_date:
+        #     # Ensure system_date is correctly formatted to a date
+        #     system_date = system_date.date() if isinstance(system_date, datetime) else fields.Date.to_date(system_date)
+        # else:
+        #     print("System Date is not set!")
 
         for record in self:
             if record.checkin_date:
                 # Convert checkin_date to a date if it's a datetime object
-                checkin_date = record.checkin_date.date() if isinstance(record.checkin_date,
-                                                                        datetime) else record.checkin_date
+                checkin_date_ = record.checkin_date.date()
+
                 # Compare checkin_date with system_date
-                record.is_checkin_in_past = checkin_date < system_date
+                print(checkin_date_, system_date, "line 528", (checkin_date_ < system_date))
+                record.is_checkin_in_past = (checkin_date_ < system_date)
             else:
                 record.is_checkin_in_past = False
 
@@ -551,8 +554,7 @@ class RoomBooking(models.Model):
             # Get the current date and subtract one day to get yesterday's date
             system_date = company.system_date.date()
             yesterday = datetime.combine((system_date - timedelta(days=1)), time.min)
-            print("------->", system_date, yesterday.date(),
-                  company, company.id, company_env)
+            # print("------->", system_date, yesterday.date(), company, company.id, company_env)
 
             # Find bookings with checkin_date equal to yesterday and in the specified states
             bookings = self.search([
@@ -560,7 +562,7 @@ class RoomBooking(models.Model):
                 ('checkin_date', '<', yesterday.date()),
                 ('company_id', '=', company.id)
             ])
-            print("BOOKINGS: ", bookings)
+            # print("BOOKINGS: ", bookings)
 
             # Update the state to 'no_show' using the no_show method
             for booking in bookings:
@@ -1383,6 +1385,7 @@ class RoomBooking(models.Model):
                             ('from_date', '<=', forecast_date),
                             ('to_date', '>=', forecast_date),
                             ('room_type_id', '=', record.hotel_room_type.id),
+                            ('company_id', '=', self.env.company.id)
                         ], limit=1)
 
                         if room_type_specific_rate.id:
@@ -1627,7 +1630,8 @@ class RoomBooking(models.Model):
                  'meal_pattern', 'rate_code', 'room_price', 'room_child_price', 'room_infant_price', 'meal_price',
                  'meal_child_price', 'meal_infant_price', 'posting_item_ids', 'room_discount', 'room_is_percentage',
                  'room_is_amount', 'room_amount_selection', 'meal_discount', 'meal_is_percentage', 'meal_is_amount',
-                 'meal_amount_selection', 'use_price', 'use_meal_price', 'room_line_ids.room_id')
+                 'meal_amount_selection', 'use_price', 'use_meal_price', 'room_line_ids.room_id','complementary',
+                 'complementary_codes')
     def _get_forecast_rates(self, from_rate_code=False):
         _logger.info("GET FORECAST RATES")
         # print("GET FORECAST RATES")
@@ -1882,15 +1886,29 @@ class RoomBooking(models.Model):
                     room_line_ids = record.room_line_ids.ids
                     _logger.info(
                         f"Total: {total}, Before Discount: {before_discount}, Discount {get_discount}, Room Price {room_price_after_discount}, Meal Price {meal_price_after_discount}, ROOM LINE IDS {room_line_ids}")
+                    _logger.info(f"COMPLEMENTARY {record.complementary}, {record.complementary_codes}")
+                    actual_room_price = room_price - room_price_after_discount
+                    actual_meal_price = meal_price - meal_price_after_discount
+                    if record.complementary and record.complementary_codes.id:
+                        _logger.info(f"COM {record.complementary_codes.type}")
+                        if record.complementary_codes.type == 'room':
+                            actual_room_price = 0
+
+                        elif record.complementary_codes.type == 'fb':
+                            actual_meal_price = 0
+
+                        elif record.complementary_codes.type == "both":
+                            actual_room_price = 0
+                            actual_meal_price = 0
 
                     if existing_forecast:
                         _logger.info("Updating existing forecast")
                         existing_forecast.write({
                             # 'rate': room_price,
                             # 'rate': room_price_after_discount,
-                            'rate': room_price - room_price_after_discount,
+                            'rate': actual_room_price,
                             # 'meals': meal_price,
-                            'meals': meal_price - meal_price_after_discount,
+                            'meals': actual_meal_price,
                             'packages': package_price,
                             'fixed_post': fixed_post_value,
                             # 'total': total_after_discount,
@@ -1904,10 +1922,10 @@ class RoomBooking(models.Model):
                         # Append new forecast line
                         forecast_lines.append((0, 0, {
                             'date': forecast_date,
-                            'rate': room_price - room_price_after_discount,
+                            'rate': actual_room_price,
                             # 'rate': room_price_after_discount if record.room_price else room_price,
                             # 'meals': meal_price_after_discount if record.meal_price else meal_price,
-                            'meals': meal_price - meal_price_after_discount,
+                            'meals': actual_meal_price,
                             'packages': package_price,
                             'fixed_post': fixed_post_value,
                             'total': total,
@@ -2036,23 +2054,58 @@ class RoomBooking(models.Model):
     #         self.source_of_business = self.partner_id.source_of_business.id
     #         self.rate_code = self.partner_id.rate_code.id
 
+    
+
     @api.onchange('partner_id')
     def _onchange_customer(self):
         if self.group_booking:
             # If group_booking is selected, skip this onchange
             return
+
         if self.partner_id:
             self.nationality = self.partner_id.nationality.id
             self.source_of_business = self.partner_id.source_of_business.id
-            self.rate_code = self.partner_id.rate_code.id
             self.market_segment = self.partner_id.market_segments.id
-            self.meal_pattern = self.partner_id.meal_pattern.id
+
+            # Fetch the rate_code and meal_pattern from partner.detail based on partner_id and current company
+            partner_detail = self.env['partner.details'].search([
+                ('partner_id', '=', self.partner_id.id),
+                ('partner_company_id', '=', self.env.company.id)  # Ensure it matches the current company
+            ], limit=1)
+
+            if partner_detail:
+                self.rate_code = partner_detail.rate_code.id
+                self.meal_pattern = partner_detail.meal_pattern.id
+            else:
+                self.rate_code = False
+                self.meal_pattern = False
+
+            # Set VIP details
             if self.partner_id.is_vip:
                 self.vip = True
                 self.vip_code = self.partner_id.vip_code.id if self.partner_id.vip_code else False
             else:
                 self.vip = False
                 self.vip_code = False
+
+
+    # @api.onchange('partner_id')
+    # def _onchange_customer(self):
+    #     if self.group_booking:
+    #         # If group_booking is selected, skip this onchange
+    #         return
+    #     if self.partner_id:
+    #         self.nationality = self.partner_id.nationality.id
+    #         self.source_of_business = self.partner_id.source_of_business.id
+    #         self.rate_code = self.partner_id.rate_code.id
+    #         self.market_segment = self.partner_id.market_segments.id
+    #         self.meal_pattern = self.partner_id.meal_pattern.id
+    #         if self.partner_id.is_vip:
+    #             self.vip = True
+    #             self.vip_code = self.partner_id.vip_code.id if self.partner_id.vip_code else False
+    #         else:
+    #             self.vip = False
+    #             self.vip_code = False
 
     @api.onchange('is_agent')
     def _onchange_is_agent(self):
@@ -2172,8 +2225,7 @@ class RoomBooking(models.Model):
                     room_lines[ctr].unlink()
                 # vals['room_count'] = 1
                 res = super(RoomBooking, self).write({'room_count': 1})
-                _logger.info(final_room_line, "this is final",
-                             final_room_line.counter, vals.get('parent_booking_id'))
+                print(final_room_line, "this is final", final_room_line.counter, vals.get('parent_booking_id'))
                 # adult_lines = self.env['reservation.adult'].search([
                 #     ('reservation_id', '=', vals.get('parent_booking_id'))
                 #      # ('room_sequence', '!=', final_room_line.counter)
@@ -2657,14 +2709,24 @@ class RoomBooking(models.Model):
     show_confirm_button = fields.Boolean(string="Confirm Button")
     show_cancel_button = fields.Boolean(string="Cancel Button")
 
+    # hotel_room_type = fields.Many2one(
+    #     'room.type', string="Room Type", 
+    #     domain=lambda self: [
+    #     ('obsolete', '=', False),
+    #     ('id', 'in', self.env['hotel.inventory'].search([
+    #         ('company_id', '=', self.env.company.id),
+    #     ]).mapped('room_type.id'))
+    #     ],tracking=True)
+
     hotel_room_type = fields.Many2one(
-        'room.type', string="Room Type", 
+        'room.type',
+        string="Room Type",
         domain=lambda self: [
-        ('obsolete', '=', False),
-        ('id', 'in', self.env['hotel.inventory'].search([
-            ('company_id', '=', self.env.company.id),
-        ]).mapped('room_type.id'))
-        ],tracking=True)
+            ('obsolete', '=', False),
+            ('company_id', '=', self.env.company.id)
+        ],
+        tracking=True
+    )
 
     def action_confirm_booking(self):
         # Ensure all selected records have the same state
@@ -2766,7 +2828,8 @@ class RoomBooking(models.Model):
                 _("No bookings were confirmed. Please ensure the state is 'not_confirmed' before confirming."))
 
     def action_no_show_tree(self):
-        current_date = fields.Date.context_today(self)
+        # current_date = fields.Date.context_today(self)
+        current_date = self.env.company.system_date.date()
         state_changed = False  # Flag to track if any state was changed to 'no_show'
 
         for booking in self:
@@ -3164,122 +3227,25 @@ class RoomBooking(models.Model):
         }
 
     def action_checkout_booking(self):
-        # if not self.posting_item_ids:
-        #     raise ValidationError("You cannot proceed with checkout. Please add at least one Posting Item.")
-        # today = datetime.now().date()
         today = self.env.company.system_date.date()
         all_bookings = self
 
-        # Filter out bookings with more than one room line
-        eligible_bookings = all_bookings.filtered(
-            lambda b: len(b.room_line_ids) <= 1)
+        # Filter eligible bookings with 1 or fewer room lines
+        eligible_bookings = all_bookings.filtered(lambda b: len(b.room_line_ids) <= 1)
 
         for booking in eligible_bookings:
-            print("Line 1465", booking)
             if booking.state != 'check_in':
                 raise ValidationError(
-                    _("All selected bookings must be in the 'check_in' state to proceed with check-out."))
+                    _("All selected bookings must be in the 'check_in' state to proceed with check-out.")
+                )
 
-        created_invoices = []
-        for booking in eligible_bookings:
-            if not booking.room_line_ids:
-                raise ValidationError(
-                    _("Please enter room details for booking ID %s.") % booking.id)
-
-            posting_item_meal, _1, _2, _3 = booking.get_meal_rates(
-                booking.meal_pattern.id)
-            print(f"The Posting Item Meal is: {posting_item_meal}")
-            meal_price, room_price, package_price, posting_item_value, line_posting_items = booking.get_all_prices(
-                booking.checkin_date, booking)
-            print(f"Rate Posting Item: {posting_item_value}")
-            print(f"Line Posting Items: {line_posting_items}")
-
-            # Compute booking amounts
-            booking_list = booking._compute_amount_untaxed(True)
-
-            if booking_list:
-                account_move = self.env["account.move"].create({
-                    'move_type': 'out_invoice',
-                    'invoice_date': today,
-                    'partner_id': booking.partner_id.id,
-                    'ref': booking.name,
-                    'hotel_booking_id': booking.id,  # Set the current booking
-                    # Group Booking Name
-                    'group_booking_name': booking.group_booking.name if booking.group_booking else '',
-                    'parent_booking_name': booking.parent_booking_name or '',  # Parent Booking Name
-                    'room_numbers': booking.room_ids_display or '',  # Room Numbers
-                })
-                for posting_item in booking.posting_item_ids:
-                    account_move.invoice_line_ids.create({
-                        'posting_item_id': posting_item.posting_item_id.id,  # Posting item
-                        'posting_description': posting_item.description,  # Description
-                        'posting_default_value': posting_item.default_value,  # Default value
-                        'move_id': account_move.id,  # Link to account.move
-                    })
-
-                # Add lines from filtered lines
-                filtered_lines = [
-                    line for line in booking.rate_forecast_ids if line.date == today]
-                print(
-                    f"Debug: Number of filtered rate_forecast_ids lines = {len(filtered_lines)}")
-
-                for line in filtered_lines:
-                    line_data = []
-
-                    # Check and add Rate line if rate is available and greater than 0
-                    if line.rate and line.rate > 0:
-                        line_data.append({
-                            'posting_item_id': posting_item_value,  # Posting item for rate
-                            'posting_description': 'Rate',  # Description for rate
-                            'posting_default_value': line.rate,  # Default value for rate
-                            'move_id': account_move.id,
-                        })
-
-                    # Check and add Meal line if meals is available and greater than 0
-                    if line.meals and line.meals > 0:
-                        line_data.append({
-                            'posting_item_id': posting_item_meal,  # Posting item for meal
-                            'posting_description': 'Meal',  # Description for meal
-                            'posting_default_value': line.meals,  # Default value for meal
-                            'move_id': account_move.id,
-                        })
-
-                    # Check and add Package line if packages is available and greater than 0
-                    if line.packages and line.packages > 0:
-                        line_data.append({
-                            # Posting item for package
-                            'posting_item_id': line_posting_items[-1],
-                            'posting_description': 'Package',  # Description for package
-                            'posting_default_value': line.packages,  # Default value for package
-                            'move_id': account_move.id,
-                        })
-
-                    # Create lines in account.move.line
-                    if line_data:
-                        account_move.invoice_line_ids.create(line_data)
-
-                # for rec in booking_list:
-                #     account_move.invoice_line_ids.create({
-                #         'name': rec['name'],
-                #         'quantity': rec['quantity'],
-                #         'price_unit': rec['price_unit'],
-                #         'move_id': account_move.id,
-                #         'product_type': rec['product_type'],
-                #     })
-
-                # Update booking invoice status
-                booking.write({'invoice_status': "invoiced"})
-                booking.write({'state': "check_out"})
-                booking.room_line_ids.write({"state_": "check_out"})
-                booking.invoice_button_visible = True
-                created_invoices.append(account_move)
-
-        # Filter bookings with future checkout dates
-        future_bookings = eligible_bookings.filtered(lambda b: fields.Date.to_date(b.checkout_date) > today)
-        print("Line 1470", future_bookings)
+        # Check for future checkout dates
+        future_bookings = eligible_bookings.filtered(
+            lambda b: b.checkout_date and fields.Date.to_date(b.checkout_date) > today
+        )
 
         if future_bookings:
-            # Return wizard if any booking has a future checkout date
+            # Trigger Early Checkout Wizard
             return {
                 'type': 'ir.actions.act_window',
                 'res_model': 'confirm.early.checkout.wizard',
@@ -3290,29 +3256,12 @@ class RoomBooking(models.Model):
                 }
             }
 
-        self._perform_bulk_checkout(eligible_bookings, today)
-
-        #     return {
-        #     'type': 'ir.actions.client',
-        #     'tag': 'display_notification',
-        #     'params': {
-        #         'type': 'success',
-        #         'message': _("Booking Checked Out Successfully!"),
-        #         'next': {'type': 'ir.actions.act_window_close'},
-        #     }
-        # }
-
-        # Update the dashboard after the function completes
-        self.env.cr.commit()
-        # self.retrieve_dashboard()
-        # return {
-        #     'type': 'ir.actions.act_window',
-        #     'name': 'Room Booking',
-        #     'res_model': 'room.booking',
-        #     'view_mode': 'tree,form',
-        #     'target': 'current',
-        # }
-        # Display a success notification
+        # Direct checkout for bookings without future checkout dates
+        for booking in eligible_bookings:
+            booking._create_invoice()  # Call the invoice creation method
+            booking.write({'invoice_status': "invoiced", 'state': "check_out"})
+            booking.room_line_ids.write({"state_": "check_out"})
+            booking.invoice_button_visible = True
 
         return {
             'type': 'ir.actions.client',
@@ -3320,15 +3269,170 @@ class RoomBooking(models.Model):
             'params': {
                 'type': 'success',
                 'message': _("Booking Checked Out Successfully!"),
-            },
-        }, {
-            'type': 'ir.actions.act_window',
-            'name': 'Room Booking',
-            'res_model': 'room.booking',
-            'view_mode': 'tree,form',
-            'target': 'current',
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
         }
 
+
+    # def action_checkout_booking(self):
+    #     # if not self.posting_item_ids:
+    #     #     raise ValidationError("You cannot proceed with checkout. Please add at least one Posting Item.")
+    #     # today = datetime.now().date()
+    #     today = self.env.company.system_date.date()
+    #     all_bookings = self
+
+    #     # Filter out bookings with more than one room line
+    #     eligible_bookings = all_bookings.filtered(
+    #         lambda b: len(b.room_line_ids) <= 1)
+
+    #     for booking in eligible_bookings:
+    #         print("Line 1465", booking)
+    #         if booking.state != 'check_in':
+    #             raise ValidationError(
+    #                 _("All selected bookings must be in the 'check_in' state to proceed with check-out."))
+
+    #     created_invoices = []
+    #     for booking in eligible_bookings:
+    #         if not booking.room_line_ids:
+    #             raise ValidationError(
+    #                 _("Please enter room details for booking ID %s.") % booking.id)
+
+    #         posting_item_meal, _1, _2, _3 = booking.get_meal_rates(
+    #             booking.meal_pattern.id)
+    #         print(f"The Posting Item Meal is: {posting_item_meal}")
+    #         meal_price, room_price, package_price, posting_item_value, line_posting_items = booking.get_all_prices(
+    #             booking.checkin_date, booking)
+    #         print(f"Rate Posting Item: {posting_item_value}")
+    #         print(f"Line Posting Items: {line_posting_items}")
+
+    #         # Compute booking amounts
+    #         booking_list = booking._compute_amount_untaxed(True)
+
+    #         if booking_list:
+    #             account_move = self.env["account.move"].create({
+    #                 'move_type': 'out_invoice',
+    #                 'invoice_date': today,
+    #                 'partner_id': booking.partner_id.id,
+    #                 'ref': booking.name,
+    #                 'hotel_booking_id': booking.id,  # Set the current booking
+    #                 # Group Booking Name
+    #                 'group_booking_name': booking.group_booking.name if booking.group_booking else '',
+    #                 'parent_booking_name': booking.parent_booking_name or '',  # Parent Booking Name
+    #                 'room_numbers': booking.room_ids_display or '',  # Room Numbers
+    #             })
+    #             for posting_item in booking.posting_item_ids:
+    #                 account_move.invoice_line_ids.create({
+    #                     'posting_item_id': posting_item.posting_item_id.id,  # Posting item
+    #                     'posting_description': posting_item.description,  # Description
+    #                     'posting_default_value': posting_item.default_value,  # Default value
+    #                     'move_id': account_move.id,  # Link to account.move
+    #                 })
+
+    #             # Add lines from filtered lines
+    #             filtered_lines = [
+    #                 line for line in booking.rate_forecast_ids if line.date == today]
+    #             print(
+    #                 f"Debug: Number of filtered rate_forecast_ids lines = {len(filtered_lines)}")
+
+    #             for line in filtered_lines:
+    #                 line_data = []
+
+    #                 # Check and add Rate line if rate is available and greater than 0
+    #                 if line.rate and line.rate > 0:
+    #                     line_data.append({
+    #                         'posting_item_id': posting_item_value,  # Posting item for rate
+    #                         'posting_description': 'Rate',  # Description for rate
+    #                         'posting_default_value': line.rate,  # Default value for rate
+    #                         'move_id': account_move.id,
+    #                     })
+
+    #                 # Check and add Meal line if meals is available and greater than 0
+    #                 if line.meals and line.meals > 0:
+    #                     line_data.append({
+    #                         'posting_item_id': posting_item_meal,  # Posting item for meal
+    #                         'posting_description': 'Meal',  # Description for meal
+    #                         'posting_default_value': line.meals,  # Default value for meal
+    #                         'move_id': account_move.id,
+    #                     })
+
+    #                 # Check and add Package line if packages is available and greater than 0
+    #                 if line.packages and line.packages > 0:
+    #                     line_data.append({
+    #                         # Posting item for package
+    #                         'posting_item_id': line_posting_items[-1],
+    #                         'posting_description': 'Package',  # Description for package
+    #                         'posting_default_value': line.packages,  # Default value for package
+    #                         'move_id': account_move.id,
+    #                     })
+
+    #                 # Create lines in account.move.line
+    #                 if line_data:
+    #                     account_move.invoice_line_ids.create(line_data)
+
+    #             # for rec in booking_list:
+    #             #     account_move.invoice_line_ids.create({
+    #             #         'name': rec['name'],
+    #             #         'quantity': rec['quantity'],
+    #             #         'price_unit': rec['price_unit'],
+    #             #         'move_id': account_move.id,
+    #             #         'product_type': rec['product_type'],
+    #             #     })
+
+    #             # Update booking invoice status
+    #             booking.write({'invoice_status': "invoiced"})
+    #             booking.write({'state': "check_out"})
+    #             booking.room_line_ids.write({"state_": "check_out"})
+    #             booking.invoice_button_visible = True
+    #             created_invoices.append(account_move)
+
+    #     # Filter bookings with future checkout dates
+    #     future_bookings = eligible_bookings.filtered(lambda b: fields.Date.to_date(b.checkout_date) > today)
+    #     print("Line 1470", future_bookings)
+
+    #     if future_bookings:
+    #         # Return wizard if any booking has a future checkout date
+    #         return {
+    #             'type': 'ir.actions.act_window',
+    #             'res_model': 'confirm.early.checkout.wizard',
+    #             'view_mode': 'form',
+    #             'target': 'new',
+    #             'context': {
+    #                 'default_booking_ids': future_bookings.mapped('id'),
+    #             }
+    #         }
+
+    #     self._perform_bulk_checkout(eligible_bookings, today)
+
+    #     return {
+    #     'type': 'ir.actions.client',
+    #     'tag': 'display_notification',
+    #     'params': {
+    #         'type': 'success',
+    #         'message': _("Booking Checked Out Successfully!"),
+    #         'next': {'type': 'ir.actions.act_window_close'},
+    #     }
+    # }
+
+    # # Update the dashboard after the function completes
+    #     self.env.cr.commit()
+
+    #     # return {
+    #     #     'type': 'ir.actions.client',
+    #     #     'tag': 'display_notification',
+    #     #     'params': {
+    #     #         'type': 'success',
+    #     #         'message': _("Booking Checked Out Successfully!"),
+    #     #     },
+    #     # }, {
+    #     #     'type': 'ir.actions.act_window',
+    #     #     'name': 'Room Booking',
+    #     #     'res_model': 'room.booking',
+    #     #     'view_mode': 'tree,form',
+    #     #     'target': 'current',
+    #     # }
+
+    
+    
     # Working 04/01/2025
     # def action_checkout_booking(self):
     #     # if not self.posting_item_ids:
@@ -4080,19 +4184,33 @@ class RoomBooking(models.Model):
         ('company_id', '=', self.env.company.id),
         ('obsolete', '=', False)
     ],tracking=True)
+
+    # @api.onchange('hotel_room_type')
+    # def _onchange_hotel_room_type(self):
+    #     # ✅ Validation when Rate Code is empty
+    #     if self.hotel_room_type and not self.rate_code:
+    #         self.hotel_room_type = False  # Reset the selection
+    #         raise ValidationError(
+    #             "Please select a Rate Code first before choosing a Room Type.")
     
     @api.onchange('rate_code')
     def _onchange_rate_code_(self):
         for record in self:
-            if record.rate_code:
+            print('selected rate code',record.rate_code.id)
+            if record.rate_code.id:
+                print('4122', record.checkin_date,record.checkout_date)
                 rate_details = self.env['rate.detail'].search([
                                 ('rate_code_id', '=', record.rate_code.id),
                                 ('from_date', '<=', record.checkin_date),
                                 ('to_date', '>=', record.checkout_date)
-                            ], limit=1)
-                print('4090', rate_details)
+                            ])
+                print('4090', rate_details, rate_details.id)
+                # if rate_details.id == False:
+
                 if not rate_details:
-                    raise ValidationError('The selected rate code is expired. Please select another rate code.')
+                    # raise ValidationError('The selected rate code is expired. Please select another rate code.')
+                    raise ValidationError(
+                        f'The selected rate code "{record.rate_code.code}" is expired. Please select another rate code.')
                 # Search for rate.detail linked to the selected rate_code
                 # rate_detail = self.env['rate.code'].search([('code', '=', record.rate_code.id)], limit=1)
                 # print('4093', rate_detail)
@@ -4220,9 +4338,16 @@ class RoomBooking(models.Model):
                         setattr(record, f"{day}_pax_{pax}_rb", 0.0)
                 return
 
+            rate_code = self.env['rate.code'].search([
+                ('company_id', '=', self.env.company.id),
+
+            ],)
             # Attempt to find rate details in room.type.specific.rate
             specific_rate_detail = self.env['room.type.specific.rate'].search([
-                ('room_type_id', '=', record.hotel_room_type.id)
+                ('room_type_id', '=', record.hotel_room_type.id),
+                ('company_id', '=', self.env.company.id),
+                ('from_date', '<=', record.checkin_date),
+                ('to_date', '>=', record.checkout_date)
             ], limit=1)
 
             # Check if specific rate detail exists and has non-zero values
@@ -4385,10 +4510,10 @@ class RoomBooking(models.Model):
     show_vip_code = fields.Boolean(
         string="Show VIP Code", compute="_compute_show_vip_code", store=True)
 
-    complementary = fields.Boolean(string='Complementary')
+    complementary = fields.Boolean(string='Complimentary')
     complementary_codes = fields.Many2one(
-        'complimentary.code', string='Complementary Code', domain=[('obsolete', '=', False)])
-    show_complementary_code = fields.Boolean(string="Show Complementary Code", compute="_compute_show_codes",
+        'complimentary.code', string='Complimentary Code', domain=[('obsolete', '=', False)])
+    show_complementary_code = fields.Boolean(string="Show Complimentary Code", compute="_compute_show_codes",
                                              store=True)
 
     house_use = fields.Boolean(string='House Use')
@@ -4562,12 +4687,26 @@ class RoomBooking(models.Model):
             current_time = datetime.now().time()
             get_sys_date = datetime.combine(get_sys_date, current_time)
             for line in record.room_line_ids:
+                if record.state == 'block':
+                    self.env['room.booking.line.status'].create({
+                        'booking_line_id': line.id,
+                        'status': 'confirmed',
+                        'change_time': get_sys_date,
+                    })
+
+                # Now create the actual status record (e.g., 'block')
                 self.env['room.booking.line.status'].create({
                     'booking_line_id': line.id,
                     'status': record.state,
-                    # 'change_time': fields.Datetime.now(),
-                    'change_time': get_sys_date,
+                    'change_time': get_sys_date + timedelta(seconds=1),
                 })
+            # for line in record.room_line_ids:
+            #     self.env['room.booking.line.status'].create({
+            #         'booking_line_id': line.id,
+            #         'status': record.state,
+            #         # 'change_time': fields.Datetime.now(),
+            #         'change_time': get_sys_date,
+            #     })
 
         return record
 
@@ -5121,7 +5260,7 @@ class RoomBooking(models.Model):
     #         raise ValidationError(_('Your Invoice is Due for Payment.'))
     #     self.write({"state": "done"})
 
-    def action_checkout(self):
+    def _create_invoice(self):
         posting_item_meal, _1, _2, _3 = self.get_meal_rates(
             self.meal_pattern.id)
         _logger.info(f"The Posting Item Meal is: {posting_item_meal}")
@@ -5218,57 +5357,22 @@ class RoomBooking(models.Model):
                 # Create lines in account.move.line
                 if line_data:
                     account_move.invoice_line_ids.create(line_data)
-            # for rec in booking_list:
-            #     account_move.invoice_line_ids.create([{
-            #         'name': rec['name'],
-            #         'quantity': rec['quantity'],
-            #         'price_unit': rec['price_unit'],
-            #         'move_id': account_move.id,
-            #         'price_subtotal': rec['quantity'] * rec['price_unit'],
-            #         'product_type': rec['product_type'],
-            #     }])
+
             self.write({'invoice_status': "invoiced"})
             self.write({"state": "check_out"})
             self.room_line_ids.write({"state_": "check_out"})
             self.invoice_button_visible = True
-            # return {
-            #         'type': 'ir.actions.act_window',
-            #         'name': 'Invoices',
-            #         'view_mode': 'form',
-            #         'view_type': 'form',
-            #         'res_model': 'account.move',
-            #         'view_id': self.env.ref('account.view_move_form').id,
-            #         'res_id': account_move.id,
-            #         'context': "{'create': False}"
-            # }
 
-        # If checkout_date is not set or is in the future, prompt for early check-out confirmation
-        # if not self.checkout_date or fields.Date.to_date(self.checkout_date) > today:
-        # print("------------>", datetime.strptime(str(self.checkout_date), '%Y-%m-%d').date())
-
-        # Convert checkout_date to a date object while stripping time
-        # if self.checkout_date:
-        #     get_current_time = datetime.now().time()
-        #     checkout_datetime = datetime.combine(today, get_current_time)
-        #     print("TODAY SYSTEM DATE", today, "get CURRENT TIME", get_current_time, "checkin_datetime", checkout_datetime)
-
-        #     checkout_date = checkout_datetime
-        #     # checkout_date = datetime.strptime(
-        #     #     str(self.checkout_date).split(' ')[0], '%Y-%m-%d').date()
-        #     # print(self.checkout_date)
-        #     print("checkout_date", checkout_date)
-        # else:
-        #     checkout_date = None
-        # print("CHECKOUT DATE", self.checkout_date)
-        # print("TODAY", today)
+    def action_checkout(self):
+        today = self.env.company.system_date.date()
+        current_time = datetime.now().time()
+        current_datetime = datetime.combine(today, current_time)
+            
         if self.checkout_date:
             # Calculate the checkout_date
             get_current_time = datetime.now().time()
             checkout_datetime = datetime.combine(today, get_current_time)
-            print("TODAY SYSTEM DATE", today, "CURRENT TIME", get_current_time, "checkout_datetime", checkout_datetime)
-
             checkout_date = checkout_datetime
-            print("checkout_date", checkout_date)
 
             if self.checkout_date.date() > today:
                 return {
@@ -5280,7 +5384,9 @@ class RoomBooking(models.Model):
                     'context': {'default_booking_ids': self.ids},
                 }
             else:
-                self.write({"state": "check_out", "checkout_date": current_datetime})
+                self._create_invoice()
+                self.write({"state": "check_out","checkout_date": current_datetime})
+                self.room_line_ids.write({"state_": "check_out"})
                 return {
                     'type': 'ir.actions.client',
                     'tag': 'display_notification',
@@ -5546,21 +5652,21 @@ class RoomBooking(models.Model):
             room.room_id.is_room_avail = False
 
             # Update the available rooms count and reduce rooms_reserved count
-            if room.room_id:
-                availability_result = self.env['room.availability.result'].search([
-                    ('room_booking_id', '=', parent_booking_id)
-                ], limit=1)
+            # if room.room_id:
+            #     availability_result = self.env['room.availability.result'].search([
+            #         ('room_booking_id', '=', parent_booking_id)
+            #     ], limit=1)
 
-                print("Availability Result:", availability_result)
+            #     print("Availability Result:", availability_result)
 
-                if availability_result:
-                    # Use room count from the room line or a calculated value
-                    reserved_rooms = room.room_count if hasattr(
-                        room, 'room_count') else 1
+            #     if availability_result:
+            #         # Use room count from the room line or a calculated value
+            #         reserved_rooms = room.room_count if hasattr(
+            #             room, 'room_count') else 1
 
-                    # Increase available_rooms and decrease rooms_reserved
-                    availability_result.available_rooms -= reserved_rooms
-                    availability_result.rooms_reserved += reserved_rooms
+            #         # Increase available_rooms and decrease rooms_reserved
+            #         availability_result.available_rooms -= reserved_rooms
+            #         availability_result.rooms_reserved += reserved_rooms
 
         # Update the booking state to 'check_in'
         self.write({"state": "check_in"})
@@ -5904,6 +6010,8 @@ class RoomBooking(models.Model):
                     ('room_fsm_location', '=', room_line.room_id.fsm_location.id),
                     ('display_name', '=', room_line.room_id.display_name),
                     ('room_number', '=', room_line.room_id.display_name),
+                    ('company_id', '=', self.env.company.id)
+                    
                 ])
 
                 if room_number_specific_rate.id:
@@ -6474,9 +6582,10 @@ class RoomBooking(models.Model):
         # Retrieve companies from hotel inventory
         # companies = self.env['hotel.inventory'].read_group([], ['company_id'], ['company_id'])
         company_id = self.env.context.get('company_id', self.env.company.id)
+        print("company_id", company_id)
         domain = [('company_id', '=', company_id)] if company_id else []
-        companies = self.env['hotel.inventory'].read_group(
-            domain, ['company_id'], ['company_id'])
+        companies = self.env['hotel.inventory'].read_group(domain, ['company_id'], ['company_id'])
+        print("LINR 6512", companies)
 
         # Retrieve all room types and map them by ID
         room_types = self.env['room.type'].search_read(
@@ -6487,6 +6596,7 @@ class RoomBooking(models.Model):
         # Calculate total available rooms
         for company in companies:
             loop_company_id = company['company_id'][0]
+            print("LOOP COMPANY", loop_company_id)
             total_available_rooms += self._calculate_available_rooms(
                 loop_company_id,
                 checkin_date,
@@ -6495,7 +6605,7 @@ class RoomBooking(models.Model):
                 hotel_room_type_id,
                 room_types_dict
             )
-            print('5867', total_available_rooms)
+            print('LINE 6532', total_available_rooms)
 
             if total_available_rooms == 99999:  # Unlimited rooms
                 break
@@ -6625,7 +6735,8 @@ class RoomBooking(models.Model):
         """Allocate rooms based on availability."""
         results = []
         remaining_rooms = room_count
-        today_date = datetime.today().strftime('%Y-%m-%d')
+        # today_date = datetime.today().strftime('%Y-%m-%d')
+        today_date = self.env.company.system_date.date().strftime('%Y-%m-%d')
 
         for company in companies:
             loop_company_id = company['company_id'][0]
@@ -6695,11 +6806,11 @@ class RoomBooking(models.Model):
                     ('checkout_date', '>=', checkin_date),
                     # ('checkout_date', '!=', today_date), 
                     ('checkout_date', 'not like', today_date + '%'),
-                    ('state', 'in', ['confirmed',
-                                     'check_in', 'block']),
+                    ('state', 'in', ['check_in', 'block']),
                     # Exclude allocated lines
                     ('id', 'not in', self.env.context.get('already_allocated', []))
                 ])
+                print('6769', booked_rooms)
 
                 rooms_on_hold_count = self.env['rooms.on.hold.management.front.desk'].search_count([
                     ('company_id', '=', self.env.company.id),
@@ -6707,6 +6818,7 @@ class RoomBooking(models.Model):
                     ('from_date', '<=', checkout_date),
                     ('to_date', '>=', checkin_date)
                 ])
+                print(f"Rooms on hold count: {rooms_on_hold_count}")
 
                 # Count out-of-order rooms for the current company and matching room type
                 out_of_order_rooms_count = self.env['out.of.order.management.fron.desk'].search_count([
@@ -6715,7 +6827,23 @@ class RoomBooking(models.Model):
                     ('from_date', '<=', checkout_date),
                     ('to_date', '>=', checkin_date)
                 ])
-                booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count
+                print(f"Out of order rooms count: {out_of_order_rooms_count}")
+                confirmed_bookings = self.env['room.booking'].search([
+                    ('hotel_room_type', '=', room_type_id),
+                    ('checkin_date', '<=', checkout_date),
+                    ('checkout_date', '>=', checkin_date),
+                    ('checkout_date', 'not like', today_date + '%'),
+                    ('state', '=', 'confirmed'),
+                    ('id', 'not in', self.env.context.get('already_allocated', []))
+                ])
+
+                # Get the count of room_line_ids for confirmed bookings
+                confirmed_room_lines_count = sum(len(booking.room_line_ids) for booking in confirmed_bookings)
+                print('6795',confirmed_room_lines_count )
+
+                
+                booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count+confirmed_room_lines_count
+                print('6799', booked_rooms)
 
                 if availability['overbooking_allowed']:
                     available_rooms = max(
@@ -6849,94 +6977,168 @@ class RoomBooking(models.Model):
     #     return total_available_rooms
 
     # Working 27/12
-    def _calculate_available_rooms(self, company_id, checkin_date, checkout_date, adult_count, hotel_room_type_id,
-                                   room_types_dict):
+    # def _calculate_available_rooms(self, company_id, checkin_date, checkout_date, adult_count, hotel_room_type_id,
+    #                                room_types_dict):
+    #     """Calculate available rooms for a company."""
+    #     room_availabilities_domain = [
+    #         ('company_id', '=', company_id),
+    #         # ('pax', '>=', adult_count),
+    #     ]
+
+    #     today_date = datetime.today().strftime('%Y-%m-%d')
+
+    #     if hotel_room_type_id:
+    #         room_availabilities_domain.append(
+    #             ('room_type', '=', hotel_room_type_id))
+    #     else:
+    #         # If no room_type_id is provided, filter by room types in room_types_dict
+    #         room_type_ids = list(room_types_dict.keys())
+    #         if room_type_ids:
+    #             room_availabilities_domain.append(('room_type', 'in', room_type_ids))
+
+    #     # room_availabilities = self.env['hotel.inventory'].search_read(room_availabilities_domain,
+    #     #     ['room_type', 'pax', 'total_room_count', 'overbooking_allowed', 'overbooking_rooms'],
+    #     #     order='pax ASC'
+    #     # )
+
+    #     room_availabilities = self.env['hotel.inventory'].search_read(room_availabilities_domain,
+    #                                                                   ['room_type', 'total_room_count',
+    #                                                                    'overbooking_allowed', 'overbooking_rooms'],
+    #                                                                   order='room_type ASC'
+    #                                                                   )
+
+    #     grouped_availabilities = {}
+
+    #     for availability in room_availabilities:
+    #         room_type_id = availability['room_type'][0] if isinstance(availability['room_type'], tuple) else \
+    #             availability['room_type']
+    #         if room_type_id not in grouped_availabilities:
+    #             grouped_availabilities[room_type_id] = {
+    #                 'total_room_count': 0,
+    #                 'overbooking_allowed': availability['overbooking_allowed'],
+    #                 # 'overbooking_rooms': availability['overbooking_rooms'],
+    #                 'overbooking_rooms': 0,
+    #                 'entries': []
+    #             }
+    #         grouped_availabilities[room_type_id]['total_room_count'] += availability['total_room_count']
+    #         # Sum overbooking rooms
+    #         grouped_availabilities[room_type_id]['overbooking_rooms'] += availability['overbooking_rooms']
+    #         grouped_availabilities[room_type_id]['entries'].append(
+    #             availability)
+    #         # print('3245', grouped_availabilities)
+
+    #     total_available_rooms = 0
+    #     for room_type_id, availability in grouped_availabilities.items():
+    #         booked_rooms = self.env['room.booking'].search_count([
+    #             ('hotel_room_type', '=', room_type_id),
+    #             # ('booking_id.room_count', '=', 1),
+    #             # ('adult_count', '=', availability['pax']),
+    #             ('checkin_date', '<=', checkout_date),
+    #             ('checkout_date', '>=', checkin_date),
+    #             # ('checkout_date', '!=', today_date),
+    #             ('checkout_date', 'not like', today_date + '%'),
+    #             ('state', 'in', ['confirmed',
+    #                              'check_in', 'block']),
+    #             # Exclude allocated lines
+    #             ('id', 'not in', self.env.context.get('already_allocated', []))
+    #         ])
+
+    #         rooms_on_hold_count = self.env['rooms.on.hold.management.front.desk'].search_count([
+    #             ('company_id', '=', self.env.company.id),
+    #             ('room_type', '=', room_type_id),
+    #             ('from_date', '<=', checkout_date),
+    #             ('to_date', '>=', checkin_date)
+    #         ])
+
+    #         # Count out-of-order rooms for the current company and matching room type
+    #         out_of_order_rooms_count = self.env['out.of.order.management.fron.desk'].search_count([
+    #             ('company_id', '=', self.env.company.id),
+    #             ('room_type', '=', room_type_id),
+    #             ('from_date', '<=', checkout_date),
+    #             ('to_date', '>=', checkin_date)
+    #         ])
+
+    #         booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count
+
+    #         if availability['overbooking_allowed']:
+    #             available_rooms = max(
+    #                 availability['total_room_count'] - booked_rooms +
+    #                 availability['overbooking_rooms'], 0
+    #             )
+    #             print('6251', available_rooms)
+    #             if availability['overbooking_rooms'] == 0:
+    #                 return 99999  # Unlimited rooms
+    #         else:
+    #             # print("2693",availability['total_room_count'], booked_rooms,max(availability['total_room_count'] - booked_rooms, 0))
+    #             available_rooms = max(
+    #                 availability['total_room_count'] - booked_rooms, 0)
+
+    #         total_available_rooms += available_rooms
+
+    #     return total_available_rooms
+
+    def _calculate_available_rooms(self, company_id, checkin_date, checkout_date, adult_count, hotel_room_type_id,room_types_dict):
         """Calculate available rooms for a company."""
+        print(f"Starting room calculation for company_id: {company_id}, checkin_date: {checkin_date}, checkout_date: {checkout_date}, adult_count: {adult_count}, hotel_room_type_id: {hotel_room_type_id}")
+
         room_availabilities_domain = [
             ('company_id', '=', company_id),
-            # ('pax', '>=', adult_count),
         ]
+        print(f"Initial room_availabilities_domain: {room_availabilities_domain}")
 
-        today_date = datetime.today().strftime('%Y-%m-%d')
+        # today_date = datetime.today().strftime('%Y-%m-%d')
+        today_date = self.env.company.system_date.date().strftime('%Y-%m-%d')
+        print(f"Today's date: {today_date}")
 
         if hotel_room_type_id:
-            room_availabilities_domain.append(
-                ('room_type', '=', hotel_room_type_id))
+            room_availabilities_domain.append(('room_type', '=', hotel_room_type_id))
+            print(f"Added room_type to domain: {hotel_room_type_id}")
         else:
-            # If no room_type_id is provided, filter by room types in room_types_dict
             room_type_ids = list(room_types_dict.keys())
             if room_type_ids:
                 room_availabilities_domain.append(('room_type', 'in', room_type_ids))
+                print(f"Added multiple room_types to domain: {room_type_ids}")
 
-        # room_availabilities = self.env['hotel.inventory'].search_read(room_availabilities_domain,
-        #     ['room_type', 'pax', 'total_room_count', 'overbooking_allowed', 'overbooking_rooms'],
-        #     order='pax ASC'
-        # )
+        print(f"Final room_availabilities_domain: {room_availabilities_domain}")
 
         room_availabilities = self.env['hotel.inventory'].search_read(room_availabilities_domain,
-                                                                      ['room_type', 'total_room_count',
-                                                                       'overbooking_allowed', 'overbooking_rooms'],
-                                                                      order='room_type ASC'
-                                                                      )
+                                                                    ['room_type', 'total_room_count',
+                                                                    'overbooking_allowed', 'overbooking_rooms'],
+                                                                    order='room_type ASC')
+        print(f"Room availabilities found: {room_availabilities}")
 
         grouped_availabilities = {}
 
         for availability in room_availabilities:
-            room_type_id = availability['room_type'][0] if isinstance(availability['room_type'], tuple) else \
-                availability['room_type']
+            room_type_id = availability['room_type'][0] if isinstance(availability['room_type'], tuple) else availability['room_type']
+            print(f"Processing availability for room_type_id: {room_type_id}")
+
             if room_type_id not in grouped_availabilities:
                 grouped_availabilities[room_type_id] = {
                     'total_room_count': 0,
                     'overbooking_allowed': availability['overbooking_allowed'],
-                    # 'overbooking_rooms': availability['overbooking_rooms'],
                     'overbooking_rooms': 0,
                     'entries': []
                 }
             grouped_availabilities[room_type_id]['total_room_count'] += availability['total_room_count']
-            # Sum overbooking rooms
             grouped_availabilities[room_type_id]['overbooking_rooms'] += availability['overbooking_rooms']
-            grouped_availabilities[room_type_id]['entries'].append(
-                availability)
-            # print('3245', grouped_availabilities)
+            grouped_availabilities[room_type_id]['entries'].append(availability)
+
+            print(f"Grouped availability so far: {grouped_availabilities}")
 
         total_available_rooms = 0
         for room_type_id, availability in grouped_availabilities.items():
-            # room_type_id = availability['room_type'][0] if isinstance(availability['room_type'], tuple) else \
-            #     availability['room_type']
-            # print('2666', room_type_id, availability['pax'], checkout_date, checkin_date)
-            # Exclude already allocated bookings from search
-            # booked_rooms = self.env['room.booking.line'].search_count([
-            #     ('hotel_room_type', '=', room_type_id),
-            #     # Include only bookings with room_count = 1
-            #     ('booking_id.room_count', '=', 1),
-            #     # ('adult_count', '=', availability['pax']),
-            #     ('checkin_date', '<=', checkout_date),  # Check-in date filter
-            #     ('checkout_date', '>=', checkin_date),  # Check-out date filter
-            #     # Booking state filter
-            #     ('booking_id.state', 'in', ['block', 'check_in']),
-            #     ('id', 'not in', self.env.context.get('already_allocated', []))
-            #     # ('hotel_room_type', '=', room_type_id),
-            #     # ('adult_count', '=', availability['pax']),
-            #     # ('checkin_date', '<', checkout_date),
-            #     # ('checkout_date', '>', checkin_date),
-            #     # ('state', 'in', ['confirmed', 'block', 'check_in']),
-            #     # ('id', 'not in', self.env.context.get('already_allocated', []))  # Exclude allocated lines
-            # ])
-            # print("line 2676",booked_rooms)
+            print(f"Calculating booked rooms for room_type_id: {room_type_id}")
 
             booked_rooms = self.env['room.booking'].search_count([
                 ('hotel_room_type', '=', room_type_id),
-                # ('booking_id.room_count', '=', 1),
-                # ('adult_count', '=', availability['pax']),
                 ('checkin_date', '<=', checkout_date),
                 ('checkout_date', '>=', checkin_date),
-                # ('checkout_date', '!=', today_date),
                 ('checkout_date', 'not like', today_date + '%'),
-                ('state', 'in', ['confirmed',
-                                 'check_in', 'block']),
-                # Exclude allocated lines
+                ('state', 'in', ['check_in', 'block']),
                 ('id', 'not in', self.env.context.get('already_allocated', []))
             ])
+            print(f"Booked rooms count: {booked_rooms}")
 
             rooms_on_hold_count = self.env['rooms.on.hold.management.front.desk'].search_count([
                 ('company_id', '=', self.env.company.id),
@@ -6944,33 +7146,50 @@ class RoomBooking(models.Model):
                 ('from_date', '<=', checkout_date),
                 ('to_date', '>=', checkin_date)
             ])
+            print(f"Rooms on hold count: {rooms_on_hold_count}")
 
-            # Count out-of-order rooms for the current company and matching room type
             out_of_order_rooms_count = self.env['out.of.order.management.fron.desk'].search_count([
                 ('company_id', '=', self.env.company.id),
                 ('room_type', '=', room_type_id),
                 ('from_date', '<=', checkout_date),
                 ('to_date', '>=', checkin_date)
             ])
+            print(f"Out of order rooms count: {out_of_order_rooms_count}")
 
-            booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count
+            confirmed_bookings = self.env['room.booking'].search([
+                    ('hotel_room_type', '=', room_type_id),
+                    ('checkin_date', '<=', checkout_date),
+                    ('checkout_date', '>=', checkin_date),
+                    ('checkout_date', 'not like', today_date + '%'),
+                    ('state', '=', 'confirmed'),
+                    ('id', 'not in', self.env.context.get('already_allocated', []))
+                ])
+            
+            confirmed_room_lines_count = sum(len(booking.room_line_ids) for booking in confirmed_bookings)
+            print('6795',confirmed_room_lines_count )
+
+                
+            booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count + confirmed_room_lines_count
+                
+
+            # booked_rooms += rooms_on_hold_count + out_of_order_rooms_count
+            print(f"Total booked rooms (including on hold and out of order): {booked_rooms}")
 
             if availability['overbooking_allowed']:
-                available_rooms = max(
-                    availability['total_room_count'] - booked_rooms +
-                    availability['overbooking_rooms'], 0
-                )
-                print('6251', available_rooms)
+                available_rooms = max(availability['total_room_count'] - booked_rooms + availability['overbooking_rooms'], 0)
+                print(f"Available rooms with overbooking: {available_rooms}")
+
                 if availability['overbooking_rooms'] == 0:
+                    print("Overbooking rooms are zero, returning unlimited rooms")
                     return 99999  # Unlimited rooms
             else:
-                # print("2693",availability['total_room_count'], booked_rooms,max(availability['total_room_count'] - booked_rooms, 0))
-                available_rooms = max(
-                    availability['total_room_count'] - booked_rooms, 0)
+                available_rooms = max(availability['total_room_count'] - booked_rooms, 0)
+                print(f"Available rooms without overbooking: {available_rooms}")
 
             total_available_rooms += available_rooms
-            # print('line 2697',total_available_rooms)
+            print(f"Total available rooms so far: {total_available_rooms}")
 
+        print(f"Final total available rooms: {total_available_rooms}")
         return total_available_rooms
 
     @api.onchange('state')
@@ -7094,7 +7313,8 @@ class RoomBooking(models.Model):
             booked_room_lines = self.env['room.booking.line'].search([
                 ('room_id', '!=', False),
                 ('checkin_date', '<', booking.checkout_date),
-                ('checkout_date', '>', booking.checkin_date)
+                ('checkout_date', '>', booking.checkin_date),
+                ('booking_id.state', 'in', ['confirmed','block','check_in']),
             ])
             booked_room_ids = booked_room_lines.mapped('room_id').ids
 
@@ -7573,9 +7793,9 @@ class RoomBooking(models.Model):
                 [res['rooms_reserved'] for res in record.availability_results])
             requested_rooms = record.room_count
 
-            if total_reserved_rooms + requested_rooms > total_available_rooms:  # Check if enough rooms are available
-                raise ValidationError(
-                    "Only {} rooms are available.".format(total_available_rooms - total_reserved_rooms))
+            # if total_reserved_rooms + requested_rooms > total_available_rooms:  # Check if enough rooms are available
+            #     raise ValidationError(
+            #         "Only {} rooms are available.".format(total_available_rooms - total_reserved_rooms))
 
             # Process valid results if rooms are available
             result_lines = []
@@ -7861,11 +8081,27 @@ class ResPartnerDetails(models.Model):
     _rec_name = 'partner_id' 
 
     partner_id = fields.Many2one('res.partner', string="Partner", required=True)
-    company_id = fields.Many2one('res.company', string="Company", required=True)
+    partner_company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company, tracking=True)
     rate_code = fields.Many2one('rate.code', string="Rate Code")
     source_of_business = fields.Many2one('source.business', string="Source of Business")
     market_segments = fields.Many2one('market.segment', string="Market Segment")
     meal_pattern = fields.Many2one('meal.pattern', string="Meal Pattern")
+
+    # @api.onchange('partner_company_id')
+    # def _onchange_company_id(self):
+    #     """Update rate_code domain based on the selected Company."""
+    #     if self.partner_company_id:
+    #         return {
+    #             'domain': {
+    #                 'rate_code': [('company_id', '=', self.partner_company_id.id)]
+    #             }
+    #         }
+    #     else:
+    #         return {
+    #             'domain': {
+    #                 'rate_code': []
+    #             }
+    #         }
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -7883,7 +8119,7 @@ class ResPartner(models.Model):
         # Create a record in the new model
         self.env['partner.details'].create({
             'partner_id': partner.id,
-            'company_id': self.env.company.id,
+            'partner_company_id': self.env.company.id,
             'rate_code': vals.get('rate_code'),
             'source_of_business': vals.get('source_of_business'),
             'market_segments': vals.get('market_segments'),
@@ -7904,7 +8140,42 @@ class ResPartner(models.Model):
     def _onchange_is_vip(self):
         if not self.is_vip:
             self.vip_code = False
+    
+    # partner_details_id = fields.Many2one(
+    #     'partner.details',
+    #     domain=lambda self: [('company_id', '=', self.env.company.id)],
+    #     string="Partner Details",
+    #     tracking=True
+    # )
 
+    # rate_code = fields.Many2one(
+    #     'rate.code',
+    #     string="Rate Code",
+    #     related="partner_details_id.rate_code",
+    #     store=True,
+    #     readonly=False,  # Make it editable if needed
+    #     domain=lambda self: [('obsolete', '=', False)]
+    # )
+    # meal_pattern = fields.Many2one(
+    #     'meal.pattern',
+    #     string="Meal Pattern",
+    #     related="partner_details_id.meal_pattern",
+    #     store=True,
+    #     readonly=False  # Make it editable if needed
+    # )
+    meal_rate_ids = fields.One2many('partner.details', 'partner_id', string='Meal and Rate',domain=lambda self: [
+        ('partner_company_id', '=', self.env.company.id),
+    ],)
+    @api.constrains('meal_rate_ids')
+    def _check_meal_rate_limit(self):
+        for record in self:
+            if len(record.meal_rate_ids) > 1:
+                raise ValidationError("You can only add one meal and rate code entry.")
+    
+
+    #   domain=lambda self: [
+    #     ('company_id', '=', self.env.company.id),
+    # ],
     rate_code = fields.Many2one('rate.code',  domain=lambda self: [
         ('company_id', '=', self.env.company.id),
         ('obsolete', '=', False)
@@ -8028,6 +8299,7 @@ class SystemDate(models.Model):
     checkin_time = fields.Char(string="Check-in Time", help="Select the check-in time")
     checkout_time = fields.Char(string="Check-out Time", help="Select the check-out time")
     
+    
     @api.constrains('checkin_time', 'checkout_time')
     def _check_time_format(self):
         time_pattern = re.compile(r'^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$')  # Regex for HH:MM:SS format
@@ -8131,12 +8403,29 @@ class SystemDate(models.Model):
                               help="Guest review of the hotel")
     web_payment = fields.Float(
         string="Payment", help="Payment value", default=0.0)
-    rate_code = fields.Many2one('rate.code',   domain=lambda self: [('company_id', '=', 1)], string="Rate Codes")
-     
+    rate_code = fields.Many2one('rate.code',   domain=lambda self: [('company_id', '=', self.env.company.id)], string="Rate Codes")
+    market_segment = fields.Many2one('market.segment', string='Market Segment')
     
+    # source_business = fields.Many2one(
+    #     'source.business', domain="[('company_id', '=', 2)]", string="Source of Business")
     source_business = fields.Many2one(
-        'source.business', domain="[('company_id', '=', 2)]", string="Source of Business")
+        'source.business', string="Source of Business")
 
+    @api.constrains('rate_code', 'name')
+    def _check_company_name(self):
+        """Ensure rate_code is only assigned if the name matches the current company."""
+        current_company = self.env.company
+        for record in self:
+            if record.rate_code and record.name != current_company.name:
+                record.rate_code = False  # Forcefully set rate_code to False
+                raise ValidationError(
+                    _(
+                        "You cannot assign a Rate Code because your current hotel is '%s', "
+                        "but the hotel name is '%s'. Both must be the same. "
+                        "or select blank rate code to create new hotel"
+
+                    ) % (current_company.name, record.name)
+                )
     # @api.onchange('system_date')
     # def _onchange_system_date(self):
     #     if self.system_date:
@@ -8188,6 +8477,18 @@ class HotelInventory(models.Model):
     overbooking_rooms = fields.Integer(string="Overbooking Rooms")
     company_id = fields.Many2one(
         'res.company', string="Company", default=lambda self: self.env.company)
+    
+    @api.onchange('web_allowed_reservations')
+    def _onchange_web_allowed_reservations(self):
+        for record in self:
+            if record.web_allowed_reservations > record.total_room_count:
+                record.web_allowed_reservations = 0  # Resetting the value
+                return {
+                    'warning': {
+                        'title': "Validation Error",
+                        'message': "Web Allowed Reservations cannot be greater than Total Room Count.",
+                    }
+                }
 
 
 class RoomAvailabilityResult(models.Model):
@@ -8733,6 +9034,7 @@ class ConfirmEarlyCheckoutWizard(models.TransientModel):
 
             booking.checkout_date = today
             booking._perform_checkout()
+            booking._create_invoice()  # Only create invoice if confirmed
 
         return {
             'type': 'ir.actions.client',
@@ -8743,6 +9045,10 @@ class ConfirmEarlyCheckoutWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }
+
+    def action_cancel(self):
+        """ Action to cancel the check-in """
+        return {'type': 'ir.actions.act_window_close'}
 
     # def action_confirm_checkout(self):
     #     """Set checkout_date to today and proceed with check-out"""

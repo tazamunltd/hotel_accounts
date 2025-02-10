@@ -41,16 +41,21 @@
                     <t t-name="kanban-box">
                         <div class="oe_kanban_card oe_kanban_global_click">
                             <div>
-                                <strong><field name="name" /></strong>
+                                <strong>
+                                    <field name="name" />
+                                </strong>
                             </div>
                             <div>
-                                <span>Room Type:</span> <field name="room_type_name" />
+                                <span>Room Type:</span>
+                                <field name="room_type_name" />
                             </div>
                             <div>
-                                <span>Floor:</span> <field name="floor_id" />
+                                <span>Floor:</span>
+                                <field name="floor_id" />
                             </div>
                             <div>
-                                <span>Price:</span> <field name="list_price" />
+                                <span>Price:</span>
+                                <field name="list_price" />
                             </div>
                             <!-- <div>
                                 <span>Status:</span> <field name="status" />
@@ -70,8 +75,7 @@
             <search>
                 <field name="name" string="Room Name" />
                 <field name="room_type_name" string="Room Type" />
-                <filter name="room_type_filter" string="Room Type"
-                    domain="[('room_type_name', '!=', False)]" />
+                <filter name="room_type_filter" string="Room Type" domain="[('room_type_name', '!=', False)]" />
             </search>
         </field>
     </record>
@@ -183,8 +187,7 @@
                     <field name="status" widget="statusbar" readonly="1" />
                 </header> -->
                 <sheet>
-                    <field name="room_image" widget="image" class="oe_avatar"
-                        options="{'preview_image': 'room_image'}" />
+                    <field name="room_image" widget="image" class="oe_avatar" options="{'preview_image': 'room_image'}" />
 
                     <div class="oe_title">
                         <label for="name" string="Room Name" class="form-label small" />
@@ -211,30 +214,22 @@
                                         <div class="card-body py-1 px-2">
                                             <div class="row g-2">
                                                 <div class="col-md-6">
+                                                    <!-- <div class="form-group mb-1">
+                                                        <label for="user_id" class="form-label small">Room Manager</label>
+                                                        <field name="user_id" select="2" class="form-control form-control-sm" />
+                                                    </div> -->
                                                     <div class="form-group mb-1">
-                                                        <label for="user_id"
-                                                            class="form-label small">Room Manager</label>
-                                                        <field name="user_id" select="2"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="room_type_name" class="form-label small">Room Type</label>
+                                                        <field name="room_type_name" class="form-control form-control-sm" />
                                                     </div>
+                                                    <!-- <div class="form-group mb-1">
+                                                        <label for="list_price" class="form-label small">Rent</label>
+                                                        <field name="list_price" widget="monetary" class="form-control form-control-sm" />
+                                                    </div> -->
                                                     <div class="form-group mb-1">
-                                                        <label for="room_type_name"
-                                                            class="form-label small">Room Type</label>
-                                                        <field name="room_type_name"
-                                                            class="form-control form-control-sm" />
-                                                    </div>
-                                                    <div class="form-group mb-1">
-                                                        <label for="list_price"
-                                                            class="form-label small">Rent</label>
-                                                        <field name="list_price" widget="monetary"
-                                                            class="form-control form-control-sm" />
-                                                    </div>
-                                                    <div class="form-group mb-1">
-                                                        <label for="num_person"
-                                                            class="form-label small">Number of
+                                                        <label for="num_person" class="form-label small">Number of
                                                             Persons</label>
-                                                        <field name="num_person"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="num_person" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -242,23 +237,16 @@
                                                         <field name="uom_id" invisible="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="taxes_ids"
-                                                            class="form-label small">Customer Taxes</label>
-                                                        <field name="taxes_ids"
-                                                            widget="many2many_tags"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="taxes_ids" class="form-label small">Customer Taxes</label>
+                                                        <field name="taxes_ids" widget="many2many_tags" class="form-control form-control-sm" />
                                                     </div>
+                                                    <!-- <div class="form-group mb-1">
+                                                        <label for="floor_id" class="form-label small">Floor</label>
+                                                        <field name="floor_id" class="form-control form-control-sm" />
+                                                    </div> -->
                                                     <div class="form-group mb-1">
-                                                        <label for="floor_id"
-                                                            class="form-label small">Floor</label>
-                                                        <field name="floor_id"
-                                                            class="form-control form-control-sm" />
-                                                    </div>
-                                                    <div class="form-group mb-1">
-                                                        <label for="door_sign"
-                                                            class="form-label small">Door Sign</label>
-                                                        <field name="door_sign"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="door_sign" class="form-label small">Door Sign</label>
+                                                        <field name="door_sign" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -270,24 +258,18 @@
                                                             Suite</label>
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="connected_room"
-                                                            class="form-label small">Connected Room</label>
-                                                        <field name="connected_room"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="connected_room" class="form-label small">Connected Room</label>
+                                                        <field name="connected_room" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="type_of_bed"
-                                                            class="form-label small">Type of Bed</label>
-                                                        <field name="type_of_bed"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="type_of_bed" class="form-label small">Type of Bed</label>
+                                                        <field name="type_of_bed" class="form-control form-control-sm" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="type_of_bath"
-                                                            class="form-label small">Type of Bath</label>
-                                                        <field name="type_of_bath"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="type_of_bath" class="form-label small">Type of Bath</label>
+                                                        <field name="type_of_bath" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -307,56 +289,42 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-1">
                                                         <field name="obsolete" />
-                                                        <label for="obsolete"
-                                                            class="form-label small">Obsolete</label>
+                                                        <label for="obsolete" class="form-label small">Obsolete</label>
                                                     </div>
                                                     <div class="form-group mb-1">
                                                         <field name="no_smoking" />
-                                                        <label for="no_smoking"
-                                                            class="form-label small">No Smoking</label>
+                                                        <label for="no_smoking" class="form-label small">No Smoking</label>
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="section_hk"
-                                                            class="form-label small">Housekeeping
+                                                        <label for="section_hk" class="form-label small">Housekeeping
                                                             Section</label>
-                                                        <field name="section_hk"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="section_hk" class="form-control form-control-sm" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="telephone_ext"
-                                                            class="form-label small">Telephone
+                                                        <label for="telephone_ext" class="form-label small">Telephone
                                                             Extension</label>
-                                                        <field name="telephone_ext"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="telephone_ext" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="disability_features"
-                                                            class="form-label small">Disability
+                                                        <label for="disability_features" class="form-label small">Disability
                                                             Features</label>
-                                                        <field name="disability_features"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="disability_features" class="form-control form-control-sm" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="extra_features"
-                                                            class="form-label small">Extra Features</label>
-                                                        <field name="extra_features"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="extra_features" class="form-label small">Extra Features</label>
+                                                        <field name="extra_features" class="form-control form-control-sm" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="housekeeping_staff_status"
-                                                            class="form-label small">Housekeeping
+                                                        <label for="housekeeping_staff_status" class="form-label small">Housekeeping
                                                             Staff Status</label>
-                                                        <field name="housekeeping_staff_status"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="housekeeping_staff_status" class="form-control form-control-sm" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="maintenance_status"
-                                                            class="form-label small">Maintenance
+                                                        <label for="maintenance_status" class="form-label small">Maintenance
                                                             Status</label>
-                                                        <field name="maintenance_status"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="maintenance_status" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -365,7 +333,7 @@
                                 </div>
 
                                 <!-- Pricing Information -->
-                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                <!-- <div class="col-lg-4 col-md-4 col-sm-12">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
                                             <i class="fa fa-tag"></i>
@@ -375,25 +343,21 @@
                                             <div class="row g-2">
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="rate_code"
-                                                            class="form-label small">Rate Code</label>
-                                                        <field name="rate_code"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="rate_code" class="form-label small">Rate Code</label>
+                                                        <field name="rate_code" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="rate_posting_item"
-                                                            class="form-label small">Rate Posting
+                                                        <label for="rate_posting_item" class="form-label small">Rate Posting
                                                             Item</label>
-                                                        <field name="rate_posting_item"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="rate_posting_item" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </page>
 
@@ -410,8 +374,7 @@
                                             <div class="form-group mb-1">
                                                 <label for="fsm_location" class="form-label small">FSM
                                                     Location</label>
-                                                <field name="fsm_location"
-                                                    class="form-control form-control-sm" />
+                                                <field name="fsm_location" class="form-control form-control-sm" />
                                             </div>
                                         </div>
                                     </div>
@@ -429,11 +392,8 @@
                                         </div>
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
-                                                <label for="room_amenities_ids"
-                                                    class="form-label small">Room Amenities</label>
-                                                <field name="room_amenities_ids"
-                                                    widget="many2many_tags"
-                                                    class="form-control form-control-sm" />
+                                                <label for="room_amenities_ids" class="form-label small">Room Amenities</label>
+                                                <field name="room_amenities_ids" widget="many2many_tags" class="form-control form-control-sm" />
                                             </div>
                                         </div>
                                     </div>
@@ -453,8 +413,7 @@
                                             <div class="form-group mb-1">
                                                 <label for="description" class="form-label small">
                                                     Description</label>
-                                                <field name="description" colspan="4" nolabel="1"
-                                                    class="form-control form-control-sm" />
+                                                <field name="description" colspan="4" nolabel="1" class="form-control form-control-sm" />
                                             </div>
                                         </div>
                                     </div>
@@ -474,33 +433,26 @@
                                             <div class="row g-2">
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="pending_repairs"
-                                                            class="form-label small">Pending Repairs</label>
+                                                        <label for="pending_repairs" class="form-label small">Pending Repairs</label>
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <field name="pending_repairs"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="pending_repairs" class="form-control form-control-sm" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="last_repairs"
-                                                            class="form-label small">Last Repairs</label>
-                                                        <field name="last_repairs"
-                                                            class="form-control form-control-sm" />
+                                                        <label for="last_repairs" class="form-label small">Last Repairs</label>
+                                                        <field name="last_repairs" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="room_description"
-                                                            class="form-label small">Room
+                                                        <label for="room_description" class="form-label small">Room
                                                             Description</label>
-                                                        <field name="room_description"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="room_description" class="form-control form-control-sm" />
                                                     </div>
                                                     <div class="form-group mb-1">
                                                         <label for="notes" class="form-label small">
                                                             Notes</label>
-                                                        <field name="notes"
-                                                            class="form-control form-control-sm" />
+                                                        <field name="notes" class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -550,40 +502,38 @@
     </record>
     <!--Room
     Menu-->
-    <!-- <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action"
-    parent="hotel_config_menu" sequence="20"/> -->
+    <!-- <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action" parent="hotel_config_menu" sequence="20"/> -->
 
 
     <menuitem id="hotel_codes" name="Codes" parent="hotel_config_menu" sequence="1" />
 
-    <menuitem id="sub_menu_rate_code" name="Rate Code" parent="hotel_codes"
-        action="setup_configuration.action_rate_code" sequence="1" />
+    <menuitem id="sub_menu_rate_code" name="Rate Code" parent="hotel_codes" action="setup_configuration.action_rate_code" sequence="1" />
 
 
-    <menuitem id="sub_menu_rate_promotion" name="Rate Promotions" parent="hotel_codes"
-        action="setup_configuration.action_rate_promotion" sequence="2" />
+    <menuitem id="sub_menu_rate_promotion" name="Rate Promotions" parent="hotel_codes" action="setup_configuration.action_rate_promotion" sequence="2" />
 
-    <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action" parent="hotel_codes"
-        sequence="3" />
+    <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action" parent="hotel_codes" sequence="3" />
 
-    <menuitem id="sub_menu_meal_codes" name="Meal Codes" parent="hotel_codes"
-        action="setup_configuration.action_meal_code" sequence="4" />
-    
+    <menuitem id="sub_menu_meal_codes" name="Meal Codes" parent="hotel_codes" action="setup_configuration.action_meal_code" sequence="4" />
 
     <menuitem id="sub_menu_meal_pattern" name="Meal Pattern" parent="hotel_codes" action="setup_configuration.action_meal_pattern" sequence="5" />
+    <menuitem id="sub_menu_meal_pattern_sub_type" name="Meal Pattern Sub Type" parent="hotel_codes" action="setup_configuration.action_meal_pattern_sub_type" sequence="6" />
 
 
-    <menuitem id="sub_menu_telephone_extension" name="Telephone Extension" parent="hotel_codes" action="setup_configuration.action_telephone_extension" sequence="6" />
+    <menuitem id="sub_menu_telephone_extension" name="Telephone Extension" parent="hotel_codes" action="setup_configuration.action_telephone_extension" sequence="7" />
 
-    <menuitem id="sub_menu_department_codes" name="Department Codes" parent="hotel_codes" action="setup_configuration.action_department_code" sequence="7" />
+    <menuitem id="sub_menu_department_codes" name="Department Codes" parent="hotel_codes" action="setup_configuration.action_department_code" sequence="8" />
 
-    <menuitem id="sub_menu_posting_items" name="Posting Items" parent="hotel_codes" action="setup_configuration.action_posting_item" sequence="8" />
+    <menuitem id="sub_menu_posting_items" name="Posting Items" parent="hotel_codes" action="setup_configuration.action_posting_item" sequence="9" />
 
-    <menuitem id="sub_menu_dummy_room_codes" name="Dummy Room Codes" parent="hotel_codes" action="setup_configuration.action_dummy_room_code" sequence="9" />
+    <menuitem id="sub_menu_dummy_room_codes" name="Dummy Room Codes" parent="hotel_codes" action="setup_configuration.action_dummy_room_code" sequence="10" />
 
 
-    <menuitem id="sub_menu_budget_entries" name="Budget Entries" parent="hotel_codes" action="setup_configuration.action_budget_entry" sequence="10" />
+    <menuitem id="sub_menu_budget_entries" name="Budget Entries" parent="hotel_codes" action="setup_configuration.action_budget_entry" sequence="11" />
 
-    <menuitem id="sub_menu_cash_box_codes" name="Cash Box Codes" parent="hotel_codes" action="setup_configuration.action_cash_box_code" sequence="11" />
+    <menuitem id="sub_menu_cash_box_codes" name="Cash Box Codes" parent="hotel_codes" action="setup_configuration.action_cash_box_code" sequence="12" />
+
+    
+
 
 </odoo>

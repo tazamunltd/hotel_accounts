@@ -1323,6 +1323,7 @@ class RoomTypeSpecificRate(models.Model):
 
     _rec_name = 'room_type_id'
     # Fields for Room Type Specific Rate Model
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
     rate_code_id = fields.Many2one(
         'rate.code', string="Rate Code", required=True, tracking=True)
     from_date = fields.Date(string="From Date", required=True, tracking=True)
@@ -1658,6 +1659,7 @@ class RoomNumberSpecificRate(models.Model):
 
     _rec_name = 'room_number'
     # Fields for Room Type Specific Rate Model
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
     rate_code_id = fields.Many2one('rate.code', string="Rate Code", required=True, tracking=True)
     from_date = fields.Date(string="From Date", tracking=True)
     to_date = fields.Date(string="To Date", tracking=True)

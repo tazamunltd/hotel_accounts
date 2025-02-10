@@ -56,8 +56,8 @@
         'wizard/sale_order_detail_views.xml',
         'views/reporting_views.xml',
         # 'views/report_template.xml',
-        'views/room_result_by_room_type.xml',
         'views/room_result_byclient_view.xml',
+        'views/room_result_by_room_type.xml',
         'report/room_booking_reports.xml',
         'report/sale_order_reports.xml',
         'views/hotel_view.xml',
@@ -94,6 +94,7 @@
         # 'views/header_datetime.xml',
         'views/new_dashboard_views.xml',
         'views/new_dashboard_action.xml',  # Added new dashboard action - 2025-01-20T00:16:16
+        # 'views/templates.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -133,6 +134,11 @@
 
             'hotel_management_odoo/static/src/views/*.js',
             'hotel_management_odoo/static/src/**/*.xml',
+
+            'hotel_management_odoo/static/src/views/hotel_room_result.js',
+            'hotel_management_odoo/static/src/views/templates.xml',
+            'hotel_management_odoo/static/src/js/plotly_min.js',
+
         ],
     },
     'images': ['static/description/banner.jpg'],

@@ -332,13 +332,17 @@
                 </header> -->
                 <sheet class="custom-form-sheet">
                     <notebook>
-                        <page string="Offline Search"
-                            invisible="state in ('confirmed', 'block', 'no_show', 'check_in', 'check_out')">
-                            <widget name="offline_search_widget" options="{}" />
-                        </page>
+<!--                        <page string="Offline Search"-->
+<!--                            invisible="state in ('confirmed', 'block', 'no_show', 'check_in', 'check_out')">-->
+<!--                            <widget name="offline_search_widget" options="{}" />-->
+<!--                        </page>-->
 
-                        <page string="Main">
-                            <div class="row g-2">
+                        <page string="Main" 
+                        readonly="state in ('check_out')">
+                        <div invisible="is_offline_search == False">
+                                    <widget name="offline_search_widget" options="{}" />
+                        </div>
+                            <div class="row g-2" invisible="is_offline_search == True">
                                 <!-- Hidden Fields -->
                                 <div class="d-none">
                                     <field name="active" />
@@ -370,9 +374,11 @@
                                         readonly="state in ('check_out', 'no_show')" />
                                     <field name="is_vip"
                                         readonly="state in ('check_out', 'no_show')" />
+                                    <field name="is_offline_search" />
                                 </div>
+
                                 <!-- First Column: General Information -->
-                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                <div class="col-lg-4 col-md-4 col-sm-12" invisible="is_offline_search == True">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
                                             <i class="fa fa-info-circle"></i>
@@ -387,7 +393,9 @@
                                             <div class="form-group mb-1">
                                                 <label for="group_booking" class="form-label">Group
                                                     Booking</label>
-                                                <field name="group_booking" class="form-control"
+                                                <field name="group_booking"
+                                                    readonly="state in ('check_out')"
+                                                    class="form-control"
                                                     placeholder="Select Group" />
                                             </div>
                                             <div class="form-group mb-1">
@@ -428,7 +436,7 @@
                                 </div>
 
                                 <!-- Middle Column: Contact Information -->
-                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                <div class="col-lg-4 col-md-4 col-sm-12" invisible="is_offline_search == True">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
                                             <i class="fa fa-tag"></i>
@@ -436,15 +444,19 @@
                                         </div>
                                         <div class="card-body p-2">
                                             <div class="form-group mb-1">
-                                                <field name="is_agent" />
+                                                <field name="is_agent" 
+                                                       readonly="state in ('check_out')"/>
+                                                    
                                                 <label for="is_agent" class="form-label small">Is
                                                     Company</label>
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="partner_id"
+                                                    readonly="state in ('check_out')"
                                                     domain="[('is_company', '=', is_agent)]"
                                                     class="form-control form-control-sm"
-                                                    placeholder=" Select Contact" />
+                                                    placeholder=" Select Contact"
+                                                    />
                                             </div>
 
                                             <div class="form-group mb-1">
@@ -462,13 +474,13 @@
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="reference_contact_"
+                                                    readonly="state in ('check_out')"
                                                     placeholder="Enter Reference Contact" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="rate_code" class="form-label small">Rate
                                                     Code</label>
                                                 <field name="rate_code"
-                                                    
                                                     readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
                                                     force_save="1"
                                                     class="form-control form-control-sm"
@@ -489,7 +501,7 @@
                                 </div>
 
                                 <!-- Right Column: Hotel Booking -->
-                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                <div class="col-lg-4 col-md-4 col-sm-12" invisible="is_offline_search == True">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
                                             <i class="fa fa-bed"></i>
@@ -528,6 +540,7 @@
                                                     <label for="checkout_date"
                                                         class="form-label small">Check-out Date</label>
                                                     <field name="checkout_date"
+                                                        readonly="state in ('check_out')"
                                                         class="form-control form-control-sm"
                                                         placeholder="Select Check-out Date" />
                                                 </div>
@@ -561,7 +574,6 @@
                                                     <label for="hotel_room_type"
                                                         class="form-label small">Room Type</label>
                                                     <field name="hotel_room_type"
-                                                        
                                                         readonly="state in ('block', 'check_in','check_out','no_show')"
                                                         class="form-control form-control-sm"
                                                         placeholder="Select Room Type" />
@@ -590,7 +602,9 @@
                                             </div>
                                             <div class="form-group col-12 mb-1 mt-2">
                                                 <label for="notes" class="form-label small">Notes</label>
-                                                <field name="notes" widget="text"
+                                                <field name="notes"
+                                                        widget="text"
+                                                        readonly="state in ('check_out')"
                                                     class="form-control form-control-sm"
                                                     placeholder="Enter notes" />
                                             </div>
@@ -602,7 +616,7 @@
 
                             <!-- 2) Discounts Section: Meals Discount Details & Additional Details &
                             Payment Details -->
-                            <div class="row g-2">
+                            <div class="row g-2" invisible="is_offline_search == True">
 
                                 <!-- Room Discount Details -->
                                 <div class="col-lg-4 col-md-4 col-sm-12">
@@ -615,45 +629,85 @@
                                             <div class="row">
                                                 <!-- Use Room Price -->
                                                 <div class="form-group col-6 mb-1">
-                                                    <label for="use_price" class="form-label small">Use Room Price</label>
-                                                    <field name="use_price" string="Use Room Price" readonly="state in ('check_out', 'no_show')" force_save="1" style="height: 24px; padding: 2px 6px;" />
+                                                    <field name="use_price" string="Use Room Price"
+                                                        readonly="state in ('check_out', 'no_show', 'check_out')"
+                                                        force_save="1"
+                                                        style="height: 24px; padding: 2px 6px;" />
+                                                    <label for="use_price" class="form-label small">Use
+                                                        Room Price</label>
                                                 </div>
 
                                                 <!-- Room Price -->
-                                                <div class="form-group col-6 mb-1" invisible="use_price == False">
-                                                    <label for="room_price" class="form-label small">Room Price</label>
-                                                    <field name="room_price" string="Room Price" readonly="state in ('check_out', 'no_show')" class="form-control form-control-sm" force_save="1" style="height: 24px; padding: 2px 6px;" />
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="use_price == False">
+                                                    <label for="room_price" class="form-label small">Room
+                                                        Price</label>
+                                                    <field name="room_price" string="Room Price"
+                                                        readonly="state in ('check_out', 'no_show', 'check_out')"
+                                                        class="form-control form-control-sm"
+                                                        force_save="1"
+                                                        style="height: 24px; padding: 2px 6px;" />
                                                 </div>
 
                                                 <!-- Discount or Percentage -->
                                                 <!-- Percentage -->
-                                                <div class="form-group col-6 mb-1" invisible="room_is_percentage == False or use_price == False">
-                                                    <label for="room_discount" class="form-label small">Discount (Percentage)</label>
-                                                    <field name="room_discount" widget="percentage" digits="[16,2]" class="form-control form-control-sm" force_save="1" />
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="room_is_percentage == False or use_price == False">
+                                                    <label for="room_discount"
+                                                        class="form-label small">Discount
+                                                        (Percentage)</label>
+                                                    <field name="room_discount" widget="percentage" readonly="state in ('check_out')"
+                                                        digits="[16,2]"
+                                                        class="form-control form-control-sm"
+                                                        force_save="1" />
                                                 </div>
 
                                                 <!-- Amount -->
-                                                <div class="form-group col-6 mb-1" invisible="room_is_percentage == True or use_price == False">
-                                                    <label for="room_discount" class="form-label small">Room Discount (Amount)</label>
-                                                    <field name="room_discount" digits="[16,2]" class="form-control form-control-sm" force_save="1" />
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="room_is_percentage == True or use_price == False">
+                                                    <label for="room_discount"
+                                                        class="form-label small">Room Discount
+                                                        (Amount)</label>
+                                                    <field name="room_discount" digits="[16,2]"
+                                                        class="form-control form-control-sm"
+                                                        force_save="1" />
                                                 </div>
 
                                                 <!-- Is Amount -->
-                                                <div class="form-group col-6 mb-1" invisible="room_is_percentage == True or use_price == False">
-                                                    <label for="room_is_amount" class="form-label small">Is Amount</label>
-                                                    <field name="room_is_amount" string="Room Discount As Amount" readonly="state in ('check_out', 'no_show')" class="form-control form-control-sm" force_save="1" style="height: 24px; padding: 2px 6px;" />
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="room_is_percentage == True or use_price == False">
+                                                    <field name="room_is_amount"
+                                                        string="Room Discount As Amount"
+                                                        readonly="state in ('check_out', 'no_show')"
+                                                        force_save="1"
+                                                        style="height: 24px; padding: 2px 6px;" />
+                                                    <label for="room_is_amount"
+                                                        class="form-label small">Is Amount</label>
                                                 </div>
 
                                                 <!-- Is Percentage -->
-                                                <div class="form-group col-6 mb-1" invisible="room_is_amount == True or use_price == False">
-                                                    <label for="room_is_percentage" class="form-label small">Is Percentage?</label>
-                                                    <field name="room_is_percentage" string="Room Discount As Percentage" readonly="state in ('check_out', 'no_show')" class="form-control form-control-sm" force_save="1" style="height: 24px; padding: 2px 6px;" />
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="room_is_amount == True or use_price == False">
+                                                    <field name="room_is_percentage"
+                                                        string="Room Discount As Percentage"
+                                                        readonly="state in ('check_out', 'no_show')"
+                                                        force_save="1"
+                                                        style="height: 24px; padding: 2px 6px;" />
+                                                    <label for="room_is_percentage"
+                                                        class="form-label small">Is Percentage?</label>
                                                 </div>
 
                                                 <!-- Amount Selection -->
-                                                <div class="form-group col-6 mb-1" invisible="use_price == False or room_is_amount == False">
-                                                    <label for="room_amount_selection" class="form-label small">Amount Selection</label>
-                                                    <field name="room_amount_selection" string="Room Amount Selection" readonly="state in ('check_out', 'no_show')" class="form-control form-control-sm" force_save="1" style="height: 24px; padding: 2px 6px;" />
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="use_price == False or room_is_amount == False">
+                                                    <label for="room_amount_selection"
+                                                        class="form-label small">Amount Selection</label>
+                                                    <field name="room_amount_selection"
+                                                        string="Room Amount Selection"
+                                                        readonly="state in ('check_out', 'no_show')"
+                                                        class="form-control form-control-sm"
+                                                        force_save="1"
+                                                        style="height: 24px; padding: 2px 6px;" />
                                                 </div>
                                             </div>
                                         </div>
@@ -670,7 +724,9 @@
                                         <div class="card-body p-2">
                                             <div class="row">
                                                 <div class="form-group col-6 mb-1">
-                                                    <field name="use_meal_price" force_save="1" />
+                                                    <field name="use_meal_price"
+                                                            readonly="state in ('check_out')" 
+                                                            force_save="1" />
                                                     <label for="use_meal_price"
                                                         class="form-label small">use_priceMeal Price</label>
                                                 </div>
@@ -679,6 +735,7 @@
                                                     <label for="meal_price" class="form-label small">Meal
                                                         Price</label>
                                                     <field name="meal_price"
+                                                        readonly="state in ('check_out')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
@@ -687,6 +744,7 @@
                                                     <label for="meal_child_price"
                                                         class="form-label small">Child Meal Price</label>
                                                     <field name="meal_child_price"
+                                                        readonly="state in ('check_out')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
@@ -695,7 +753,7 @@
                                                     <label for="meal_discount"
                                                         class="form-label small">Meal Discount
                                                         (Percentage)</label>
-                                                    <field name="meal_discount" widget="percentage"
+                                                    <field name="meal_discount" widget="percentage" readonly="state in ('check_out')"
                                                         digits="[16,2]"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
@@ -705,29 +763,28 @@
                                                     <label for="meal_discount"
                                                         class="form-label small">Meal Discount
                                                         (Amount)</label>
-                                                    <field name="meal_discount" digits="[16,2]"
+                                                    <field name="meal_discount" digits="[16,2]" readonly="state in ('check_out')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
-                                                <div class="form-group col-6 mb-1" invisible="meal_is_percentage == True or use_meal_price == False">
-                                                    <label for="meal_is_amount"
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="meal_is_percentage == True or use_meal_price == False">
+                                                    <field name="meal_is_amount"  readonly="state in ('check_out')" force_save="1" />
+                                                    <label for="meal_is_amount" 
                                                         class="form-label small">Is Amount</label>
-                                                    <field name="meal_is_amount"
-                                                        class="form-control form-control-sm"
-                                                        force_save="1" />
                                                 </div>
-                                                <div class="form-group col-6 mb-1" invisible="meal_is_amount == True or use_meal_price == False">
+                                                <div class="form-group col-6 mb-1"
+                                                    invisible="meal_is_amount == True or use_meal_price == False">
+                                                    <field name="meal_is_percentage" force_save="1" />
                                                     <label for="meal_is_percentage"
                                                         class="form-label small">Is Percentage</label>
-                                                    <field name="meal_is_percentage"
-                                                        class="form-control form-control-sm"
-                                                        force_save="1" />
                                                 </div>
                                                 <div class="form-group col-6 mb-1"
                                                     invisible="meal_is_amount == False or use_meal_price == False">
                                                     <label for="meal_amount_selection"
                                                         class="form-label small">Amount Selection</label>
                                                     <field name="meal_amount_selection"
+                                                        readonly="state in ('check_out')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
@@ -748,6 +805,7 @@
                                                 <label for="payment_type" class="form-label small">Payment
                                                     Type</label>
                                                 <field name="payment_type" widget="radio"
+                                                    readonly="state in ('check_out')"
                                                     class="form-control form-control-sm"
                                                     style="padding: 2px 6px;" />
                                             </div>
@@ -763,19 +821,22 @@
                                         </div>
                                         <div class="card-body p-2">
                                             <div class="form-group mb-1">
-                                                <field name="vip" force_save="1" />
+                                                <field name="vip" 
+                                                    readonly="state in ('check_out')"
+                                                    force_save="1" />
                                                 <label for="vip" class="form-label small">VIP</label>
                                             </div>
                                             <div class="form-group mb-1" invisible="vip == False">
                                                 <label for="vip_code" class="form-label small">VIP
                                                     Code</label>
                                                 <field name="vip_code"
+                                                    readonly="state in ('check_out')"
                                                     class="form-control form-control-sm"
                                                     domain="[('obsolete', '=', False)]"
                                                     force_save="1" />
                                             </div>
                                             <div class="form-group mb-1">
-                                                <field name="complementary" force_save="1" />
+                                                <field name="complementary" readonly="state in ('check_out')" force_save="1" />
                                                 <label for="complementary" class="form-label small">
                                                     Complementary</label>
                                             </div>
@@ -783,13 +844,16 @@
                                                 invisible="complementary == False">
                                                 <label for="complementary_codes"
                                                     class="form-label small">Complementary Codes</label>
-                                                <field name="complementary_codes"
+                                                <field name="complementary_codes" 
+                                                    readonly="state in ('check_out')"
                                                     domain="[('obsolete', '=', False)]"
                                                     class="form-control form-control-sm"
                                                     force_save="1" />
                                             </div>
                                             <div class="form-group mb-1">
-                                                <field name="house_use" force_save="1" />
+                                                <field name="house_use" 
+                                                    readonly="state in ('check_out')" 
+                                                    force_save="1" />
                                                 <label for="house_use" class="form-label small">House
                                                     Use</label>
                                             </div>
@@ -798,6 +862,7 @@
                                                 <label for="house_use_codes"
                                                     class="form-label small">House Use Codes</label>
                                                 <field name="house_use_codes"
+                                                    readonly="state in ('check_out')"
                                                     domain="[('obsolete', '=', False)]"
                                                     class="form-control form-control-sm"
                                                     force_save="1" />
@@ -811,6 +876,7 @@
 
                         <page string="Adults">
                             <field name="adult_ids"
+                                readonly="state in ('check_out')"
                                 options="{'invisible': [('adult_count', '=', 0)]}">
                                 <tree string="Adults" editable="top" create="false">
                                     <field name="room_sequence" />
@@ -833,6 +899,7 @@
                         </page>
                         <page string="Children">
                             <field name="child_ids"
+                                readonly="state in ('check_out')"
                                 options="{'invisible': [('child_count', '=', 0)]}">
                                 <tree string="Children" editable="top" create="false">
                                     <field name="room_sequence" />
@@ -855,6 +922,7 @@
                         </page>
                         <page string="Infant">
                             <field name="infant_ids"
+                                readonly="state in ('check_out')"
                                 options="{'invisible': [('infant_count', '=', 0)]}">
                                 <tree string="Infant" editable="top" create="false">
                                     <field name="room_sequence" />
@@ -921,25 +989,23 @@
                             </field>
                         </page>
                         <page name="folio" string="Room Detail">
-                            <group>
-                                <!-- <field name="start_line" string="From Record"
-                                placeholder="Enter Start Line"/>
-                                <field name="end_line" string="To Record" placeholder="Enter End Line"/>
-                                <button name="action_delete_lines" type="object" string="Delete Records" class="btn-primary"/> -->
+                            <group class="record-filters">
                                 <field name="start_line" string="From Record"
                                     placeholder="Enter Start Line"
+                                    class="input-field"
                                     invisible="state in ('check_in', 'check_out')" />
                                 <field name="end_line" string="To Record"
                                     placeholder="Enter End Line"
+                                    class="input-field"
                                     invisible="state in ('check_in', 'check_out')" />
                                 <button name="action_delete_lines" type="object"
-                                    string="Delete Records" class="btn-primary"
+                                    string="Delete Records" class="btn btn-primary"
                                     invisible="state in ('check_in', 'check_out')" />
                             </group>
                             <field name="total_people" invisible="1" />
                             <field name="is_room_line_readonly" invisible="1" />
                             <field name="room_line_ids" colspan="4" string="Room Lines"
-                                readonly="is_room_line_readonly"
+                                readonly="state in ('check_out') or is_room_line_readonly"
                                 context="{'default_checkin_date':checkin_date, 'default_checkout_date':checkout_date, 'default_uom_qty':duration, 'default_hotel_room_type': hotel_room_type}">
                                 <tree editable="bottom" create="false" delete="false">
                                     <field name="sequence" readonly="1" />
@@ -1202,7 +1268,7 @@
                 <field name="reference_contact_" optional="show" />
                 <field name="parent_booking_name" optional="show" />
                 <field name="group_booking" optional="show" />
-                <field name="checkin_date" widget="date" optional="show"  />
+                <field name="checkin_date" widget="date" optional="show" />
                 <field name="checkout_date" optional="show" widget="date" />
                 <field name="house_use" optional="show" />
                 <field name="date_order" widget="date" force_save="1" optional="show" />
@@ -1255,15 +1321,36 @@
             <xpath expr="//field[@name='vat']" position="after">
                 <field name="is_vip" string="VIP" />
                 <field name="vip_code" invisible="not is_vip" required="is_vip == True" />
-                <field name="rate_code" string="Rate Code" />
+                <!-- <field name="rate_code" string="Rate Code" /> -->
                 <field name="source_of_business" string="Source of Business" />
                 <field name="nationality" string="Nationality" />
                 <field name="market_segments" />
-                <field name="meal_pattern" />
+                <!-- <field name="meal_pattern" /> -->
                 <field name="max_pax" />
             </xpath>
+            <xpath expr="//notebook" position="inside">
+            <page string="Meal and Rate Codes">
+                <group>
+                    <field name="meal_rate_ids">
+                        <tree editable="bottom">
+                            <field name="partner_company_id" readonly="1"/>
+                            <field name="rate_code"/>
+                            <!-- <field name="rate_code" domain="[('company_id', '=', partner_company_id)]"/> -->
+                            <!-- <field name="meal_pattern" domain="[('company_id', '=', partner_company_id)]"/> -->
+                            <field name="meal_pattern"/>
+                        </tree>
+                    </field>
+                </group>
+            </page>
+        </xpath>
         </field>
     </record>
+    <!-- <record id="partner_details_company_rule" model="ir.rule">
+        <field name="name">Partner Details: Restrict to Current Company</field>
+        <field name="model_id" ref="model_partner_details"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record> -->
 
     <record id="view_move_form_posting_item" model="ir.ui.view">
         <field name="name">account.move.form.posting.item</field>
@@ -1311,14 +1398,17 @@
                 <field name="age_threshold" />
             </xpath>
             <xpath expr="//field[@name='system_date']" position="after">
-                <field name="checkin_time"/>
-                <field name="checkout_time"/>
+                <field name="checkin_time" placeholder="HH:MM:SS" />
+                <field name="checkout_time" placeholder="HH:MM:SS"/>
             </xpath>
             <xpath expr="//field[@name='age_threshold']" position="after">
                 <field name="rate_code" string="Rate Code For Walkin Customer" />
             </xpath>
             <xpath expr="//field[@name='rate_code']" position="after">
                 <field name="source_business" />
+            </xpath>
+            <xpath expr="//field[@name='source_business']" position="after">
+                <field name="market_segment" />
             </xpath>
             <xpath expr="//field[@name='source_business']" position="after">
                 <field name="owner" />
@@ -1377,13 +1467,35 @@
                         <field name="web_review" string="Review" />
                         <field name="web_description" string="Description" />
                         <field name="rate_code" string="Rate Codes" />
-                        <field name="web_payment" string="Min Payment" />
+                        <field name="web_payment" string="Min Payment %" />
                     </group>
                 </page>
             </xpath>
 
         </field>
     </record>
+    <record id="view_hotel_inventory_form" model="ir.ui.view">
+        <field name="name">hotel.inventory.form</field>
+        <field name="model">hotel.inventory</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Details">
+                <group>
+
+                    <field name="image"/>
+                    <field name="room_type"/>
+                    <field name="pax" />
+                    <field name="web_allowed_reservations" /> <!-- Hide Field -->
+                    <field name="overbooking_rooms"/>
+                    <field name="total_room_count"/> <!-- Conditional -->
+                    <field name="age_threshold" string="Number of children "/> <!-- Conditional -->
+                    <field name="overbooking_allowed"/> <!-- Conditional -->
+                    
+                    <!-- <field name="image" widget="image" class="oe_avatar"/> -->
+                </group>
+            </form>
+        </field>
+    </record>
+
 
     <record id="view_room_availability_wizard" model="ir.ui.view">
         <field name="name">room.availability.wizard.form</field>
@@ -1439,7 +1551,7 @@
                 <footer>
                     <button string="Confirm" name="action_confirm_checkout" type="object"
                         class="btn-primary" />
-                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                    <button string="Cancel" name = "action_cancel" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>

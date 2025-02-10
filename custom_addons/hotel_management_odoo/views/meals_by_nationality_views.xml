@@ -5,7 +5,7 @@
             <field name="name">meals.by.nationality.forecast.tree</field>
             <field name="model">meals.by.nationality.forecast</field>
             <field name="arch" type="xml">
-                <tree string="Meals by Nationality Forecast Reports">
+                <tree string="Meals by Nationality Forecast Reports" js_class="hotel_room_result_filter">
                     <field name="report_date" optional="show"/>
                     <field name="company_id" optional="show"/>
                     <field name="room_type_name" optional="show"/>

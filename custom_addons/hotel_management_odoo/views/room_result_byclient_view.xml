@@ -5,12 +5,12 @@
         <field name="name">room.result.by.client.tree</field>
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
-            <tree>
-               <field name="report_date"/>
-                <field name="room_type"/>
-                <field name="client_id" optional="show"/>
-                <field name="expected_inhouse" optional="show"/>
-                <field name="company_id" optional="show"/>
+            <tree string="Room Result By Client" js_class="hotel_room_result_filter">
+                <field name="report_date" />
+                <field name="room_type" />
+                <field name="client_id" optional="show" />
+                <field name="expected_inhouse" optional="show" />
+                <field name="company_id" optional="show" />
             </tree>
         </field>
     </record>
@@ -21,13 +21,13 @@
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
             <graph string="Room Results By Client" type="bar">
-                <field name="report_date" type="row"/>
-                <field name="room_type" type="row"/>
-                <field name="client_id" type="row"/>
-                <field name="total_rooms" type="measure"/>
+                <field name="report_date" type="row" />
+                <field name="room_type" type="row" />
+                <field name="client_id" type="row" />
+                <field name="total_rooms" type="measure" />
                 <!-- <field name="available" type="measure"/> -->
-                <field name="expected_inhouse" type="measure"/>
-                <field name="company_id" type="row"/>
+                <field name="expected_inhouse" type="measure" />
+                <field name="company_id" type="row" />
             </graph>
         </field>
     </record>
@@ -38,14 +38,14 @@
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
             <pivot string="Room Results By Client">
-                <field name="report_date" type="row"/>
-                <field name="room_type" type="row"/>
-                <field name="client_id" type="row"/>
-                <field name="total_rooms" type="measure"/>
+                <field name="report_date" type="row" />
+                <field name="room_type" type="row" />
+                <field name="client_id" type="row" />
+                <field name="total_rooms" type="measure" />
                 <!-- <field name="out_of_order" type="measure"/> -->
                 <!-- <field name="available" type="measure"/> -->
-                <field name="expected_inhouse" type="measure"/>
-                <field name="company_id" type="row"/>
+                <field name="expected_inhouse" type="measure" />
+                <field name="company_id" type="row" />
             </pivot>
         </field>
     </record>
@@ -53,7 +53,7 @@
     <!-- Server Action -->
     <record id="action_run_process" model="ir.actions.server">
         <field name="name">Run Room Process</field>
-        <field name="model_id" ref="model_room_result_by_client"/>
+        <field name="model_id" ref="model_room_result_by_client" />
         <field name="state">code</field>
         <field name="code"><![CDATA[
 model.run_process()
@@ -73,15 +73,15 @@ action = {
     </record>
 
     <!-- Report Action -->
-<!--    <record id="action_room_result_by_client_report" model="ir.actions.report">-->
-<!--        <field name="name">Room Results By Client Report</field>-->
-<!--        <field name="model">room.result.by.client</field>-->
-<!--        <field name="report_type">qweb-pdf</field>-->
-<!--        <field name="report_name">hotel_management_odoo.report_room_result_by_client</field>-->
-<!--        <field name="report_file">hotel_management_odoo.report_room_result_by_client</field>-->
-<!--        <field name="binding_model_id" ref="model_room_result_by_client"/>-->
-<!--        <field name="binding_type">report</field>-->
-<!--    </record>-->
+    <!--    <record id="action_room_result_by_client_report" model="ir.actions.report">-->
+    <!--        <field name="name">Room Results By Client Report</field>-->
+    <!--        <field name="model">room.result.by.client</field>-->
+    <!--        <field name="report_type">qweb-pdf</field>-->
+    <!--        <field name="report_name">hotel_management_odoo.report_room_result_by_client</field>-->
+    <!--        <field name="report_file">hotel_management_odoo.report_room_result_by_client</field>-->
+    <!--        <field name="binding_model_id" ref="model_room_result_by_client"/>-->
+    <!--        <field name="binding_type">report</field>-->
+    <!--    </record>-->
 
     <!-- Action Window -->
     <record id="action_room_result_by_client" model="ir.actions.act_window">
@@ -93,14 +93,14 @@ action = {
 
     <!-- Menu Item -->
     <menuitem id="menu_reporting"
-              name="Reporting"
-              parent="hotel_management_menu_root"
-              sequence="30"/>
+        name="Reporting"
+        parent="hotel_management_menu_root"
+        sequence="30" />
 
     <menuitem id="menu_reservation"
-              name="Reservation"
-              parent="menu_reporting"
-              sequence="10"/>
+        name="Reservation"
+        parent="menu_reporting"
+        sequence="10" />
 
     <!-- Run Room Process Menu Item -->
     <menuitem

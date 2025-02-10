@@ -43,6 +43,21 @@ class ReservationStatusReport(models.Model):
     ref_id_bk = fields.Integer(string='Reference')
     room_name = fields.Integer(string='Room Number')
 
+    @api.model
+    def search_available_rooms(self, from_date, to_date):
+        domain = [
+            ('checkin_date', '>=', from_date),
+            ('checkout_date', '<=', to_date),
+        ]
+        results = self.search(domain)
+        return results.read([
+            'company_id', 'partner_name', 'group_booking', 'ref_id_bk', 
+            'room_count', 'adult_count', 'room_name',  
+            'room_type_name', 'checkin_date', 'checkout_date', 'no_of_nights', 'vip', 
+            'house_use', 'meal_pattern', 'complementary_codes', 'nationality', 'date_order', 
+            'state', 'original_state', 'write_user_name'
+        ])
+
 
     @api.model
     def action_generate_results(self):
@@ -60,6 +75,9 @@ class ReservationStatusReport(models.Model):
 
         # Delete existing records
         self.search([]).unlink()
+        system_date = self.env.company.system_date.date()
+        from_date = system_date - datetime.timedelta(days=7)
+        to_date = system_date + datetime.timedelta(days=7)
         _logger.info("Existing records deleted")
 
         query = """

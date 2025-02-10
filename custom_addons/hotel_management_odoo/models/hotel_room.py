@@ -115,7 +115,7 @@ class HotelRoom(models.Model):
 
 
     user_id = fields.Many2one('res.users', string="User",
-                              related='floor_id.user_id',
+                              
                               help="Automatically selects the manager",
                               tracking=True)
     # room_type = fields.Selection([('single', 'Single'),
@@ -130,7 +130,7 @@ class HotelRoom(models.Model):
                                 help="Automatically chooses the No. of Persons",
                                 tracking=True)
     description = fields.Html(string='Description', help="Add description",
-                              translate=True, tracking=True)
+                              translate=True)
     company_id = fields.Many2one('res.company', string='Company',
                                  default=lambda self: self.env.company, required=True, tracking=True)
 

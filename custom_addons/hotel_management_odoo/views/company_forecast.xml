@@ -5,27 +5,24 @@
             <field name="name">company.forecast.report.tree</field>
             <field name="model">company.forecast.report</field>
             <field name="arch" type="xml">
-                <tree string="Company Forecast Reports">
+                <tree string="Company Forecast Reports" js_class="hotel_room_result_filter">
                     <field name="report_date" optional="show"/>
                     <field name="company_name" optional="show"/>
                     <field name="room_type_name" optional="show"/>
                     <field name="customer_name" optional="show"/>
-                    <field name="expected_arrivals" optional="show"/>
+                    <field name="expected_arrivals_count" optional="show"/>
                     <field name="expected_arrivals_adults" optional="show"/>
                     <field name="expected_arrivals_children" optional="show"/>
                     <field name="expected_arrivals_infants" optional="show"/>
-                    <field name="expected_arrivals_total" optional="show"/>
-                    <field name="expected_departures" optional="show"/>
+                    <field name="expected_departures_count" optional="show"/>
                     <field name="expected_departures_adults" optional="show"/>
                     <field name="expected_departures_children" optional="show"/>
                     <field name="expected_departures_infants" optional="show"/>
-                    <field name="expected_departures_total" optional="show"/>
-                    <field name="in_house" optional="show"/>
+                    <field name="in_house_count" optional="show"/>
                     <field name="in_house_adults" optional="show"/>
                     <field name="in_house_children" optional="show"/>
                     <field name="in_house_infants" optional="show"/>
-                    <field name="in_house_total" optional="show"/>
-                    <field name="expected_in_house" optional="show"/>
+                    <field name="expected_in_house_count" optional="show"/>
                     <field name="expected_in_house_adults" optional="show"/>
                     <field name="expected_in_house_children" optional="show"/>
                     <field name="expected_in_house_infants" optional="show"/>
@@ -44,22 +41,19 @@
                     <field name="company_name" type="row"/>
                     <field name="room_type_name" type="row"/>
                     <field name="customer_name" type="row"/>
-                    <field name="expected_arrivals" type="measure"/>
+                    <field name="expected_arrivals_count" type="measure"/>
                     <field name="expected_arrivals_adults" type="measure"/>
                     <field name="expected_arrivals_children" type="measure"/>
                     <field name="expected_arrivals_infants" type="measure"/>
-                    <field name="expected_arrivals_total" type="measure"/>
-                    <field name="expected_departures" type="measure"/>
+                    <field name="expected_departures_count" type="measure"/>
                     <field name="expected_departures_adults" type="measure"/>
                     <field name="expected_departures_children" type="measure"/>
                     <field name="expected_departures_infants" type="measure"/>
-                    <field name="expected_departures_total" type="measure"/>
-                    <field name="in_house" type="measure"/>
+                    <field name="in_house_count" type="measure"/>
                     <field name="in_house_adults" type="measure"/>
                     <field name="in_house_children" type="measure"/>
                     <field name="in_house_infants" type="measure"/>
-                    <field name="in_house_total" type="measure"/>
-                    <field name="expected_in_house" type="measure"/>
+                    <field name="expected_in_house_count" type="measure"/>
                     <field name="expected_in_house_adults" type="measure"/>
                     <field name="expected_in_house_children" type="measure"/>
                     <field name="expected_in_house_infants" type="measure"/>
@@ -77,22 +71,20 @@
                     <field name="company_name" type="row"/>
                     <field name="room_type_name" type="row"/>
                     <field name="customer_name" type="row"/>
-                    <field name="expected_arrivals" type="measure"/>
+                    <field name="expected_arrivals_count" type="measure"/>
                     <field name="expected_arrivals_adults" type="measure"/>
                     <field name="expected_arrivals_children" type="measure"/>
                     <field name="expected_arrivals_infants" type="measure"/>
-                    <field name="expected_arrivals_total" type="measure"/>
-                    <field name="expected_departures" type="measure"/>
+                    <field name="expected_departures_count" type="measure"/>
                     <field name="expected_departures_adults" type="measure"/>
                     <field name="expected_departures_children" type="measure"/>
                     <field name="expected_departures_infants" type="measure"/>
                     <field name="expected_departures_total" type="measure"/>
-                    <field name="in_house" type="measure"/>
+                    <field name="in_house_count" type="measure"/>
                     <field name="in_house_adults" type="measure"/>
                     <field name="in_house_children" type="measure"/>
                     <field name="in_house_infants" type="measure"/>
-                    <field name="in_house_total" type="measure"/>
-                    <field name="expected_in_house" type="measure"/>
+                    <field name="expected_in_house_count" type="measure"/>
                     <field name="expected_in_house_adults" type="measure"/>
                     <field name="expected_in_house_children" type="measure"/>
                     <field name="expected_in_house_infants" type="measure"/>

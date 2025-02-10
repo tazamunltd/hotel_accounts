@@ -22,7 +22,7 @@
             <!-- <field name="category_id" position="after">
                 <field name="dynamic_selection_id" string="Location Type"/>
             </field> -->
-            <field name="category_id" position="after">
+            <field name="description" position="after">
                 <div class="form-group mb-2">
                     <label for="dynamic_selection_id" class="form-label">Location Type</label>
                     <field name="dynamic_selection_id" class="form-control"/>

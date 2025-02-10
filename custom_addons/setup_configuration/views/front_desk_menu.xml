@@ -104,6 +104,11 @@
         <field name="res_model">system.languages.ui</field>
         <field name="view_mode">form</field>
     </record>
+    <record id="action_meal_code_sub_type" model="ir.actions.act_window">
+        <field name="name">Meal Code Sub Types</field>
+        <field name="res_model">meal.code.sub.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
 
 
     <menuitem id="sub_menu_front_desk" 
@@ -122,6 +127,13 @@
               action="action_room_type"
               parent="menu_hotel_configuration"
               sequence="10"
+              groups="base.group_system"
+              />
+    <menuitem id="sub_menu_meal_code_sub_type" 
+              name="Meal Code Sub Type" 
+              action="action_meal_code_sub_type"
+              parent="menu_hotel_configuration"
+              sequence="11"
               groups="base.group_system"
               />
 
@@ -258,6 +270,7 @@
               name="Contact List" 
               parent="sub_menu_front_desk"
               />
+              
 
 
 

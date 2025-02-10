@@ -8,7 +8,7 @@ class RoomType(models.Model):
     _rec_name = 'room_type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     
-
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True, readonly=True)
     room_type = fields.Char(string=_("Room Type"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
@@ -73,7 +73,14 @@ class RoomSpecification(models.Model):
             'url': '/web#action=floor_plan_action',  # Example link to a floor plan view
             'target': 'new'
         }
-    
+
+class MealSubType(models.Model):
+    _name = 'meal.code.sub.type'
+
+    name = fields.Char(string="Meal Code Sub Type", required=True)
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+
+
 class MealCode(models.Model):
 
     _name = 'meal.code'
@@ -114,7 +121,16 @@ class MealCode(models.Model):
         ('iftar', 'Iftar'),
         ('sohor', 'Sohor'),
     ], string="Type", default="unspecified",tracking=True)
+    meal_code_sub_type = fields.Many2one('meal.code.sub.type', string="Meal Code Sub Type",
+    domain=lambda self: [
+        ('company_id', '=', self.env.company.id)],)
     
+    
+class MealPatternSubType(models.Model):
+    _name = 'meal.pattern.sub.type'
+
+    name = fields.Char(string="Meal Pattern Sub Type", required=True)
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
 
 
 class MealPattern(models.Model):
@@ -134,6 +150,9 @@ class MealPattern(models.Model):
     user_sort = fields.Integer(string="User Sort",tracking=True)
     meals_list_ids = fields.One2many('meal.list', 'meal_pattern_id', string="Meals List") #
     taxes = fields.Many2one('account.tax', string="Taxes",tracking=True)
+    meal_pattern_sub_type = fields.Many2one('meal.pattern.sub.type', string="Meal Pattern Sub Type",
+    domain=lambda self: [
+        ('company_id', '=', self.env.company.id)],)
 
 class MealList(models.Model):
     _name = 'meal.list'
@@ -150,7 +169,25 @@ class MealList(models.Model):
     meal_pattern_id = fields.Many2one('meal.pattern', string="Meal Pattern", ondelete='cascade',tracking=True)
     price = fields.Float(string="Price/Pax", tracking=True)  # Add a field to store the price of the meal_code
     price_child = fields.Float(string="Price/Child", tracking=True)
-    
+
+    @api.model
+    def create(self, vals):
+        """Ensure price values are set on creation"""
+        if 'meal_code' in vals:
+            meal = self.env['meal.code'].browse(vals['meal_code'])
+            vals['price'] = meal.price_pax or 0.0
+            vals['price_child'] = meal.price_child or 0.0
+        return super(MealList, self).create(vals)
+
+    def write(self, vals):
+        """Ensure price values are updated on write"""
+        if 'meal_code' in vals:
+            for record in self:
+                meal = self.env['meal.code'].browse(vals['meal_code'])
+                vals['price'] = meal.price_pax or 0.0
+                vals['price_child'] = meal.price_child or 0.0
+        return super(MealList, self).write(vals)
+
     @api.onchange('meal_code')
     def _onchange_meal_code(self):
         for record in self:

@@ -19,7 +19,17 @@ class ReservationSummaryReport(models.Model):
     oth =  fields.Integer(string='OTH')
     first_arrival = fields.Date(string='First Arrival')
     last_departure = fields.Date(string='Last Departure')
-    
+
+    @api.model
+    def search_available_rooms(self, from_date, to_date):
+        domain = [
+            ('first_arrival', '>=', from_date),
+            ('last_departure', '<=', to_date),
+        ]
+        results = self.search(domain)
+        return results.read([
+            'company_name', 'group_booking_name', 'rms', 'dlx', 'dbl', 'qud', 'oth', 'first_arrival', 'last_departure'
+        ])
 
     @api.model
     def action_generate_results(self):
@@ -39,15 +49,18 @@ class ReservationSummaryReport(models.Model):
         self.search([]).unlink()
         _logger.info("Existing records deleted")
 
+        get_company = self.env.company.id
+
         query = """
-        WITH filtered_bookings AS (
+WITH filtered_bookings AS (
     SELECT
         rbls.booking_line_id,
         MIN(CASE WHEN rbls.status = 'check_in'  THEN rbls.change_time END) AS first_check_in,
         MAX(CASE WHEN rbls.status = 'check_out' THEN rbls.change_time END) AS last_check_out,
         rb.partner_id,
         rb.group_booking,
-        rb.hotel_room_type
+        rb.hotel_room_type,
+        rb.company_id  -- Added company_id
     FROM room_booking_line_status rbls
     INNER JOIN room_booking rb
         ON rbls.id = rb.id
@@ -55,11 +68,13 @@ class ReservationSummaryReport(models.Model):
         rbls.booking_line_id,
         rb.partner_id,
         rb.group_booking,
-        rb.hotel_room_type
+        rb.hotel_room_type,
+        rb.company_id  -- Added in GROUP BY
 ),
 final_report AS (
     SELECT
         fb.booking_line_id,
+        fb.company_id,  -- Added company_id
         rp.name AS partner_name,
         CASE
             WHEN rp.is_company THEN rp.name
@@ -78,10 +93,11 @@ final_report AS (
         ON rt.id = fb.hotel_room_type
 )
 SELECT
+    company_id,  -- Added in SELECT
     company_name,
     group_booking_name,
 
-    -- Total Rms
+    -- Total Rooms
     COUNT(booking_line_id) AS rms,
 
     -- Pivoted room-type columns
@@ -112,9 +128,11 @@ WHERE
     first_check_in IS NOT NULL
     OR last_check_out IS NOT NULL
 GROUP BY
+    company_id,  -- Added in GROUP BY
     company_name,
     group_booking_name
 ORDER BY
+    company_id,  -- Added in ORDER BY
     company_name,
     group_booking_name;
 
@@ -128,7 +146,14 @@ ORDER BY
 
         for result in results:
             try:
-                (
+                if result[0]:  # Ensure company_id is present
+                    company_id = result[0]
+                    if company_id != self.env.company.id:  # Skip if company_id doesn't match
+                        continue
+                else:
+                    continue
+                (   
+                    company_id,
                     company_name,
                     group_booking_name,
                     rms,
@@ -140,8 +165,23 @@ ORDER BY
                     last_departure
                 ) = result
 
+        # for result in results:
+        #     try:
+        #         (
+        #             company_name,
+        #             group_booking_name,
+        #             rms,
+        #             dlx,
+        #             dbl,
+        #             qud,
+        #             oth,
+        #             first_arrival,
+        #             last_departure
+        #         ) = result
+
 
                 records_to_create.append({
+                    # 'company_id': company_id,
                     'company_name': company_name,
                     'group_booking_name': group_booking_name,
                     'rms': rms,

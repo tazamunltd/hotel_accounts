@@ -169,6 +169,7 @@ class PostingItem(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'item_code'
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
     item_code = fields.Char(string=_("Item"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)

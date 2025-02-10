@@ -7,11 +7,27 @@ from odoo.exceptions import ValidationError
 
 class FSMLocation(models.Model):
     _name = "fsm.location"
-    _inherits = {"res.partner": "partner_id"}
-    _inherit = ["mail.thread", "mail.activity.mixin", "fsm.model.mixin"]
+    # _inherits = {"res.partner": "partner_id"}
+    # _inherit = ["mail.thread", "mail.activity.mixin", "fsm.model.mixin"]
     _description = "Field Service Location"
     _stage_type = "location"
     _rec_names_search = ["complete_name"]
+
+    # Add fields that were previously inherited from res.partner
+    name = fields.Char(string='Name', required=True)
+    street = fields.Char()
+    street2 = fields.Char()
+    city = fields.Char()
+    state_id = fields.Many2one('res.country.state', string='State')
+    zip = fields.Char()
+    country_id = fields.Many2one('res.country', string='Country')
+    email = fields.Char()
+    phone = fields.Char()
+    mobile = fields.Char()
+    tz = fields.Char()
+
+    stage_id = fields.Many2one('fsm.stage', string="Stage ID")
+    active = fields.Boolean(default=True)  
 
     # direction = fields.Char()
     direction = fields.Char(string=_("Direction"), translate=True)
@@ -69,29 +85,49 @@ class FSMLocation(models.Model):
         compute="_compute_complete_name", recursive=True, store=True, translate=True
     )
 
-    @api.model_create_multi
-    def create(self, vals):
-        res = super().create(vals)
-        res.write({"fsm_location": True})
-        return res
+    # @api.model_create_multi
+    # def create(self, vals):
+    #     res = super().create(vals)
+    #     res.write({"fsm_location": True})
+    #     return res
 
-    @api.depends("partner_id.name", "fsm_parent_id.complete_name", "ref")
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Create the FSM Location first
+        locations = super(FSMLocation, self).create(vals_list)
+
+        # Now mark the underlying partner records as inactive
+        for loc in locations:
+            loc.partner_id.write({'active': False})
+
+        return locations
+
+    # @api.depends("partner_id.name", "fsm_parent_id.complete_name", "ref")
+    # def _compute_complete_name(self):
+    #     for loc in self:
+    #         if loc.fsm_parent_id:
+    #             if loc.ref:
+    #                 loc.complete_name = "{} / [{}] {}".format(
+    #                     loc.fsm_parent_id.complete_name, loc.ref, loc.partner_id.name
+    #                 )
+    #             else:
+    #                 loc.complete_name = "{} / {}".format(
+    #                     loc.fsm_parent_id.complete_name, loc.partner_id.name
+    #                 )
+    #         else:
+    #             if loc.ref:
+    #                 loc.complete_name = f"[{loc.ref}] {loc.partner_id.name}"
+    #             else:
+    #                 loc.complete_name = loc.partner_id.name
+
+    @api.depends("name", "fsm_parent_id.complete_name")
     def _compute_complete_name(self):
         for loc in self:
             if loc.fsm_parent_id:
-                if loc.ref:
-                    loc.complete_name = "{} / [{}] {}".format(
-                        loc.fsm_parent_id.complete_name, loc.ref, loc.partner_id.name
-                    )
-                else:
-                    loc.complete_name = "{} / {}".format(
-                        loc.fsm_parent_id.complete_name, loc.partner_id.name
-                    )
+                loc.complete_name = f"{loc.fsm_parent_id.complete_name} / {loc.name}"
             else:
-                if loc.ref:
-                    loc.complete_name = f"[{loc.ref}] {loc.partner_id.name}"
-                else:
-                    loc.complete_name = loc.partner_id.name
+                loc.complete_name = loc.name
+
 
     @api.onchange("fsm_parent_id")
     def _onchange_fsm_parent_id(self):
