@@ -47,7 +47,7 @@ WORKDIR /opt/odoo-tazamun
 RUN useradd -m -d /opt/odoo -U -r -s /bin/bash odoo \
     && chown -R odoo:odoo /opt/odoo-tazamun/
 
-# RUN git clone https://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@github.com/hajikhan/tazamun_internal.git .
+RUN git clone https://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@github.com/hajikhan/tazamun_internal.git .
 
 # Install Python dependencies
 RUN pip install --upgrade pip setuptools wheel Cython==3.0.0a10
@@ -63,7 +63,7 @@ RUN mkdir -p /var/lib/odoo/.local && chown -R odoo:odoo /var/lib/odoo
 USER root
 
 # Copy Odoo source files and custom modules
- COPY . /opt/odoo-tazamun/
+ #COPY . /opt/odoo-tazamun/
 
 # Odoo configuration
 COPY odoo.conf /opt/odoo-tazamun/odoo.conf
@@ -75,4 +75,4 @@ EXPOSE 8069 8071
 EXPOSE 5432
 
 # Run Odoo
-CMD ["python", "/opt/odoo-tazamun/odoo-bin", "-c", "/opt/odoo-tazamun/odoo.conf", "-i", "base"]
+# CMD ["python", "/opt/odoo-tazamun/odoo-bin", "-c", "/opt/odoo-tazamun/odoo.conf", "-i", "base"]
