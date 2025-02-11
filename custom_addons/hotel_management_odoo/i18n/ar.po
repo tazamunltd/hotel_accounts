@@ -3220,7 +3220,7 @@ msgstr "تم العثور على %s أنواع الغرف المتاحة"
 #: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
 #, python-format
 msgid "Free to Sell"
-msgstr "مجاني للبيع"
+msgstr "متاح للبيع"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room_result__free_to_sell
@@ -3230,7 +3230,7 @@ msgstr "مجاني للبيع"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_rooms_forecast_report__free_to_sell
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_yearly_geographical_chart__free_to_sell
 msgid "Free to sell"
-msgstr "مجاني للبيع"
+msgstr "متاح للبيع"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__frequency

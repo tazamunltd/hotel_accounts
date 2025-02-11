@@ -1346,6 +1346,7 @@ class WebAppController(http.Controller):
         rooms = kwargs.get('rooms')
         reference_number = kwargs.get('reference_number')
         payment_details = kwargs.get('payment_details')
+        reference_booking = kwargs.get('reference_booking')
 
         # Check if booking_id is provided
         if not customer_details:
@@ -1430,6 +1431,8 @@ class WebAppController(http.Controller):
                 'checkout_date': checkout_date,
                 'rate_code': rate_code.id,
                 'room_count': 1,
+                'reference_contact_': rate_code.id,
+                'is_offline_search': False,
                 'availability_results': [(0, 0, {
                     'room_type': room['room_type_id'],
                     'pax': room['pax'],
