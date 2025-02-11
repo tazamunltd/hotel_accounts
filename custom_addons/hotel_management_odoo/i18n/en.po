@@ -1384,6 +1384,10 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__checkout_date
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__checkout_date
+msgid "Check Out"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_sale_order_detail__checkout
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__all_reservation_status_report__state__check_out
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__check_out

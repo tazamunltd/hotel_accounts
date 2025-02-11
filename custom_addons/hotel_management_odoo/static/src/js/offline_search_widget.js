@@ -329,7 +329,7 @@ export class OfflineSearchWidget extends Component {
             }
         }, this.POLL_INTERVAL);
 
-        console.log('Started polling for system date changes');
+//        console.log('Started polling for system date changes');
     }
 
     /**
@@ -340,7 +340,7 @@ export class OfflineSearchWidget extends Component {
         if (this.pollTimer) {
             clearInterval(this.pollTimer);
             this.pollTimer = null;
-            console.log('Stopped polling for system date changes');
+//            console.log('Stopped polling for system date changes');
         }
     }
 
@@ -392,13 +392,13 @@ export class OfflineSearchWidget extends Component {
             
             // Only update and notify if system date has changed and component is still alive
             if (!this.isDestroyed && this.state.systemDate !== newSystemDate) {
-                console.log('System date changed:', {
-                    company: company.name,
-                    companyId: company.id,
-                    oldDate: this.state.systemDate,
-                    newDate: newSystemDate,
-                    rawDate: company.system_date
-                });
+//                console.log('System date changed:', {
+//                    company: company.name,
+//                    companyId: company.id,
+//                    oldDate: this.state.systemDate,
+//                    newDate: newSystemDate,
+//                    rawDate: company.system_date
+//                });
                 
                 // Update state
                 this.state.systemDate = newSystemDate;
@@ -1372,7 +1372,7 @@ export class OfflineSearchWidget extends Component {
             this.state.searchPerformed = true;
             this.state.searchError = null;
             this.state.isSearching = true;
-            console.log("Starting room search for", this.state.rooms, "rooms");
+//            console.log("Starting room search for", this.state.rooms, "rooms");
 
             // First get all available room types with 0 rooms
             const availableRooms = await this.orm.call(
@@ -1387,7 +1387,7 @@ export class OfflineSearchWidget extends Component {
                 ]
             );
 
-            console.log("Available room types:", availableRooms);
+//            console.log("Available room types:", availableRooms);
 
             let roomTypes = availableRooms;
             if (this.state.roomType) {
@@ -1397,12 +1397,12 @@ export class OfflineSearchWidget extends Component {
 
             if (Array.isArray(roomTypes) && roomTypes.length > 0) {
                 let remainingRoomsToSearch = this.state.rooms;
-                console.log("Rooms to allocate:", remainingRoomsToSearch);
+//                console.log("Rooms to allocate:", remainingRoomsToSearch);
 
                 // Initialize room types with actual free to sell
                 const processedRooms = roomTypes.map(room => {
                     const actualFree = room.min_free_to_sell - room.total_overbooking_rooms;
-                    console.log(`${room.room_type_name}: actual_free=${actualFree} (min_free=${room.min_free_to_sell}, overbooking=${room.total_overbooking_rooms})`);
+//                    console.log(`${room.room_type_name}: actual_free=${actualFree} (min_free=${room.min_free_to_sell}, overbooking=${room.total_overbooking_rooms})`);
                     return {
                         ...room,
                         freeToBook: room.min_free_to_sell,
@@ -1417,8 +1417,8 @@ export class OfflineSearchWidget extends Component {
                 // First Phase: Use actual free to sell capacity
                 // Sort by actual free to sell in descending order
                 processedRooms.sort((a, b) => b.actualFreeToSell - a.actualFreeToSell);
-                console.log("Phase 1 - Room types sorted by actual free to sell:", 
-                    processedRooms.map(r => `${r.room_type_name}: ${r.actualFreeToSell}`));
+//                console.log("Phase 1 - Room types sorted by actual free to sell:",
+//                    processedRooms.map(r => `${r.room_type_name}: ${r.actualFreeToSell}`));
 
                 for (const room of processedRooms) {
                     if (remainingRoomsToSearch <= 0) break;
@@ -1427,18 +1427,18 @@ export class OfflineSearchWidget extends Component {
                         const allocatedRooms = Math.min(remainingRoomsToSearch, room.actualFreeToSell);
                         room.searched_rooms = allocatedRooms;
                         remainingRoomsToSearch -= allocatedRooms;
-                        console.log(`Phase 1: Allocated ${allocatedRooms} rooms to ${room.room_type_name}`);
+//                        console.log(`Phase 1: Allocated ${allocatedRooms} rooms to ${room.room_type_name}`);
                     }
                 }
 
-                console.log("After Phase 1 - Remaining rooms:", remainingRoomsToSearch);
+//                console.log("After Phase 1 - Remaining rooms:", remainingRoomsToSearch);
 
                 // Second Phase: Use overbooking if needed
                 if (remainingRoomsToSearch > 0) {
                     // Sort by actual free to sell for overbooking priority
                     processedRooms.sort((a, b) => b.actualFreeToSell - a.actualFreeToSell);
-                    console.log("Phase 2 - Room types sorted for overbooking:", 
-                        processedRooms.map(r => `${r.room_type_name}: actual_free=${r.actualFreeToSell}, overbooking=${r.remainingOverbooking}`));
+//                    console.log("Phase 2 - Room types sorted for overbooking:",
+//                        processedRooms.map(r => `${r.room_type_name}: actual_free=${r.actualFreeToSell}, overbooking=${r.remainingOverbooking}`));
 
                     for (const room of processedRooms) {
                         if (remainingRoomsToSearch <= 0) break;
@@ -1448,7 +1448,7 @@ export class OfflineSearchWidget extends Component {
                             room.searched_rooms += additionalRooms;
                             room.overbooked = additionalRooms;
                             remainingRoomsToSearch -= additionalRooms;
-                            console.log(`Phase 2: Allocated ${additionalRooms} overbooking rooms to ${room.room_type_name}`);
+//                            console.log(`Phase 2: Allocated ${additionalRooms} overbooking rooms to ${room.room_type_name}`);
                         }
                     }
                 }
@@ -1461,10 +1461,10 @@ export class OfflineSearchWidget extends Component {
                         actualFreeToSell: room.actualFreeToSell
                     }));
 
-                console.log("Final allocations:", 
-                    this.state.searchResults.map(r => 
-                        `${r.room_type_name}: ${r.searched_rooms} (actual=${r.searched_rooms - r.overbooked}, overbooked=${r.overbooked})`
-                    ));
+//                console.log("Final allocations:",
+//                    this.state.searchResults.map(r =>
+//                        `${r.room_type_name}: ${r.searched_rooms} (actual=${r.searched_rooms - r.overbooked}, overbooked=${r.overbooked})`
+//                    ));
 
                 const totalAllocatedRooms = this.state.searchResults.reduce((sum, room) => sum + room.searched_rooms, 0);
 
@@ -1505,14 +1505,14 @@ export class OfflineSearchWidget extends Component {
      */
     async actionSearchRoomTypes(recordId) {
         try {
-            debugger;
+//            debugger;
             const results = await this.orm.call(
                 'room.booking',
                 'action_search_rooms',
                 [[recordId]],
                 {}
             );
-            console.log('calling action_search_rooms server:', results);
+//            console.log('calling action_search_rooms server:', results);
             return results;
         } catch (error) {
             console.error('Error action search rooms:', error);
@@ -1615,7 +1615,7 @@ export class OfflineSearchWidget extends Component {
             // debugger;
             // call create booking method for each room type
             for (const room of this.state.searchResults) {
-                console.log('Processing room:', JSON.stringify(room, null, 2));
+//                console.log('Processing room:', JSON.stringify(room, null, 2));
 
                 if (!room.room_type_id) {
                     console.error('Room type ID missing for room:', room);
@@ -1668,7 +1668,7 @@ export class OfflineSearchWidget extends Component {
             if (!this.state.hotel) {
                 throw new Error('Hotel is required');
             }
-
+//            console.log(this.state.contactId,"contact id");
              if (!this.state.contactId) {
                 this.notification.add(
                     "Please select a valid Contact (Partner) before creating a booking.",
@@ -1713,7 +1713,7 @@ export class OfflineSearchWidget extends Component {
             let isNewBooking = false;
             let recordId;
             let currentTitle = this.env.services.title.current;
-
+//            console.log("current work line 1716",currentTitle,this.isExistingBooking);
             if (this.isExistingBooking()) {
                 recordId = await this.getCurrentBookingId(currentTitle);
             } else {
@@ -1759,9 +1759,9 @@ export class OfflineSearchWidget extends Component {
                 };
                 let editresult = await this.orm.call('room.booking', 'write', [recordId, context_]);
                 await this.actionSearchRoomTypes(recordId);
-                console.log('editresult:', editresult);
+//                console.log('editresult:', editresult);
                 await this.env.services.action.doAction(action);
-                console.log('action:', action);
+//                console.log('action:', action);
                 this.notification.add('Booking updated successfully!', {
                     type: 'success',
                 });
@@ -1803,7 +1803,7 @@ export class OfflineSearchWidget extends Component {
         try {
             currentTitle = currentTitle.split('-')[1];
             currentTitle = currentTitle.trim();
-            console.log('Current Title:', currentTitle);
+//            console.log('Current Title:', currentTitle);
 
             // Get the current active id using search_read
             const result = await this.orm.searchRead(
@@ -1813,7 +1813,7 @@ export class OfflineSearchWidget extends Component {
                 { limit: 1, order: 'create_date desc' }  // options
             );
 
-            console.log('Current Booking ID:', result && result[0] ? result[0].id : null);
+//            console.log('Current Booking ID:', result && result[0] ? result[0].id : null);
             return result && result[0] ? result[0].id : null;
 
         }
@@ -1828,7 +1828,7 @@ export class OfflineSearchWidget extends Component {
      */
     saveSearchResults() {
         try {
-            debugger;
+//            debugger;
             const dataToSave = {
                 searchResults: this.state.searchResults,
                 checkInDate: this.state.checkInDate,
@@ -1848,7 +1848,6 @@ export class OfflineSearchWidget extends Component {
      */
     async loadSearchResults() {
         try {
-            debugger;
             const dataJSON = localStorage.getItem('bookingSearchData');
             if (dataJSON && this.isExistingBooking()) {
                 const data = JSON.parse(dataJSON);
@@ -1869,10 +1868,10 @@ export class OfflineSearchWidget extends Component {
                 this.render();
                 
                 // Log for debugging
-                console.log('Loaded search results:', {
-                    results: this.state.searchResults,
-                    searchPerformed: this.state.searchPerformed
-                });
+//                console.log('Loaded search results:', {
+//                    results: this.state.searchResults,
+//                    searchPerformed: this.state.searchPerformed
+//                });
             } else {
                 this.loadDefaultValues();
             }
@@ -1905,7 +1904,7 @@ export class OfflineSearchWidget extends Component {
      */
     isExistingBooking() {
         const currentTitle = this.env.services.title.current;
-        return !(currentTitle.includes('New') || currentTitle.includes('Room Booking'));
+        return !(currentTitle.includes('New') || currentTitle.includes('Room Booking') || currentTitle.includes('جديد'));
     }
 
     /**
@@ -1926,7 +1925,7 @@ export class OfflineSearchWidget extends Component {
     onContactChange(ev) {
         const selectedId = parseInt(ev.target.value) || null;
         this.state.contactId = selectedId;
-        console.log("Selected contactId:", this.state.contactId);
+//        console.log("Selected contactId:", this.state.contactId);
     }
 
 }

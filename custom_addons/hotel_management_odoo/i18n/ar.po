@@ -132,7 +132,7 @@ msgid ""
 "                                    <span class=\"fw-bold\"> Frequency</span>"
 msgstr ""
 "<i class=\"fa fa-clock\"/>\n"
-"<span class=\"fw-bold\">التردد</span>"
+"<span class=\"fw-bold\">النمط</span>"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_dynamic_selection_form
@@ -331,7 +331,7 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
 msgid "<span>Check-in Date:</span>"
-msgstr "<span>تاريخ تسجيل الوصول:</span>"
+msgstr "<span>تاريخ الوصول:</span>"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
@@ -376,7 +376,7 @@ msgstr "<span>الجنسية:</span>"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
 msgid "<span>Parent Booking:</span>"
-msgstr "<span>حجز الوالدين:</span>"
+msgstr "<span>الحجز الرئيسي:</span>"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_kanban
@@ -386,7 +386,7 @@ msgstr "<span>السعر:</span>"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_kanban
 msgid "<span>Rate Code:</span>"
-msgstr "<span>رمز السعر:</span>"
+msgstr "<span>كود السعر:</span>"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_kanban
@@ -432,7 +432,7 @@ msgstr "حقل وهمي للمدة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__description
 msgid "About"
-msgstr "عن"
+msgstr "معلومات اضافية"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__cron_name
@@ -586,7 +586,7 @@ msgstr "نوع النشاط"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_search__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_service_booking_line__activity_type_icon
 msgid "Activity Type Icon"
-msgstr "رمز نوع النشاط"
+msgstr "كود نوع النشاط"
 
 #. module: hotel_management_odoo
 #: model:ir.actions.act_window,name:hotel_management_odoo.action_activity_type_list
@@ -772,7 +772,7 @@ msgstr "وسائل الراحة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_payment__amount
 msgid "Amount"
-msgstr "كمية"
+msgstr "المبلغ"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -1041,7 +1041,7 @@ msgstr "تاريخ الميلاد"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #, python-format
 msgid "Block"
-msgstr "حجز"
+msgstr "تم الحجز"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__reservation_status_report__original_state__block
@@ -1105,13 +1105,13 @@ msgstr "معرف الحجز"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line_status__booking_line_id
 msgid "Booking Line"
-msgstr "خط الحجز"
+msgstr "بند الحجز"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__booking_line_visible
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_service_booking_line__booking_line_visible
 msgid "Booking Line Visible"
-msgstr "خط الحجز مرئي"
+msgstr "بند الحجز مرئي"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_booking_posting_item
@@ -1202,7 +1202,7 @@ msgstr "يمكن أن يكون ١ - ٥"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_update_wizard
 #, python-format
 msgid "Cancel"
-msgstr "يلغي"
+msgstr "الغاء"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__show_cancel_button
@@ -1276,24 +1276,32 @@ msgstr "قناة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__checkin_date
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__checkin_date
+msgid "Check In"
+msgstr "تاريخ الوصول"
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_sale_order_detail__checkin
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__all_reservation_status_report__state__check_in
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__check_in
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line__state___check_in
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__check_in
 msgid "Check In"
-msgstr "تحقق في"
+msgstr "تسكين"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__checkout_date
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__checkout_date
+msgid "Check Out"
+msgstr "تاريخ المغادرة"
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_sale_order_detail__checkout
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__all_reservation_status_report__state__check_out
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__check_out
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line__state___check_out
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__check_out
 msgid "Check Out"
-msgstr "الدفع"
+msgstr "مغادرة"
 
 #. module: hotel_management_odoo
 #: model:ir.actions.server,name:hotel_management_odoo.cron_check_waiting_list_ir_actions_server
@@ -1325,20 +1333,20 @@ msgstr "التحقق مما إذا كانت هناك خدمة سيتم إضاف�
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.report_sale_order
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Check-In"
-msgstr "تحقق في"
+msgstr "تسكين"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__checkin_date
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_update_wizard__checkin_date
 msgid "Check-In Date"
-msgstr "تاريخ تسجيل الوصول"
+msgstr "تاريخ الوصول"
 
 #. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 #, python-format
 msgid "Check-In Date is required and cannot be empty."
-msgstr "تاريخ تسجيل الوصول مطلوب ولا يمكن أن يكون فارغا."
+msgstr "تاريخ الوصول مطلوب ولا يمكن أن يكون فارغا."
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__total_checkin
@@ -1366,7 +1374,7 @@ msgstr "الخروج"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
 msgid "Check-in"
-msgstr "تحقق في"
+msgstr "تسكين"
 
 #. module: hotel_management_odoo
 #: model:ir.actions.act_window,name:hotel_management_odoo.action_booking_checkin_wizard
@@ -1386,7 +1394,7 @@ msgstr "معالج تأكيد تسجيل الوصول"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #, python-format
 msgid "Check-in Date"
-msgstr "تاريخ تسجيل الوصول"
+msgstr "تاريخ الوصول"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__checkin_time
@@ -1398,14 +1406,14 @@ msgstr "وقت تسجيل الوصول"
 #: code:addons/hotel_management_odoo/models/room_search.py:0
 #, python-format
 msgid "Check-in date cannot be in the past"
-msgstr "لا يمكن أن يكون تاريخ تسجيل الوصول في الماضي"
+msgstr "لا يمكن أن يكون تاريخ الوصول في الماضي"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/js/offline_search_widget.js:0
 #, python-format
 msgid "Check-in date must not be before hotel's system date and within 2 years"
-msgstr "يجب ألا يكون تاريخ تسجيل الوصول قبل تاريخ نظام الفندق وخلال عامين"
+msgstr "يجب ألا يكون تاريخ الوصول قبل تاريخ نظام الفندق وخلال عامين"
 
 #. module: hotel_management_odoo
 #. odoo-python
@@ -1439,14 +1447,14 @@ msgstr "وقت المغادرة"
 #: code:addons/hotel_management_odoo/models/room_search.py:0
 #, python-format
 msgid "Check-out date must be after check-in date"
-msgstr "يجب أن يكون تاريخ المغادرة بعد تاريخ تسجيل الوصول"
+msgstr "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/js/offline_search_widget.js:0
 #, python-format
 msgid "Check-out date must be after check-in date and within 2 years"
-msgstr "يجب أن يكون تاريخ المغادرة بعد تاريخ تسجيل الوصول وفي غضون عامين"
+msgstr "يجب أن يكون تاريخ المغادرة بعد تاريخ الوصول وفي غضون عامين"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_detail__checkin
@@ -1490,7 +1498,7 @@ msgstr "سعر وجبة الطفل"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #, python-format
 msgid "Children"
-msgstr "أطفال"
+msgstr "الأطفال"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_hotel_child_age
@@ -1523,7 +1531,7 @@ msgstr "اختر مرجع للحجز"
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_detail__checkin
 #: model:ir.model.fields,help:hotel_management_odoo.field_sale_order_detail__checkin
 msgid "Choose the Checkin Date"
-msgstr "اختر تاريخ تسجيل الوصول"
+msgstr "اختر تاريخ الوصول"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_detail__checkout
@@ -1777,7 +1785,7 @@ msgstr "إعدادات"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_confirm_early_checkout_wizard
 msgid "Confirm"
-msgstr "يتأكد"
+msgstr "تأكيد"
 
 #. module: hotel_management_odoo
 #: model:ir.actions.act_window,name:hotel_management_odoo.action_confirm_booking_wizard
@@ -1870,7 +1878,7 @@ msgstr "جهة الاتصال / القائد"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__reference_contact_
 #, python-format
 msgid "Contact Reference"
-msgstr "مرجع الاتصال"
+msgstr "مرجع جهة الاتصال"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
@@ -2160,7 +2168,7 @@ msgstr "تاريخ الطلب"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__checkin_date
 msgid "Date of Checkin"
-msgstr "تاريخ تسجيل الوصول"
+msgstr "تاريخ الوصول"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__checkout_date
@@ -2190,7 +2198,7 @@ msgstr "أيام قبل التذكير"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Default ("
-msgstr "تقصير ("
+msgstr "الافتراضي ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__pax_1_rb
@@ -2307,7 +2315,7 @@ msgstr "مغادرة"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Departure ("
-msgstr "مغادرة ("
+msgstr "المغادرة ("
 
 #. module: hotel_management_odoo
 #. odoo-python
@@ -2517,7 +2525,7 @@ msgstr "مسودة"
 #. module: hotel_management_odoo
 #: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_dummy_room_codes
 msgid "Dummy Room Codes"
-msgstr "رموز الغرف الوهمية"
+msgstr "كود الغرف الوهمية"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__duration_visible
@@ -2622,7 +2630,7 @@ msgstr "أدخل جهة الاتصال المرجعية"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Enter Start Line"
-msgstr "أدخل خط البداية"
+msgstr "أدخل بند البداية"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
@@ -2679,7 +2687,7 @@ msgstr "حدث"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Event Lines"
-msgstr "خطوط الحدث"
+msgstr "بنود الحدث"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__amount_taxed_event
@@ -3057,7 +3065,7 @@ msgstr "أسطول"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Fleet Lines"
-msgstr "خطوط الأسطول"
+msgstr "بنود الأسطول"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__amount_taxed_fleet
@@ -3228,7 +3236,7 @@ msgstr "مجاني للبيع"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__frequency
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__frequency
 msgid "Frequency"
-msgstr "تكرار"
+msgstr "النمط"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__friday_pax_1_rb
@@ -3352,7 +3360,7 @@ msgstr "التاريخ الميلادي"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_summary_report__group_booking_name
 #: model:ir.ui.menu,name:hotel_management_odoo.group_reservation_menu
 msgid "Group"
-msgstr "مجموعة"
+msgstr "مجموعة الحجز"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -3535,7 +3543,7 @@ msgstr "كلمة مرور مجزأة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_cleaning_request__head_id
 msgid "Head"
-msgstr "رأس"
+msgstr "المدير"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_cleaning_request__head_id
@@ -3612,7 +3620,7 @@ msgstr "مرافق الفندق"
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_event_booking_line
 msgid "Hotel Event Line"
-msgstr "خط الحدث الفندقي"
+msgstr "بند الحدث الفندقي"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_fleet_booking_line
@@ -3627,7 +3635,7 @@ msgstr "فندق فوليو لاين"
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_food_booking_line
 msgid "Hotel Food Line"
-msgstr "خط طعام الفندق"
+msgstr "بند طعام الفندق"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__hotel_id
@@ -3977,7 +3985,7 @@ msgstr "هو VIP"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_search__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_service_booking_line__activity_exception_icon
 msgid "Icon"
-msgstr "رمز"
+msgstr "كود"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_agent_agent__activity_exception_icon
@@ -4009,7 +4017,7 @@ msgstr "معرف الفاتورة التي تم إنشاؤها"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_line__booking_line_visible
 msgid "If True, then Booking Line will be visible"
-msgstr "إذا كان الأمر صحيحًا، فسيكون خط الحجز مرئيًا"
+msgstr "إذا كان الأمر صحيحًا، فسيكون بند الحجز مرئيًا"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_agent_agent__message_needaction
@@ -4082,7 +4090,7 @@ msgstr "إذا تم تحديد هذا المربع، فقد يكون لبعض ا
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_service_booking_line__booking_line_visible
 msgid "If true, Booking line will be visible"
-msgstr "إذا كان هذا صحيحًا، فسيكون خط الحجز مرئيًا"
+msgstr "إذا كان هذا صحيحًا، فسيكون بند الحجز مرئيًا"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__pricelist_id
@@ -4195,7 +4203,7 @@ msgstr "الغرف المشغولة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_line__is_unassigned
 msgid "Indicates if the room line is unassigned."
-msgstr "يشير إلى ما إذا كان خط الغرفة غير مخصص."
+msgstr "يشير إلى ما إذا كان بند الغرفة غير مخصص."
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__food_id
@@ -4249,7 +4257,7 @@ msgstr "فردي"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__infant_count
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Infant"
-msgstr "رضيع"
+msgstr "الرضيع"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -4420,7 +4428,7 @@ msgstr "هل هي نسبة مئوية؟"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_update_wizard__readonly_rate_code
 msgid "Is Rate Code Readonly"
-msgstr "هل رمز السعر للقراءة فقط؟"
+msgstr "هل كود السعر للقراءة فقط؟"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__is_readonly_group_booking
@@ -4441,7 +4449,7 @@ msgstr "هل هو وكيل؟"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_booking_posting_item__item_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_posting_item__item_code
 msgid "Item Code"
-msgstr "رمز العنصر"
+msgstr "كود العنصر"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_activity_item
@@ -4734,7 +4742,7 @@ msgstr "تم صنعه في"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Main"
-msgstr "رئيسي"
+msgstr "الرئيسية"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
@@ -4793,7 +4801,7 @@ msgstr "مستخدم فريق الصيانة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__user_id
 msgid "Manager"
-msgstr "مدير"
+msgstr "المدير"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__user_id
@@ -4909,7 +4917,7 @@ msgstr "نمط الوجبة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_amount_selection
 msgid "Meal Amount Selection"
-msgstr "اختيار كمية الوجبة"
+msgstr "نوع الخصم"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_child_price
@@ -5256,7 +5264,7 @@ msgstr "طلبات عروض الأسعار المنتظرة"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_dynamic_selection_form
 #, python-format
 msgid "Name"
-msgstr "اسم"
+msgstr "الاسم"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__name
@@ -5313,7 +5321,7 @@ msgstr "اسم الخدمة"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_vip
 msgid "Nationality"
-msgstr "جنسية"
+msgstr "الجنسية"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__need_event
@@ -5636,7 +5644,7 @@ msgstr "عدد الأيام قبل تسجيل الوصول لإرسال البر
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__duration
 msgid "Number of days which will automatically count from the check-in and check-out date."
-msgstr "عدد الأيام التي سيتم احتسابها تلقائيًا من تاريخ تسجيل الوصول وتاريخ المغادرة."
+msgstr "عدد الأيام التي سيتم احتسابها تلقائيًا من تاريخ الوصول وتاريخ المغادرة."
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_agent_agent__message_has_error_counter
@@ -5743,7 +5751,7 @@ msgstr "أوث"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__obsolete
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
 msgid "Obsolete"
-msgstr "عفا عليها الزمن"
+msgstr "منتهي الصلاحية"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__expected_occupied_rate
@@ -5837,7 +5845,7 @@ msgstr "آخر"
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__payment_type__other
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__payment_type__other
 msgid "Other Payment"
-msgstr "الدفع الآخر"
+msgstr "طرق دفع أخرى"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room_result__out_of_order
@@ -5922,7 +5930,7 @@ msgstr "مدفوع"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__group_booking_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__parent_booking_id
 msgid "Parent Booking"
-msgstr "حجز الوالدين"
+msgstr "الحجز الرئيسي"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_account_bank_statement_line__parent_booking_name
@@ -5930,7 +5938,7 @@ msgstr "حجز الوالدين"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_account_payment__parent_booking_name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__parent_booking_name
 msgid "Parent Booking Name"
-msgstr "اسم الحجز للوالدين"
+msgstr "الحجز الرئيسي"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__res_company__web_kaaba_view__partial_kaaba_view
@@ -5972,7 +5980,7 @@ msgstr "رقم جواز السفر"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_inventory__pax
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__adult_count
 msgid "Pax"
-msgstr "باكس"
+msgstr "عدد النزلاء"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__pax_chi_inf
@@ -6132,13 +6140,13 @@ msgstr "الرجاء إدخال السبب"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_move_form_posting_item
 msgid "Posting Item"
-msgstr "نشر العنصر"
+msgstr "بند التحميل"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_booking_posting_item__posting_item_selection
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_posting_item__posting_item_selection
 msgid "Posting Item Option"
-msgstr "خيار نشر العنصر"
+msgstr "خيار بند التحميل"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__posting_item_ids
@@ -6171,7 +6179,7 @@ msgstr "الحالة السابقة"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__unit_price
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_service_booking_line__price_unit
 msgid "Price"
-msgstr "سعر"
+msgstr "السعر"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__unit_price
@@ -6248,7 +6256,7 @@ msgstr "الكمية"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_event_booking_line__uom_qty
 msgid "Quantity"
-msgstr "كمية"
+msgstr "الكمية"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -6292,12 +6300,12 @@ msgstr "كود السعر"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
 msgid "Rate Code For Walkin Customer"
-msgstr "رمز السعر للعملاء الذين يمشون سيرًا على الأقدام"
+msgstr "كود السعر للعملاء الذين يمشون سيرًا على الأقدام"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_rate_code
 msgid "Rate Code Management"
-msgstr "إدارة رمز المعدل"
+msgstr "إدارة كود المعدل"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_product_pricelist__rate_code_ids
@@ -6324,7 +6332,7 @@ msgstr "توقعات الأسعار"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__rate_posting_item
 #, python-format
 msgid "Rate Posting Item"
-msgstr "تقييم نشر العنصر"
+msgstr "تقييم بند التحميل"
 
 #. module: hotel_management_odoo
 #: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_rate_promotion
@@ -6423,7 +6431,7 @@ msgstr "الإشارة إلى نموذج التقرير الموحد"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__parent_booking_id
 msgid "Reference to the parent booking if this is a child booking."
-msgstr "يرجى الإشارة إلى حجز الوالدين إذا كان هذا حجزًا للأطفال."
+msgstr "يرجى الإشارة إلى الحجز الرئيسي إذا كان هذا حجزًا للأطفال."
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_posting_item__booking_id
@@ -6454,7 +6462,7 @@ msgstr "نوع الغرفة ذات الصلة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_rate_forecast__booking_line_ids
 msgid "Related room booking lines for this forecast."
-msgstr "خطوط حجز الغرف ذات الصلة بهذه التوقعات."
+msgstr "بنود حجز الغرف ذات الصلة بهذه التوقعات."
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_adult__relation
@@ -6540,7 +6548,7 @@ msgstr "طلب الدعم"
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_reservation
 #: model:ir.ui.menu,name:hotel_management_odoo.room_booking_menu
 msgid "Reservation"
-msgstr "حجز"
+msgstr "الحجز"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_reservation_adult
@@ -6555,7 +6563,7 @@ msgstr "عدد الأطفال في الحجز"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__reservation_status_count_as
 msgid "Reservation Count As"
-msgstr "يُحسب الحجز على أنه"
+msgstr "حالة الحجز"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_reservation_infant
@@ -6744,7 +6752,7 @@ msgstr "وسائل الراحة في الغرفة"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__room_amount_selection
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Room Amount Selection"
-msgstr "اختيار عدد الغرف"
+msgstr "نوع الخصم"
 
 #. module: hotel_management_odoo
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_run_process_room_availability
@@ -6800,7 +6808,7 @@ msgstr "تفاصيل حجز الغرفة"
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_room_booking_line_status
 msgid "Room Booking Line Status"
-msgstr "حالة خط حجز الغرف"
+msgstr "حالة بند حجز الغرف"
 
 #. module: hotel_management_odoo
 #: model:ir.actions.report,name:hotel_management_odoo.action_report_room_booking
@@ -6914,18 +6922,18 @@ msgstr "سعر الغرفة للرضع"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_confirm_booking_wizard__line_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__room_id
 msgid "Room Line"
-msgstr "خط الغرفة"
+msgstr "بند الغرفة"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__is_room_line_readonly
 msgid "Room Line Readonly"
-msgstr "خط الغرفة للقراءة فقط"
+msgstr "بند الغرفة للقراءة فقط"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__booking_line_ids
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Room Lines"
-msgstr "خطوط الغرف"
+msgstr "بنود الغرف"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_search_view
@@ -6933,7 +6941,7 @@ msgstr "خطوط الغرف"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_tree
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
 msgid "Room Name"
-msgstr "اسم الغرفة"
+msgstr "الغرفة"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__room_ids_display
@@ -7401,12 +7409,12 @@ msgstr "البحث عن الغرف المتاحة..."
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__section_hk
 #, python-format
 msgid "Section (H.K.)"
-msgstr "القسم (هونج كونج)"
+msgstr "القسم (خدمة الغرف)"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Select Check-in Date"
-msgstr "حدد تاريخ تسجيل الوصول"
+msgstr "حدد تاريخ الوصول"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -7445,7 +7453,7 @@ msgstr "اختر الفندق"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Select House Use Code"
-msgstr "حدد رمز استخدام المنزل"
+msgstr "حدد كود استخدام المنزل"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -7468,7 +7476,7 @@ msgstr "حدد الجنسية"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Select Rate Code"
-msgstr "حدد رمز السعر"
+msgstr "حدد كود السعر"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -7588,7 +7596,7 @@ msgstr "خدمة"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Service Lines"
-msgstr "خطوط الخدمة"
+msgstr "بنود الخدمة"
 
 #. module: hotel_management_odoo
 #: model:ir.actions.act_window,name:hotel_management_odoo.action_fsm_location_
@@ -7609,7 +7617,7 @@ msgstr "الخدمة معفاة من الضرائب"
 #: model:ir.actions.act_window,name:hotel_management_odoo.hotel_service_action
 #: model:ir.ui.menu,name:hotel_management_odoo.hotel_service_menu
 msgid "Services"
-msgstr "خدمات"
+msgstr "الخدمات"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__user_id
@@ -7635,7 +7643,7 @@ msgstr "عرض الحجز الجماعي"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__show_house_use_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__show_house_use_code
 msgid "Show House Code"
-msgstr "إظهار رمز المنزل"
+msgstr "إظهار كود المنزل"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__show_in_tree
@@ -7645,7 +7653,7 @@ msgstr "عرض في الشجرة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__show_vip_code
 msgid "Show VIP Code"
-msgstr "إظهار رمز VIP"
+msgstr "إظهار كود VIP"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_fleet_booking_line__booking_id
@@ -7728,7 +7736,7 @@ msgstr "علم منقسم"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Split Rooms"
-msgstr "غرف مقسمة"
+msgstr "تقسيم الحجز"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__web_star_rating
@@ -7763,7 +7771,7 @@ msgstr "بدء التسجيل"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_waiting_list__state
 msgid "State"
-msgstr "ولاية"
+msgstr "الحالة"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_event_booking_line__state
@@ -7787,7 +7795,7 @@ msgstr "حالة الحجز"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__state_
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line_status__status
 msgid "Status"
-msgstr "حالة"
+msgstr "الحالة"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
@@ -7799,7 +7807,7 @@ msgstr "حالة الكود"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__status_code
 msgid "Status Code"
-msgstr "رمز الحالة"
+msgstr "كود الحالة"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_agent_agent__activity_state
@@ -8036,7 +8044,7 @@ msgstr "قائمة نوع النشاط التي ينتمي إليها هذا ا�
 msgid ""
 "The check-in date is in the future. Do you want to change the check-in date\n"
 "                        to today?"
-msgstr "تاريخ تسجيل الوصول في المستقبل. هل تريد تغيير تاريخ تسجيل الوصول إلى اليوم؟"
+msgstr "تاريخ الوصول في المستقبل. هل تريد تغيير تاريخ الوصول إلى اليوم؟"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_event_booking_line__currency_id
@@ -8078,7 +8086,7 @@ msgstr "حقل \"الجنسية\" مطلوب للسجل \"%s\". يرجى تعب�
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 #, python-format
 msgid "The field 'Rate Code' is required for record '%s'. Please fill it before confirming."
-msgstr "حقل \"رمز المعدل\" مطلوب للسجل \"%s\". يرجى تعبئته قبل التأكيد."
+msgstr "حقل \"كود المعدل\" مطلوب للسجل \"%s\". يرجى تعبئته قبل التأكيد."
 
 #. module: hotel_management_odoo
 #. odoo-python
@@ -8256,7 +8264,7 @@ msgstr "عنوان الفندق"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_posting_item__to_date
 #, python-format
 msgid "To Date"
-msgstr "حتى الآن"
+msgstr "الى تاريخ"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__invoice_status__to_invoice
@@ -8266,7 +8274,7 @@ msgstr "إلى الفاتورة"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "To Record"
-msgstr "للتسجيل"
+msgstr "الى السجل"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -8788,7 +8796,7 @@ msgstr "رقم ضريبة القيمة المضافة"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_vip
 msgid "VIP"
-msgstr "كبار الشخصيات"
+msgstr "كبار الشخصيات VIP"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -8803,7 +8811,7 @@ msgstr "كود VIP"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__vip_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__vip_code
 msgid "VIP Code"
-msgstr "رمز VIP"
+msgstr "كود VIP"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_cleaning_request__vehicle_id
