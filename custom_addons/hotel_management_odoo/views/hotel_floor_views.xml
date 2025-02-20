@@ -48,6 +48,7 @@
         <field name="arch" type="xml">
             <field name="complete_name" position="after">
                 <field name="description" string="Description"/>
+                <field name="dynamic_selection_id" string="Location Type"/>
             </field>
         </field>
     </record>

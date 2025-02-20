@@ -90,12 +90,57 @@
                 </pivot>
             </field>
         </record>
+
+        <record id="action_run_process_by_reservation_status" model="ir.actions.server">
+            <field name="name">Run Process by Reservation Status</field>
+            <field name="model_id" ref="model_reservation_status_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["reservation.status.report"].action_run_process_by_reservation_status()
+        ]]>
+            </field>
+        </record>
         <!-- Action -->
-    <record id="action_run_process_by_reservation_status" model="ir.actions.server">
+    <!-- <record id="action_run_process_by_reservation_status" model="ir.actions.server">
         <field name="name">Run process by reservation status</field>
         <field name="model_id" ref="model_reservation_status_report"/>
         <field name="state">code</field>
         <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_reservation_status()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Status Report',
+    'res_model': 'reservation.status.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_reservation_status_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_pivot').id, 'pivot'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Status Report',
+    'res_model': 'reservation.status.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_reservation_status_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_pivot').id, 'pivot'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
             <![CDATA[
 model.run_process_by_reservation_status()
 action = {
@@ -111,8 +156,8 @@ action = {
     'target': 'current',
 }
             ]]>
-        </field>
-    </record>
+        </field> -->
+    <!-- </record> -->
 
         <menuitem id="menu_reservation_status_report"
               name="Reservation Status Report"

@@ -46,4 +46,13 @@
         <field name="perm_create" eval="1"/>
         <field name="perm_unlink" eval="1"/>
     </record>
+    <record id="setup_configuration_room_type_image" model="ir.rule">
+        <field name="name">Hotel Management: Restrict module data by Room Type Image</field>
+        <field name="model_id" ref="setup_configuration.model_room_type_image"/>
+<!--        <field name="domain_force">[('company_id', '=', company_id),]</field>-->
+        <field name="global" eval="True"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
 </odoo>

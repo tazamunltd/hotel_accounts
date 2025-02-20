@@ -72,7 +72,7 @@ class RateCode(models.Model):
         'rate.detail', 'rate_code_id', string="Rate Details")
 
     _rec_name = 'code'
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     code = fields.Char(string=_('Rate Code'), required=True, tracking=True, translate=True)
     description = fields.Char(string=_('Description'),
                               required=True, tracking=True, translate=True)
@@ -200,7 +200,7 @@ class RateDetail(models.Model):
             _logger.info(f"BOOKING ID {booking.id}, {booking.name}")
             booking._get_forecast_rates(from_rate_code=True)
 
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
 
     def name_get(self):
         result = []
@@ -320,7 +320,7 @@ class RateDetail(models.Model):
                 raise ValidationError(
                     _("The Discount value cannot be negative."))
 
-    is_amount = fields.Boolean(string="Amount", default=True, tracking=True)
+    is_amount = fields.Boolean(string="Amount", default=False, tracking=True)
     is_percentage = fields.Boolean(
         string="Percentage", default=False, tracking=True)
 
@@ -1323,7 +1323,7 @@ class RoomTypeSpecificRate(models.Model):
 
     _rec_name = 'room_type_id'
     # Fields for Room Type Specific Rate Model
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     rate_code_id = fields.Many2one(
         'rate.code', string="Rate Code", required=True, tracking=True)
     from_date = fields.Date(string="From Date", required=True, tracking=True)
@@ -1659,7 +1659,7 @@ class RoomNumberSpecificRate(models.Model):
 
     _rec_name = 'room_number'
     # Fields for Room Type Specific Rate Model
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     rate_code_id = fields.Many2one('rate.code', string="Rate Code", required=True, tracking=True)
     from_date = fields.Date(string="From Date", tracking=True)
     to_date = fields.Date(string="To Date", tracking=True)
@@ -2054,7 +2054,7 @@ class MarketSegment(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'market_segment'
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     market_segment = fields.Char(
         string=_("Market Segment"), required=True, tracking=True, translate=True)
     description = fields.Char(string=_("Description"), tracking=True, translate=True)
@@ -2071,7 +2071,7 @@ class SourceOfBusiness(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'source'
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     source = fields.Char(string=_("Source"), required=True, tracking=True, translate=True)
     description = fields.Char(string=_("Description"), tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)

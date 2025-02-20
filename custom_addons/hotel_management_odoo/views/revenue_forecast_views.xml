@@ -71,12 +71,57 @@
         </field>
     </record>
 
-    <!-- Action Server -->
     <record id="action_run_process_by_revenue_forecast" model="ir.actions.server">
         <field name="name">Revenue Forecast</field>
         <field name="model_id" ref="model_revenue_forecast"/>
         <field name="state">code</field>
         <field name="code">
+            <![CDATA[
+action = env["revenue.forecast"].action_run_process_by_revenue_forecast()
+        ]]>
+        </field>
+    </record>
+
+    <!-- Action Server -->
+    <!-- <record id="action_run_process_by_revenue_forecast" model="ir.actions.server">
+        <field name="name">Revenue Forecast</field>
+        <field name="model_id" ref="model_revenue_forecast"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_revenue_forecast()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Revenue Forecast Report',
+    'res_model': 'revenue.forecast',
+    'view_mode': 'tree,pivot,graph',
+    'views': [
+        (env.ref('hotel_management_odoo.view_revenue_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_revenue_forecast_pivot').id, 'pivot'),
+        (env.ref('hotel_management_odoo.view_revenue_forecast_graph').id, 'graph'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Revenue Forecast Report',
+    'res_model': 'revenue.forecast',
+    'view_mode': 'tree,pivot,graph',
+    'views': [
+        (env.ref('hotel_management_odoo.view_revenue_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_revenue_forecast_pivot').id, 'pivot'),
+        (env.ref('hotel_management_odoo.view_revenue_forecast_graph').id, 'graph'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
             <![CDATA[
 model.run_process_by_revenue_forecast()
 action = {
@@ -92,8 +137,8 @@ action = {
     'target': 'current',
 }
             ]]>
-        </field>
-    </record>
+        </field> -->
+    <!-- </record> -->
 
     <!-- Menu Item -->
     <menuitem

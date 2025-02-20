@@ -36,13 +36,13 @@ const MODEL_CONFIG = {
     methodName: "search_available_rooms",
   },
   "reservation.status.report": {
-    startDateField: "checkin_date",
-    endDateField: "checkout_date",
+    startDateField: "date_order",
+    endDateField: "date_order",
     methodName: "search_available_rooms", // Change this to your actual method name
   },
   "deleted.reservation.report": {
-    startDateField: "checkin_date",
-    endDateField: "checkout_date",
+    startDateField: "date_order",
+    endDateField: "date_order",
     methodName: "search_available_rooms", // Change this to your actual method name
   },
   "reservation.summary.report": {
@@ -51,8 +51,8 @@ const MODEL_CONFIG = {
     methodName: "search_available_rooms", // Change this to your actual method name
   },
   "all.reservation.status.report": {
-    startDateField: "checkin_date",
-    endDateField: "checkout_date",
+    startDateField: "date_order",
+    endDateField: "date_order",
     methodName: "search_available_rooms", // Change this to your actual method name
   },
   "meals.forecast.report": {

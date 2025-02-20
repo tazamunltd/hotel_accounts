@@ -91,29 +91,89 @@
                 </pivot>
             </field>
         </record>
+
+        <record id="action_run_process_by_company_forecast_report" model="ir.actions.server">
+            <field name="name">Run Process by Company Forecast Report</field>
+            <field name="model_id" ref="model_company_forecast_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["company.forecast.report"].action_run_process_by_company_forecast_report()
+        ]]>
+            </field>
+        </record>
         <!-- Action -->
-    <record id="action_run_process_by_company_forecast_report" model="ir.actions.server">
-        <field name="name">Run process by company forecast report</field>
-        <field name="model_id" ref="model_company_forecast_report"/>
-        <field name="state">code</field>
-        <field name="code">
-            <![CDATA[
-model.run_process_by_company_forecast_report()
-action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Company Forecast Report',
-    'res_model': 'company.forecast.report',
-    'view_mode': 'tree,graph,pivot',
-    'views': [
-        (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
-        (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
-    ],
-    'target': 'current',
-}
-            ]]>
-        </field>
-    </record>
+    <!-- <record id="action_run_process_by_company_forecast_report" model="ir.actions.server">
+    <field name="name">Run process by company forecast report</field>
+    <field name="model_id" ref="model_company_forecast_report"/>
+    <field name="state">code</field>
+    <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_company_forecast_report()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field> -->
+    <!-- <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_company_forecast_report()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field> -->
+<!-- </record> -->
 
 
         <menuitem id="menu_company_forecast_report"

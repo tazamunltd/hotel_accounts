@@ -364,10 +364,10 @@ class GroupBooking(models.Model):
 
     contact_leader = fields.Many2one(
         'res.partner', string='Contact / Leader', tracking=True)
-    phone_1 = fields.Char(string=_('Phone 1'), tracking=True, translate=True)
-    phone_2 = fields.Char(string=_('Phone 2'), tracking=True, translate=True)
-    mobile = fields.Char(string=_('Mobile'), tracking=True, translate=True)
-    email_address = fields.Char(string=('E-Mail Address'), tracking=True, translate=True)
+    phone_1 = fields.Char(string=_('Phone 1'), tracking=True)
+    phone_2 = fields.Char(string=_('Phone 2'), tracking=True)
+    mobile = fields.Char(string=_('Mobile'), tracking=True)
+    email_address = fields.Char(string=('E-Mail Address'), tracking=True)
 
     expected_rooms = fields.Integer(string='Expected Rooms', tracking=True)
     user_sort = fields.Char(string=_('User Sort'), tracking=True, translate=True)
@@ -380,7 +380,7 @@ class GroupBooking(models.Model):
     last_rate = fields.Float(string='Last Rate', tracking=True)
 
     name = fields.Char(string=_("Group ID"), required=True,copy=False, readonly=True, default='New', translate=True)
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, required=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, required=True)
 
     group_booking_id = fields.Many2one('group.booking', string='Parent Booking', tracking=True)
 

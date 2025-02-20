@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import logging
 import datetime
 
@@ -9,7 +9,7 @@ class ReservationStatusReport(models.Model):
     _description = 'Reservation Status Report'
 
     id = fields.Integer(string='ID', readonly=True)
-    company_id = fields.Many2one('res.company', string='Company', required=True)
+    company_id = fields.Many2one('res.company', string='Hotel', required=True)
     client_id = fields.Many2one('res.partner', string='Client')
     group_booking = fields.Char(string='Group')
     room_count = fields.Integer(string='Rooms')
@@ -37,17 +37,60 @@ class ReservationStatusReport(models.Model):
     ], string='Original State')
     partner_id = fields.Many2one('res.partner', string='partner_id')    
     partner_company_id = fields.Many2one('res.company', string='Partner Company')
-    partner_name = fields.Char(string='company')
+    partner_name = fields.Char(string='Contact')
     write_user =  fields. Integer(string ='Write User')
     write_user_name = fields.Char(string='By')
-    ref_id_bk = fields.Integer(string='Reference')
+    ref_id_bk = fields.Char(string='Reference')
     room_name = fields.Integer(string='Room Number')
 
     @api.model
+    def action_run_process_by_reservation_status(self):
+        """Runs the reservation status process based on context and returns the action."""
+        if self.env.context.get('filtered_date_range'):
+            self.env["reservation.status.report"].run_process_by_reservation_status()
+
+            return {
+                'name': _('Reservation Status Report'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'reservation.status.report',
+                'view_mode': 'tree,graph,pivot',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_reservation_status_report_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_reservation_status_report_graph').id, 'graph'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_reservation_status_report_pivot').id, 'pivot'),
+                ],
+                'target': 'current',
+            }
+        else:
+            return {
+                'name': _('Reservation Status Report'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'reservation.status.report',
+                'view_mode': 'tree,graph,pivot',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_reservation_status_report_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_reservation_status_report_graph').id, 'graph'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_reservation_status_report_pivot').id, 'pivot'),
+                ],
+                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'target': 'current',
+            }
+
+    @api.model
     def search_available_rooms(self, from_date, to_date):
+
+        self.run_process_by_reservation_status(from_date, to_date)
+        company_ids = [company.id for company in self.env.companies]
         domain = [
-            ('checkin_date', '>=', from_date),
-            ('checkout_date', '<=', to_date),
+            ('date_order', '>=', from_date),
+            ('date_order', '<=', to_date),
+            ('company_id', 'in', company_ids)
         ]
         results = self.search(domain)
         return results.read([
@@ -69,19 +112,25 @@ class ReservationStatusReport(models.Model):
             _logger.error(f"Error generating booking results: {str(e)}")
             raise ValueError(f"Error generating booking results: {str(e)}")
 
-    def run_process_by_reservation_status(self):
+    def run_process_by_reservation_status(self, from_date=None, to_date=None):
         """Execute the SQL query and process the results."""
         _logger.info("Started run_process_by_reservation_status")
 
         # Delete existing records
         self.search([]).unlink()
         system_date = self.env.company.system_date.date()
-        from_date = system_date - datetime.timedelta(days=7)
-        to_date = system_date + datetime.timedelta(days=7)
+        # from_date = system_date - datetime.timedelta(days=7)
+        # to_date = system_date + datetime.timedelta(days=7)
+        company_ids = [company.id for company in self.env.companies]
         _logger.info("Existing records deleted")
 
-        query = """
+        query = f"""
         WITH 
+        parameters AS (
+        SELECT
+            '{from_date}'::date AS from_date,
+            '{to_date}'::date AS to_date
+    ),
     room_types AS (
     SELECT 
         rt.id AS room_type_id,
@@ -92,7 +141,13 @@ class ReservationStatusReport(models.Model):
         ) AS room_type_name
     FROM room_type rt
 ),
-
+company_ids AS (
+    SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
+),
+system_date_company AS (
+	select id as company_id 
+	, system_date::date	from res_company rc where  rc.id in (SELECT company_id FROM company_ids)
+),
     transformed AS (
         SELECT
             rb.company_id,
@@ -140,6 +195,11 @@ class ReservationStatusReport(models.Model):
             res_partner rp ON rb.partner_id = rp.id
 		LEFT JOIN 
             res_partner wp ON ru.partner_id = wp.id 
+        WHERE
+            rb.company_id IN (SELECT company_id FROM company_ids) 
+            AND rb.date_order BETWEEN (SELECT from_date FROM parameters) 
+            AND (SELECT to_date FROM parameters)
+    
     )
 SELECT
     t.company_id,
@@ -218,12 +278,12 @@ ORDER BY
 
         for result in results:
             try:
-                if result[0]:  # Ensure company_id is present
-                    company_id = result[0]
-                    if company_id != self.env.company.id:  # Skip if company_id doesn't match
-                        continue
-                else:
-                    continue
+                # if result[0]:  # Ensure company_id is present
+                #     company_id = result[0]
+                #     if company_id != self.env.company.id:  # Skip if company_id doesn't match
+                #         continue
+                # else:
+                #     continue
                 (
                     company_id,
                     ref_id_bk,

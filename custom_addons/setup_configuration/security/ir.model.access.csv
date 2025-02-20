@@ -18,6 +18,7 @@ setup_configuration.access_allotment_room_type,access_allotment_room_type,setup_
 setup_configuration.access_cancellation_code,access_cancellation_code,setup_configuration.model_cancellation_code,base.group_user,1,1,1,1
 setup_configuration.access_country_code,access_country_code,setup_configuration.model_country_code,base.group_user,1,1,1,1
 setup_configuration.access_room_type,access_room_type,setup_configuration.model_room_type,base.group_user,1,1,1,1
+setup_configuration.access_room_type_image,access_room_type_image,setup_configuration.model_room_type_image,base.group_user,1,1,1,1
 setup_configuration.access_room_specification,access_room_specification,setup_configuration.model_room_specification,base.group_user,1,1,1,1
 setup_configuration.access_meal_code,access_meal_code,setup_configuration.model_meal_code,base.group_user,1,1,1,1
 setup_configuration.access_meal_pattern,access_meal_pattern,setup_configuration.model_meal_pattern,base.group_user,1,1,1,1

@@ -99,12 +99,58 @@
                 </pivot>
             </field>
         </record>
+
+        <record id="action_run_process_by_meals_forecast" model="ir.actions.server">
+            <field name="name">Run Process by Meals Forecast Report</field>
+            <field name="model_id" ref="model_meals_forecast_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["meals.forecast.report"].action_run_process_by_meals_forecast()
+        ]]>
+            </field>
+        </record>
         <!-- Action -->
-    <record id="action_run_process_by_meals_forecast" model="ir.actions.server">
+    <!-- <record id="action_run_process_by_meals_forecast" model="ir.actions.server">
         <field name="name">Run process by meals forecast report</field>
         <field name="model_id" ref="model_meals_forecast_report"/>
         <field name="state">code</field>
         <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_meals_forecast()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Meals Forecast Report',
+        'res_model': 'meals.forecast.report',
+        'view_mode': 'tree,pivot,graph',
+        'views': [
+            (env.ref('hotel_management_odoo.view_meals_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_meals_forecast_report_pivot').id, 'pivot'),
+            (env.ref('hotel_management_odoo.view_meals_forecast_report_graph').id, 'graph'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Meals Forecast Report',
+        'res_model': 'meals.forecast.report',
+        'view_mode': 'tree,pivot,graph',
+        'views': [
+            (env.ref('hotel_management_odoo.view_meals_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_meals_forecast_report_pivot').id, 'pivot'),
+            (env.ref('hotel_management_odoo.view_meals_forecast_report_graph').id, 'graph'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field>
+ -->
+
+        <!-- <field name="code">
             <![CDATA[
 model.run_process_by_meals_forecast()
 action = {
@@ -120,8 +166,8 @@ action = {
     'target': 'current',
 }
             ]]>
-        </field>
-    </record>
+        </field> -->
+    <!-- </record> -->
 
     <menuitem id="menu_forecast"
               name="Forecast"

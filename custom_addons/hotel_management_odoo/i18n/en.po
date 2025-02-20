@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-05 09:55+0000\n"
-"PO-Revision-Date: 2025-02-05 09:55+0000\n"
+"POT-Creation-Date: 2025-02-18 11:07+0000\n"
+"PO-Revision-Date: 2025-02-18 11:07+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -26,40 +26,6 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_line__state
 #: model:ir.model.fields,help:hotel_management_odoo.field_service_booking_line__state
 msgid " Status of the Order"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__event_count
-msgid "# Events"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__meeting_count
-msgid "# Meetings"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__task_count
-msgid "# Tasks"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__supplier_invoice_count
-msgid "# Vendor Bills"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__owned_location_count
-msgid "# of Owned Locations"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__type
-msgid ""
-"- Contact: Use this to organize the contact details of employees of a given company (e.g. CEO, CFO, ...).\n"
-"- Invoice Address: Preferred address for all invoices. Selected by default when you invoice an order that belongs to this company.\n"
-"- Delivery Address: Preferred address for all deliveries. Selected by default when you deliver an order that belongs to this company.\n"
-"- Other: Other address for the company (e.g. subsidiary, ...)"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -166,6 +132,13 @@ msgid ""
 msgstr ""
 
 #. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
+msgid ""
+"<i class=\"fa fa-concierge-bell\"/>\n"
+"                                    <span class=\"fw-bold\"> Service Details</span>"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid ""
 "<i class=\"fa fa-cutlery\"/>\n"
@@ -266,13 +239,6 @@ msgstr ""
 msgid ""
 "<i class=\"fa fa-tag\"/>\n"
 "                                            <span class=\"fw-bold\"> Contact Information</span>"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
-msgid ""
-"<i class=\"fa fa-tag\"/>\n"
-"                                            <span class=\"fw-bold\"> Pricing Information</span>"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -417,16 +383,6 @@ msgid "About"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_account_payable_id
-msgid "Account Payable"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_account_receivable_id
-msgid "Account Receivable"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__cron_name
 msgid "Action Name"
 msgstr ""
@@ -438,6 +394,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_needaction
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_needaction
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_needaction
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_needaction
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_needaction
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_needaction
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_needaction
@@ -456,15 +413,9 @@ msgid "Action Needed"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__active
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__active
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__active
 msgid "Active"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__active_lang_count
-msgid "Active Lang Count"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -473,8 +424,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_ids
@@ -500,8 +453,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_exception_decoration
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_exception_decoration
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_exception_decoration
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_exception_decoration
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_exception_decoration
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_exception_decoration
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_exception_decoration
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_exception_decoration
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_exception_decoration
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_exception_decoration
@@ -538,8 +493,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_state
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_state
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_state
@@ -570,8 +527,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_type_icon
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_type_icon
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_type_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_type_icon
@@ -600,11 +559,6 @@ msgid "Add description"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__additional_info
-msgid "Additional info"
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/group_booking.py:0
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_agent_agent__address
@@ -615,11 +569,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 #, python-format
 msgid "Address"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__type
-msgid "Address Type"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -711,8 +660,12 @@ msgid "All RFQs"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/all_reservation_status_report.py:0
+#: code:addons/hotel_management_odoo/models/all_reservation_status_report.py:0
 #: model:ir.model,name:hotel_management_odoo.model_all_reservation_status_report
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_all_reservation_status_report
+#, python-format
 msgid "All Reservation Status Report"
 msgstr ""
 
@@ -732,13 +685,6 @@ msgstr ""
 #: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
 #, python-format
 msgid "All Waiting RFQs"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__lang
-msgid ""
-"All the emails and documents sent to this contact will be translated in this"
-" language."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -937,6 +883,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_attachment_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_attachment_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_attachment_count
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_attachment_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_attachment_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_attachment_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_attachment_count
@@ -967,13 +914,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__user_id
 msgid "Automatically selects the manager"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__receipt_reminder_email
-msgid ""
-"Automatically send a confirmation email to the vendor X days before the "
-"expected receipt date, asking him to confirm the exact date."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1022,31 +962,6 @@ msgid "Available Rooms"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__avatar_1920
-msgid "Avatar"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__avatar_1024
-msgid "Avatar 1024"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__avatar_128
-msgid "Avatar 128"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__avatar_256
-msgid "Avatar 256"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__avatar_512
-msgid "Avatar 512"
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
 #, python-format
@@ -1054,23 +969,8 @@ msgid "Avg Order Value"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__bank_account_count
-msgid "Bank"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_type__bank_transfer
 msgid "Bank Transfer"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__bank_ids
-msgid "Banks"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__barcode
-msgid "Barcode"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1089,21 +989,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_child__birth_date
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_infant__birth_date
 msgid "Birth Date"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__is_blacklisted
-msgid "Blacklist"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__mobile_blacklisted
-msgid "Blacklisted Phone Is Mobile"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__phone_blacklisted
-msgid "Blacklisted Phone is Phone"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1213,13 +1098,13 @@ msgid "Booking Reference"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__room_ids
-msgid "Bookings associated with this hotel"
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_summary_report__company_name
+msgid "Booking Type"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__message_bounce
-msgid "Bounce"
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__room_ids
+msgid "Bookings associated with this hotel"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1245,11 +1130,6 @@ msgstr ""
 #: code:addons/hotel_management_odoo/static/src/xml/new_dashboard_templates.xml:0
 #, python-format
 msgid "Business Sources"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__buyer_id
-msgid "Buyer"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1351,11 +1231,6 @@ msgid "Central Reservation System"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__certifications_count
-msgid "Certifications Count"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line_status__change_time
 msgid "Change Time"
 msgstr ""
@@ -1363,11 +1238,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_payment__channel
 msgid "Channel"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__channel_ids
-msgid "Channels"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1384,10 +1254,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__checkout_date
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__checkout_date
-msgid "Check Out"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_sale_order_detail__checkout
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__all_reservation_status_report__state__check_out
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__check_out
@@ -1419,16 +1285,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__need_service
 msgid "Check if a Service to be added with the Booking"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__is_company
-msgid "Check if the contact is a company, otherwise it is a person"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__employee
-msgid "Check this box if this contact is an Employee."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1501,7 +1357,7 @@ msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__checkin_time
-msgid "Check-in Time"
+msgid "Check-in Time 24hrs"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1544,7 +1400,7 @@ msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__checkout_time
-msgid "Check-out Time"
+msgid "Check-out Time 24hrs"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1688,7 +1544,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/group_booking.py:0
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__city
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__city
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 #, python-format
@@ -1756,20 +1611,8 @@ msgid "Client"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__peppol_eas
-msgid ""
-"Code used to identify the Endpoint for BIS Billing 3.0 and its derivatives.\n"
-"             List available at https://docs.peppol.eu/poacc/billing/3.0/codelist/eas/"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.ui.menu,name:hotel_management_odoo.hotel_codes
 msgid "Codes"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__color
-msgid "Color Index"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1779,51 +1622,25 @@ msgid "Comments"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__commercial_partner_id
-msgid "Commercial Entity"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_res_company
 msgid "Companies"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__ref_company_ids
-msgid "Companies that refers to partner"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_company_forecast_report__company_name
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__partner_name
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__company_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__company_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_inventory__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_market_segment_forecast_report__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_by_nationality_forecast__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__company_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_partner_details__partner_company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_summary_report__company_name
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__company_name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_availability_result__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_rooms_forecast_report__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_source_of_buisness_forecast__company_id
 msgid "Company"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__certifications_company_count
-msgid "Company Certifications Count"
-msgstr ""
-
-#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/company_forecast_report.py:0
+#: code:addons/hotel_management_odoo/models/company_forecast_report.py:0
 #: model:ir.model,name:hotel_management_odoo.model_company_forecast_report
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_company_forecast_report
+#, python-format
 msgid "Company Forecast Report"
 msgstr ""
 
@@ -1835,34 +1652,13 @@ msgid "Company Forecast Reports"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__company_registry
-msgid "Company ID"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__company_name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_by_nationality_forecast__company_name
 msgid "Company Name"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__commercial_company_name
-msgid "Company Name Entity"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__company_type
-msgid "Company Type"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__company_id
 msgid "Company associated with this hotel"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__partner_gid
-msgid "Company database ID"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1876,15 +1672,9 @@ msgid "Complementar Use Count"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__complementary
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Complementary"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__complementary_codes
-msgid "Complementary Code"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -1903,11 +1693,6 @@ msgid "Complementary Use Count"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__contact_address
-msgid "Complete Address"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__activity_item__status__completed
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__state__done
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hk_activity_item__hk_status__completed
@@ -1917,7 +1702,13 @@ msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__complimentary
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__complementary
 msgid "Complimentary"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__complementary_codes
+msgid "Complimentary Code"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -2021,10 +1812,15 @@ msgid "Consolidated Room Booking Report"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/offline_search_widget.xml:0
 #: model:ir.model,name:hotel_management_odoo.model_res_partner
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__child_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__partner_name
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__partner_name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__company
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__partner_name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__partner_id
+#, python-format
 msgid "Contact"
 msgstr ""
 
@@ -2061,27 +1857,9 @@ msgid "Counter"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__message_bounce
-msgid "Counter of the number of bounced emails for this contact"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__country_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__country_id
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Country"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__country_code
-msgid "Country Code"
-msgstr ""
-
-#. module: hotel_management_odoo
-#. odoo-javascript
-#: code:addons/hotel_management_odoo/static/src/xml/offline_search_widget.xml:0
-#, python-format
-msgid "Create Booking For All Searched Rooms"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -2242,30 +2020,14 @@ msgid "Credit Card"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__credit_limit
-msgid "Credit Limit"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__payment_type__credit_limit
 msgid "Credit Limit (C/L)"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__credit_to_invoice
-msgid "Credit To Invoice"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__credit_limit
-msgid "Credit limit specific to this partner."
 msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_event_booking_line__currency_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__currency_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__currency_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__currency_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__currency_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__currency_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_payment__currency
@@ -2295,23 +2057,8 @@ msgid "Customer"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_stock_customer
-msgid "Customer Location"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_company_forecast_report__customer_name
 msgid "Customer Name"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_payment_term_id
-msgid "Customer Payment Terms"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__customer_rank
-msgid "Customer Rank"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -2361,7 +2108,6 @@ msgid "Dashboard"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__date
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__date
 msgid "Date"
 msgstr ""
@@ -2395,18 +2141,8 @@ msgid "Days Before Arrival"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__reminder_date_before_receipt
-msgid "Days Before Receipt"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__reminder_days_before
 msgid "Days Before Reminder"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__days_sales_outstanding
-msgid "Days Sales Outstanding (DSO)"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -2491,11 +2227,6 @@ msgid "Default unit of measure used for all stock operations."
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__trust
-msgid "Degree of trust you have in this debtor"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.actions.server,name:hotel_management_odoo.action_delete_room_booking
 msgid "Delete"
 msgstr ""
@@ -2506,11 +2237,15 @@ msgid "Delete Records"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/deleted_reservation_report.py:0
+#: code:addons/hotel_management_odoo/models/deleted_reservation_report.py:0
 #: model:ir.model,name:hotel_management_odoo.model_deleted_reservation_report
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_deleted_reservation_report
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_deleted_reservation_report_graph
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_deleted_reservation_report_pivot
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_deleted_reservation_report_tree
+#, python-format
 msgid "Deleted Reservation Report"
 msgstr ""
 
@@ -2751,11 +2486,6 @@ msgid "Dummy Room Codes"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__duplicated_bank_account_partners_count
-msgid "Duplicated Bank Account Partners Count"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__duration_visible
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__uom_qty
 msgid "Duration"
@@ -2788,19 +2518,6 @@ msgid "E-Mail Address"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__partner_share
-msgid ""
-"Either customer (not a user), either shared user. Indicated the current "
-"partner is a customer without access or with a limited access created for "
-"sharing data."
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__email
-msgid "Email"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid ""
 "Email\n"
@@ -2810,21 +2527,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
 msgid "Email Configuration"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__employee
-msgid "Employee"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__employee_ids
-msgid "Employees"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__employees_count
-msgid "Employees Count"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -2878,14 +2580,29 @@ msgid "Enter No.of Nights"
 msgstr ""
 
 #. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
+msgid "Enter Price"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Enter Reference Contact"
 msgstr ""
 
 #. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
+msgid "Enter Service Name"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Enter Start Line"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Enter Text"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -3279,13 +2996,6 @@ msgid "Field Service Location"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__phone_sanitized
-msgid ""
-"Field used to store sanitized phone number. Helps speeding up searches and "
-"comparisons."
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__is_customer_company
 msgid "Filter Company Customers"
 msgstr ""
@@ -3315,16 +3025,6 @@ msgid "First Visit"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__fiscal_country_codes
-msgid "Fiscal Country Codes"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_account_position_id
-msgid "Fiscal Position"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__fixed_post
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Fixed Post"
@@ -3349,8 +3049,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_hotel_floor
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__floor_id
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_tree
 msgid "Floor"
 msgstr ""
 
@@ -3367,6 +3065,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_follower_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_follower_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_follower_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_follower_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_follower_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_follower_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_follower_ids
@@ -3391,6 +3090,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_partner_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_partner_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_partner_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_partner_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_partner_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_partner_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_partner_ids
@@ -3414,8 +3114,10 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_fleet_booking_line__activity_type_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__activity_type_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__activity_type_icon
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__activity_type_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__activity_type_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__activity_type_icon
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__activity_type_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_staff_status__activity_type_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_status__activity_type_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_maintenance_status__activity_type_icon
@@ -3480,21 +3182,6 @@ msgid "Forecasts"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__ubl_cii_format
-msgid "Format"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__email_formatted
-msgid "Format email address \"Name <email@domain>\""
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__email_formatted
-msgid "Formatted Email"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_availability_wizard__html_message
 msgid "Formatted Message"
 msgstr ""
@@ -3526,6 +3213,7 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__frequency
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__frequency
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
 msgid "Frequency"
 msgstr ""
 
@@ -3628,21 +3316,6 @@ msgid "Generate RC Report"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__partner_latitude
-msgid "Geo Latitude"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__partner_longitude
-msgid "Geo Longitude"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__date_localization
-msgid "Geolocation Date"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_total_forecast
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
 msgid "Grand Total"
@@ -3698,7 +3371,6 @@ msgid "Group Booking Analysis"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__group_booking_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__group_booking_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__group_booking_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__group_booking_count
@@ -3728,7 +3400,6 @@ msgid "Group Booking Statistics"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__group_booking_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__group_booking_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__group_booking_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__group_booking_ids
@@ -3824,6 +3495,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__has_message
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__has_message
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__has_message
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__has_message
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__has_message
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__has_message
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__has_message
@@ -3842,12 +3514,6 @@ msgid "Has Message"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__has_unreconciled_entries
-msgid "Has Unreconciled Entries"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__hashed_password
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__hashed_password
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__hashed_password
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__hashed_password
@@ -3915,11 +3581,31 @@ msgstr ""
 #: code:addons/hotel_management_odoo/static/src/xml/offline_search_widget.xml:0
 #: code:addons/hotel_management_odoo/static/src/xml/offline_search_widget.xml:0
 #: model:ir.model,name:hotel_management_odoo.model_hotel_hotel
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__company_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_cleaning_request__hotel
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_company_forecast_report__company_name
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__company_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__company_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__hotel_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room_result__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_market_segment_forecast_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_by_nationality_forecast__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_monthly_allotment_charts__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_monthly_groups_charts__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_summary_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__company_name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_result_by_client__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_result_by_room_type__company_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_search__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_rooms_forecast_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_source_of_buisness_forecast__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_yearly_geographical_chart__company_id
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__cleaning_type__hotel
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
@@ -4017,12 +3703,13 @@ msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_hotel_room_result
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_pivot
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_tree
 msgid "Hotel Room Result"
 msgstr ""
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_graph
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_pivot
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_rooms_forecast_tree
 msgid "Hotel Room Results"
 msgstr ""
@@ -4277,11 +3964,6 @@ msgid "ID Type"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__im_status
-msgid "IM Status"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__is_vip
 msgid "IS VIP"
 msgstr ""
@@ -4293,8 +3975,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__icon
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_exception_icon
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_exception_icon
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_exception_icon
@@ -4315,8 +3999,10 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_fleet_booking_line__activity_exception_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__activity_exception_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__activity_exception_icon
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__activity_exception_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__activity_exception_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__activity_exception_icon
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__activity_exception_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_staff_status__activity_exception_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_status__activity_exception_icon
 #: model:ir.model.fields,help:hotel_management_odoo.field_maintenance_status__activity_exception_icon
@@ -4348,6 +4034,7 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__message_needaction
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__message_needaction
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_amenity__message_needaction
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__message_needaction
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__message_needaction
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__message_needaction
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__message_needaction
@@ -4378,6 +4065,8 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__message_has_sms_error
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_amenity__message_has_error
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_amenity__message_has_sms_error
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__message_has_error
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__message_has_sms_error
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__message_has_error
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__message_has_sms_error
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__message_has_error
@@ -4410,27 +4099,6 @@ msgid "If checked, some messages have a delivery error."
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__team_id
-msgid ""
-"If set, this Sales Team will be used for sales and assignments related to "
-"this partner"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__is_blacklisted
-msgid ""
-"If the email address is on the blacklist, the contact won't receive mass "
-"mailing anymore, from any list"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__phone_sanitized_blacklisted
-msgid ""
-"If the sanitized phone number is on the blacklist, the contact won't receive"
-" mass mailing sms anymore, from any list"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_service_booking_line__booking_line_visible
 msgid "If true, Booking line will be visible"
 msgstr ""
@@ -4441,29 +4109,8 @@ msgid "If you change the pricelist, only newly added lines will be affected."
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__image_1920
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_inventory__image
 msgid "Image"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__image_1024
-msgid "Image 1024"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__image_128
-msgid "Image 128"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__image_256
-msgid "Image 256"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__image_512
-msgid "Image 512"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -4565,22 +4212,6 @@ msgid "In-House Rooms"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__mobile_blacklisted
-msgid ""
-"Indicates if a blacklisted sanitized phone number is a mobile number. Helps "
-"distinguish which number is blacklisted             when there is both a "
-"mobile and phone field in a model."
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__phone_blacklisted
-msgid ""
-"Indicates if a blacklisted sanitized phone number is a phone number. Helps "
-"distinguish which number is blacklisted             when there is both a "
-"mobile and phone field in a model."
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_line__is_unassigned
 msgid "Indicates if the room line is unassigned."
 msgstr ""
@@ -4632,11 +4263,6 @@ msgid "Individual"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__industry_id
-msgid "Industry"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__infant_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__infant_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__infant_count
@@ -4660,18 +4286,17 @@ msgid "Information"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__contact_address_inline
-msgid "Inlined Complete Address"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__inventory_ids
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
 msgid "Inventory"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__invoice_warn
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_inventory_form
+msgid "Inventory Details"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__hotel_invoice_id
 msgid "Invoice"
 msgstr ""
@@ -4707,7 +4332,6 @@ msgid "Invoiced"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__invoice_ids
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Invoices"
 msgstr ""
@@ -4773,6 +4397,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_is_follower
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_is_follower
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_is_follower
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_is_follower
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_is_follower
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_is_follower
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_is_follower
@@ -4803,6 +4428,11 @@ msgid "Is Nationality Readonly"
 msgstr ""
 
 #. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__is_offline_search
+msgid "Is Offline search"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Is Percentage"
 msgstr ""
@@ -4810,11 +4440,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Is Percentage?"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__is_public
-msgid "Is Public"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -4830,21 +4455,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__is_unassigned
 msgid "Is Unassigned"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__is_company
-msgid "Is a Company"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__fsm_location
-msgid "Is a FS Location"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__fsm_person
-msgid "Is a FS Worker"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -4871,11 +4481,6 @@ msgid "Item Name"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__function
-msgid "Job Position"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_account_move
 msgid "Journal Entry"
 msgstr ""
@@ -4886,11 +4491,6 @@ msgid "Journal Item"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__journal_item_count
-msgid "Journal Items"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__web_kaaba_view
 msgid "Kaaba View"
 msgstr ""
@@ -4898,11 +4498,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
 msgid "Kaaba view"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__lang
-msgid "Language"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -5070,28 +4665,10 @@ msgid "Last Visit"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__calendar_last_notif_ack
-msgid "Last notification marked as read from base Calendar"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__last_time_entries_checked
-msgid ""
-"Last time the invoices & payments matching was performed for this partner. "
-"It is set either if there's not at least an unreconciled debit and an "
-"unreconciled credit or if you click the \"Done\" button."
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/xml/room_booking_buttons.xml:0
 #, python-format
 msgid "Late"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__last_time_entries_checked
-msgid "Latest Invoices & Payments Matching Date"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -5259,7 +4836,6 @@ msgid "Mark booking as No Show"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__is_vip
 #: model:ir.model.fields,help:hotel_management_odoo.field_fsm_person__is_vip
 #: model:ir.model.fields,help:hotel_management_odoo.field_res_partner__is_vip
 #: model:ir.model.fields,help:hotel_management_odoo.field_res_users__is_vip
@@ -5276,10 +4852,10 @@ msgid ""
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__market_segments
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__market_segments
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__market_segment
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_partner_details__market_segments
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__market_segment
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__market_segments
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__market_segments
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__market_segment
@@ -5288,8 +4864,12 @@ msgid "Market Segment"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/market_segment_forecast.py:0
+#: code:addons/hotel_management_odoo/models/market_segment_forecast.py:0
 #: model:ir.model,name:hotel_management_odoo.model_market_segment_forecast_report
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_market_segment_forecast_report
+#, python-format
 msgid "Market Segment Forecast Report"
 msgstr ""
 
@@ -5329,7 +4909,6 @@ msgid "Max Pax"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__max_pax
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__max_pax
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__max_pax
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__max_pax
@@ -5408,7 +4987,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__meal_pattern
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__group_meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_by_nationality_forecast__meal_pattern
@@ -5435,7 +5013,6 @@ msgid "Meal Price"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__meal_rate_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__meal_rate_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__meal_rate_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__meal_rate_ids
@@ -5458,8 +5035,12 @@ msgid "Meals By Nationality Forecast"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/meals_forecast_report.py:0
+#: code:addons/hotel_management_odoo/models/meals_forecast_report.py:0
 #: model:ir.model,name:hotel_management_odoo.model_meals_forecast_report
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_meals_forecast_report
+#, python-format
 msgid "Meals Forecast Report"
 msgstr ""
 
@@ -5471,7 +5052,11 @@ msgid "Meals Forecast Reports"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/meals_by_nationality_forecast.py:0
+#: code:addons/hotel_management_odoo/models/meals_by_nationality_forecast.py:0
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_meals_by_nationality_forecast
+#, python-format
 msgid "Meals by Nationality Forecast"
 msgstr ""
 
@@ -5485,11 +5070,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__meals_per_pax
 msgid "Meals/Pax"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__meeting_ids
-msgid "Meetings"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -5514,6 +5094,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_has_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_has_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_has_error
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_has_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_has_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_has_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_has_error
@@ -5532,27 +5113,13 @@ msgid "Message Delivery error"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__invoice_warn_msg
-msgid "Message for Invoice"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__purchase_warn_msg
-msgid "Message for Purchase Order"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__picking_warn_msg
-msgid "Message for Stock Picking"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_agent_agent__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_event_booking_line__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_ids
@@ -5572,7 +5139,7 @@ msgstr ""
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
-msgid "Min Payment"
+msgid "Min Payment(%)"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -5583,7 +5150,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/group_booking.py:0
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__mobile
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__mobile
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 #, python-format
@@ -5638,6 +5204,14 @@ msgid "Monday (6 Pax)"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/monthly_allotment_charts.py:0
+#: code:addons/hotel_management_odoo/models/monthly_allotment_charts.py:0
+#, python-format
+msgid "Monthly Allotment Chart"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_monthly_allotment_charts
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_monthly_allotment_charts
 msgid "Monthly Allotment Charts"
@@ -5670,8 +5244,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__my_activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__my_activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__my_activity_date_deadline
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__my_activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__my_activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__my_activity_date_deadline
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__my_activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__my_activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__my_activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__my_activity_date_deadline
@@ -5719,7 +5295,6 @@ msgstr ""
 #: code:addons/hotel_management_odoo/models/group_booking.py:0
 #: code:addons/hotel_management_odoo/models/hotel_amenity.py:0
 #: code:addons/hotel_management_odoo/models/hotel_floor.py:0
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking_person__name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__name
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__name
@@ -5770,7 +5345,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__nationality
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__nationality
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__nationality
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__nationality
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__nationality
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_by_nationality_forecast__country_name
@@ -5828,8 +5402,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_calendar_event_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_calendar_event_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_calendar_event_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_calendar_event_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_calendar_event_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_calendar_event_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_calendar_event_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_calendar_event_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_calendar_event_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_calendar_event_id
@@ -5850,8 +5426,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_date_deadline
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_date_deadline
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_date_deadline
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_date_deadline
@@ -5872,8 +5450,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_summary
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_summary
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_summary
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_summary
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_summary
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_summary
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_summary
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_summary
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_summary
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_summary
@@ -5894,8 +5474,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_type_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_type_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_type_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_type_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_type_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_type_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_type_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_type_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_type_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_type_id
@@ -5989,11 +5571,6 @@ msgid "No. of Nights"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__email_normalized
-msgid "Normalized Email"
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
@@ -6018,7 +5595,6 @@ msgid "Not Confirmed"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__comment
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__notes
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__notes
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
@@ -6055,6 +5631,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_needaction_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_needaction_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_needaction_counter
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_needaction_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_needaction_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_needaction_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_needaction_counter
@@ -6108,14 +5685,14 @@ msgid "Number of Rooms"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_res_company__pre_arrival_days_before
-#: model:ir.model.fields,help:hotel_management_odoo.field_res_company__reminder_days_before
-msgid "Number of days before check-in to send the pre-arrival email."
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_inventory_form
+msgid "Number of children"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__reminder_date_before_receipt
-msgid "Number of days to send reminder email before the promised receipt date"
+#: model:ir.model.fields,help:hotel_management_odoo.field_res_company__pre_arrival_days_before
+#: model:ir.model.fields,help:hotel_management_odoo.field_res_company__reminder_days_before
+msgid "Number of days before check-in to send the pre-arrival email."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6132,6 +5709,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_has_error_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_has_error_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_has_error_counter
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_has_error_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_has_error_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_has_error_counter
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_has_error_counter
@@ -6156,6 +5734,7 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__message_needaction_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__message_needaction_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_amenity__message_needaction_counter
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__message_needaction_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__message_needaction_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__message_needaction_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__message_needaction_counter
@@ -6180,6 +5759,7 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__message_has_error_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__message_has_error_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_amenity__message_has_error_counter
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__message_has_error_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__message_has_error_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__message_has_error_counter
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__message_has_error_counter
@@ -6243,11 +5823,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hotel_room__status__occupied
 msgid "Occupied"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
-msgid "Offline Search"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6394,11 +5969,6 @@ msgid "Overbooking Rooms"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__owned_location_ids
-msgid "Owned Locations"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__owner
 msgid "Owner"
 msgstr ""
@@ -6428,11 +5998,6 @@ msgid "Parent Booking Name"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__parent_name
-msgid "Parent name"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__res_company__web_kaaba_view__partial_kaaba_view
 msgid "Partial Kaaba View"
 msgstr ""
@@ -6450,28 +6015,8 @@ msgid "Partner Company"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__contract_ids
-msgid "Partner Contracts"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_partner_details
 msgid "Partner Details"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__use_partner_credit_limit
-msgid "Partner Limit"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__same_company_registry_partner_id
-msgid "Partner with same Company Registry"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__same_vat_partner_id
-msgid "Partner with same Tax ID"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6500,11 +6045,6 @@ msgid "Pax/Chi/Inf"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__debit_limit
-msgid "Payable Limit"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__web_payment
 msgid "Payment"
 msgstr ""
@@ -6518,23 +6058,8 @@ msgid ""
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_payment_method_id
-msgid "Payment Method"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_payment__payment_status
 msgid "Payment Status"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__payment_token_count
-msgid "Payment Token Count"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__payment_token_ids
-msgid "Payment Tokens"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6569,23 +6094,8 @@ msgid "Pending Repairs"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__peppol_endpoint
-msgid "Peppol Endpoint"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__peppol_eas
-msgid "Peppol e-address (EAS)"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__person_ids
 msgid "Persons"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__phone
-msgid "Phone"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6613,32 +6123,12 @@ msgid ""
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__phone_sanitized_blacklisted
-msgid "Phone Blacklisted"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_adult__phone_number
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_child__phone_number
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_infant__phone_number
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__phone
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__phone_number
 msgid "Phone Number"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__phone_mobile_search
-msgid "Phone/Mobile"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__plan_to_change_bike
-msgid "Plan To Change Bike"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__plan_to_change_car
-msgid "Plan To Change Car"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6734,14 +6224,6 @@ msgid "Pre-Paid / Credit Limit"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_payment_method_id
-msgid ""
-"Preferred payment method when paying this vendor. This is used to filter "
-"vendor bills by preferred payment method to register payments in mass. Use "
-"cases: create bank files for batch wires, check runs."
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__previous_state
@@ -6769,15 +6251,9 @@ msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_product_pricelist
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_product_pricelist
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_rate_code__pricelist_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__pricelist_id
 msgid "Pricelist"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__service_location_id
-msgid "Primary Service Location"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6814,21 +6290,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__profile_id
 #, python-format
 msgid "Profile ID"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__project_ids
-msgid "Projects"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__purchase_warn
-msgid "Purchase Order"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__purchase_order_count
-msgid "Purchase Order Count"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6881,7 +6342,6 @@ msgid ""
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__rate_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__rate_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__rate_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__rate_code
@@ -6891,7 +6351,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__rate_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_update_wizard__rate_code
 #: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_rate_code
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_product_pricelist_custom
 msgid "Rate Code"
 msgstr ""
@@ -6923,13 +6382,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__rate_forecast_ids
 msgid "Rate Forecast"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
-msgid ""
-"Rate Posting\n"
-"                                                            Item"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -6967,6 +6419,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__rating_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__rating_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__rating_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__rating_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__rating_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__rating_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__rating_ids
@@ -6991,11 +6444,6 @@ msgid "Reason"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__receipt_reminder_email
-msgid "Receipt Reminder"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:res.groups,name:hotel_management_odoo.hotel_group_reception
 msgid "Receptionist"
 msgstr ""
@@ -7010,7 +6458,6 @@ msgstr ""
 #: code:addons/hotel_management_odoo/models/group_booking.py:0
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__ref_id_bk
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__ref_id_bk
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__ref
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__reference
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__ref_id_bk
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_payment__reference
@@ -7057,16 +6504,6 @@ msgid "Region"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__parent_id
-msgid "Related Company"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__fsm_location_id
-msgid "Related FS Location"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__owner_id
 msgid "Related Owner"
 msgstr ""
@@ -7079,11 +6516,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__related_hotel_room_type
 msgid "Related Room Type"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__employee_ids
-msgid "Related employees based on their private address"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -7116,7 +6548,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__list_price
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__price_unit
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
 msgid "Rent"
 msgstr ""
 
@@ -7221,8 +6652,12 @@ msgid "Reservation Status"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/reservation_status_report.py:0
+#: code:addons/hotel_management_odoo/models/reservation_status_report.py:0
 #: model:ir.model,name:hotel_management_odoo.model_reservation_status_report
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_reservation_status_report
+#, python-format
 msgid "Reservation Status Report"
 msgstr ""
 
@@ -7235,8 +6670,12 @@ msgid "Reservation Status Reports"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/reservation_summary_report.py:0
+#: code:addons/hotel_management_odoo/models/reservation_summary_report.py:0
 #: model:ir.model,name:hotel_management_odoo.model_reservation_summary_report
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_reservation_summary_report
+#, python-format
 msgid "Reservation Summary Report"
 msgstr ""
 
@@ -7255,7 +6694,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/xml/new_dashboard_content.xml:0
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__reservation_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__reservation_count
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__reservation_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__reservation_count
@@ -7290,8 +6728,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__activity_user_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__activity_user_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__activity_user_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__activity_user_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__activity_user_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__activity_user_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__activity_user_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_staff_status__activity_user_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_housekeeping_status__activity_user_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_maintenance_status__activity_user_id
@@ -7313,6 +6753,14 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_revenue_forecast_pivot
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_revenue_forecast_tree
 msgid "Revenue Forecast"
+msgstr ""
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/revenue_forecast.py:0
+#: code:addons/hotel_management_odoo/models/revenue_forecast.py:0
+#, python-format
+msgid "Revenue Forecast Report"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -7387,6 +6835,14 @@ msgstr ""
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_run_process_room_availability
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_availability_wizard
 msgid "Room Availability"
+msgstr ""
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_result.py:0
+#: code:addons/hotel_management_odoo/models/room_result.py:0
+#, python-format
+msgid "Room Availability Report"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -7565,11 +7021,6 @@ msgid "Room Lines"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
-msgid "Room Manager"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_search_view
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_room_view_tree
@@ -7627,11 +7078,6 @@ msgid "Room Rate Forecast"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_hotel_room_result_tree
-msgid "Room Result"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_room_result_by_client
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_client_tree
 msgid "Room Result By Client"
@@ -7650,6 +7096,9 @@ msgid "Room Results By Client"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_result_by_room_type.py:0
+#: code:addons/hotel_management_odoo/models/room_result_by_room_type.py:0
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_monthly_allotment_charts_graph
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_monthly_allotment_charts_pivot
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_monthly_groups_charts_graph
@@ -7657,6 +7106,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_room_type_graph
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_room_type_pivot
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_result_by_room_type_tree
+#, python-format
 msgid "Room Results by Room Type"
 msgstr ""
 
@@ -7796,7 +7246,11 @@ msgid "Rooms Forecast"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/rooms_forecast.py:0
+#: code:addons/hotel_management_odoo/models/rooms_forecast.py:0
 #: model:ir.model,name:hotel_management_odoo.model_rooms_forecast_report
+#, python-format
 msgid "Rooms Forecast Report"
 msgstr ""
 
@@ -7839,12 +7293,57 @@ msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_monthly_allotment
-msgid "Run Monthly Allotment process"
+msgid "Run Monthly Allotment Process"
 msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_monthly_groups_charts
 msgid "Run Monthly group charts process"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_all_reservation_status_report
+msgid "Run Process by All Reservation Status Report"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_company_forecast_report
+msgid "Run Process by Company Forecast Report"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_deleted_reservation_report
+msgid "Run Process by Deleted Reservation Report"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_market_segment_forecast
+msgid "Run Process by Market Segment Forecast Report"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_meals_forecast
+msgid "Run Process by Meals Forecast Report"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_meals_by_nationality_forecast
+msgid "Run Process by Meals by Nationality Forecast"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_reservation_status
+msgid "Run Process by Reservation Status"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_reservation_summary_report
+msgid "Run Process by Reservation Summary Report"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_source_of_buisness_forecast
+msgid "Run Process by Source of Business Forecast"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -7863,49 +7362,8 @@ msgid "Run Rooms Forecast"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_Region
+#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_region
 msgid "Run Yearly Geographical Process"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_company_forecast_report
-msgid "Run process by company forecast report"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_deleted_reservation_report
-msgid "Run process by deleted reservation report"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_market_segment_forecast
-msgid "Run process by market segment forecast report"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_meals_by_nationality_forecast
-msgid "Run process by meals by nationality forecast"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_meals_forecast
-msgid "Run process by meals forecast report"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_all_reservation_status_report
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_reservation_status
-msgid "Run process by reservation status"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_reservation_summary_report
-msgid "Run process by reservation summary report"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.actions.server,name:hotel_management_odoo.action_run_process_by_source_of_buisness_forecast
-msgid "Run process by source of buisness forecast"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -7915,6 +7373,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__message_has_sms_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__message_has_sms_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__message_has_sms_error
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__message_has_sms_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__message_has_sms_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__message_has_sms_error
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__message_has_sms_error
@@ -7948,21 +7407,6 @@ msgstr ""
 #: code:addons/hotel_management_odoo/static/src/xml/new_dashboard_templates.xml:0
 #, python-format
 msgid "Sales Data"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__team_id
-msgid "Sales Team"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__user_id
-msgid "Salesperson"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__phone_sanitized
-msgid "Sanitized Number"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8078,8 +7522,11 @@ msgid "Select Complementary"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/offline_search_widget.xml:0
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+#, python-format
 msgid "Select Contact"
 msgstr ""
 
@@ -8217,21 +7664,6 @@ msgid "Select whether the posting applies to the first night or every night."
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__invoice_warn
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__picking_warn
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__purchase_warn
-msgid ""
-"Selecting the \"Warning\" option will notify user with the message, "
-"Selecting \"Blocking Message\" will throw an exception with the message and "
-"block the flow. The Message has to be written in the next field."
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__self
-msgid "Self"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_availability_wizard
 msgid "Send to Waiting List"
 msgstr ""
@@ -8270,6 +7702,11 @@ msgid "Service Locations"
 msgstr ""
 
 #. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
+msgid "Service Name"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__amount_taxed_service
 msgid "Service Tax"
 msgstr ""
@@ -8291,19 +7728,13 @@ msgid "Sets the User automatically"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__partner_share
-msgid "Share Partner"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__show_complementary_code
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__show_complementary_code
 msgid "Show Complementary Code"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__show_credit_limit
-msgid "Show Credit Limit"
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__show_complementary_code
+msgid "Show Complimentary Code"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8331,31 +7762,6 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_fleet_booking_line__booking_id
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__booking_id
 msgid "Shows the room Booking"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__signup_expiration
-msgid "Signup Expiration"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__signup_token
-msgid "Signup Token"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__signup_type
-msgid "Signup Token Type"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__signup_valid
-msgid "Signup Token is Valid"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__signup_url
-msgid "Signup URL"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8400,7 +7806,6 @@ msgid "Source of Buisness Forecast Reports"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__source_of_business
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__source_of_business
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__source_of_business
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_monthly_allotment_charts__source_of_business
@@ -8414,6 +7819,20 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_source_of_buisness_forecast__source_of_business
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_vip
 msgid "Source of Business"
+msgstr ""
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/source_of_buisness_forecast.py:0
+#: code:addons/hotel_management_odoo/models/source_of_buisness_forecast.py:0
+#, python-format
+msgid "Source of Business Forecast"
+msgstr ""
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__special_request
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Special Request"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8452,11 +7871,6 @@ msgid "Star rating of the hotel"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__starred_message_ids
-msgid "Starred Message"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.cleaning_request_view_form
 msgid "Start"
 msgstr ""
@@ -8467,10 +7881,14 @@ msgid "Start Record"
 msgstr ""
 
 #. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__starting_price
+msgid "Starting Price"
+msgstr ""
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_cleaning_request__state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__state
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__state_id
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__state
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_waiting_list__state
@@ -8490,16 +7908,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__state
 msgid "State of the Booking"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__static_map_url
-msgid "Static Map Url"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__static_map_url_is_valid
-msgid "Static Map Url Is Valid"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8529,8 +7937,10 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_fleet_booking_line__activity_state
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__activity_state
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__activity_state
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__activity_state
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__activity_state
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__activity_state
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__activity_state
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_staff_status__activity_state
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_status__activity_state
 #: model:ir.model.fields,help:hotel_management_odoo.field_maintenance_status__activity_state
@@ -8565,23 +7975,12 @@ msgid "Stays"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__picking_warn
-msgid "Stock Picking"
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/group_booking.py:0
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__street
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__street
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 #, python-format
 msgid "Street"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__street2
-msgid "Street2"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8630,16 +8029,6 @@ msgid "Sunday (6 Pax)"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_purchase_currency_id
-msgid "Supplier Currency"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__supplier_rank
-msgid "Supplier Rank"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_cleaning_request__support_reason
 msgid "Support"
 msgstr ""
@@ -8670,26 +8059,11 @@ msgid "System Date"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__category_id
-msgid "Tags"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__task_ids
-msgid "Tasks"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_event_booking_line__price_tax
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__price_tax
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_line__price_tax
 #: model:ir.model.fields,help:hotel_management_odoo.field_service_booking_line__price_tax
 msgid "Tax Amount"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__vat
-msgid "Tax ID"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8724,6 +8098,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__amount_tax
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__tax_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_service_booking_line__tax_ids
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
 msgid "Taxes"
 msgstr ""
 
@@ -8773,25 +8148,10 @@ msgid "Telephone Extension"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__country_code
-msgid ""
-"The ISO country code in two chars. \n"
-"You can use this field for quick search."
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/hotel_service.py:0
 #, python-format
 msgid "The Service price cannot be less than 1."
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__vat
-msgid ""
-"The Tax Identification Number. Values here will be validated based on the "
-"country format. You can use '/' to indicate that the partner is not subject "
-"to tax."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8867,17 +8227,6 @@ msgid ""
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_account_position_id
-msgid ""
-"The fiscal position determines the taxes/accounts used for this contact."
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__user_id
-msgid "The internal user in charge of this contact."
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_res_company__cron_name
 msgid "The name of the action associated with the selected model."
 msgstr ""
@@ -8885,13 +8234,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__invoice_count
 msgid "The number of invoices created"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__has_unreconciled_entries
-msgid ""
-"The partner has at least one unreconciled debit and credit since last time "
-"the invoices & payments matching was performed."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8917,13 +8259,6 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_line__uom_qty
 #: model:ir.model.fields,help:hotel_management_odoo.field_service_booking_line__uom_qty
 msgid "The quantity converted into the UoM used by the product"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__company_registry
-msgid ""
-"The registry number of the company. Use it if it is different from the Tax "
-"ID. It must be unique across all partners of a same country"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -8957,18 +8292,6 @@ msgid "The selling price of the selected ticket."
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_stock_customer
-msgid ""
-"The stock location used as destination when sending goods to this contact."
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_stock_supplier
-msgid ""
-"The stock location used as source when receiving goods from this contact."
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_cleaning_request__assigned_id
 msgid "The team member to whom the request isAssigned To"
 msgstr ""
@@ -8976,34 +8299,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__amount_total
 msgid "The total Amount including Tax"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_account_payable_id
-msgid ""
-"This account will be used instead of the default one as the payable account "
-"for the current partner"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_account_receivable_id
-msgid ""
-"This account will be used instead of the default one as the receivable "
-"account for the current partner"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_purchase_currency_id
-msgid ""
-"This currency will be used, instead of the default one, for purchases from "
-"the current partner"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__email_normalized
-msgid ""
-"This field is used to search on email address as the primary email field can"
-" contain more than strictly an email address."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -9039,27 +8334,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking__amount_total_service
 msgid "This is the Total Amount for Service"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_supplier_payment_term_id
-msgid ""
-"This payment term will be used instead of the default one for purchase "
-"orders and vendor bills"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_payment_term_id
-msgid ""
-"This payment term will be used instead of the default one for sales orders "
-"and customer invoices"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__property_product_pricelist
-msgid ""
-"This pricelist will be used, instead of the default one, for sales to the "
-"current partner"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -9108,17 +8382,6 @@ msgid "Ticket"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__tz
-msgid "Timezone"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__tz_offset
-msgid "Timezone offset"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__title
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_company__web_title
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
 msgid "Title"
@@ -9274,11 +8537,6 @@ msgid "Total Infants"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__total_invoiced
-msgid "Total Invoiced"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__uom_qty
 msgid "Total KM"
 msgstr ""
@@ -9314,11 +8572,6 @@ msgid "Total Packages"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__debit
-msgid "Total Payable"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_people
 msgid "Total People"
 msgstr ""
@@ -9351,11 +8604,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_rate_forecast
 msgid "Total Rate"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__credit
-msgid "Total Receivable"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -9429,16 +8677,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Total amount"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__credit
-msgid "Total amount this customer owes you."
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__debit
-msgid "Total amount you have to pay to this vendor."
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -9522,8 +8760,10 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_fleet_booking_line__activity_exception_decoration
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__activity_exception_decoration
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__activity_exception_decoration
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__activity_exception_decoration
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__activity_exception_decoration
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__activity_exception_decoration
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__activity_exception_decoration
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_staff_status__activity_exception_decoration
 #: model:ir.model.fields,help:hotel_management_odoo.field_housekeeping_status__activity_exception_decoration
 #: model:ir.model.fields,help:hotel_management_odoo.field_maintenance_status__activity_exception_decoration
@@ -9549,10 +8789,8 @@ msgid "Unassign the room and change the booking status to Confirmed"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__peppol_endpoint
-msgid ""
-"Unique identifier used by the BIS Billing 3.0 and its derivatives, also "
-"known as 'Endpoint ID'."
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_service_view_form
+msgid "Unit Price"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -9661,11 +8899,6 @@ msgid "Use Room Price"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__barcode
-msgid "Use a barcode to identify this contact."
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__user_id
 msgid "User"
 msgstr ""
@@ -9685,11 +8918,6 @@ msgid "User responsible for executing the scheduled action."
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__user_ids
-msgid "Users"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__vat
 msgid "VAT (%)"
 msgstr ""
@@ -9702,7 +8930,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__vip
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__vip
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__is_vip
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__is_vip
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__is_vip
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__is_vip
@@ -9721,7 +8948,6 @@ msgid ""
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__vip_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__vip_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__vip_code
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__vip_code
@@ -9742,16 +8968,6 @@ msgstr ""
 #. module: hotel_management_odoo
 #: model:ir.actions.act_window,name:hotel_management_odoo.fleet_vehicle_model_action
 msgid "Vehicles"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_stock_supplier
-msgid "Vendor Location"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__property_supplier_payment_term_id
-msgid "Vendor Payment Terms"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -9850,17 +9066,13 @@ msgid "Website Description"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__website
-msgid "Website Link"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_agent_agent__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_event_booking_line__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fleet_booking_line__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_food_booking_line__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__website_message_ids
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_floor__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_hotel__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__website_message_ids
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_service__website_message_ids
@@ -9895,6 +9107,7 @@ msgstr ""
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__website_message_ids
 #: model:ir.model.fields,help:hotel_management_odoo.field_group_booking__website_message_ids
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_amenity__website_message_ids
+#: model:ir.model.fields,help:hotel_management_odoo.field_hotel_floor__website_message_ids
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_hotel__website_message_ids
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_room__website_message_ids
 #: model:ir.model.fields,help:hotel_management_odoo.field_hotel_service__website_message_ids
@@ -9948,14 +9161,6 @@ msgid "Weeks"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__tz
-msgid ""
-"When printing documents and exporting/importing data, time values are computed according to this timezone.\n"
-"If the timezone is not set, UTC (Coordinated Universal Time) is used.\n"
-"Anywhere else, time values are computed according to the time offset of your web client."
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_room_booking_update_wizard
 msgid "Wizard to Update Check-In and Check-Out Dates"
 msgstr ""
@@ -9974,15 +9179,27 @@ msgid "Yearly Geographical Analysis"
 msgstr ""
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/yearly_geographical_chart.py:0
+#: code:addons/hotel_management_odoo/models/yearly_geographical_chart.py:0
 #: model:ir.model,name:hotel_management_odoo.model_yearly_geographical_chart
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_yearly_geographical_chart
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.yearly_geographical_chart_tree_view
+#, python-format
 msgid "Yearly Geographical Chart"
 msgstr ""
 
 #. module: hotel_management_odoo
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_run_process
 msgid "Yearly Reservation Chart"
+msgstr ""
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_result_by_client.py:0
+#: code:addons/hotel_management_odoo/models/room_result_by_client.py:0
+#, python-format
+msgid "Yearly Reservation Chart Report"
 msgstr ""
 
 #. module: hotel_management_odoo
@@ -10015,11 +9232,6 @@ msgid "ZIP Code"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__zip
-msgid "Zip"
-msgstr ""
-
-#. module: hotel_management_odoo
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/group_booking.py:0
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__zip_code
@@ -10028,27 +9240,8 @@ msgid "Zip Code"
 msgstr ""
 
 #. module: hotel_management_odoo
-#: model:ir.model.fields,help:hotel_management_odoo.field_fsm_location__days_sales_outstanding
-msgid ""
-"[(Total Receivable/Total Revenue) * number of days since the first invoice] "
-"for this customer"
-msgstr ""
-
-#. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room_result__available_rooms
 msgid "available_rooms"
-msgstr ""
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__partner_name
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room_result__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_monthly_allotment_charts__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_monthly_groups_charts__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__partner_name
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_result_by_client__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_result_by_room_type__company_id
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_yearly_geographical_chart__company_id
-msgid "company"
 msgstr ""
 
 #. module: hotel_management_odoo

@@ -89,12 +89,57 @@
                 </pivot>
             </field>
         </record>
+
+        <record id="action_run_process_by_all_reservation_status_report" model="ir.actions.server">
+            <field name="name">Run Process by All Reservation Status Report</field>
+            <field name="model_id" ref="model_all_reservation_status_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["all.reservation.status.report"].action_run_process_by_all_reservation_status_report()
+        ]]>
+            </field>
+        </record>
         <!-- Action -->
-    <record id="action_run_process_by_all_reservation_status_report" model="ir.actions.server">
+    <!-- <record id="action_run_process_by_all_reservation_status_report" model="ir.actions.server">
         <field name="name">Run process by reservation status</field>
         <field name="model_id" ref="model_all_reservation_status_report"/>
         <field name="state">code</field>
         <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_all_reservation_status_report()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'All Reservation Status Report',
+    'res_model': 'all.reservation.status.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_all_reservation_status_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_all_reservation_status_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_all_reservation_status_report_pivot').id, 'pivot'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'All Reservation Status Report',
+    'res_model': 'all.reservation.status.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_all_reservation_status_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_all_reservation_status_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_all_reservation_status_report_pivot').id, 'pivot'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
             <![CDATA[
 model.run_process_by_all_reservation_status_report()
 action = {
@@ -110,8 +155,8 @@ action = {
     'target': 'current',
 }
             ]]>
-        </field>
-    </record>
+        </field> -->
+    <!-- </record> -->
 
         <menuitem id="menu_all_reservation_status_report"
               name="All Reservation Status Report"

@@ -8,31 +8,31 @@ from odoo.exceptions import ValidationError
 class FSMLocation(models.Model):
     _name = "fsm.location"
     # _inherits = {"res.partner": "partner_id"}
-    # _inherit = ["mail.thread", "mail.activity.mixin", "fsm.model.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "fsm.model.mixin"]
     _description = "Field Service Location"
     _stage_type = "location"
     _rec_names_search = ["complete_name"]
 
     # Add fields that were previously inherited from res.partner
-    name = fields.Char(string='Name', required=True)
-    street = fields.Char()
-    street2 = fields.Char()
-    city = fields.Char()
+    name = fields.Char(string='Name', required=True,tracking=True)
+    street = fields.Char(tracking=True)
+    street2 = fields.Char(tracking=True)
+    city = fields.Char(tracking=True)
     state_id = fields.Many2one('res.country.state', string='State')
-    zip = fields.Char()
+    zip = fields.Char(tracking=True)
     country_id = fields.Many2one('res.country', string='Country')
-    email = fields.Char()
-    phone = fields.Char()
-    mobile = fields.Char()
-    tz = fields.Char()
+    email = fields.Char(tracking=True)
+    phone = fields.Char(tracking=True)
+    mobile = fields.Char(tracking=True)
+    tz = fields.Char(tracking=True)
 
     stage_id = fields.Many2one('fsm.stage', string="Stage ID")
-    active = fields.Boolean(default=True)  
+    active = fields.Boolean(default=True,tracking=True)  
 
     # direction = fields.Char()
-    direction = fields.Char(string=_("Direction"), translate=True)
+    direction = fields.Char(string=_("Direction"), translate=True,tracking=True)
     partner_id = fields.Many2one(
-        "res.partner",
+        "res.partner",tracking=True,
         string="Related Partner"
         
     )
@@ -41,48 +41,48 @@ class FSMLocation(models.Model):
         string="Related Owner",
         required=True,
         ondelete="restrict",
-        auto_join=True,
+        auto_join=True,tracking=True,
     )
     contact_id = fields.Many2one(
         "res.partner",
         string="Primary Contact",
         domain="[('is_company', '=', False)," " ('fsm_location', '=', False)]",
-        index=True,
+        index=True,tracking=True,
     )
     # description = fields.Char()
-    description = fields.Char(string=_("Description"), translate=True)
-    territory_id = fields.Many2one("res.territory", string="Territory")
-    branch_id = fields.Many2one("res.branch", string="Branch")
-    district_id = fields.Many2one("res.district", string="District")
-    region_id = fields.Many2one("res.region", string="Region")
+    description = fields.Char(string=_("Description"), translate=True,tracking=True)
+    territory_id = fields.Many2one("res.territory", string="Territory",tracking=True)
+    branch_id = fields.Many2one("res.branch", string="Branch",tracking=True)
+    district_id = fields.Many2one("res.district", string="District",tracking=True)
+    region_id = fields.Many2one("res.region", string="Region",tracking=True)
     territory_manager_id = fields.Many2one(
-        string="Primary Assignment", related="territory_id.person_id"
+        string="Primary Assignment", related="territory_id.person_id",tracking=True
     )
     district_manager_id = fields.Many2one(
-        string="District Manager", related="district_id.partner_id"
+        string="District Manager", related="district_id.partner_id",tracking=True
     )
     region_manager_id = fields.Many2one(
-        string="Region Manager", related="region_id.partner_id"
+        string="Region Manager", related="region_id.partner_id",tracking=True
     )
     branch_manager_id = fields.Many2one(
-        string="Branch Manager", related="branch_id.partner_id"
+        string="Branch Manager", related="branch_id.partner_id",tracking=True
     )
 
-    calendar_id = fields.Many2one("resource.calendar", string="Office Hours")
-    fsm_parent_id = fields.Many2one("fsm.location", string="Parent", index=True)
-    notes = fields.Text(string="Location Notes")
+    calendar_id = fields.Many2one("resource.calendar", string="Office Hours",tracking=True)
+    fsm_parent_id = fields.Many2one("fsm.location", string="Parent", index=True,tracking=True)
+    notes = fields.Text(string="Location Notes",tracking=True)
     person_ids = fields.One2many("fsm.location.person", "location_id", string="Workers")
     contact_count = fields.Integer(
-        string="Contacts Count", compute="_compute_contact_ids"
+        string="Contacts Count", compute="_compute_contact_ids",tracking=True
     )
     equipment_count = fields.Integer(
-        string="Equipment", compute="_compute_equipment_ids"
+        string="Equipment", compute="_compute_equipment_ids",tracking=True
     )
     sublocation_count = fields.Integer(
-        string="Sub Locations", compute="_compute_sublocation_ids"
+        string="Sub Locations", compute="_compute_sublocation_ids",tracking=True
     )
     complete_name = fields.Char(
-        compute="_compute_complete_name", recursive=True, store=True, translate=True
+        compute="_compute_complete_name", recursive=True, store=True, translate=True,tracking=True
     )
 
     # @api.model_create_multi

@@ -131,7 +131,7 @@ class HotelRoom(models.Model):
                                 tracking=True)
     description = fields.Html(string='Description', help="Add description",
                               translate=True)
-    company_id = fields.Many2one('res.company', string='Company',
+    company_id = fields.Many2one('res.company', string='Hotel',
                                  default=lambda self: self.env.company, required=True, tracking=True)
 
     fsm_location = fields.Many2one(

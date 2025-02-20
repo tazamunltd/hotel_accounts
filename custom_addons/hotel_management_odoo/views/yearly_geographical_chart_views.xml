@@ -50,10 +50,58 @@
     </record>
         
 
-
+    <record id="action_run_process_by_region" model="ir.actions.server">
+        <field name="name">Run Yearly Geographical Process</field>
+        <field name="model_id" ref="model_yearly_geographical_chart"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+action = env["yearly.geographical.chart"].action_run_process_by_region()
+        ]]>
+        </field>
+    </record>
 
     <!-- Action -->
-    <record id="action_run_process_by_Region" model="ir.actions.server">
+    <!-- <record id="action_run_process_by_Region" model="ir.actions.server">
+    <field name="name">Run Yearly Geographical Process</field>
+    <field name="model_id" ref="model_yearly_geographical_chart"/>
+    <field name="state">code</field>
+    <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_Region()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Yearly Geographical Chart',
+        'res_model': 'yearly.geographical.chart',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_tree_view').id, 'tree'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_graph_view').id, 'graph'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_pivot_view').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Yearly Geographical Chart',
+        'res_model': 'yearly.geographical.chart',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_tree_view').id, 'tree'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_graph_view').id, 'graph'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_pivot_view').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field>
+</record> -->
+
+    <!-- <record id="action_run_process_by_Region" model="ir.actions.server">
         <field name="name">Run Yearly Geographical Process</field>
         <field name="model_id" ref="model_yearly_geographical_chart"/>
         <field name="state">code</field>
@@ -74,12 +122,12 @@ action = {
 }
             ]]>
         </field>
-    </record>
+    </record> -->
     <!-- Menu Item -->
     
     <menuitem id="menu_yearly_geographical_chart"
             name="Yearly Geographical Chart"
-            action="action_run_process_by_Region"
+            action="action_run_process_by_region"
             parent="menu_reservation"
             sequence="40"/>
 </odoo>

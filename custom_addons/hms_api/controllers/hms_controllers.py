@@ -4,6 +4,7 @@ import random, string
 from decorator import append
 
 from odoo import http, fields
+import base64
 from odoo.http import request, Response
 from datetime import timedelta
 from decimal import Decimal
@@ -37,16 +38,17 @@ REDIS_CONFIG = {
     'port': 6379
 }
 
+
 def check_space_and_new_page(
-    c,
-    needed_height,
-    y_position,
-    bottom_margin,
-    top_margin,
-    page_width,
-    page_height,
-    font_name="Helvetica",
-    font_size=10
+        c,
+        needed_height,
+        y_position,
+        bottom_margin,
+        top_margin,
+        page_width,
+        page_height,
+        font_name="Helvetica",
+        font_size=10
 ):
     """
     Checks if there's enough space on the current page for the needed_height.
@@ -64,21 +66,21 @@ def check_space_and_new_page(
 
 
 def draw_table_with_page_break(
-    c,
-    x_left,
-    y_top,
-    table_width,
-    header_height,
-    row_height,
-    table_headers,
-    row_data_list,
-    line_height,
-    bottom_margin,
-    top_margin,
-    page_width,
-    page_height,
-    font_name="Helvetica",
-    font_size=10
+        c,
+        x_left,
+        y_top,
+        table_width,
+        header_height,
+        row_height,
+        table_headers,
+        row_data_list,
+        line_height,
+        bottom_margin,
+        top_margin,
+        page_width,
+        page_height,
+        font_name="Helvetica",
+        font_size=10
 ):
     """
     Draws a table which can span multiple pages if needed.
@@ -133,7 +135,7 @@ def draw_table_with_page_break(
     # 2) Iterate each row
     for row_idx, row_data in enumerate(row_data_list):
 
-        if row_data [-1] == '' :
+        if row_data[-1] == '':
             continue
         # Calculate needed height for this row
         needed_height = row_height + 10  # 10 is a small buffer
@@ -183,20 +185,21 @@ def draw_table_with_page_break(
     # Return final Y position (with a bit of spacing below the table)
     return current_y - 20
 
+
 def draw_footer_details(
-    c,
-    y_position,
-    footer_details,
-    left_margin,
-    right_margin,
-    page_width,
-    page_height,
-    bottom_margin,
-    top_margin,
-    font_name="Helvetica",
-    font_size=8,
-    line_spacing=15,  # Line spacing
-    english_to_arabic_spacing=50  # Adjust spacing between English and Arabic
+        c,
+        y_position,
+        footer_details,
+        left_margin,
+        right_margin,
+        page_width,
+        page_height,
+        bottom_margin,
+        top_margin,
+        font_name="Helvetica",
+        font_size=8,
+        line_spacing=15,  # Line spacing
+        english_to_arabic_spacing=50  # Adjust spacing between English and Arabic
 ):
     """
     Draws the footer details section with proper alignment and a border.
@@ -266,6 +269,7 @@ def draw_footer_details(
 
     return y_position
 
+
 def send_email(to_email, subject, body):
     """Helper function to send an email."""
     mail_values = {
@@ -274,6 +278,7 @@ def send_email(to_email, subject, body):
         'body_html': body,
     }
     request.env['mail.mail'].sudo().create(mail_values).send()
+
 
 class WebAppController(http.Controller):
 
@@ -297,11 +302,16 @@ class WebAppController(http.Controller):
         except Exception as e:
             return None
 
-    def get_model_data(self, model, columns=None):
+    def get_model_data(self, model, hotel_id=None, columns=None):
         if columns is None:
             columns = []
 
-        records = request.env[model].sudo().search([])
+        if hotel_id != None:
+            records = request.env[model].sudo().search([
+                ('company_id', '=', hotel_id),
+            ])
+        else:
+            records = request.env[model].sudo().search([])
         data = []
 
         if len(columns) > 1:
@@ -314,13 +324,15 @@ class WebAppController(http.Controller):
 
         return data
 
-    def get_posting_items(self):
+    def get_posting_items(self, hotel_id):
         posting_items_data = self.get_model_data('posting.item',
+                                                 hotel_id,
                                                  ['id', 'description', 'default_value', 'posting_item_selection',
-                                                  'show_in_website', 'website_desc'])
+                                                  'show_in_website', 'website_desc', 'company_id'])
 
         posting_items = [item for item in posting_items_data if item["show_in_website"]]
         meal_data = self.get_model_data('meal.code',
+                                        hotel_id,
                                         ['id', 'posting_item', 'description', 'price_pax', 'price_child',
                                          'price_infant', 'type'])
 
@@ -426,8 +438,8 @@ class WebAppController(http.Controller):
             "message": "Password has been reset and emailed to the user",
         }
 
-    @http.route('/api/change_password', type='json', auth='public', methods=['POST'], csrf=False)
-    def change_password(self, **kwargs):
+    @http.route('/api/change_contact_password', type='json', auth='public', methods=['POST'], csrf=False)
+    def change_contact_password(self, **kwargs):
         email = kwargs.get('email')
         old_password = kwargs.get('old_password')
         new_password = kwargs.get('new_password')
@@ -458,11 +470,91 @@ class WebAppController(http.Controller):
             if hotel.rate_code:
                 all_hotels.append({
                     "id": hotel.id,
-                    "name": hotel.name
+                    "name": hotel.name,
+                    "logo": f"data:image/png;base64,{hotel.logo.decode('utf-8')}" if hotel.logo else None,
+                    'review': hotel.web_review,
+                    'star_rating': hotel.web_star_rating,
+                    'starting_price': hotel.starting_price,
                 })
 
         return {"status": "success", "hotels": all_hotels}
 
+    @http.route('/api/country/state/list', type='json', auth='public', methods=['GET'], csrf=False)
+    def get_country_state_list(self, **kwargs):
+        countries = request.env['res.country'].sudo().search([])
+        country_list = []
+
+        for country in countries:
+            states = [
+                {"id": state.id, "name": state.name}
+                for state in country.state_ids
+            ]
+            country_list.append({
+                "id": country.id,
+                "country": country.name,
+                "states": states
+            })
+
+        return {"status": "success", "countries": country_list}
+
+    @http.route('/api/update_contact_data', type='json', auth='public', methods=['POST'], csrf=False)
+    def update_contact_data(self, **kwargs):
+        partner_id = kwargs.get('partner_id')
+        if not partner_id:
+            return {"status": "error", "message": "partner_id is required."}
+
+        partner = request.env['res.partner'].sudo().browse(partner_id)
+
+        if not partner.exists():
+            return {"status": "error", "message": "Partner not found."}
+
+        # Allowed fields to update
+        update_fields = {
+            'name': kwargs.get('name'),
+            'complete_name': kwargs.get('name'),
+            'state_id': kwargs.get('state_id'),
+            'country_id': kwargs.get('country_id'),
+            'website': kwargs.get('website'),
+            'street': kwargs.get('street'),
+            'street2': kwargs.get('street2'),
+            'zip': kwargs.get('zip'),
+            'city': kwargs.get('city'),
+        }
+
+        # Remove None values to prevent overwriting with NULL
+        update_fields = {key: value for key, value in update_fields.items() if
+                         value is not None or value != "" or value != 0}
+
+        if update_fields:
+            partner.sudo().write(update_fields)
+            return {"status": "success", "message": "Partner updated successfully", "partner_id": partner.id}
+        else:
+            return {"status": "error", "message": "No valid fields provided for update."}
+
+    @http.route('/api/get/partner', type='json', auth='public', methods=['GET'], csrf=False)
+    def get_partner(self, partner_id=None):
+        if not partner_id:
+            return {"status": "error", "message": "partner_id is required."}
+
+        partner = request.env['res.partner'].sudo().browse(partner_id)
+
+        if not partner.exists():
+            return {"status": "error", "message": "Partner not found."}
+
+        partner_data = {
+            "partner_id": partner.id,
+            "name": partner.name,
+            "complete_name": partner.complete_name,
+            "state_id": partner.state_id.id if partner.state_id else None,
+            "country_id": partner.country_id.id if partner.country_id else None,
+            "website": partner.website,
+            "street": partner.street,
+            "street2": partner.street2,
+            "zip": partner.zip,
+            "city": partner.city,
+        }
+
+        return {"status": "success", "partner_data": partner_data}
 
     @http.route('/api/hotels', type='json', auth='public', methods=['POST'], csrf=False)
     def get_hotels(self, **kwargs):
@@ -572,6 +664,8 @@ class WebAppController(http.Controller):
                 "payment": rate_detail.rate_detail_dicsount,
                 "amount_payment": rate_detail.is_amount,
                 "percent_payment": rate_detail.is_percentage,
+                "logo": f"data:image/png;base64,{hotel.logo.decode('utf-8')}" if hotel.logo else None,
+                "starting_price": hotel.starting_price,
             }
 
             all_rooms = []
@@ -619,8 +713,8 @@ class WebAppController(http.Controller):
                 continue
             all_hotels_data.append(hotel_data)
 
-        services_data = self.get_model_data('hotel.service', ['id', 'name', 'unit_price'])
-        posting_items, meals = self.get_posting_items()
+        services_data = self.get_model_data('hotel.service', None, ['id', 'name', 'unit_price'])
+        posting_items, meals = self.get_posting_items(hotel_id=1)
         meal_data = self.get_model_data('meal.pattern', ['id', 'meal_pattern', 'description', 'abbreviation'])
 
         for meal in meal_data:
@@ -768,6 +862,8 @@ class WebAppController(http.Controller):
             "payment": rate_detail.rate_detail_dicsount,
             "amount_payment": rate_detail.is_amount,
             "percent_payment": rate_detail.is_percentage,
+            "logo": f"data:image/png;base64,{hotel.logo.decode('utf-8')}" if hotel.logo else None,
+            "starting_price": hotel.starting_price,
         }
 
         all_rooms = []
@@ -792,7 +888,7 @@ class WebAppController(http.Controller):
 
         hotel_data['room_types'] = all_rooms
 
-        posting_items, meal_data2 = self.get_posting_items()
+        posting_items, meal_data2 = self.get_posting_items(hotel_id=hotel_id)
         # services_data = self.get_model_data('hotel.service', ['id', 'name', 'unit_price'])
         # meal_data = self.get_model_data('meal.pattern', ['id', 'meal_pattern', 'description', 'abbreviation'])
 
@@ -1036,7 +1132,12 @@ class WebAppController(http.Controller):
         # print("PARTNER DOMAIN", partner_domain, len(partner_domain))
         if len(partner_domain) > 0:
             partner = request.env['res.partner'].sudo().search(partner_domain, limit=1)
-            partner_rate_code = partner.rate_code
+            partner_detail = request.env['partner.details'].sudo().search([
+                ('partner_id', '=', partner.id),
+                ('partner_company_id', '=', hotel_id),
+            ], limit=1)
+
+            partner_rate_code = partner_detail.rate_code
 
         # print("H", companies, pax_data)
 
@@ -1112,7 +1213,7 @@ class WebAppController(http.Controller):
         #                                           'show_in_website', 'website_desc'])
         #
         # posting_items = [item for item in posting_items_data if item["show_in_website"]]
-        posting_items, meal_data2 = self.get_posting_items()
+        posting_items, meal_data2 = self.get_posting_items(hotel_id=hotel_id)
 
         # room_types = request.env['room.type'].sudo().search([])
         all_hotels_data = []
@@ -1125,10 +1226,13 @@ class WebAppController(http.Controller):
                 rate_code = hotel.rate_code
                 print("HOTEL RATE CODE", rate_code.code)
             else:
-                rate_code = default_rate_code
-                print("DEFAULT RATE CODE", rate_code.code)
+                # rate_code = default_rate_code
+                # print("DEFAULT RATE CODE", rate_code.code)
+                if hotel_id != 0:
+                    return {"status": "error", "message": "Rate code not found"}
+                continue
 
-            hotel_data = {"hotel_id": hotel.id, "age_threshold": hotel.age_threshold}
+            hotel_data = {"hotel_id": hotel.id, "name": hotel.name, "age_threshold": hotel.age_threshold}
 
             rate_details = request.env['rate.detail'].sudo().search([
                 ('rate_code_id', '=', rate_code.id),
@@ -1143,14 +1247,16 @@ class WebAppController(http.Controller):
                 ])
             try:
                 rate_detail = rate_details[0]
+                print("RATE DETAIL ID", rate_detail.id)
             except Exception as e:
-                rate_code = default_rate_code
-                rate_details = request.env['rate.detail'].sudo().search([
-                    ('rate_code_id', '=', rate_code.id),
-                    ('from_date', '<=', check_in),
-                    ('to_date', '>=', check_in)
-                ])
-                rate_detail = rate_details[0]
+                return {"status": "error", "message": "No rate code found on provided date range"}
+                # rate_code = default_rate_code
+                # rate_details = request.env['rate.detail'].sudo().search([
+                #     ('rate_code_id', '=', rate_code.id),
+                #     ('from_date', '<=', check_in),
+                #     ('to_date', '>=', check_in)
+                # ])
+                # rate_detail = rate_details[0]
 
             # print("RATE DETAILS", rate_detail)
             # print("DETAILS", rate_detail.rate_detail_dicsount, rate_detail.is_amount, rate_detail.is_percentage)
@@ -1162,17 +1268,30 @@ class WebAppController(http.Controller):
             meal_data_ids = []
             services_data = []
 
-            for meal_line in rate_detail['meal_pattern_id']['meals_list_ids']:
-                meal_data.append({
-                    "id": meal_line['meal_code']['id'],
-                    # "meal_pattern": meal_line['meal_code']['meal_code'],
-                    "description": meal_line['meal_code']['description'],
-                    "unit_price": meal_line['meal_code']['price_pax'],
-                    "default": True,
-                    "child_price": meal_line['meal_code']['price_child'],
-                    "meal_type": meal_line['meal_code']['type']
-                })
-                meal_data_ids.append(meal_line['meal_code']['id'])
+            if partner_rate_code != None:
+                for meal_line in partner_detail.meal_pattern['meals_list_ids']:
+                    meal_data.append({
+                        "id": meal_line['meal_code']['id'],
+                        # "meal_pattern": meal_line['meal_code']['meal_code'],
+                        "description": meal_line['meal_code']['description'],
+                        "unit_price": meal_line['meal_code']['price_pax'],
+                        "default": True,
+                        "child_price": meal_line['meal_code']['price_child'],
+                        "meal_type": meal_line['meal_code']['type']
+                    })
+                    meal_data_ids.append(meal_line['meal_code']['id'])
+            else:
+                for meal_line in rate_detail['meal_pattern_id']['meals_list_ids']:
+                    meal_data.append({
+                        "id": meal_line['meal_code']['id'],
+                        # "meal_pattern": meal_line['meal_code']['meal_code'],
+                        "description": meal_line['meal_code']['description'],
+                        "unit_price": meal_line['meal_code']['price_pax'],
+                        "default": True,
+                        "child_price": meal_line['meal_code']['price_child'],
+                        "meal_type": meal_line['meal_code']['type']
+                    })
+                    meal_data_ids.append(meal_line['meal_code']['id'])
 
             # all_meal_data = self.get_model_data('meal.code',
             #                                     ['id', 'description', 'meal_pattern', 'posting_item', 'price_pax',
@@ -1215,10 +1334,16 @@ class WebAppController(http.Controller):
                     [('room_type_id', '=', room_type.id), ('rate_code_id', '=', rate_code.id)])
                 # print("ROOM TYPE SPECIFIC RATE", room_type_specific_rates, room_type.id, hotel.id)
 
+                images = [
+                    f"data:image/png;base64,{img.image.decode('utf-8')}"
+                    for img in room_type.image_ids if img.image
+                ]
+
                 room_type_data = {
                     "id": room_type.id,
                     "type": room_type.description,
-                    "room_data": []
+                    "room_data": [],
+                    "images": images
                 }
 
                 for pax in pax_data:
@@ -1347,6 +1472,8 @@ class WebAppController(http.Controller):
         reference_number = kwargs.get('reference_number')
         payment_details = kwargs.get('payment_details')
         reference_booking = kwargs.get('reference_booking')
+        additional_notes = kwargs.get('additional_notes')
+        special_request = kwargs.get('special_request')
 
         # Check if booking_id is provided
         if not customer_details:
@@ -1375,14 +1502,11 @@ class WebAppController(http.Controller):
             rate_code = partner.rate_code
             # print("RATE CODE ID", rate_code.id)
             if not rate_code.id:
-                rate_code = request.env['rate.code'].sudo().search([
-                    ('id', '=', 12)
-                ])
+                hotel = request.env['res.company'].sudo().search([('id', '=', hotel_id)])
+                rate_code = hotel.rate_code
                 # print("RATECODE ID", rate_code.id)
         except Exception as e:
-            rate_code = request.env['rate.code'].sudo().search([
-                ('id', '=', 12)
-            ])
+            return {"status": "error", "message": "No rate code found on provided hotel"}
         # print("RATE CODE")
         _adult_count = 0
         _child_count = 0
@@ -1431,8 +1555,10 @@ class WebAppController(http.Controller):
                 'checkout_date': checkout_date,
                 'rate_code': rate_code.id,
                 'room_count': 1,
-                'reference_contact_': rate_code.id,
+                'reference_contact_': reference_booking,
                 'is_offline_search': False,
+                'notes': additional_notes,
+                'special_request': special_request,
                 'availability_results': [(0, 0, {
                     'room_type': room['room_type_id'],
                     'pax': room['pax'],
@@ -1754,6 +1880,7 @@ class WebAppController(http.Controller):
         booking_id = kwargs.get('booking_id')
         payment_type = kwargs.get('payment_type')
         payment_status = kwargs.get('payment_status')
+        print("PAYMENT LOGGER", record_id, booking_id, payment_type, payment_status)
         # state = kwargs.get('state')
 
         # Validate required parameters
@@ -1881,8 +2008,8 @@ class WebAppController(http.Controller):
         hijri_date = convert.Gregorian(current_date.year, current_date.month, current_date.day).to_hijri()
         # Define the number of rows based on the number of pax
         num_rows = (booking.adult_count if booking.adult_count else 0) + \
-           (booking.child_count if booking.child_count else 0) + \
-           (booking.infant_count if booking.infant_count else 0)  # Default to 1 row if pax is not defined
+                   (booking.child_count if booking.child_count else 0) + \
+                   (booking.infant_count if booking.infant_count else 0)  # Default to 1 row if pax is not defined
         checkin_hijri_str = ""
 
         if booking.checkin_date:
@@ -1990,7 +2117,8 @@ class WebAppController(http.Controller):
 
                     # Draw the image using the temporary file
                     c.drawImage(temp_image_path, x, y, width=new_width, height=new_height)
-                    logger.info(f"Successfully drew logo at position ({x}, {y}) with dimensions {new_width}x{new_height}")
+                    logger.info(
+                        f"Successfully drew logo at position ({x}, {y}) with dimensions {new_width}x{new_height}")
 
                     # Clean up the temporary file
                     if os.path.exists(temp_image_path):
@@ -2030,7 +2158,7 @@ class WebAppController(http.Controller):
 
             # Center the logo horizontally and place it at the top with some padding
             logo_x = 20  # Center horizontally
-            logo_y = height - 35 # Place near top with 70px padding
+            logo_y = height - 35  # Place near top with 70px padding
 
             # Draw logo
             logger.debug("Starting logo drawing process")
@@ -2047,8 +2175,6 @@ class WebAppController(http.Controller):
         except Exception as e:
             logger.error("Error in main PDF generation:", exc_info=True)
             raise
-
-
 
         # Line 1: Hijri Date and Hotel Name
         # Hijri Date
@@ -2141,7 +2267,7 @@ class WebAppController(http.Controller):
                 if booking.room_is_amount:
                     room_discount = f"{booking.room_discount} SAR"  # Adjust currency as needed
                 elif booking.room_is_percentage:
-                    room_discount = f"{booking.room_discount*100}%"
+                    room_discount = f"{booking.room_discount * 100}%"
                 else:
                     room_discount = 'N/A'  # Or any default value you prefer
             else:
@@ -2152,7 +2278,7 @@ class WebAppController(http.Controller):
                 if booking.meal_is_amount:
                     meal_discount = f"{booking.meal_discount} SAR"  # Adjust currency as needed
                 elif booking.meal_is_percentage:
-                    meal_discount = f"{booking.meal_discount*100}%"
+                    meal_discount = f"{booking.meal_discount * 100}%"
                 else:
                     meal_discount = 'N/A'  # Or any default value you prefer
             else:
@@ -2164,8 +2290,6 @@ class WebAppController(http.Controller):
             display_meal_code = booking.meal_pattern.description if booking.meal_pattern else ""
             room_discount = ""
             meal_discount = ""
-
-
 
         # Guest Details: Add all fields dynamically
         guest_details = [
@@ -2216,16 +2340,18 @@ class WebAppController(http.Controller):
             ("Payment Method:", f"{pay_type}", "نظام الدفع:", "Room Rate(Avg):", f"{avg_rate}",
              "السعر اليومي للغرفة:"),
             ("VAT:", "", "القيمة المضافة:", "Meals Rate(Avg):", f"{avg_meals}", "سعر الوجبات اليومي:"),
-            ("Municipality:", "", "رسوم البلدية:", "Total Fixed Post:",f"{booking.total_fixed_post_forecast}","إجمالي المشاركات الثابتة:"),
-            ("Total Taxes:", "", "إجمالي الضرائب:","Total Packages:",f"{booking.total_package_forecast}","إجمالي الحزم:"),
-            ("VAT ID:", "", "الرقم الضريبي:","Remaining:", "", "المبلغ المتبقي:"),
-            ("Payments:", "", "المدفوعات:","Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:")
+            ("Municipality:", "", "رسوم البلدية:", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
+             "إجمالي المشاركات الثابتة:"),
+            ("Total Taxes:", "", "إجمالي الضرائب:", "Total Packages:", f"{booking.total_package_forecast}",
+             "إجمالي الحزم:"),
+            ("VAT ID:", "", "الرقم الضريبي:", "Remaining:", "", "المبلغ المتبقي:"),
+            ("Payments:", "", "المدفوعات:", "Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:")
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
             # Left column
-            c.drawString(LEFT_LABEL_X,  y_position, l_label)
-            c.drawString(LEFT_VALUE_X,  y_position, l_value)
+            c.drawString(LEFT_LABEL_X, y_position, l_label)
+            c.drawString(LEFT_VALUE_X, y_position, l_value)
             draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
 
             # Right column
@@ -2234,7 +2360,6 @@ class WebAppController(http.Controller):
             draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
 
             y_position -= line_height
-
 
         guest_payment_border_bottom = y_position - 20  # A little extra space below
         # Draw the border for Guest + Payment details
@@ -2346,7 +2471,6 @@ class WebAppController(http.Controller):
             id_no = getattr(person, 'id_number', "") or 'N/A'
             joiner_name = f"{getattr(person, 'first_name', '')} {getattr(person, 'last_name', '')}".strip()
 
-
             row_cells = [
                 nationality_name,
                 passport_no,
@@ -2364,7 +2488,6 @@ class WebAppController(http.Controller):
                     cell_text
                 )
                 x_cursor += col_width
-
 
             current_y -= row_height
 
@@ -2445,7 +2568,6 @@ class WebAppController(http.Controller):
         buffer.seek(0)
         return buffer
 
-
     @http.route('/generate_rc_guest/bookings_pdf', type='http', auth='user')
     def generate_rc_guest_bookings_pdf(self, booking_ids=None):
         if not booking_ids:
@@ -2461,7 +2583,8 @@ class WebAppController(http.Controller):
             pdf_buffer = self._generate_rc_guest_pdf_for_booking(booking)
             return request.make_response(pdf_buffer.getvalue(), headers=[
                 ('Content-Type', 'application/pdf'),
-                ('Content-Disposition', f'attachment; filename="booking Rc guest_{booking.group_booking.name or ""}.pdf"')
+                ('Content-Disposition',
+                 f'attachment; filename="booking Rc guest_{booking.group_booking.name or ""}.pdf"')
             ])
 
         # If multiple bookings, create a ZIP file
@@ -2484,7 +2607,6 @@ class WebAppController(http.Controller):
             ('Content-Type', 'application/zip'),
             ('Content-Disposition', 'attachment; filename="bookings.zip"')
         ])
-
 
     def _generate_rc_guest_pdf_for_booking(self, booking, forecast_lines=None):
 
@@ -2565,6 +2687,7 @@ class WebAppController(http.Controller):
 
         y_position = height - 50  # Starting Y position
         line_height = 15  # Line height for vertical spacing
+
         def draw_company_logo(c, x, y, max_width, max_height, logo_data):
             """Draw company logo from Odoo binary field data"""
             try:
@@ -2633,7 +2756,8 @@ class WebAppController(http.Controller):
 
                     # Draw the image using the temporary file
                     c.drawImage(temp_image_path, x, y, width=new_width, height=new_height)
-                    logger.info(f"Successfully drew logo at position ({x}, {y}) with dimensions {new_width}x{new_height}")
+                    logger.info(
+                        f"Successfully drew logo at position ({x}, {y}) with dimensions {new_width}x{new_height}")
 
                     # Clean up the temporary file
                     if os.path.exists(temp_image_path):
@@ -2673,7 +2797,7 @@ class WebAppController(http.Controller):
 
             # Center the logo horizontally and place it at the top with some padding
             logo_x = 20  # Center horizontally
-            logo_y = height - 50 # Place near top with 70px padding
+            logo_y = height - 50  # Place near top with 70px padding
 
             # Draw logo
             logger.debug("Starting logo drawing process")
@@ -2690,8 +2814,6 @@ class WebAppController(http.Controller):
         except Exception as e:
             logger.error("Error in main PDF generation:", exc_info=True)
             raise
-
-
 
         # Line 1: Hijri Date and Hotel Name
         # Hijri Date
@@ -2765,7 +2887,7 @@ class WebAppController(http.Controller):
         str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
         str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
         # line_height = 20
-        pax_count = booking.adult_count #+ booking.child_count
+        pax_count = booking.adult_count  # + booking.child_count
         booking_type = "Company" if booking.is_agent else "Individual"
         group_booking_id = booking.group_booking.id
         group_bookings = request.env['room.booking'].search([('group_booking', '=', group_booking_id)])
@@ -2806,7 +2928,7 @@ class WebAppController(http.Controller):
                     'room_count': room_count
                 }
 
-        # Convert the dictionary into a table format
+            # Convert the dictionary into a table format
             table_row = []
             for room_type, data in room_type_summary.items():
                 table_row.append([
@@ -2814,10 +2936,6 @@ class WebAppController(http.Controller):
                     data['room_count'],
                     data['total_count']
                 ])
-
-
-
-
 
             for rate_detail_line in gb.rate_forecast_ids:
                 # print('2174', rate_detail_line, rate_detail_line.rate, rate_detail_line.meals)
@@ -2855,9 +2973,9 @@ class WebAppController(http.Controller):
 
         # booking_data = [adult_row, child_row, infant_row]
         person_count.append(booking_rows)
-        avg_rate = sum(rate_list)/len(rate_list)
+        avg_rate = sum(rate_list) / len(rate_list)
         avg_rate = round(avg_rate, 2)
-        avg_meal = sum(meal_list)/len(meal_list)
+        avg_meal = sum(meal_list) / len(meal_list)
         avg_meal = round(avg_meal, 2)
         # print('2185', table_row)
         # print('2185', adult_row)
@@ -2879,7 +2997,7 @@ class WebAppController(http.Controller):
                 if booking.room_is_amount:
                     room_discount = f"{booking.room_discount} SAR"  # Adjust currency as needed
                 elif booking.room_is_percentage:
-                    room_discount = f"{booking.room_discount*100}%"
+                    room_discount = f"{booking.room_discount * 100}%"
                 else:
                     room_discount = 'N/A'  # Or any default value you prefer
             else:
@@ -2890,7 +3008,7 @@ class WebAppController(http.Controller):
                 if booking.meal_is_amount:
                     meal_discount = f"{booking.meal_discount} SAR"  # Adjust currency as needed
                 elif booking.meal_is_percentage:
-                    meal_discount = f"{booking.meal_discount*100}%"
+                    meal_discount = f"{booking.meal_discount * 100}%"
                 else:
                     meal_discount = 'N/A'  # Or any default value you prefer
             else:
@@ -2902,9 +3020,6 @@ class WebAppController(http.Controller):
             display_meal_code = booking.meal_pattern.description if booking.meal_pattern else ""
             room_discount = ""
             meal_discount = ""
-
-
-
 
         # Guest Details: Add all fields dynamically
         guest_details = [
@@ -2921,8 +3036,10 @@ class WebAppController(http.Controller):
             ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "No. of infants:",
              f"{booking.infant_count}", "عدد الرضع:"),
             ("Room Disc Avg:", f"{avg_rate}", "خصم الغرفة:", "Meal Disc Avg:", f"{avg_meal}", "خصم الوجبة:"),
-            ("Room Disc Min:", f"{min(rate_list)}", "خصم الغرفة الأدنى:", "Meal Disc Min:",  f"{min(meal_list)}", "خصم الوجبة الأدنى:"),
-            ("Room Disc Max:", f"{max(rate_list)}", "خصم الغرفة الأعلى:", "Meal Disc Max:",  f"{max(meal_list)}", "خصم الوجبة الأعلى:"),
+            ("Room Disc Min:", f"{min(rate_list)}", "خصم الغرفة الأدنى:", "Meal Disc Min:", f"{min(meal_list)}",
+             "خصم الوجبة الأدنى:"),
+            ("Room Disc Max:", f"{max(rate_list)}", "خصم الغرفة الأعلى:", "Meal Disc Max:", f"{max(meal_list)}",
+             "خصم الوجبة الأعلى:"),
 
         ]
 
@@ -2940,8 +3057,6 @@ class WebAppController(http.Controller):
 
             y_position -= line_height
 
-
-
         avg_rate = 0.0
         avg_meals = 0.0
         if forecast_lines:
@@ -2954,17 +3069,21 @@ class WebAppController(http.Controller):
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
         # Payment Details
         payment_details = [
-            ("VAT:", "", "القيمة المضافة:", "Total Meals Rate:",f"{booking.total_meal_forecast}","إجمالي سعر الوجبات:"),
-            ("Municipality:", "", "رسوم البلدية:", "Total Room rate:",f"{booking.total_rate_forecast}","إجمالي سعر الغرفة:"),
-            ("Total Taxes:", "", "إجمالي الضرائب:","Total Fixed Post:",f"{booking.total_fixed_post_forecast}","إجمالي المشاركات الثابتة:"),
-            ("VAT ID:", "", "الرقم الضريبي:","Total Packages:",f"{booking.total_package_forecast}","إجمالي الحزم:"),
-            ("Remaining:", "", "المبلغ المتبقي:","Payments:", "", "المدفوعات:"),
-            ("Payment Method:", f"{pay_type}", "نظام الدفع:","Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:")
+            ("VAT:", "", "القيمة المضافة:", "Total Meals Rate:", f"{booking.total_meal_forecast}",
+             "إجمالي سعر الوجبات:"),
+            ("Municipality:", "", "رسوم البلدية:", "Total Room rate:", f"{booking.total_rate_forecast}",
+             "إجمالي سعر الغرفة:"),
+            ("Total Taxes:", "", "إجمالي الضرائب:", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
+             "إجمالي المشاركات الثابتة:"),
+            ("VAT ID:", "", "الرقم الضريبي:", "Total Packages:", f"{booking.total_package_forecast}", "إجمالي الحزم:"),
+            ("Remaining:", "", "المبلغ المتبقي:", "Payments:", "", "المدفوعات:"),
+            ("Payment Method:", f"{pay_type}", "نظام الدفع:", "Total Amount:", f"{booking.total_total_forecast}",
+             "المبلغ الإجمالي:")
 
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
-    # Adjust English label and value positioning
+            # Adjust English label and value positioning
             c.drawString(LEFT_LABEL_X, y_position, f"{l_label}")
             c.drawString(LEFT_LABEL_X + 100, y_position, f"{l_value}")  # Add spacing (adjust 150 as needed)
 
@@ -2977,7 +3096,6 @@ class WebAppController(http.Controller):
             draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
 
             y_position -= line_height  # Move to the next line
-
 
         guest_payment_border_bottom = y_position - 20  # A little extra space below
         # Draw the border for Guest + Payment details
@@ -3139,7 +3257,6 @@ class WebAppController(http.Controller):
         buffer.seek(0)
         return buffer
 
-
     @http.route('/generate_rc/bookings_pdf', type='http', auth='user')
     def generate_rc_bookings_pdf(self, booking_ids=None):
         if not booking_ids:
@@ -3179,9 +3296,7 @@ class WebAppController(http.Controller):
             ('Content-Disposition', 'attachment; filename="bookings.zip"')
         ])
 
-
     def _generate_rc_pdf_for_booking(self, booking, forecast_lines=None):
-
 
         if forecast_lines is None:
             # fetch them here or set them to an empty list
@@ -3224,9 +3339,8 @@ class WebAppController(http.Controller):
         group_bookings = request.env['room.booking'].search([('group_booking', '=', booking.id)])
         room_types = []
         room_data = {}
-        meal_data  ={}
-        meal_patterns =[]
-
+        meal_data = {}
+        meal_patterns = []
 
         # Collect data for each room type
         for gb in group_bookings:
@@ -3245,28 +3359,30 @@ class WebAppController(http.Controller):
                 meal_patterns.append(meal_pattern)  # Append unique meal pattern to the list
 
             if meal_pattern not in meal_data:
-                meal_data[meal_pattern] = {'Meals':0,'PAX': 0, 'Price': 0}
+                meal_data[meal_pattern] = {'Meals': 0, 'PAX': 0, 'Price': 0}
             meal_data[meal_pattern]['PAX'] += gb.adult_count or 0
             meal_data[meal_pattern]['Price'] += sum(line.meals for line in gb.rate_forecast_ids)
-        print('line 3766',meal_pattern)
+        print('line 3766', meal_pattern)
 
         # Prepare headers and data
         # Prepare headers with Arabic translations
         table_headers = ['Room Types'] + room_types + ['غرفة']  # Add Arabic column at the end
         meal_headers = ['Meals'] + meal_patterns + ['وجبة']  # Arabic for "Meals"
-        print('line 3722',meal_patterns)
+        print('line 3722', meal_patterns)
 
         # Add data rows with Arabic translations
         table_data = [
             ['Rooms'] + [room_data[room_type]['Rooms'] for room_type in room_types] + ['الغرف'],  # Arabic for "Rooms"
             ['PAX'] + [room_data[room_type]['PAX'] for room_type in room_types] + ['عدد الأفراد'],  # Arabic for "PAX"
-            ['Price'] + ["{:.2f}".format(room_data[room_type]['Price']) for room_type in room_types] + ['السعر']  # Arabic for "Price"
+            ['Price'] + ["{:.2f}".format(room_data[room_type]['Price']) for room_type in room_types] + ['السعر']
+            # Arabic for "Price"
         ]
         meal_table_data = [
             ['PAX'] + [meal_data[pattern]['PAX'] for pattern in meal_patterns] + ['عدد الأفراد'],  # Arabic for "PAX"
-            ['Price'] + ["{:.2f}".format(meal_data[pattern]['Price']) for pattern in meal_patterns] + ['السعر']  # Arabic for "Price"
+            ['Price'] + ["{:.2f}".format(meal_data[pattern]['Price']) for pattern in meal_patterns] + ['السعر']
+            # Arabic for "Price"
         ]
-        print('meal_table_data',meal_table_data )
+        print('meal_table_data', meal_table_data)
 
         avg_rate_report = 0.0
         avg_meals_report = 0.0
@@ -3314,9 +3430,6 @@ class WebAppController(http.Controller):
                 'total_meal_rate': total_meal_rate
             }
             print("Report Data:", report_data)
-
-
-
 
         # active_user = self.env.user
 
@@ -3400,7 +3513,8 @@ class WebAppController(http.Controller):
 
                     # Draw the image using the temporary file
                     c.drawImage(temp_image_path, x, y, width=new_width, height=new_height)
-                    logger.info(f"Successfully drew logo at position ({x}, {y}) with dimensions {new_width}x{new_height}")
+                    logger.info(
+                        f"Successfully drew logo at position ({x}, {y}) with dimensions {new_width}x{new_height}")
 
                     # Clean up the temporary file
                     if os.path.exists(temp_image_path):
@@ -3440,7 +3554,7 @@ class WebAppController(http.Controller):
 
             # Center the logo horizontally and place it at the top with some padding
             logo_x = 20
-            logo_y = height - 50 # Place near top with 70px padding
+            logo_y = height - 50  # Place near top with 70px padding
 
             # Draw logo
             logger.debug("Starting logo drawing process")
@@ -3450,7 +3564,7 @@ class WebAppController(http.Controller):
             # Adjust position for text with smaller offset since logo is smaller
             if logo_height > 0:
                 logger.debug(f"Adjusting y_position for smaller logo")
-                y_position = logo_y - logo_height   # Reduced padding after logo from 20 to 10
+                y_position = logo_y - logo_height  # Reduced padding after logo from 20 to 10
             else:
                 logger.warning("No logo was drawn, continuing with original y_position")
 
@@ -3492,7 +3606,8 @@ class WebAppController(http.Controller):
         # Line 3: User and Tel
         # User
         c.drawString(50, y_position, "User:")
-        c.drawString(150, y_position, f"{booking.contact_leader.name or 'N/A'}")  # Replace with the actual user field if needed
+        c.drawString(150, y_position,
+                     f"{booking.contact_leader.name or 'N/A'}")  # Replace with the actual user field if needed
         draw_arabic_text(width - 350, y_position, "اسم المستخدم:")
         # Tel
         c.drawString(width / 2 + 50, y_position, "Tel:")
@@ -3521,15 +3636,20 @@ class WebAppController(http.Controller):
         RIGHT_ARABIC_X = RIGHT_VALUE_X + 70
 
         guest_details = [
-            ("Arrival Date:", f"{booking.first_visit or 'N/A'}", "تاريخ الوصول:", "Group Name:", f"{booking.name or 'N/A'}", "اسم المجموعة:"),
-            ("Departure Date:", f"{booking.last_visit or 'N/A'}", "تاريخ المغادرة:", "Company Name:", f"{booking.company_id.name or 'N/A'}", "اسم الشركة:"),
-            ("Nights:", f"{booking.total_nights or 'N/A'}", "عدد الليالي:", "Nationality:", f"{booking.nationality.name or 'N/A'}", "جنسية المجموعة:"),
-            ("No. of Rooms:",f"{booking.total_room_count or 'N/A'}", "عدد الغرف:", "Contact:", f"{booking.phone_1 or 'N/A'}", "مسؤول المجموعة:"),
-            ("No. of Paxs:", f"{booking.total_adult_count or 'N/A'}", "عدد الأفراد:", "Mobile No.:", f"{booking.mobile or 'N/A'}", "رقم الجوال:"),
+            ("Arrival Date:", f"{booking.first_visit or 'N/A'}", "تاريخ الوصول:", "Group Name:",
+             f"{booking.name or 'N/A'}", "اسم المجموعة:"),
+            ("Departure Date:", f"{booking.last_visit or 'N/A'}", "تاريخ المغادرة:", "Company Name:",
+             f"{booking.company_id.name or 'N/A'}", "اسم الشركة:"),
+            ("Nights:", f"{booking.total_nights or 'N/A'}", "عدد الليالي:", "Nationality:",
+             f"{booking.nationality.name or 'N/A'}", "جنسية المجموعة:"),
+            ("No. of Rooms:", f"{booking.total_room_count or 'N/A'}", "عدد الغرف:", "Contact:",
+             f"{booking.phone_1 or 'N/A'}", "مسؤول المجموعة:"),
+            ("No. of Paxs:", f"{booking.total_adult_count or 'N/A'}", "عدد الأفراد:", "Mobile No.:",
+             f"{booking.mobile or 'N/A'}", "رقم الجوال:"),
             ("Rate Code:", f"{booking.rate_code.code or 'N/A'}", "كود التعاقد:", "Status:", "", "حالة الحجز:"),
-            ("Meal Pattern:", f"{booking.group_meal_pattern.meal_pattern or 'N/A'}", "نظام الوجبات:", "Date Created:", "", "تاريخ إنشاء الحجز:"),
+            ("Meal Pattern:", f"{booking.group_meal_pattern.meal_pattern or 'N/A'}", "نظام الوجبات:", "Date Created:",
+             "", "تاريخ إنشاء الحجز:"),
         ]
-
 
         # Iterate through guest details and draw strings
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in guest_details:
@@ -3545,19 +3665,20 @@ class WebAppController(http.Controller):
 
             y_position -= line_height
 
-
         payment_details = [
             ("Total VAT:", "", "القيمة المضافة:", "Payment Method:", f"{booking.payment_type or 'N/A'}", "نظام الدفع:"),
-            ("Total Municipality:", "", "رسوم البلدية:", "Daily Room Rate:",f"{report_data['avg_rate']}", "اليومي للغرف:"),
-            ("Total Amount:", "", "المبلغ المطلوب:", "Daily Meals Rate:",f"{report_data['avg_meals']}", "اليومي للوجبات:"),
-            ("Payments:", "", "المبلغ المدفوع:", "Total Room Rate:", f"{report_data['total_room_rate']}", "إجمالي الغرف:"),
-            ("Remaining:", "", "المبلغ المتبقي:", "Total Meals Rate:", f"{report_data['total_meal_rate']}", "إجمالي الوجبات:"),
+            ("Total Municipality:", "", "رسوم البلدية:", "Daily Room Rate:", f"{report_data['avg_rate']}",
+             "اليومي للغرف:"),
+            ("Total Amount:", "", "المبلغ المطلوب:", "Daily Meals Rate:", f"{report_data['avg_meals']}",
+             "اليومي للوجبات:"),
+            ("Payments:", "", "المبلغ المدفوع:", "Total Room Rate:", f"{report_data['total_room_rate']}",
+             "إجمالي الغرف:"),
+            ("Remaining:", "", "المبلغ المتبقي:", "Total Meals Rate:", f"{report_data['total_meal_rate']}",
+             "إجمالي الوجبات:"),
         ]
 
-
-
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
-    # Adjust English label and value positioning
+            # Adjust English label and value positioning
             c.drawString(LEFT_LABEL_X, y_position, f"{l_label}")
             c.drawString(LEFT_LABEL_X + 90, y_position, f"{l_value}")  # Add spacing (adjust 150 as needed)
 
@@ -3581,6 +3702,7 @@ class WebAppController(http.Controller):
         )
 
         y_position -= (line_height)
+
         # y_position -= 40
 
         # y_position = height - top_margin
@@ -3604,13 +3726,12 @@ class WebAppController(http.Controller):
 
         def draw_transposed_table(data, headers, table_top_y, left_margin, right_margin, row_height=20):
             table_left_x = left_margin - 10
-            table_width  = (width - left_margin - right_margin) + 20
-            num_cols     = len(headers)
-            num_rows     = len(data) + 1  # +1 for the header row
+            table_width = (width - left_margin - right_margin) + 20
+            num_cols = len(headers)
+            num_rows = len(data) + 1  # +1 for the header row
             table_height = row_height * num_rows
-            col_width    = table_width / num_cols
+            col_width = table_width / num_cols
             # table_left_x = left_margin
-
 
             # Draw grid
             c.rect(table_left_x, table_top_y - table_height, table_width, table_height)
@@ -3629,7 +3750,7 @@ class WebAppController(http.Controller):
                 center_x = table_left_x + (col_idx * col_width) + (col_width / 2)
                 center_y = table_top_y - (row_height / 2)
                 reshaped_header = arabic_reshaper.reshape(header)
-                bidi_header     = get_display(reshaped_header)
+                bidi_header = get_display(reshaped_header)
                 c.drawCentredString(center_x, center_y, bidi_header)
 
             # Draw the data rows
@@ -3647,42 +3768,40 @@ class WebAppController(http.Controller):
             # Return how tall the table was, in case you need to adjust y_position
             return table_height
 
-
         # Group booking data preparation
-
 
         # Draw the table
         # 3) Draw the table
         table_top_y = y_position - 20  # Start a bit above
         t_height = draw_transposed_table(
-            data         = table_data,
-            headers      = table_headers,
-            table_top_y  = table_top_y,
-            left_margin  = left_margin,
-            right_margin = right_margin,
-            row_height   = 20
+            data=table_data,
+            headers=table_headers,
+            table_top_y=table_top_y,
+            left_margin=left_margin,
+            right_margin=right_margin,
+            row_height=20
         )
-
 
         def draw_arabic_text(x, y, text):
             reshaped_text = arabic_reshaper.reshape(text)  # Reshape Arabic text
             bidi_text = get_display(reshaped_text)  # Apply bidirectional rendering
             c.drawRightString(x, y, bidi_text)  # Draw right-aligned Arabic text
+
         # 4) Move y_position below the newly drawn table
         y_position -= (t_height + 30)
 
         meal_headers = ['Meals'] + meal_patterns + ['وجبة']
-            # 1) Decide rows & columns:
+        # 1) Decide rows & columns:
         num_rows = len(meal_table_data)
         num_cols = len(meal_headers)
-        print('line 3874',num_rows,num_cols)
+        print('line 3874', num_rows, num_cols)
 
         row_height = 20
 
         # Dynamically calculate column width based on the number of columns
         col_width = (width - left_margin - right_margin) / num_cols
         table_width = col_width * num_cols
-        table_width  = (width - left_margin - right_margin) + 20
+        table_width = (width - left_margin - right_margin) + 20
         table_height = row_height * (num_rows + 1)
 
         table_left_x = left_margin - 10
@@ -3730,12 +3849,11 @@ class WebAppController(http.Controller):
                 else:  # English or numeric text
                     c.drawCentredString(text_x, text_y, str(cell))
 
-     # Finally, move below this table
+        # Finally, move below this table
         y_position -= (table_height + 10)
         y_position -= 20
         terms_top = y_position
         y_position -= 10
-
 
         terms = [
             "Terms & Conditions:",
@@ -3765,8 +3883,7 @@ class WebAppController(http.Controller):
             "يُسمح بطفل واحد بحد أقصى أقل من 6 سنوات مجاناً."
         ]
 
-
-# Set maximum width for wrapping text
+        # Set maximum width for wrapping text
         max_width_english = 60  # Maximum width for wrapping English text
         max_width_arabic = 60  # Maximum width for Arabic text
 
@@ -3792,10 +3909,6 @@ class WebAppController(http.Controller):
                 # Move to the next line
                 y_position -= 12  # Adjust line spacing
 
-
-
-
-
         # Draw Border Around Terms and Conditions Section
         # Define page bottom margin (e.g., 20 units above the page's bottom edge)
         page_bottom_margin = 15
@@ -3815,7 +3928,7 @@ class WebAppController(http.Controller):
             terms_top - terms_bottom  # Height of the rectangle
         )
         # Search for bank details linked to the partner
-        bank_details = request.env['res.partner.bank'].search([('partner_id', '=',booking.contact_leader.id)])
+        bank_details = request.env['res.partner.bank'].search([('partner_id', '=', booking.contact_leader.id)])
 
         # Convert bank details to a dictionary
         bank_data = bank_details.read()  # This retrieves all fields of the records
@@ -3823,22 +3936,22 @@ class WebAppController(http.Controller):
         # Extracting acc_number and bank_name
 
         y_position -= 20
-        if bank_data :
+        if bank_data:
             for detail in bank_data:
                 acc_number = detail.get('acc_number')
                 bank_name = detail.get('bank_name')
                 # print(f"Account Number: {acc_number}, Bank Name: {bank_name}")
 
             footer_details = [
-                ("VAT ID:", "", "الرقم الضريبي:", "Bank Name:",f"{bank_name}" , "اسم البنك:"),
-                ("E-Mail:", "", "البريد الإلكتروني:", "Account Name:","", "اسم الحساب:"),
+                ("VAT ID:", "", "الرقم الضريبي:", "Bank Name:", f"{bank_name}", "اسم البنك:"),
+                ("E-Mail:", "", "البريد الإلكتروني:", "Account Name:", "", "اسم الحساب:"),
                 ("Web Site:", "", "الموقع الإلكتروني:", "Account NO:", f"{acc_number}", "رقم الحساب:"),
                 ("Tel/Fax:", "", "تليفون/فاكس:", "IBAN:", "", "آيبان:"),
                 ("Address:", "", "العنوان:", "Swift Code:", "", "سويفت كود:"),
             ]
         else:
             footer_details = [
-                ("VAT ID:", "", "الرقم الضريبي:", "Bank Name:",'N/A' , "اسم البنك:"),
+                ("VAT ID:", "", "الرقم الضريبي:", "Bank Name:", 'N/A', "اسم البنك:"),
                 ("E-Mail:", "", "البريد الإلكتروني:", "Account Name:", 'N/A', "اسم الحساب:"),
                 ("Web Site:", "", "الموقع الإلكتروني:", "Account NO:", 'N/A', "رقم الحساب:"),
                 ("Tel/Fax:", "", "تليفون/فاكس:", "IBAN:", "", "آيبان:"),
@@ -3892,7 +4005,7 @@ class WebAppController(http.Controller):
 
             y_position = line_y_position - line_spacing
             # Adjust y_position for next elements
-                # Save the PDF
+            # Save the PDF
         c.save()
         buffer.seek(0)
         return buffer

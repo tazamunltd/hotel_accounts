@@ -9,8 +9,8 @@
                 <field name="name" string="Room Name" optional='show' />
                 <field name="room_type_name" string="Room Type" optional='show' />
                 <!-- <field name="room_type"/> -->
-                <field name="floor_id" string="Floor" optional='show' />
-                <field name="list_price" optional='show' />
+                <!-- <field name="floor_id" string="Floor" optional='show' />
+                <field name="list_price" optional='show' /> -->
                 <!-- <field name="status" optional='show' /> -->
                 <field name="fsm_location" optional='show' />
                 <field name="num_person" optional='show' />

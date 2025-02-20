@@ -1101,6 +1101,7 @@ class RoomBookingLine(models.Model):
                         'checkout_date': parent_booking.checkout_date,
                         'state': 'not_confirmed',  # Ensure state is set to 'not_confirmed'
                         'is_room_line_readonly': False,
+                        'is_offline_search': False
                     }
 
                     parent_bookings_to_update.append((parent_booking, {'state': 'confirmed'}))
@@ -1237,6 +1238,7 @@ class RoomBookingLine(models.Model):
                                 'checkout_date': parent_booking.checkout_date,
                                 'state': 'block',
                                 'group_booking': parent_booking.group_booking.id,
+                                'is_offline_search': False
                                 # 'is_room_line_readonly': True,
                             }
 

@@ -1,5 +1,5 @@
 from datetime import timedelta
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import logging
 import sys
 
@@ -14,7 +14,7 @@ class RoomResultByRoomType(models.Model):
 
     report_date = fields.Date(string='Report Date', required=True)
     room_type = fields.Char(string='Room Type', required=True)
-    company_id = fields.Many2one('res.company',string='company', required = True)
+    company_id = fields.Many2one('res.company',string='Hotel', required = True)
     total_rooms = fields.Integer(string='Total Rooms', readonly=True)
     available = fields.Integer(string='Available', readonly=True)
     inhouse = fields.Integer(string='In-House', readonly=True)
@@ -29,10 +29,52 @@ class RoomResultByRoomType(models.Model):
     sort_order = fields.Integer(string='Sort Order', readonly=True)
 
     @api.model
+    def action_run_process_by_room_type(self):
+        """Runs the room process by room type based on context and returns the action."""
+        if self.env.context.get('filtered_date_range'):
+            self.env["room.result.by.room.type"].run_process_by_room_type()
+
+            return {
+                'name': _('Room Results by Room Type'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'room.result.by.room.type',
+                'view_mode': 'tree,pivot,graph',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_room_result_by_room_type_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_room_result_by_room_type_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_room_result_by_room_type_graph').id, 'graph'),
+                ],
+                'target': 'current',
+            }
+        else:
+            return {
+                'name': _('Room Results by Room Type'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'room.result.by.room.type',
+                'view_mode': 'tree,pivot,graph',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_room_result_by_room_type_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_room_result_by_room_type_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_room_result_by_room_type_graph').id, 'graph'),
+                ],
+                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'target': 'current',
+            }
+
+    @api.model
     def search_available_rooms(self, from_date, to_date):
+        self.run_process_by_room_type(from_date, to_date)
+        company_ids = [company.id for company in self.env.companies]
         domain = [
             ('report_date', '>=', from_date),
             ('report_date', '<=', to_date),
+            ('company_id', 'in', company_ids)
         ]
         results = self.search(domain)
         return results.read([
@@ -50,42 +92,39 @@ class RoomResultByRoomType(models.Model):
             _logger.error(f"Error generating room results: {str(e)}")
             raise ValueError(f"Error generating room results: {str(e)}")
 
-    def run_process_by_room_type(self):
+    def run_process_by_room_type(self,from_date = None, to_date = None):
         """Execute the SQL query and process the results."""
         _logger.info("Started run_process_by_room_type")
         # SQL Query (modified)
         self.env.cr.execute("DELETE FROM room_result_by_room_type")
         _logger.info("Existing records deleted")
-        system_date = self.env.company.system_date.date()
-        from_date = system_date - timedelta(days=7)
-        to_date = system_date + timedelta(days=7)
-        get_company = self.env.company.id
-        query = """
+        # system_date = self.env.company.system_date.date()
+        # from_date = system_date - timedelta(days=7)
+        # to_date = system_date + timedelta(days=7)
+        # get_company = self.env.company.id
+        company_ids = [company.id for company in self.env.companies]
+        query = f"""
             
 WITH parameters AS (
     SELECT
-        COALESCE(
-          (SELECT MIN(rb.checkin_date::date) 
-           FROM room_booking rb 
-           WHERE rb.company_id = %s), 
-          CURRENT_DATE
-        ) AS from_date,
-        COALESCE(
-          (SELECT MAX(rb.checkout_date::date) 
-           FROM room_booking rb 
-           WHERE rb.company_id = %s), 
-          CURRENT_DATE
-        ) AS to_date,
-        %s AS company_id
+        '{from_date}'::date AS from_date,
+        '{to_date}'::date AS to_date
 ),
+company_ids AS (
+    SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
+),
+
 system_date_company AS (
-	select id as company_id 
-	, system_date::date	from res_company rc where  rc.id = (SELECT company_id FROM parameters)
-),
-date_series AS (
-    SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
-    FROM parameters p
-),
+    SELECT id as company_id, system_date::date 
+    FROM res_company rc 
+    WHERE rc.id IN (SELECT company_id FROM company_ids)
+),  -- ✅ Add comma here to properly separate the CTEs
+
+    date_series AS (
+        SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
+        FROM parameters p
+    ),
+
 
 /* ----------------------------------------------------------------------------
    1) LATEST_LINE_STATUS:
@@ -134,7 +173,9 @@ yesterday_in_house AS (
         rt.id AS room_type_id,
         COUNT(DISTINCT sub.booking_line_number) AS in_house_count
     FROM date_series ds
-    CROSS JOIN res_company rc
+--     CROSS JOIN res_company rc
+	JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
+
     CROSS JOIN room_type   rt
 
     LEFT JOIN LATERAL (
@@ -182,7 +223,9 @@ in_house AS (
         rt.id AS room_type_id,
         COUNT(DISTINCT sub.booking_line_number) AS in_house_count
     FROM date_series ds
-    CROSS JOIN res_company rc
+--     CROSS JOIN res_company rc
+	JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
+
     CROSS JOIN room_type   rt
 
     LEFT JOIN LATERAL (
@@ -243,7 +286,9 @@ expected_arrivals AS (
        Adjust these CROSS JOINs to however you want to 
        iterate over each company & room type.
     */
-    CROSS JOIN res_company rc
+--     CROSS JOIN res_company rc
+	JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
+
     CROSS JOIN room_type   rt
 
     /*
@@ -294,7 +339,9 @@ expected_departures AS (
         rt.id AS room_type_id,
         COUNT(DISTINCT sub.booking_line_number) AS expected_departures_count
     FROM date_series ds
-    CROSS JOIN res_company rc
+--     CROSS JOIN res_company rc
+	JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
+
     CROSS JOIN room_type   rt
 
     LEFT JOIN LATERAL (
@@ -496,7 +543,8 @@ final_report AS (
       )
     ) AS expected_in_house
     FROM date_series ds
-    LEFT JOIN res_company rc ON rc.id = (SELECT company_id FROM parameters)
+    LEFT JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
+
     
     CROSS JOIN room_type rt
 
@@ -610,7 +658,8 @@ ORDER BY
         """
         # self.env.cr.execute(query)
         # self.env.cr.execute(query, (from_date, to_date))
-        self.env.cr.execute(query, (get_company, get_company, get_company))
+        print('query', query)
+        self.env.cr.execute(query)
         results = self.env.cr.fetchall()
         _logger.info(f"Query executed successfully. {len(results)} results fetched")
 
@@ -618,14 +667,14 @@ ORDER BY
         # DEFAULT_COMPANY_ID = 1
         for result in results:
             try:
-                if result[1]:
+                # if result[1]:
                     
-                    company_id = result[1]
-                    if company_id != self.env.company.id:
-                        continue  
-                    # print(result[1])  
-                else:
-                    continue
+                #     company_id = result[1]
+                #     if company_id != self.env.company.id:
+                #         continue  
+                #     # print(result[1])  
+                # else:
+                #     continue
                 report_date = result[0] if result[0] else False  # fr.report_date
                 company_id = result[1] # if result[1] else DEFAULT_COMPANY_ID   fr.company_id
                 room_type_id = result[3]  # fr.room_type_id

@@ -169,7 +169,7 @@ class PostingItem(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _rec_name = 'item_code'
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     item_code = fields.Char(string=_("Item"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
@@ -245,7 +245,7 @@ class DummyRoomCode(models.Model):
     arabic_desc = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
     arabic_abbr = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     item_discount = fields.Float(string="Item Discount",tracking=True)
-    company_id = fields.Many2one('res.company', string="Company",tracking=True)
+    company_id = fields.Many2one('res.company', string="Hotel",tracking=True)
     is_obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
     auto_reopen_room_account = fields.Boolean(string="Automatically Open for Room Account", default=False,tracking=True)
     auto_payment_posting = fields.Boolean(string="Cash Room (Auto Payment Charge Posting)", default=False,tracking=True)

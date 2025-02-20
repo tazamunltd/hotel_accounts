@@ -5,7 +5,8 @@ class HotelService(models.Model):
     """Model that holds the all hotel services"""
     _name = 'hotel.service'
     _description = "Hotel Service"
-    _inherit = 'mail.thread'
+    # _inherit = 'mail.thread'
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = 'id desc'
 
     name = fields.Char(string=_("Service"), help="Name of the service",

@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <tree js_class="hotel_room_result_filter">
                 <field name="report_date" optional="show"/>
+                <field name="company_id" optional="show"/>
                 <field name="room_type" optional="show"/>
                 <field name="source_of_business" optional="show"/>
                 <!-- <field name="inhouse" optional="show"/> -->
@@ -45,9 +46,57 @@
         </field>
     </record>
 
-
-
     <record id="action_run_process_by_monthly_allotment" model="ir.actions.server">
+        <field name="name">Run Monthly Allotment Process</field>
+        <field name="model_id" ref="model_monthly_allotment_charts"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+    action = env["monthly.allotment.charts"].action_run_process_by_monthly_allotment()
+            ]]>
+        </field>
+    </record>
+
+    <!-- <record id="action_run_process_by_monthly_allotment" model="ir.actions.server">
+    <field name="name">Run Monthly Allotment process</field>
+    <field name="model_id" ref="model_monthly_allotment_charts"/>
+    <field name="state">code</field>
+    <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_monthly_allotment()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Monthly Allotment Chart',
+        'res_model': 'monthly.allotment.charts',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_monthly_allotment_charts_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_monthly_allotment_charts_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_monthly_allotment_charts_pivot').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Monthly Allotment Chart',
+        'res_model': 'monthly.allotment.charts',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_monthly_allotment_charts_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_monthly_allotment_charts_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_monthly_allotment_charts_pivot').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field>
+</record> -->
+
+    <!-- <record id="action_run_process_by_monthly_allotment" model="ir.actions.server">
         <field name="name">Run Monthly Allotment process</field>
         <field name="model_id" ref="model_monthly_allotment_charts"/>
         <field name="state">code</field>
@@ -68,7 +117,7 @@ action = {
 }
             ]]>
         </field>
-    </record>
+    </record> -->
 
     <!-- Menu Item -->
     <menuitem id="menu_monthly_allotment_charts"

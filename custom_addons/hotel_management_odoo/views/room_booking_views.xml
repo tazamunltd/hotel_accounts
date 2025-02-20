@@ -470,6 +470,7 @@
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="reference_contact_"
+                                                    readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
                                                     class="form-label small mb-0">Reference Contact</label>
                                             </div>
                                             <div class="form-control form-control-sm">
@@ -607,6 +608,14 @@
                                                         readonly="state in ('check_out')"
                                                     class="form-control form-control-sm"
                                                     placeholder="Enter notes" />
+                                            </div>
+                                            <div class="form-group col-12 mb-1 mt-2">
+                                                <label for="special_request" class="form-label small">Special Request</label>
+                                                <field name="special_request"
+                                                        widget="text"
+                                                        readonly="state in ('check_out')"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Text" />
                                             </div>
                                         </div>
                                     </div>
@@ -1467,7 +1476,8 @@
                         <field name="web_review" string="Review" />
                         <field name="web_description" string="Description" />
                         <field name="rate_code" string="Rate Codes" />
-                        <field name="web_payment" string="Min Payment %" />
+                        <field name="web_payment" string="Min Payment(%)" />
+                        <field name="starting_price"/>
                     </group>
                 </page>
             </xpath>

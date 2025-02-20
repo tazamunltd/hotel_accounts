@@ -616,6 +616,7 @@ class RoomBooking(models.Model):
     end_line = fields.Integer(string="End Record", default=1)
 
     notes = fields.Text(string="Notes", tracking=True)
+    special_request = fields.Text(string="Special Request", tracking=True)
     room_booking_id = fields.Many2one(
         'report.model',
         string="Report Model",
@@ -1976,6 +1977,7 @@ class RoomBooking(models.Model):
     def _onchange_group_booking(self):
         if self.group_booking:
             self.nationality = self.group_booking.nationality.id if self.group_booking.nationality else False
+            self.reference_contact_= self.group_booking.reference if self.group_booking.reference else False
             self.partner_id = self.group_booking.company.id if self.group_booking.company else False
             self.source_of_business = self.group_booking.source_of_business.id if self.group_booking.source_of_business else False
             self.rate_code = self.group_booking.rate_code.id if self.group_booking.rate_code else False
@@ -8296,8 +8298,8 @@ class RateCodeInherit(models.Model):
 class SystemDate(models.Model):
     _inherit = 'res.company'
 
-    checkin_time = fields.Char(string="Check-in Time", help="Select the check-in time")
-    checkout_time = fields.Char(string="Check-out Time", help="Select the check-out time")
+    checkin_time = fields.Char(string="Check-in Time 24hrs", help="Select the check-in time")
+    checkout_time = fields.Char(string="Check-out Time 24hrs", help="Select the check-out time")
     
     
     @api.constrains('checkin_time', 'checkout_time')
@@ -8342,6 +8344,13 @@ class SystemDate(models.Model):
     owner = fields.Char(string='Owner')
     # system_date = fields.Datetime(string="System Date")
 
+    # system_date = fields.Date(
+    #     string="System Date",
+    #     default=fields.Date.context_today,
+    #     tracking=True,
+    #     required=True,
+    #     help="The current system date."
+    # )
     system_date = fields.Datetime(
         string="System Date",
         default=lambda self: fields.Datetime.now(),
@@ -8405,6 +8414,7 @@ class SystemDate(models.Model):
         string="Payment", help="Payment value", default=0.0)
     rate_code = fields.Many2one('rate.code',   domain=lambda self: [('company_id', '=', self.env.company.id)], string="Rate Codes")
     market_segment = fields.Many2one('market.segment', string='Market Segment')
+    starting_price = fields.Float(string="Starting Price")
     
     # source_business = fields.Many2one(
     #     'source.business', domain="[('company_id', '=', 2)]", string="Source of Business")
@@ -8440,6 +8450,12 @@ class SystemDate(models.Model):
     #         for booking in bookings:
     #             print("CHECK", booking.checkin_date, booking.checkout_date, booking.state)
 
+    @api.constrains('starting_price')
+    def _check_starting_price(self):
+        for record in self:
+            if record.starting_price < 1: 
+                raise ValidationError("Starting Price Cannot be less than 1")
+
     @api.constrains('web_star_rating')
     def _check_star_rating(self):
         for record in self:
@@ -8468,7 +8484,7 @@ class HotelInventory(models.Model):
     image = fields.Binary(string='Image', attachment=True)
     hotel_name = fields.Integer(string="Hotel Name")
     room_type = fields.Many2one('room.type', string="Room Type")
-    total_room_count = fields.Integer(string="Total Room Count")
+    total_room_count = fields.Integer(string="Total Room Count", readonly=True)
     pax = fields.Integer(string="Pax")
     age_threshold = fields.Integer(string="Age Threshold")
     web_allowed_reservations = fields.Integer(
@@ -9418,7 +9434,7 @@ class RoomBookingUpdateWizard(models.TransientModel):
         # today = datetime.now()
         today = self.env.company.system_date.date()
         for record in self:
-            if record.checkin_date and record.checkin_date < today:
+            if record.checkin_date and record.checkin_date.date() < today:
                 raise UserError("Check-In Date cannot be earlier than today.")
             if record.checkin_date and record.checkout_date and record.checkout_date <= record.checkin_date:
                 raise UserError(

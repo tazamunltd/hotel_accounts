@@ -90,12 +90,57 @@
                 </pivot>
             </field>
         </record>
+
+        <record id="action_run_process_by_deleted_reservation_report" model="ir.actions.server">
+            <field name="name">Run Process by Deleted Reservation Report</field>
+            <field name="model_id" ref="model_deleted_reservation_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["deleted.reservation.report"].action_run_process_by_deleted_reservation_status()
+        ]]>
+            </field>
+        </record>
         <!-- Action -->
-    <record id="action_run_process_by_deleted_reservation_report" model="ir.actions.server">
+    <!-- <record id="action_run_process_by_deleted_reservation_report" model="ir.actions.server">
         <field name="name">Run process by deleted reservation report</field>
         <field name="model_id" ref="model_deleted_reservation_report"/>
         <field name="state">code</field>
         <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_deleted_reservation_status()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Deleted Reservation Report',
+    'res_model': 'deleted.reservation.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_deleted_reservation_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_deleted_reservation_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_deleted_reservation_report_pivot').id, 'pivot'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Deleted Reservation Report',
+    'res_model': 'deleted.reservation.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_deleted_reservation_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_deleted_reservation_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_deleted_reservation_report_pivot').id, 'pivot'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
             <![CDATA[
 model.run_process_by_deleted_reservation_status()
 action = {
@@ -111,8 +156,8 @@ action = {
     'target': 'current',
 }
             ]]>
-        </field>
-    </record>
+        </field> -->
+    <!-- </record> -->
 
         <menuitem id="menu_deleted_reservation_report"
               name="Deleted Reservation Report"

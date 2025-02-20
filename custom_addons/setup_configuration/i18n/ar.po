@@ -1020,7 +1020,7 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-info-circle\"/>\n"
 "                                            <span class=\"fw-bold\"> كود "
-"السعر والمدة</span>"
+"التعاقد والمدة</span>"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_hotel_code_form
@@ -1085,7 +1085,7 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-info-circle\"/>\n"
 "                                    <span class=\"fw-bold\"> تفاصيل فئة "
-"السوق</span>"
+"التسويق</span>"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_form
@@ -1180,7 +1180,7 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-list-alt\"/>\n"
 "                                            <span class=\"fw-bold\"> نوع "
-"التسعير</span>"
+"السعر</span>"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
@@ -1310,7 +1310,7 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-tag\"/>\n"
 "                                    <span class=\"fw-bold\"> الضرائب "
-"المطبقة</span>"
+"السارية</span>"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_category_form
@@ -1361,7 +1361,7 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-tags\"/>\n"
 "                                            <span class=\"fw-bold\"> "
-"الأسعار</span>"
+"سعر الغرفة</span>"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
@@ -1402,7 +1402,7 @@ msgstr "<span>الاختصار: </span>"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_kanban
 msgid "<span>Category: </span>"
-msgstr "<span>الفئة: </span>"
+msgstr "<span>التصنيف: </span>"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_kanban
@@ -1533,7 +1533,7 @@ msgstr "<span>إلى: </span>"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_search
 #, python-format
 msgid "Abbreviation"
-msgstr "اختصار"
+msgstr "الاختصار"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_complimentary_code_kanban
@@ -1992,7 +1992,7 @@ msgstr "إضافة السمات"
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__packages_value_type__added_value
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail_line__packages_value_type__added_value
 msgid "Added Value"
-msgstr "القيمة المضافة"
+msgstr "قيمة مضافة"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_additional_attribute
@@ -2148,7 +2148,7 @@ msgstr "قيمة التخصيص"
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__allow_change_sign
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
 msgid "Allow Change Sign"
-msgstr "علامة السماح بالتغيير"
+msgstr "السماح بالتغيير"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_department_code__allow_pre_approval_postings
@@ -2163,7 +2163,7 @@ msgstr "السماح باستخدام العنصر كبند تحميل"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__allow_profile_change
 msgid "Allow changing profile data in the reservation form?"
-msgstr "هل يسمح بتغيير بيانات الملف الشخصي في نموذج الحجز؟"
+msgstr "يسمح بتغيير بيانات الملف من شاشة الحجز"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_availability__always
@@ -2195,7 +2195,7 @@ msgstr "تطبيق الخصم"
 #. module: setup_configuration
 #: model:ir.ui.menu,name:setup_configuration.menu_hotel_configuration
 msgid "Application Configuration"
-msgstr "اعدادات النظام"
+msgstr "تهيئة الفنادق"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_room_number_specific_rate__default_checkbox_rn
@@ -2319,7 +2319,7 @@ msgstr "عربي"
 #: model:ir.model.fields,field_description:setup_configuration.field_cash_box_code__arabic_abbr
 #, python-format
 msgid "Arabic Abbr"
-msgstr "اختصار باللغة العربية"
+msgstr "الاختصار باللغة العربية"
 
 #. module: setup_configuration
 #. odoo-python
@@ -2327,7 +2327,7 @@ msgstr "اختصار باللغة العربية"
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__arabic_abbreviation
 #, python-format
 msgid "Arabic Abbr."
-msgstr "اختصار عربي"
+msgstr "الاختصار عربي"
 
 #. module: setup_configuration
 #. odoo-python
@@ -2361,7 +2361,7 @@ msgstr "اختصار عربي"
 #: model:ir.model.fields,field_description:setup_configuration.field_safe_deposit_code__arabic_abbreviation
 #, python-format
 msgid "Arabic Abbreviation"
-msgstr "اختصار عربي"
+msgstr "الاختصار عربي"
 
 #. module: setup_configuration
 #. odoo-python
@@ -2569,7 +2569,7 @@ msgstr "الكود المعتمد"
 #: model:ir.actions.act_window,name:setup_configuration.action_authorized_code
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_authorized_code_tree
 msgid "Authorized Codes"
-msgstr "الرموز المعتمدة"
+msgstr "الاكواد المعتمدة"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_dummy_room_code_form
@@ -2591,7 +2591,7 @@ msgstr "يتم التنشيط تلقائيًا عن طريق تسجيل الوص
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_dummy_room_code__auto_reopen_room_account
 msgid "Automatically Open for Room Account"
-msgstr "فتح حساب الغرفة تلقائيًا"
+msgstr "غرفة نقدي (تحميل الدفع آليا)"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_yearly_geographical_chart__available
@@ -2823,7 +2823,7 @@ msgstr "سعر النقد"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_dummy_room_code__auto_payment_posting
 msgid "Cash Room (Auto Payment Charge Posting)"
-msgstr "غرفة النقد (تسجيل رسوم الدفع التلقائي)"
+msgstr "فتح او اعادة فتح حساب الغرفة تلقائيا"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__target__cashier
@@ -2861,13 +2861,13 @@ msgstr "أمين الصندوق"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_category_search
 #, python-format
 msgid "Category"
-msgstr "الفئة"
+msgstr "التصنيف"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_kanban
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_kanban
 msgid "Category:"
-msgstr "الفئة:"
+msgstr "التصنيف:"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_housekeeping_management_form
@@ -2989,7 +2989,7 @@ msgstr "أطفال"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__city
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__city
 msgid "City"
-msgstr "مدينة"
+msgstr "المدينة"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_housekeeping_management__clean
@@ -3065,13 +3065,13 @@ msgstr "الكود"
 #. module: setup_configuration
 #: model:ir.ui.menu,name:setup_configuration.menu_code
 msgid "Codes"
-msgstr "الرموز"
+msgstr "الاكواد"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_comment_category
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_comment_category_tree
 msgid "Comment Categories"
-msgstr "فئات التعليق"
+msgstr "تصنيفات التعليق"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_comment_category
@@ -3138,13 +3138,13 @@ msgstr "رفاق"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
 #, python-format
 msgid "Company"
-msgstr "شركة"
+msgstr "الفندق"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_company_category
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_company_category_tree
 msgid "Company Categories"
-msgstr "فئات الشركة"
+msgstr "تصنيفات الشركة"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_company_category
@@ -3313,7 +3313,7 @@ msgstr "الدول:"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_code_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_region_search
 msgid "Country"
-msgstr "دولة"
+msgstr "البلد"
 
 #. module: setup_configuration
 #. odoo-python
@@ -3330,7 +3330,7 @@ msgstr "كود الدولة"
 #: model:ir.ui.menu,name:setup_configuration.sub_menu_country_codes
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_code_tree
 msgid "Country Codes"
-msgstr "اكواد الدول"
+msgstr "اكواد الجنسيات"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_country_region
@@ -3624,7 +3624,7 @@ msgstr "قيمة حد الائتمان"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_form
 #, python-format
 msgid "Currency"
-msgstr "عملة"
+msgstr "العملة"
 
 #. module: setup_configuration
 #. odoo-python
@@ -3775,7 +3775,7 @@ msgstr "القيمة الافتراضية"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_search
 #, python-format
 msgid "Department"
-msgstr "قسم"
+msgstr "القسم"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
@@ -3788,7 +3788,7 @@ msgstr "القسم"
 #: model:ir.actions.act_window,name:setup_configuration.action_department_category
 #: model:ir.ui.menu,name:setup_configuration.sub_menu_department_categories
 msgid "Department Categories"
-msgstr "فئات القسم"
+msgstr "تصنيفات الادارات"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_department_category
@@ -3813,7 +3813,7 @@ msgstr "كود القسم"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_tree
 msgid "Department Codes"
-msgstr "اكواد القسم"
+msgstr "اكواد الادارات"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_budget_entry_form
@@ -4031,7 +4031,7 @@ msgstr "خصم على السعر (%,tracking=True)"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 msgid "Discounts"
-msgstr "خصومات"
+msgstr "الخصومات"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_additional_attribute__display_name
@@ -4198,23 +4198,23 @@ msgstr "تاريخ الاستحقاق"
 #: model:ir.model,name:setup_configuration.model_dummy_room_code
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_dummy_room_code_form
 msgid "Dummy Room Code"
-msgstr "كود الغرفة الوهمية"
+msgstr "كود الغرفة الافتراضية"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_dummy_room_code
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_dummy_room_code_tree
 msgid "Dummy Room Codes"
-msgstr "كود الغرف الوهمية"
+msgstr "اكواد الغرف الافتراضية"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
 msgid "Dummy Room Discount"
-msgstr "خصم الغرفة الوهمية"
+msgstr "خصم الغرفة الافتراضية"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__dummy_room_discount
 msgid "Dummy Rooms Discount"
-msgstr "خصم على الغرف الوهمية"
+msgstr "خصم على الغرف الافتراضية"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_credit_card_type_form
@@ -4289,7 +4289,7 @@ msgstr "أدخل نوع التعديل"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_category_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
 msgid "Enter Category"
-msgstr "أدخل الفئة"
+msgstr "أدخل التصنيف"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
@@ -4373,12 +4373,12 @@ msgstr "أدخل كود العنصر"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
 msgid "Enter Main Department"
-msgstr "أدخل القسم الرئيسي"
+msgstr "أدخل الادارة الرئيسية"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_form
 msgid "Enter Market Segment"
-msgstr "أدخل شريحة السوق"
+msgstr "أدخل قطاع التسويق"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_budget_entry_form
@@ -4470,7 +4470,7 @@ msgstr "أدخل وصف الموقع"
 #: model:ir.model.fields,field_description:setup_configuration.field_dummy_room_code__entertainment_tax
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_dummy_room_code_form
 msgid "Entertainment Tax"
-msgstr "ضريبة الترفيه"
+msgstr "ضريبة الملاهي"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_additional_attribute__entity_target
@@ -4490,18 +4490,18 @@ msgstr ""
 #: model:ir.model.fields,field_description:setup_configuration.field_department_code__entry_require_authorization
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__entry_require_authorization
 msgid "Entry Requires Authorization"
-msgstr "الدخول يتطلب تصريح"
+msgstr "يتطلب اذن الدخول"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__entry_value_type
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item_addition__is_entry_value
 msgid "Entry Value"
-msgstr "قيمة الدخول"
+msgstr "قيمة إدخال"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
 msgid "Entry Value Type"
-msgstr "نوع قيمة الدخول"
+msgstr "نوع قيمة إدخال"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__check_duplicate__error
@@ -4533,7 +4533,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:setup_configuration.field_rate_code__exchange_rate
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_form
 msgid "Exchange Rate"
-msgstr "سعر الصرف"
+msgstr "سعر التحويل"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_cash_box_code__exclusive
@@ -4710,7 +4710,7 @@ msgstr "متابعات قسم الأطعمة والمشروبات"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_currency_code__fo_rate
 msgid "F/O Rate"
-msgstr "معدل مكتب الاستقبال"
+msgstr "سعر مكتب الاستقبال"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_currency_code_form
@@ -4794,7 +4794,7 @@ msgstr "القيمة الثابتة"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_code__exchange_rate__fixed
 msgid "Fixed (As it was on arrival)"
-msgstr "ثابت (نفس سعر الوصول)"
+msgstr "ثابت (كوقت الوصول)"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__fixed_value
@@ -4820,7 +4820,7 @@ msgstr "الطابق"
 #: model:ir.model.fields,field_description:setup_configuration.field_housekeeping_management__floor_number
 #: model:ir.model.fields,field_description:setup_configuration.field_room_specification__floor
 msgid "Floor #"
-msgstr "أرضية #"
+msgstr "الطابق #"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
@@ -5513,7 +5513,7 @@ msgstr "الضريبة الرئيسية"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_dummy_room_code__head_tax
 msgid "Head Tax"
-msgstr "ضريبة سياحة"
+msgstr "ضريبة الفرد"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__card_holder_name
@@ -5541,7 +5541,7 @@ msgstr "يستضيف"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_form
 msgid "Hotel"
-msgstr "فندق"
+msgstr "الفندق"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_hotel_code
@@ -5620,7 +5620,7 @@ msgstr "قانون المنزل"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_house_code_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_house_code_tree
 msgid "House Codes"
-msgstr "اكواد المنزل"
+msgstr "اكواد الإقامة الداخلية"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_trace__target__house_keeping
@@ -5628,7 +5628,7 @@ msgstr "اكواد المنزل"
 #: model:ir.ui.menu,name:setup_configuration.sub_menu_house_keeping
 #: model_terms:ir.ui.view,arch_db:setup_configuration.trace_buttons_template
 msgid "House Keeping"
-msgstr "تدبير المنزل"
+msgstr "خدمة الغرف"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_authorized_code__can_authorize_house_use
@@ -6318,7 +6318,7 @@ msgstr "يشمل الوجبة"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_rate_code__include_meals
 msgid "Include Meals in Posting Item"
-msgstr "تضمين الوجبات في بند التحميل"
+msgstr "بند التحميل يشمل الوجبات"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__membership_card_type__card_type__individual
@@ -6359,12 +6359,12 @@ msgstr "الأطفال الرضع"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
 msgid "Information"
-msgstr "معلومة"
+msgstr "معلومات عامة"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__default_type__inside_room
 msgid "Inside Room - Managed by HK (e.g. VCR)"
-msgstr "غرفة داخلية - تديرها شركة HK (على سبيل المثال، مسجل الفيديو)"
+msgstr "غرفة داخلية - يديرها الفندق HK (على سبيل المثال، مسجل الفيديو)"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__template__language__default
@@ -6483,7 +6483,7 @@ msgstr "نسبة مئوية"
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__item_code
 #, python-format
 msgid "Item"
-msgstr "غرض"
+msgstr "البند"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
@@ -6507,7 +6507,7 @@ msgstr "كود الصنف"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_dummy_room_code__item_discount
 msgid "Item Discount"
-msgstr "خصم على المنتج"
+msgstr "الخصم للبند"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__job_title
@@ -6773,7 +6773,7 @@ msgstr "المستوى:"
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item_addition__line
 #: model:ir.model.fields,field_description:setup_configuration.field_rate_detail__packages_line_number
 msgid "Line"
-msgstr "خط"
+msgstr "بند"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__amount_selection__line_wise
@@ -6861,12 +6861,12 @@ msgstr "الرئيسية"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_search
 msgid "Main Department"
-msgstr "القسم الرئيسي"
+msgstr "الادارة الرئيسية"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_kanban
 msgid "Main Department:"
-msgstr "القسم الرئيسي"
+msgstr "الادارة الرئيسية"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_maintenance_traces
@@ -6939,14 +6939,14 @@ msgstr "يدوي"
 msgid ""
 "Market\n"
 "                                            Category"
-msgstr "فئة السوق"
+msgstr "فئة التسويق"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_form
 msgid ""
 "Market\n"
 "                                            Segment"
-msgstr "قطاع السوق"
+msgstr "قطاع التسويق"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_market_category
@@ -6956,14 +6956,14 @@ msgstr "قطاع السوق"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_category_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_category_tree
 msgid "Market Categories"
-msgstr "فئات السوق"
+msgstr "اكواد تصنيف قطاعات التسويق"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_market_category
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_category_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_category_search
 msgid "Market Category"
-msgstr "فئة السوق"
+msgstr "فئة التسويق"
 
 #. module: setup_configuration
 #. odoo-python
@@ -6979,7 +6979,7 @@ msgstr "فئة السوق"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_search
 #, python-format
 msgid "Market Segment"
-msgstr "شريحة السوق"
+msgstr "قطاع التسويق"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_market_segment
@@ -6989,7 +6989,7 @@ msgstr "شريحة السوق"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_tree
 msgid "Market Segments"
-msgstr "قطاعات السوق"
+msgstr "اكواد قطاعات التسويق"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__credit_card_type__card_type__master
@@ -7012,7 +7012,7 @@ msgstr "الاقصى في اليوم"
 #: model:ir.model.fields,field_description:setup_configuration.field_room_specification__max_pax
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
 msgid "Max Pax"
-msgstr "الحد الأقصى للنزلاء"
+msgstr "الحد الاقصى للأفراد"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_cash_box_code__max_per_day
@@ -7087,7 +7087,7 @@ msgstr "خيار الوجبة"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 #, python-format
 msgid "Meal Pattern"
-msgstr "نمط الوجبة"
+msgstr "نظام الوجبات"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_meal_pattern
@@ -7096,7 +7096,7 @@ msgstr "نمط الوجبة"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_tree
 msgid "Meal Patterns"
-msgstr "أنماط الوجبات"
+msgstr "اكواد أنظمة الوجبات"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_meal_pattern__meal_posting_item
@@ -7377,7 +7377,7 @@ msgstr "متفرقات"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__mobile
 #: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__mobile
 msgid "Mobile"
-msgstr "متحرك"
+msgstr "رقم الجوال"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_rate_detail__monday_price
@@ -7549,7 +7549,7 @@ msgstr "الموعد النهائي لنشاطي"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
 #, python-format
 msgid "Name"
-msgstr "اسم"
+msgstr "الاسم"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_frontdesk_inhouse_guest_main__nationality
@@ -7568,7 +7568,7 @@ msgstr "جنسية"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__entry_value_type__net
 msgid "Net"
-msgstr "شبكة"
+msgstr "صافي"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__room_specification__count_in_availability__never
@@ -7911,14 +7911,14 @@ msgstr "لم يتم الانتهاء"
 #: model:ir.actions.act_window,name:setup_configuration.action_note_category
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_note_category_tree
 msgid "Note Categories"
-msgstr "فئات الملاحظات"
+msgstr "تصنيفات الملاحظات"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_note_category
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__note_category
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_note_category_form
 msgid "Note Category"
-msgstr "ملاحظة الفئة"
+msgstr "ملاحظة التصنيف"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_hotel_code__notes
@@ -8406,7 +8406,7 @@ msgstr "مشغول فقط"
 #: model:ir.model.fields.selection,name:setup_configuration.selection__cash_box_code__status__open
 #: model:ir.model.fields.selection,name:setup_configuration.selection__guest_message__status__open
 msgid "Open"
-msgstr "يفتح"
+msgstr "مفتوح"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_trace_record__opened_on
@@ -8421,7 +8421,7 @@ msgstr "تم فتحه في"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_profile_notebook_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
 msgid "Optional"
-msgstr "خياري"
+msgstr "اختياري"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__other
@@ -8451,7 +8451,7 @@ msgstr "الدفع بطرق اخرى"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__category__other
 msgid "Other Payments"
-msgstr "المدفوعات الأخرى"
+msgstr "سدادات أخرى"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_department_code__tax_other
@@ -8538,7 +8538,7 @@ msgstr "معرف تكامل PMS"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 msgid "Packages"
-msgstr "الباقات"
+msgstr "حزم اضافية"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__pager
@@ -8602,14 +8602,14 @@ msgstr "نوع الدفع"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_department_code__payment_group
 msgid "Payments"
-msgstr "المدفوعات"
+msgstr "السداد"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_form
 msgid ""
 "Payments\n"
 "    Type"
-msgstr "نوع المدفوعات"
+msgstr "نوع السداد"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__status_code__pending
@@ -8648,7 +8648,7 @@ msgstr "لكل رضيع"
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail_line__packages_value_type__per_pax
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
 msgid "Per Pax"
-msgstr "لكل شخص"
+msgstr "لكل فرد"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__quantity_type__per_person
@@ -8883,7 +8883,7 @@ msgstr "السعر لكل طفل"
 msgid ""
 "Price\n"
 "                                                Per Pax"
-msgstr "السعر لكل شخص"
+msgstr "السعر لكل فرد"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_rate_detail__price_type
@@ -8894,7 +8894,7 @@ msgstr "نوع السعر"
 #: model:ir.model.fields,field_description:setup_configuration.field_meal_code__price_child
 #: model:ir.model.fields,field_description:setup_configuration.field_meal_list__price_child
 msgid "Price/Child"
-msgstr "السعر/الطفل"
+msgstr "السعر/طفل"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_meal_code__price_infant
@@ -8905,7 +8905,7 @@ msgstr "السعر/طفل"
 #: model:ir.model.fields,field_description:setup_configuration.field_meal_code__price_pax
 #: model:ir.model.fields,field_description:setup_configuration.field_meal_list__price
 msgid "Price/Pax"
-msgstr "السعر/الشخص"
+msgstr "السعر/فرد"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__contact_method_is_primary
@@ -8936,7 +8936,7 @@ msgstr "عنوان الملف الشخصي"
 #: model:ir.actions.act_window,name:setup_configuration.action_profile_category
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_profile_category_tree
 msgid "Profile Categories"
-msgstr "فئات الملف الشخصي"
+msgstr "تصنيفات الملف الشخصي"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_profile_category
@@ -8991,7 +8991,7 @@ msgstr "معرف الترويج"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 msgid "Promotions"
-msgstr "العروض الترويجية"
+msgstr "عروض الاسعار"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__room_type__quad
@@ -9056,18 +9056,18 @@ msgstr "تصنيف التقييم"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
 #, python-format
 msgid "Rate Code"
-msgstr "كود السعر"
+msgstr "كود التعاقد"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_graph
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_pivot
 msgid "Rate Code Analysis"
-msgstr "تحليل كود السعر"
+msgstr "تحليل كود التعاقد"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_rate_code_details
 msgid "Rate Code Details"
-msgstr "تفاصيل كود السعر"
+msgstr "تفاصيل كود التعاقد"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_rate_code
@@ -9077,13 +9077,13 @@ msgstr "إدارة كود المعدل"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_currency_code__rate_code_rate
 msgid "Rate Code Rate"
-msgstr "معدل الكود المعدل"
+msgstr "سعر كود التعاقد"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_rate_code
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_tree
 msgid "Rate Codes"
-msgstr "كود السعر"
+msgstr "اكواد التعاقدات"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_room_type_specific_rate__rate_detail_id
@@ -9123,7 +9123,7 @@ msgstr "توقعات الأسعار"
 #: model:ir.model.fields,field_description:setup_configuration.field_room_specification__rate_posting_item
 #, python-format
 msgid "Rate Posting Item"
-msgstr "بند التحميل"
+msgstr "بند تحميل الغرفة"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_rate_promotion
@@ -9135,7 +9135,7 @@ msgstr "تقييم الترويج"
 #: model:ir.actions.act_window,name:setup_configuration.action_rate_promotion
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_promotion_tree
 msgid "Rate Promotions"
-msgstr "تقييم العروض الترويجية"
+msgstr "تقييم عروض الاسعار"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_frontdesk_inhouse_guest_main__rate_value
@@ -9149,12 +9149,12 @@ msgstr "قيمة المعدل"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
 msgid "Rate and Market Details"
-msgstr "تفاصيل الأسعار والسوق"
+msgstr "تفاصيل الأسعار والتسويق"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__price_type__rate_meals
 msgid "Rate and Meals Price"
-msgstr "سعر الوجبات والسعر"
+msgstr "سعر الغرفة والوجبات"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_housekeeping_management__reason
@@ -9208,7 +9208,7 @@ msgstr "رفض الخدمة"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_country_region_search
 #, python-format
 msgid "Region"
-msgstr "منطقة"
+msgstr "المنطقة"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__room_type__regular
@@ -9278,7 +9278,7 @@ msgstr "تاريخ التقرير"
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__require_authorization
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
 msgid "Require Authorization"
-msgstr "تتطلب الترخيص"
+msgstr "تتطلب الاذن"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_profile_category_form
@@ -9565,7 +9565,7 @@ msgstr "الارباح"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
 msgid "Rhythm"
-msgstr "النمط"
+msgstr "المعدل"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__travel_method__road
@@ -9726,7 +9726,7 @@ msgstr "اكواد حجز الغرفة"
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_profile_main__meal_pattern__ro
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__meal_pattern__ro
 msgid "Room Only"
-msgstr "غرفة فقط"
+msgstr "سعر الغرفة فقط"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_room_specification
@@ -9794,7 +9794,7 @@ msgstr "أسعار خاصة بنوع الغرفة"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_tree
 msgid "Room Types"
-msgstr "أنواع الغرف"
+msgstr "اكواد أنواع الغرف"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_authorized_code__can_authorize_room_on_hold
@@ -10020,7 +10020,7 @@ msgstr "البحث عن مناطق الدولة"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_category_search
 msgid "Search Department Categories"
-msgstr "البحث عن فئات الأقسام"
+msgstr "البحث عن تصنيفات الأقسام"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_code_search
@@ -10035,12 +10035,12 @@ msgstr "البحث عن اكواد المنازل"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_category_search
 msgid "Search Market Categories"
-msgstr "البحث عن فئات السوق"
+msgstr "البحث عن تصنيفات التسويق"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_search
 msgid "Search Market Segments"
-msgstr "البحث عن شرائح السوق"
+msgstr "البحث عن شرائح التسويق"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_search
@@ -10050,7 +10050,7 @@ msgstr "البحث عن اكواد الوجبات"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_search
 msgid "Search Meal Patterns"
-msgstr "البحث عن أنماط الوجبات"
+msgstr "البحث عن أنظمة الوجبات"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_out_of_order_code_search
@@ -10060,7 +10060,7 @@ msgstr "البحث عن اكواد خارج الخدمة"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_category_search
 msgid "Search Rate Categories"
-msgstr "البحث عن فئات الأسعار"
+msgstr "البحث عن تصنيفات الأسعار"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_code_search
@@ -10080,7 +10080,7 @@ msgstr "البحث عن أنواع الغرف"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_search
 msgid "Search Source of Business"
-msgstr "البحث عن مصدر الأعمال"
+msgstr "البحث عن مصدر المبيعات"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_housekeeping_management__section_hk
@@ -10122,7 +10122,7 @@ msgstr "حدد"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_form
 msgid "Select Category"
-msgstr "حدد الفئة"
+msgstr "حدد التصنيف"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
@@ -10174,7 +10174,7 @@ msgstr ""
 #: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__charge_type__service_charge_tax
 #: model:ir.model.fields.selection,name:setup_configuration.selection__department_code__tax_group__tax_service_charge
 msgid "Service Charge"
-msgstr "رسوم الخدمة"
+msgstr "مقابل الخدمة"
 
 #. module: setup_configuration
 #. odoo-python
@@ -10192,17 +10192,17 @@ msgstr "سعر الخدمة"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 msgid "Set Room Number Specific Rate"
-msgstr "تحديد سعر محدد لعدد الغرف"
+msgstr "سعر محدد برقم الغرفة"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 msgid "Set Room Type Specific Rate"
-msgstr "تحديد سعر محدد لنوع الغرفة"
+msgstr "سعر محدد بنوع الغرفة"
 
 #. module: setup_configuration
 #: model:ir.ui.menu,name:setup_configuration.menu_setup_and_configuration
 msgid "Setup and Configuration"
-msgstr "الإعدادات"
+msgstr "تهيئة مكتب الاستقبال"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__shares
@@ -10267,7 +10267,7 @@ msgstr "ترتيب الفرز"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_search
 #, python-format
 msgid "Source"
-msgstr "مصدر"
+msgstr "المصدر"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_source_business
@@ -10285,7 +10285,7 @@ msgstr "مصدر"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_tree
 msgid "Source of Business"
-msgstr "مصدر الأعمال"
+msgstr "اكواد مصادر المبيعات"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__special_rate
@@ -10611,7 +10611,7 @@ msgstr "رسوم الهاتف"
 #: model:ir.model.fields,field_description:setup_configuration.field_room_specification__telephone_ext
 #, python-format
 msgid "Telephone Ext."
-msgstr "رقم الهاتف الداخلي"
+msgstr "رقم تحويلة الهاتف"
 
 #. module: setup_configuration
 #. odoo-python
@@ -10621,7 +10621,7 @@ msgstr "رقم الهاتف الداخلي"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_telephone_extension_form
 #, python-format
 msgid "Telephone Extension"
-msgstr "تمديد الهاتف"
+msgstr "تحويلات الهاتف"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_telephone_extension
@@ -11186,7 +11186,7 @@ msgstr "استخدام الافتراضي للنقد"
 msgid ""
 "Use\n"
 "    Rate Code Default"
-msgstr "استخدام الافتراضي لكود السعر"
+msgstr "استخدام الافتراضي لكود التعاقد"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_rentable_asset__use_as_default_rent_notes
@@ -11396,7 +11396,7 @@ msgstr "القيمة/الغرفة"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_code__exchange_rate__variable
 msgid "Variable (Evaluated daily)"
-msgstr "متغير (يتم تقييمه يوميا)"
+msgstr "متغير (يقييم يوميا)"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__document_type__doc_type__video

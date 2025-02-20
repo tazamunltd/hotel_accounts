@@ -6,14 +6,14 @@
         <field name="model">hotel.service</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="name"/>
-                <field name="unit_price"/>
-                <field name="taxes_ids" widget="many2many_tags"/>
+                <field name="name" />
+                <field name="unit_price" />
+                <field name="taxes_ids" widget="many2many_tags" />
             </tree>
         </field>
     </record>
-     <!-- Hotel Services Form View -->
-    <record id="hotel_service_view_form" model="ir.ui.view">
+    <!-- Hotel Services Form View(old) -->
+    <!-- <record id="hotel_service_view_form" model="ir.ui.view">
         <field name="name">hotel.service.view.form</field>
         <field name="model">hotel.service</field>
         <field name="arch" type="xml">
@@ -31,9 +31,70 @@
 
                 </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="activity_ids" widget="mail_activity" />
+                    <field name="message_ids" widget="mail_thread"
+                        options="{'post_refresh': 'recipients'}" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <!-- Hotel Services Form View with CSS -->
+    <!-- Hotel Services Form View with CSS -->
+    <record id="hotel_service_view_form" model="ir.ui.view">
+        <field name="name">hotel.service.view.form</field>
+        <field name="model">hotel.service</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Service">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Service Details -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-concierge-bell"></i>
+                                    <span class="fw-bold"> Service Details</span>
+                                </div>
+                                <div class="card-body py-2 px-3">
+                                    <div class="form-group mb-1">
+                                        <label for="name" class="form-label small">Service Name</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="name" 
+                                            placeholder="Enter Service Name" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="unit_price" class="form-label small">Unit Price</label>
+                                        <field name="unit_price"
+                                            class="form-control form-control-sm"
+                                            placeholder="Enter Price" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="taxes_ids" class="form-label small">Taxes</label>
+                                        <field name="taxes_ids" widget="many2many_tags"
+                                            class="form-control form-control-sm" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="frequency" class="form-label small">Frequency</label>
+                                        <field name="frequency" widget="radio"
+                                            class="form-control form-control-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="activity_ids" widget="mail_activity" />
+                    <field name="message_ids" widget="mail_thread"
+                        options="{'post_refresh': 'recipients'}" />
+                </div>
             </form>
         </field>
     </record>
+
 
     <!--    Services Menu Action-->
     <record id="hotel_service_action" model="ir.actions.act_window">
@@ -43,8 +104,8 @@
     </record>
     <!--    Services Menu-->
     <menuitem id="hotel_service_menu"
-              name="Services"
-              action="hotel_service_action"
-              parent="hotel_config_menu"
-              sequence="40"/>
+        name="Services"
+        action="hotel_service_action"
+        parent="hotel_config_menu"
+        sequence="40" />
 </odoo>

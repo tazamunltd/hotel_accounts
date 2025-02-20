@@ -47,9 +47,58 @@
         </field>
     </record>
 
-
-
     <record id="action_run_process_by_monthly_groups_charts" model="ir.actions.server">
+        <field name="name">Run Monthly Groups Charts Process</field>
+        <field name="model_id" ref="model_monthly_groups_charts"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+action = env["monthly.groups.charts"].action_run_process_by_monthly_groups_charts()
+        ]]>
+        </field>
+    </record>
+
+
+    <!-- <record id="action_run_process_by_monthly_groups_charts" model="ir.actions.server">
+    <field name="name">Run Monthly group charts process</field>
+    <field name="model_id" ref="model_monthly_groups_charts"/>
+    <field name="state">code</field>
+    <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_monthly_groups_charts()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Monthly Groups Chart',
+        'res_model': 'monthly.groups.charts',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_monthly_groups_charts_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_monthly_groups_charts_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_monthly_groups_charts_pivot').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Monthly Groups Chart',
+        'res_model': 'monthly.groups.charts',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_monthly_groups_charts_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_monthly_groups_charts_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_monthly_groups_charts_pivot').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field>
+</record> -->
+
+    <!-- <record id="action_run_process_by_monthly_groups_charts" model="ir.actions.server">
         <field name="name">Run Monthly group charts process</field>
         <field name="model_id" ref="model_monthly_groups_charts"/>
         <field name="state">code</field>
@@ -70,7 +119,7 @@ action = {
 }
             ]]>
         </field>
-    </record>
+    </record> -->
 
     <!-- Menu Item -->
     <menuitem id="menu_monthly_groups_charts"

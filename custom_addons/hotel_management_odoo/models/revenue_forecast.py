@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import logging
 import datetime
 
@@ -9,8 +9,8 @@ class RevenueForecast(models.Model):
     _description = 'Revenue Forecast'
 
     
-    company_id = fields.Many2one('res.company', string='Company', required=True)
-    company_name = fields.Char(string='Company')
+    company_id = fields.Many2one('res.company', string='Hotel', required=True)
+    company_name = fields.Char(string='Hotel')
     report_date = fields.Date(string='Report Date', required=True)
     in_house = fields.Integer(string='Rooms')
     expected_occupied_rate = fields.Float(string='Occupancy(%)', readonly=True)
@@ -24,15 +24,57 @@ class RevenueForecast(models.Model):
     rate_per_pax = fields.Integer(string='Rate/Pax', readonly=True)
     meals_per_pax = fields.Integer(string='Meals/Pax', readonly=True)
     total_rooms = fields.Integer(string='Total Rooms', readonly=True)
+
+    @api.model
+    def action_run_process_by_revenue_forecast(self):
+        """Runs the revenue forecast process based on context and returns the action."""
+        if self.env.context.get('filtered_date_range'):
+            self.env["revenue.forecast"].run_process_by_revenue_forecast()
+
+            return {
+                'name': _('Revenue Forecast Report'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'revenue.forecast',
+                'view_mode': 'tree,pivot,graph',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_revenue_forecast_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_revenue_forecast_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_revenue_forecast_graph').id, 'graph'),
+                ],
+                'target': 'current',
+            }
+        else:
+            return {
+                'name': _('Revenue Forecast Report'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'revenue.forecast',
+                'view_mode': 'tree,pivot,graph',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_revenue_forecast_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_revenue_forecast_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_revenue_forecast_graph').id, 'graph'),
+                ],
+                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'target': 'current',
+            }
     
     @api.model
     def search_available_rooms(self, from_date, to_date):
         """
         Search for available rooms based on the provided criteria.
         """
+        self.run_process_by_revenue_forecast(from_date, to_date)
+        company_ids = [company.id for company in self.env.companies]
         domain = [
             ('report_date', '>=', from_date),
             ('report_date', '<=', to_date),
+            ('company_id', 'in', company_ids)
         ]
 
         results = self.search(domain)
@@ -65,35 +107,34 @@ class RevenueForecast(models.Model):
             _logger.error(f"Error generating booking results: {str(e)}")
             raise ValueError(f"Error generating booking results: {str(e)}")
 
-    def run_process_by_revenue_forecast(self):
+    def run_process_by_revenue_forecast(self,from_date = None, to_date = None):
         """Execute the SQL query and process the results."""
         _logger.info("Started run_process_by_revenue_forecast")
 
         # Delete existing records
         self.search([]).unlink()
-        system_date = self.env.company.system_date.date()
-        from_date = system_date - datetime.timedelta(days=7)
-        to_date = system_date + datetime.timedelta(days=7)
-        get_company = self.env.company.id
+        # system_date = self.env.company.system_date.date()
+        # from_date = system_date - datetime.timedelta(days=7)
+        # to_date = system_date + datetime.timedelta(days=7)
+        # get_company = self.env.company.id
+        company_ids = [company.id for company in self.env.companies]
 
-        query = """
+        query = f"""
 WITH parameters AS (
     SELECT
-        COALESCE(
-          (SELECT MIN(rb.checkin_date::date) 
-           FROM room_booking rb 
-           WHERE rb.company_id = %s), 
-          CURRENT_DATE
-        ) AS from_date,
-        COALESCE(
-          (SELECT MAX(rb.checkout_date::date) 
-           FROM room_booking rb 
-           WHERE rb.company_id = %s), 
-          CURRENT_DATE
-        ) AS to_date,
-        %s AS company_id
+        '{from_date}'::date AS from_date,
+        '{to_date}'::date AS to_date
 ),
-    date_series AS (
+company_ids AS (
+    SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
+),
+
+system_date_company AS (
+    SELECT id as company_id, system_date::date 
+    FROM res_company rc 
+    WHERE rc.id IN {tuple(company_ids) if len(company_ids) > 1 else f"({company_ids[0]})"}
+),
+date_series AS (
         SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
         FROM parameters p
     ),
@@ -198,7 +239,9 @@ WITH parameters AS (
             COALESCE(ih.in_house_children, 0) AS in_house_children,
             COALESCE(ih.in_house_infants, 0) AS in_house_infants
         FROM date_series ds
-        CROSS JOIN res_company rc
+        JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
+
+        LEFT JOIN res_company rc_filter ON rc_filter.id IN (SELECT company_id FROM company_ids) -- ✅ FIXED
         LEFT JOIN inventory inv 
                ON inv.company_id = rc.id
         LEFT JOIN out_of_order ooo 
@@ -328,7 +371,9 @@ WITH parameters AS (
          
         # self.env.cr.execute(query)
         # self.env.cr.execute(query, (from_date, to_date))
-        self.env.cr.execute(query, (get_company, get_company, get_company))
+        # params = (from_date, to_date, get_company)
+        self.env.cr.execute(query)
+        # self.env.cr.execute(query, (get_company, get_company, get_company))
         results = self.env.cr.fetchall()
         _logger.info(f"Query executed successfully. {len(results)} results fetched")
 
@@ -336,12 +381,12 @@ WITH parameters AS (
 
         for result in results:
             try:
-                if result[1]:  # Ensure company_id is present
-                    company_id = result[1]
-                    if company_id != self.env.company.id:  # Skip if company_id doesn't match
-                        continue
-                else:
-                    continue
+                # if result[1]:  # Ensure company_id is present
+                #     company_id = result[1]
+                #     if company_id != self.env.company.id:  # Skip if company_id doesn't match
+                #         continue
+                # else:
+                #     continue
                 (
                     report_date,
                     company_id,

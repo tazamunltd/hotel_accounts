@@ -101,12 +101,57 @@
         </field>
     </record>
 
-    <!-- Action Server -->
     <record id="action_run_process_by_rooms_forecast" model="ir.actions.server">
         <field name="name">Run Rooms Forecast</field>
         <field name="model_id" ref="model_rooms_forecast_report"/>
         <field name="state">code</field>
         <field name="code">
+            <![CDATA[
+action = env["rooms.forecast.report"].action_run_process_by_rooms_forecast()
+        ]]>
+        </field>
+    </record>
+
+    <!-- Action Server -->
+    <!-- <record id="action_run_process_by_rooms_forecast" model="ir.actions.server">
+        <field name="name">Run Rooms Forecast</field>
+        <field name="model_id" ref="model_rooms_forecast_report"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_rooms_forecast()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Rooms Forecast Report',
+    'res_model': 'rooms.forecast.report',
+    'view_mode': 'tree,pivot,graph',
+    'views': [
+        (env.ref('hotel_management_odoo.view_rooms_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_rooms_forecast_pivot').id, 'pivot'),
+        (env.ref('hotel_management_odoo.view_rooms_forecast_graph').id, 'graph'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Rooms Forecast Report',
+    'res_model': 'rooms.forecast.report',
+    'view_mode': 'tree,pivot,graph',
+    'views': [
+        (env.ref('hotel_management_odoo.view_rooms_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_rooms_forecast_pivot').id, 'pivot'),
+        (env.ref('hotel_management_odoo.view_rooms_forecast_graph').id, 'graph'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
             <![CDATA[
 model.run_process_by_rooms_forecast()
 action = {
@@ -122,8 +167,8 @@ action = {
     'target': 'current',
 }
             ]]>
-        </field>
-    </record>
+        </field> -->
+    <!-- </record> -->
 
     <!-- Menu Item -->
     <menuitem

@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import logging
 from datetime import timedelta
 
@@ -19,7 +19,7 @@ class HotelRoomResult(models.Model):
     report_date = fields.Date(string='Report Date', required=True)
     room_type = fields.Char(string='Room Type', required=True)
     company_id = fields.Many2one(
-        'res.company', string='company', required=True)
+        'res.company', string='Hotel', required=True)
     total_rooms = fields.Integer(string='Total Rooms', readonly=True)
     available = fields.Integer(string='Available', readonly=True)
     inhouse = fields.Integer(string='In-House', readonly=True)
@@ -45,15 +45,58 @@ class HotelRoomResult(models.Model):
     out_of_service = fields.Integer(string='Out of Service', readonly=True)
     # in_progress = fields.Integer(string='In Progress', readonly=True)
     # dirty_rooms = fields.Integer(string='Dirty Rooms', readonly=True)
+    
+    @api.model
+    def action_run_process_room_availability(self):
+        """Runs the room availability process based on context."""
+        if self.env.context.get('filtered_date_range'):
+            self.env["hotel.room.result"].run_process_room_availability()
+
+            return {
+                'name': _('Room Availability Report'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'hotel.room.result',
+                'view_mode': 'tree,pivot,graph',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_hotel_room_result_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_hotel_room_result_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_hotel_room_result_graph').id, 'graph'),
+                ],
+                'target': 'current',
+            }
+        else:
+            return {
+                'name': _('Room Availability Report'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'hotel.room.result',
+                'view_mode': 'tree,pivot,graph',
+                'views': [
+                    (self.env.ref(
+                        'hotel_management_odoo.view_hotel_room_result_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_hotel_room_result_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_hotel_room_result_graph').id, 'graph'),
+                ],
+                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'target': 'current',
+            }
 
     @api.model
     def search_available_rooms(self, from_date, to_date):
+        # print("SEARCH AVAILABLE ROOMS")
         """
         Search for available rooms based on the provided criteria.
         """
+        self.run_process_room_availability(from_date, to_date)
+        company_ids = [company.id for company in self.env.companies]
         domain = [
             ('report_date', '>=', from_date),
             ('report_date', '<=', to_date),
+            ('company_id', 'in', company_ids)
         ]
 
         results = self.search(domain)
@@ -78,51 +121,42 @@ class HotelRoomResult(models.Model):
     def action_generate_results(self):
         """Generate and update room results."""
         try:
-            _logger.info("Generating room results")
+            # print("Generating room results")
             self.run_process_room_availability()
         except Exception as e:
-            _logger.error(f"Error generating room results: {str(e)}")
+            print(f"Error generating room results: {str(e)}")
             raise ValueError(f"Error generating room results: {str(e)}")
 
-    def run_process_room_availability(self):
+    def run_process_room_availability(self, from_date=None, to_date=None):
         """Execute the SQL query and process the results."""
-        _logger.info("Starting run_process")
-        
+        # print("Starting run_process")
+
         # Clear existing records
         self.env.cr.execute("DELETE FROM hotel_room_result")
-        system_date = self.env.company.system_date.date()
-        from_date = system_date - timedelta(days=7)
-        to_date = system_date + timedelta(days=7)
-        get_company = self.env.company.id
-        print("GET COMPANY", get_company)
-        
-        _logger.info("Existing records deleted")
+        # system_date = self.env.company.system_date.date()
+        # from_date = system_date - timedelta(days=7)
+        # to_date = system_date + timedelta(days=7)
+        # get_company = self.env.company.id
+        company_ids = [company.id for company in self.env.companies]
         
 
-        query = """
+        query = f"""
 WITH parameters AS (
     SELECT
-        COALESCE(
-          (SELECT MIN(rb.checkin_date::date) 
-           FROM room_booking rb 
-           WHERE rb.company_id = %s), 
-          CURRENT_DATE
-        ) AS from_date,
-        COALESCE(
-          (SELECT MAX(rb.checkout_date::date) 
-           FROM room_booking rb 
-           WHERE rb.company_id = %s), 
-          CURRENT_DATE
-        ) AS to_date,
-        %s AS company_id
+        '{from_date}'::date AS from_date,
+        '{to_date}'::date AS to_date
+),
+company_ids AS (
+    SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
 date_series AS (
     SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
     FROM parameters p
 ),
 system_date_company AS (
-	select id as company_id 
-	, system_date::date	from res_company rc where  rc.id = (SELECT company_id FROM parameters)
+    SELECT id as company_id, system_date::date 
+    FROM res_company rc 
+    WHERE rc.id IN {tuple(company_ids) if len(company_ids) > 1 else f"({company_ids[0]})"}
 ),
 base_data AS (
     SELECT
@@ -140,7 +174,7 @@ base_data AS (
     FROM room_booking rb
     JOIN room_booking_line rbl ON rb.id = rbl.booking_id
     LEFT JOIN room_booking_line_status rbls ON rbl.id = rbls.booking_line_id
-    WHERE rb.company_id = (SELECT company_id FROM parameters)
+    WHERE rb.company_id in (SELECT company_id FROM company_ids)
 ),
 
 latest_line_status AS (
@@ -348,7 +382,7 @@ final_report AS (
       )
     ) AS expected_in_house
     FROM date_series ds
-	 LEFT JOIN res_company rc ON rc.id = (SELECT company_id FROM parameters) 
+	 LEFT JOIN res_company rc ON rc.id in (SELECT company_id FROM company_ids) 
     -- CROSS JOIN res_company rc
     CROSS JOIN room_type rt
     INNER JOIN inventory inv ON inv.company_id = rc.id AND inv.room_type_id = rt.id
@@ -409,9 +443,9 @@ ORDER BY
 
         # self.env.cr.execute(query)
         # self.env.cr.execute(query, (from_date, to_date), get_company)
-        self.env.cr.execute(query, (get_company, get_company, get_company))
+        # params = (from_date, to_date, company_ids, company_ids)
+        self.env.cr.execute(query)
         results = self.env.cr.fetchall()
-        _logger.info(f"Query executed successfully. {len(results)} results fetched")
 
         records_to_create = []
 
