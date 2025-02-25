@@ -221,7 +221,7 @@ base_data AS (
     WHERE rb.company_id in (SELECT company_id FROM company_ids)
 ),
 latest_line_status AS (
-    SELECT
+    SELECT DISTINCT ON (bd.booking_line_id, ds.report_date)
 		ds.report_date,
         bd.system_date,
         bd.checkin_date,
@@ -249,6 +249,7 @@ latest_line_status AS (
     JOIN date_series ds 
         ON ds.report_date BETWEEN bd.checkin_date AND bd.checkout_date
     WHERE bd.change_time::date <= ds.report_date
+	ORDER BY bd.booking_line_id, ds.report_date, bd.change_time DESC
 	
 )
 ,

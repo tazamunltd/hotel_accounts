@@ -26,6 +26,8 @@ class OutOfOrderManagement(models.Model):
 
     _rec_name = 'room_number'
 
+    company_id = fields.Many2one('res.company', string='Company id', default=lambda self: self.env.company, required=True, tracking=True)
+
     room_fsm_location = fields.Many2one(
         'fsm.location',
         string="Location",
@@ -74,6 +76,8 @@ class RoomsOnHoldManagement(models.Model):
 
     _rec_name = 'room_number'
 
+    company_id = fields.Many2one('res.company', string='Company id', default=lambda self: self.env.company, required=True, tracking=True)
+
     room_fsm_location = fields.Many2one(
         'fsm.location',
         string="Location",
@@ -121,6 +125,7 @@ class PackageHandling(models.Model):
     _name = 'hotel.package_handling'
     _description = 'Package and Mail Handling'
 
+    company_id = fields.Many2one('res.company', string='Company id', default=lambda self: self.env.company, required=True, tracking=True)
     name = fields.Char(string=_("Package Name"), required=True, translate=True)
     room_contact_email = fields.Char(string=_("Room Contact Email"), required=True, translate=True)
     package_details = fields.Text(string="Package Details")

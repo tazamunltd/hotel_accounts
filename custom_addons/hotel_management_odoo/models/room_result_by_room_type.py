@@ -201,7 +201,7 @@ yesterday_in_house AS (
 
           /* Lines that physically cover ds.report_date: [checkin_date, checkout_date) */
           AND qry.checkin_date::date <= ds.report_date - interval '1 day'
-          AND qry.checkout_date::date >= ds.report_date - interval '1 day'
+          AND qry.checkout_date::date > ds.report_date - interval '1 day'
 
           /* Must have had status='check_in' as of or before ds.report_date */
           AND qry.status = 'check_in'
@@ -528,19 +528,21 @@ final_report AS (
       -- Use ih.in_house_count when system_date is today, otherwise use yh.in_house_count
       COALESCE(
           CASE 
-              WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+              WHEN sdc.system_date < ds.report_date THEN ih.in_house_count 
               ELSE yh.in_house_count 
           END, 0
       ) 
       + COALESCE(ea.expected_arrivals_count, 0)
-      - LEAST(COALESCE(ed.expected_departures_count, 0), 
-              COALESCE(
-                  CASE 
-                      WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
-                      ELSE yh.in_house_count 
-                  END, 0
-              )
-      )
+--       - LEAST(
+	-	  COALESCE(ed.expected_departures_count, 0)
+				 --, 
+--               COALESCE(
+--                   CASE 
+--                       WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+--                       ELSE yh.in_house_count 
+--                   END, 0
+--              )
+  --    )
     ) AS expected_in_house
     FROM date_series ds
     LEFT JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
@@ -654,11 +656,10 @@ ORDER BY
   fr.report_date,
   fr.company_name,
   fr.room_type_name;
-           
+                      
         """
         # self.env.cr.execute(query)
         # self.env.cr.execute(query, (from_date, to_date))
-        print('query', query)
         self.env.cr.execute(query)
         results = self.env.cr.fetchall()
         _logger.info(f"Query executed successfully. {len(results)} results fetched")

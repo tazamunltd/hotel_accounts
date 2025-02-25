@@ -9,6 +9,12 @@ class HotelAmenity(models.Model):
     _inherit = 'mail.thread'
     _order = 'id desc'
 
+    company_id = fields.Many2one('res.company', string="Hotel",
+                                 help="Choose the Hotel",
+                                 index=True,
+                                 default=lambda self: self.env.company,
+                                 readonly=True)
+    
     name = fields.Char(string=_('Name'), help="Name of the amenity",tracking=True, translate=True)
     icon = fields.Image(string="Icon",
                         help="Image of the amenity")

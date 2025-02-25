@@ -367,19 +367,21 @@ final_report AS (
       -- Use ih.in_house_count when system_date is today, otherwise use yh.in_house_count
       COALESCE(
           CASE 
-              WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+              WHEN sdc.system_date < ds.report_date THEN ih.in_house_count 
               ELSE yh.in_house_count 
           END, 0
       ) 
       + COALESCE(ea.expected_arrivals_count, 0)
-      - LEAST(COALESCE(ed.expected_departures_count, 0), 
-              COALESCE(
-                  CASE 
-                      WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
-                      ELSE yh.in_house_count 
-                  END, 0
-              )
-      )
+--       - LEAST(
+	-	  COALESCE(ed.expected_departures_count, 0)
+				 --, 
+--               COALESCE(
+--                   CASE 
+--                       WHEN sdc.system_date = ds.report_date THEN ih.in_house_count 
+--                       ELSE yh.in_house_count 
+--                   END, 0
+--              )
+  --    )
     ) AS expected_in_house
     FROM date_series ds
 	 LEFT JOIN res_company rc ON rc.id in (SELECT company_id FROM company_ids) 

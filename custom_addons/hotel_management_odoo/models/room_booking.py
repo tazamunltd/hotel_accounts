@@ -3257,11 +3257,12 @@ class RoomBooking(models.Model):
                     'default_booking_ids': future_bookings.mapped('id'),
                 }
             }
-
+        current_time = datetime.now().time()  # Get the current system time
+        current_datetime = datetime.combine(today, current_time)
         # Direct checkout for bookings without future checkout dates
         for booking in eligible_bookings:
             booking._create_invoice()  # Call the invoice creation method
-            booking.write({'invoice_status': "invoiced", 'state': "check_out"})
+            booking.write({'invoice_status': "invoiced", 'state': "check_out","checkout_date": current_datetime})
             booking.room_line_ids.write({"state_": "check_out"})
             booking.invoice_button_visible = True
 
@@ -6800,6 +6801,8 @@ class RoomBooking(models.Model):
                 #     # Exclude allocated lines
                 #     ('id', 'not in', self.env.context.get('already_allocated', []))
                 # ])
+
+                #TODO ADD Domain for Out of Order and rooms on hold  
                 booked_rooms = self.env['room.booking'].search_count([
                     ('hotel_room_type', '=', room_type_id),
                     # ('booking_id.room_count', '=', 1),

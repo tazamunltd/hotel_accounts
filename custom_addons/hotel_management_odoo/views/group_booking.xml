@@ -692,6 +692,7 @@
             <tree string="Group Bookings">
                 <field name="name" optional="show" />
                 <field name="group_name" optional="show" />
+                <field name="company" optional="show" />
                 <field name="nationality" optional="show" />
                 <field name="rate_code" optional="show" />
                 <field name="first_visit" optional="show" />

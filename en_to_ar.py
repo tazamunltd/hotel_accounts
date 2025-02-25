@@ -12,9 +12,9 @@ def convert_to_arabic_numerals(text):
 
 try:
     # Load the .po file
-    po_file_path = r'E:\\Neo-Moment Projects\\Odoo_17\\tazamun_internal_v3\\custom_addons\\maintenance_housekeeping\\i18n\\en.po'
+    po_file_path = r'E:\\Neo-Moment Projects\\Odoo_17\\tazamun_internal_v3\\custom_addons\\hotel_management_odoo\\i18n\\en.po'
     print(po_file_path)
-    translated_file_path = r'E:\\Neo-Moment Projects\\Odoo_17\\tazamun_internal_v3\\custom_addons\\maintenance_housekeeping\\i18n\\ar.po'
+    translated_file_path = r'E:\\Neo-Moment Projects\\Odoo_17\\tazamun_internal_v3\\custom_addons\\hotel_management_odoo\\i18n\\ar.po'
 
     po = polib.pofile(po_file_path)
 

@@ -19,8 +19,12 @@ class RevenueForecast(models.Model):
     rate_revenue = fields.Integer(string='Rate Revenue', readonly=True)
     total_revenue = fields.Integer(string='Total Revenue', readonly=True)
     fnb_revenue = fields.Integer(string='F&B Revenue', readonly=True)
+    pax_adults = fields.Integer(string='Adult', readonly=True)
+    pax_children = fields.Integer(string='Children', readonly=True)
+    pax_infants = fields.Integer(string='Infants', readonly=True)
+    pax_totals = fields.Integer(string='Total', readonly=True)
     pax_chi_inf = fields.Char(string='Pax/Chi/Inf', readonly=True)
-    average_rate_per_room = fields.Integer(string='Rate/Room', readonly=True)
+    rate_per_room = fields.Integer(string='Rate/Room', readonly=True)
     rate_per_pax = fields.Integer(string='Rate/Pax', readonly=True)
     meals_per_pax = fields.Integer(string='Meals/Pax', readonly=True)
     total_rooms = fields.Integer(string='Total Rooms', readonly=True)
@@ -89,8 +93,7 @@ class RevenueForecast(models.Model):
             'rate_revenue',
             'total_revenue',
             'fnb_revenue',
-            'pax_chi_inf',
-            'average_rate_per_room',
+            'rate_per_room',
             'rate_per_pax',
             'meals_per_pax',
             'total_rooms'
@@ -138,234 +141,420 @@ date_series AS (
         SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
         FROM parameters p
     ),
-    
-    /* ----------------------------------------------------------------------------
-       3) LATEST_LINE_STATUS:
-       For each booking line and report date, find the latest status as of that day.
-       ---------------------------------------------------------------------------- */
-    latest_line_status AS (
-        SELECT DISTINCT ON (rbl.id, ds.report_date)
-               rc.id AS company_id,                  -- NEW: Include company_id
-               rbl.id AS booking_line_id,
-               ds.report_date,
-               rb.checkin_date::date   AS checkin_date,
-               rb.checkout_date::date  AS checkout_date,
-               rbl.adult_count,
-               rb.child_count,
-               rb.infant_count,
-               rbls.status             AS final_status
-        FROM room_booking_line rbl
-        CROSS JOIN date_series ds
-        JOIN room_booking rb 
-          ON rb.id = rbl.booking_id
-        JOIN hotel_room hr 
-          ON hr.id = rbl.room_id
-        JOIN res_company rc                    -- NEW: Join with res_company
-          ON rb.company_id = rc.id
-        LEFT JOIN room_booking_line_status rbls
-               ON rbls.booking_line_id = rbl.id
-              AND rbls.change_time::date <= ds.report_date
-        WHERE rb.checkin_date <= ds.report_date
-          AND rb.checkout_date > ds.report_date
-        ORDER BY
-           rbl.id,
-           ds.report_date,
-           rbls.change_time DESC NULLS LAST
-    ),
-    
-    /* ----------------------------------------------------------------------------
-       4) INVENTORY:
-       Calculate total room counts per company.
-       ---------------------------------------------------------------------------- */
     inventory AS (
-        SELECT
-            rc.id AS company_id,                                   -- NEW: Include company_id
-            SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count
-        FROM hotel_inventory hi
-        JOIN res_company rc
-          ON hi.company_id = rc.id
-        GROUP BY rc.id
-    ),
-    
-    /* ----------------------------------------------------------------------------
-       5) OUT_OF_ORDER:
-       Count out-of-order rooms per company and date.
-       ---------------------------------------------------------------------------- */
-    out_of_order AS (
-        SELECT
-            rc.id AS company_id,                   -- NEW: Include company_id
-            ds.report_date,
-            COUNT(DISTINCT hr.id) AS out_of_order_count
-        FROM date_series ds
-        JOIN out_of_order_management_fron_desk ooo
-          ON ds.report_date BETWEEN ooo.from_date AND ooo.to_date
-        JOIN hotel_room hr
-          ON hr.id = ooo.room_number
-        JOIN res_company rc
-          ON hr.company_id = rc.id                -- NEW: Join with res_company
-        GROUP BY rc.id, ds.report_date
-    ),
-    
-    /* ----------------------------------------------------------------------------
-       6) IN-HOUSE:
-       Count in-house bookings per company and date.
-       ---------------------------------------------------------------------------- */
-    in_house AS (
-        SELECT
-            lls.report_date,
-            lls.company_id,
-            COUNT(DISTINCT lls.booking_line_id)     AS in_house_count,
-            SUM(COALESCE(lls.adult_count, 0))       AS in_house_adults,
-            SUM(COALESCE(lls.child_count, 0))       AS in_house_children,
-            SUM(COALESCE(lls.infant_count, 0))      AS in_house_infants
-        FROM latest_line_status lls
-        WHERE lls.final_status = 'check_in'
-        GROUP BY lls.report_date, lls.company_id
-    ),
-    
-    /* ----------------------------------------------------------------------------
-       7) ROOM_AVAILABILITY:
-       Combine inventory, out-of-order, and in-house data to determine availability.
-       ---------------------------------------------------------------------------- */
-    room_availability AS (
-        SELECT
-            ds.report_date,
-            rc.id AS company_id,
-            COALESCE(inv.total_room_count, 0) AS total_rooms,
-            COALESCE(ooo.out_of_order_count, 0) AS out_of_order,
-            (COALESCE(inv.total_room_count, 0) - COALESCE(ooo.out_of_order_count, 0)) AS available_rooms,
-            COALESCE(ih.in_house_count, 0) AS in_house,
-            COALESCE(ih.in_house_adults, 0) AS in_house_adults,
-            COALESCE(ih.in_house_children, 0) AS in_house_children,
-            COALESCE(ih.in_house_infants, 0) AS in_house_infants
-        FROM date_series ds
-        JOIN res_company rc ON rc.id IN (SELECT company_id FROM company_ids)
+    SELECT
+        hi.company_id,
+        SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count,
+        SUM(COALESCE(hi.overbooking_rooms, 0)) AS overbooking_rooms,
+        BOOL_OR(COALESCE(hi.overbooking_allowed, false)) AS overbooking_allowed
+    FROM hotel_inventory hi
+    GROUP BY hi.company_id 
+),
+room_type_data AS (
+    SELECT
+        rt.id AS room_type_id,
+        COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'), 'N/A') AS room_type_name
+    FROM room_type rt
+),
+base_data AS (
+    SELECT
+        rb.id AS booking_id,
+        rb.company_id,
+        rcs.name as company_name,
+        rb.checkin_date::date AS checkin_date,
+        rb.checkout_date::date AS checkout_date,
+        sdc.system_date::date as system_date,
+        rbl.id AS booking_line_id,
+        rbl.room_id,
+        rbl.hotel_room_type AS room_type_id,
+        rbl.adult_count,
+        rb.child_count,
+        rb.infant_count,
+        rbls.status,
+        rbls.change_time,
+        rb.house_use,
+        rb.complementary
+    FROM room_booking rb
+    JOIN room_booking_line rbl ON rb.id = rbl.booking_id
+    JOIN room_forecast_booking_line_rel rfbl ON rbl.id = rfbl.booking_line_id  
+    LEFT JOIN room_booking_line_status rbls ON rbl.id = rbls.booking_line_id
+    LEFT JOIN res_partner rp ON rb.partner_id = rp.id
+    LEFT JOIN public.meal_pattern mp ON rb.meal_pattern = mp.id
+    LEFT JOIN res_country rc ON rb.nationality = rc.id
+    LEFT JOIN system_date_company sdc ON sdc.company_id = rb.company_id
+    LEFT JOIN res_company rcs ON rcs.id = rb.company_id
+    LEFT JOIN room_type_data rtd ON rtd.room_type_id = rbl.hotel_room_type
+    WHERE rb.company_id in (SELECT company_id FROM company_ids)
+)
+	,
+latest_line_status AS (
+    --     SELECT DISTINCT ON (bd.booking_id)  -- Select the latest status per booking
+	SELECT DISTINCT ON (bd.booking_id, ds.report_date)
+        ds.report_date,
+        bd.system_date,
+        bd.checkin_date,
+        bd.checkout_date,
+        bd.booking_id,
+        bd.company_id,
+        bd.company_name,
+        bd.booking_line_id,
+        bd.room_id,
+        bd.adult_count,
+        bd.child_count,
+        bd.infant_count,
+        bd.status AS final_status,   
+        bd.change_time,
+        bd.house_use,
+        bd.complementary
+    FROM base_data bd
+    JOIN date_series ds ON ds.report_date BETWEEN bd.checkin_date AND bd.checkout_date
+    WHERE bd.change_time::date <= ds.report_date
+    ORDER BY bd.booking_id, ds.report_date, bd.change_time DESC  -- Get latest change_time for each booking_id
+)
+	,
 
-        LEFT JOIN res_company rc_filter ON rc_filter.id IN (SELECT company_id FROM company_ids) -- ✅ FIXED
-        LEFT JOIN inventory inv 
-               ON inv.company_id = rc.id
-        LEFT JOIN out_of_order ooo 
-               ON ooo.company_id = rc.id
-              AND ooo.report_date = ds.report_date
-        LEFT JOIN in_house ih 
-               ON ih.company_id = rc.id
-              AND ih.report_date = ds.report_date
-    ),
-    
-    /* ----------------------------------------------------------------------------
-       8) CHECK-IN DATA:
-       Identify bookings that have checked in within the reporting period.
-       ---------------------------------------------------------------------------- */
-    check_in_data AS (
+	
+rate_details AS (
         SELECT 
-            rc.id AS company_id,                                   -- NEW: Include company_id
-            rb.id               AS booking_id,
-            rbl.id              AS room_booking_line_id,
-            rsl.id              AS status_line_id,
-            ds.report_date      AS report_date,
-            rsl.status
-        FROM room_booking rb
-        JOIN room_booking_line rbl 
-          ON rb.id = rbl.booking_id
-        JOIN room_booking_line_status rsl 
-          ON rbl.id = rsl.booking_line_id
-        JOIN date_series ds 
-          ON ds.report_date BETWEEN rb.checkin_date AND rb.checkout_date
-        JOIN res_company rc                                      -- NEW: Join with res_company
-          ON rb.company_id = rc.id
-        WHERE rsl.status = 'check_in'
-    ),
-    
-    /* ----------------------------------------------------------------------------
-       9) RATE_DETAILS:
-       Calculate revenue based on room rates and meals per company and date.
-       ---------------------------------------------------------------------------- */
-    rate_details AS (
-        SELECT 
-            cid.company_id,                                      -- NEW: Include company_id
-            cid.report_date,
+            lls.report_date,
+        	lls.system_date,
+       	 	lls.company_id,
+			lls.company_name,
+
             SUM(rrf.rate)               AS rate_revenue,
             SUM(rrf.meals)              AS fnb_revenue,
             SUM(rrf.rate) + SUM(rrf.meals) AS total_revenue
-        FROM check_in_data cid
+        FROM latest_line_status as lls
         JOIN room_rate_forecast rrf 
-            ON cid.booking_id = rrf.room_booking_id
-           AND cid.report_date = rrf.date
+            ON rrf.room_booking_id = lls.booking_id
+           AND rrf.date = lls.report_date
+			join room_booking_line rbl on rbl.booking_id = rrf.room_booking_id 
+			and rrf.room_booking_id is not null 
+			and rbl.current_company_id = lls.company_id
         GROUP BY 
-            cid.company_id,
-            cid.report_date
+        lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name
+
     )
-    
-    /* ----------------------------------------------------------------------------
-       10) FINAL SELECT:
-       Aggregate and present the data with company-wise segregation.
-       ---------------------------------------------------------------------------- */
+--	select * from rate_details;
+	,
+in_house AS (
+    SELECT
+        lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name,
+	 	COUNT(DISTINCT lls.booking_line_id) AS in_house_count,
+        SUM(lls.adult_count) AS in_house_adults,
+        SUM(lls.child_count) AS in_house_children,
+        SUM(lls.infant_count) AS in_house_infants
+    FROM latest_line_status lls
+    WHERE lls.final_status = 'check_in'
+	and lls.checkin_date = lls.report_date 
+    GROUP BY 
+        lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name
+
+),
+out_of_order AS (
+    SELECT
+        lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name,
+        COALESCE(COUNT(DISTINCT hr.id), 0)  AS out_of_order_count
+    FROM latest_line_status as lls
+    JOIN out_of_order_management_fron_desk ooo
+    ON ooo.company_id = lls.company_id 
+	and  lls.report_date BETWEEN ooo.from_date AND ooo.to_date
+    JOIN hotel_room hr
+    ON hr.id = ooo.room_number
+    GROUP BY 
+	 lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name
+   
+)
+	,
+yesterday_in_house AS (
+    SELECT
+lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name,
+		COUNT(DISTINCT lls.booking_line_id) AS yin_house_count,
+        SUM(lls.adult_count) AS yin_house_adults,
+        SUM(lls.child_count) AS yin_house_children,
+        SUM(lls.infant_count) AS yin_house_infants
+    FROM latest_line_status lls
+    WHERE lls.final_status = 'check_in'
+      AND (lls.report_date - INTERVAL '1 day')
+          BETWEEN lls.checkin_date AND lls.checkout_date
+    GROUP BY 
+		lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name
+   
+),   
+  
+expected_arrivals AS (
     SELECT 
-        ra.report_date,
-        ra.company_id,
-        rc.name AS company_name,                             -- NEW: Include company name
-        rd.rate_revenue,
-        rd.fnb_revenue,
-        rd.total_revenue,
-        ra.total_rooms,
-        ra.out_of_order,
-        ra.available_rooms,
-        ra.in_house,
-        
-        -- Combine Adults / Children / Infants into one column
-        (
-           COALESCE(ra.in_house_adults, 0)::text 
-           || '/' 
-           || COALESCE(ra.in_house_children, 0)::text 
-           || '/' 
-           || COALESCE(ra.in_house_infants, 0)::text
-        ) AS "pax/ch/inf",
-    
-        -- Average rate per room (only for rooms that have checked in)
-        CASE 
-          WHEN ra.in_house > 0 THEN rd.rate_revenue / ra.in_house
-          ELSE 0 
-        END AS "avg_rate_per_room",
-    
-        -- Rate per Pax
-        CASE
-          WHEN (COALESCE(ra.in_house_adults, 0) 
-              + COALESCE(ra.in_house_children, 0) 
-              + COALESCE(ra.in_house_infants, 0)) > 0
-          THEN rd.rate_revenue 
-                / (COALESCE(ra.in_house_adults, 0) 
-                 + COALESCE(ra.in_house_children, 0) 
-                 + COALESCE(ra.in_house_infants, 0))
-          ELSE 0
-        END AS "rate_per_pax",
-    
-        -- Meals per Pax
-        CASE
-          WHEN (COALESCE(ra.in_house_adults, 0) 
-              + COALESCE(ra.in_house_children, 0) 
-              + COALESCE(ra.in_house_infants, 0)) > 0
-          THEN rd.fnb_revenue
-                / (COALESCE(ra.in_house_adults, 0) 
-                 + COALESCE(ra.in_house_children, 0) 
-                 + COALESCE(ra.in_house_infants, 0))
-          ELSE 0
-        END AS "meals_per_pax"
-    
-    FROM 
-        room_availability ra
+lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count,
+	    SUM(lls.adult_count) AS ea_adults_count,
+        SUM(lls.child_count) AS ea_children_count,
+        SUM(lls.infant_count) AS ea_infants_count
+    FROM latest_line_status lls
+    WHERE lls.checkin_date = lls.report_date
+      AND lls.final_status IN ('confirmed', 'block')
+    GROUP BY 
+		lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name
+	),
+expected_departures AS (
+    SELECT
+lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count,
+	 SUM(lls.adult_count) AS ed_adults_count,
+        SUM(lls.child_count) AS ed_children_count,
+        SUM(lls.infant_count) AS ed_infants_count
+    FROM latest_line_status lls
+    WHERE lls.checkout_date = lls.report_date
+      AND lls.final_status = 'check_in'
+    GROUP BY 
+		lls.report_date,
+        lls.system_date,
+        lls.company_id,
+		lls.company_name
+),
+master_keys AS (
+    SELECT report_date, company_id, system_date, company_name
 		
-    LEFT JOIN 
-        rate_details rd 
-          ON ra.company_id = rd.company_id
-         AND ra.report_date = rd.report_date
-    JOIN 
-        res_company rc 
-          ON ra.company_id = rc.id                     -- NEW: Join to get company name
+    FROM in_house
+    UNION
+ 	SELECT report_date, company_id, system_date, company_name		
+	FROM expected_arrivals
+    UNION
+ 	SELECT report_date, company_id, system_date, company_name
+	FROM expected_departures
+    UNION
+ 	SELECT report_date, company_id, system_date, company_name
+	FROM yesterday_in_house
+	UNION
+	SELECT report_date, company_id, system_date, company_name
+	FROM out_of_order
+	UNION
+	SELECT report_date, company_id, system_date, company_name
+	FROM rate_details
+),
+final_report AS (
+    SELECT
+        mk.report_date,
+        mk.company_id,
+        mk.company_name,
+        COALESCE(inv.total_room_count, 0) AS total_rooms,
+		COALESCE(ooo.out_of_order_count, 0) AS out_of_order_rooms,
+		COALESCE(inv.total_room_count - COALESCE(ooo.out_of_order_count , 0), 0) AS available_rooms,
+        COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
+        COALESCE(ea.ea_adults_count, 0) AS expected_arrivals_adults,
+        COALESCE(ea.ea_children_count, 0) AS expected_arrivals_children,
+        COALESCE(ea.ea_infants_count, 0) AS expected_arrivals_infants,
+        (COALESCE(ea.ea_adults_count, 0) + COALESCE(ea.ea_children_count, 0) + COALESCE(ea.ea_infants_count, 0)) AS expected_arrivals_total,
+        COALESCE(ed.expected_departures_count, 0) AS expected_departures,
+        COALESCE(ed.ed_adults_count, 0) AS expected_departures_adults,
+        COALESCE(ed.ed_children_count, 0) AS expected_departures_children,
+        COALESCE(ed.ed_infants_count, 0) AS expected_departures_infants,
+        (COALESCE(ed.ed_adults_count, 0) + COALESCE(ed.ed_children_count, 0) + COALESCE(ed.ed_infants_count, 0)) AS expected_departures_total,
+	
+		 CASE WHEN mk.report_date <= mk.system_date THEN
+            ih.in_house_count
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_count, 0)
+                + COALESCE(ea.expected_arrivals_count, 0)
+                - COALESCE(ed.expected_departures_count, 0),
+                0
+            )
+        END AS in_house_count,
+        --COALESCE(ih.in_house_count, 0) AS in_house,
+		CASE WHEN mk.report_date <= mk.system_date THEN
+            ih.in_house_adults
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_adults, 0)
+                + COALESCE(ea.ea_adults_count, 0)
+                - COALESCE(ed.ed_adults_count, 0),
+                0
+            )
+        END AS in_house_adults,
+        --COALESCE(ih.in_house_adults, 0) AS in_house_adults,
+		CASE WHEN mk.report_date <= mk.system_date THEN
+            ih.in_house_children
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_children, 0)
+                + COALESCE(ea.ea_children_count, 0)
+                - COALESCE(ed.ed_children_count, 0),
+                0
+            )
+        END AS in_house_children,
+		CASE WHEN mk.report_date <= mk.system_date THEN
+            ih.in_house_infants
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_infants, 0)
+                + COALESCE(ea.ea_infants_count, 0)
+                - COALESCE(ed.ed_infants_count, 0),
+                0
+            )
+        END AS in_house_infants,
+       CASE WHEN mk.report_date <= mk.system_date THEN
+            (COALESCE(ih.in_house_adults, 0) + COALESCE(ih.in_house_children, 0) + COALESCE(ih.in_house_infants, 0)) 
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_adults, 0) + COALESCE(yh.yin_house_children, 0) + COALESCE(yh.yin_house_infants, 0)
+                + COALESCE(ea.ea_adults_count, 0) + COALESCE(ea.ea_children_count, 0) + COALESCE(ea.ea_infants_count, 0)
+                - COALESCE(ed.ed_adults_count, 0) - COALESCE(ed.ed_children_count, 0) - COALESCE(ed.ed_infants_count, 0),
+                0
+            )
+        END AS in_house_total,
+        /* 
+           We still keep the pieces for reference:
+        */
+        COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals_count,
+        COALESCE(ed.expected_departures_count, 0) AS expected_departures_count,
+        GREATEST(
+                COALESCE(yh.yin_house_count, 0)
+                + COALESCE(ea.expected_arrivals_count, 0)
+                - COALESCE(ed.expected_departures_count, 0),
+                0
+            )
+         AS expected_in_house,
+     	
+	
+		CASE WHEN mk.report_date <= mk.system_date THEN
+            ih.in_house_adults
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_adults, 0)
+                + COALESCE(ea.ea_adults_count, 0)
+                - COALESCE(ed.ed_adults_count, 0),
+                0
+            )
+        END AS expected_in_house_adults,
+        --COALESCE(ih.in_house_adults, 0) AS in_house_adults,
+		CASE WHEN mk.report_date <= mk.system_date THEN
+            ih.in_house_children
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_children, 0)
+                + COALESCE(ea.ea_children_count, 0)
+                - COALESCE(ed.ed_children_count, 0),
+                0
+            )
+        END AS expected_in_house_children,
+		CASE WHEN mk.report_date <= mk.system_date THEN
+            ih.in_house_infants
+        ELSE
+            GREATEST(
+                COALESCE(yh.yin_house_infants, 0)
+                + COALESCE(ea.ea_infants_count, 0)
+                - COALESCE(ed.ed_infants_count, 0),
+                0
+            )
+        END AS expected_in_house_infants,
+	COALESCE(rd.rate_revenue, 0) AS rate_revenue,
+	COALESCE(rd.fnb_revenue, 0) AS fnb_revenue,
+	COALESCE(rd.total_revenue, 0) AS total_revenue
+	
+	FROM master_keys mk
+    LEFT JOIN in_house ih
+        ON  mk.report_date   = ih.report_date
+        AND mk.company_id    = ih.company_id
+        
+    LEFT JOIN yesterday_in_house yh
+        ON  mk.report_date   = yh.report_date
+        AND mk.company_id    = yh.company_id
+        
+    LEFT JOIN expected_arrivals ea
+        ON  mk.report_date   = ea.report_date
+        AND mk.company_id    = ea.company_id
+        
+	LEFT JOIN expected_departures ed
+        ON  mk.report_date   = ed.report_date
+        AND mk.company_id    = ed.company_id
+        
+	LEFT JOIN out_of_order ooo
+        ON  mk.report_date   = ooo.report_date
+        AND mk.company_id    = ooo.company_id
+        
+	LEFT JOIN rate_details rd
+        ON  mk.report_date   = rd.report_date
+        AND mk.company_id    = rd.company_id
+        
+	LEFT JOIN inventory inv 
+	    --ON  mk.report_date   = ed.report_date
+		ON inv.company_id = mk.company_id 
+	
+)
 
-    ORDER BY 
-        ra.report_date,
-        rc.name;
+SELECT
+    fr.report_date,
+    fr.company_id,
+	fr.company_name,
+	fr.total_rooms,
+	fr.out_of_order_rooms,
+	fr.available_rooms,
+	SUM(fr.expected_in_house) AS in_house,
+    SUM(fr.expected_in_house_adults) AS pax_adults,
+    SUM(fr.expected_in_house_children) AS pax_children,
+    SUM(fr.expected_in_house_infants) AS pax_infants,
+    SUM(fr.expected_in_house_adults + fr.expected_in_house_children + fr.expected_in_house_infants) AS pax_total,
+	CASE WHEN  fr.available_rooms >0 THEN
+	SUM(fr.expected_in_house) * 100 / fr.available_rooms
+	ELSE SUM(0)
+	END
+	as expected_occupied_rate,
+	SUM(fr.rate_revenue) as rate_revenue,
+	SUM(fr.fnb_revenue) as fnb_revenue,
+	SUM(fr.total_revenue) as total_revenue,
+	CASE WHEN SUM(fr.expected_in_house) >0 then
+	SUM(fr.rate_revenue) / SUM(fr.expected_in_house) 
+	ELSE SUM(0)
+	END
+	as rate_per_room,
+	CASE WHEN  SUM(fr.expected_in_house_adults) > 0 THEN
+	SUM(fr.rate_revenue) / SUM(fr.expected_in_house_adults)
+	ELSE SUM(0)
+	END
+	as rate_per_pax,
+	CASE WHEN SUM(fr.expected_in_house_adults) > 0 THEN
+	SUM(fr.fnb_revenue) / SUM(fr.expected_in_house_adults)
+	ELSE SUM(0)
+	END
+	as rate_per_meal
+	
+	
+FROM final_report fr
 
+WHERE fr.company_id IN (SELECT company_id FROM company_ids)  -- ✅ Fix: Apply WHERE condition here
+  AND (COALESCE(fr.expected_arrivals, 0) + COALESCE(fr.expected_departures, 0) + COALESCE(fr.in_house_count, 0)) > 0
+GROUP BY fr.report_date, fr.company_name, fr.company_id , fr.total_rooms, fr.out_of_order_rooms, fr.available_rooms
+ORDER BY fr.report_date, fr.company_id;
         """
     
          
@@ -381,36 +570,31 @@ date_series AS (
 
         for result in results:
             try:
-                # if result[1]:  # Ensure company_id is present
-                #     company_id = result[1]
-                #     if company_id != self.env.company.id:  # Skip if company_id doesn't match
-                #         continue
-                # else:
-                #     continue
                 (
                     report_date,
                     company_id,
                     company_name,
-                    rate_revenue,
-                    fnb_revenue,
-                    total_revenue,
                     total_rooms,
                     out_of_order,
                     available_rooms,
                     in_house,
-                    pax_chi_inf,
-                    average_rate_per_room,
+                    pax_adults,
+                    pax_children,
+                    pax_infants,
+                    pax_totals,
+                    occupancy_rate,
+                    rate_revenue,
+                    fnb_revenue,
+                    total_revenue,
+                    rate_per_room,
                     rate_per_pax,
-                    meals_per_pax
+                    rate_per_meal
                 ) = result
-
-                expected_occupied_rate = (in_house or 0) / (available_rooms or 1) * 100
 
 
                 records_to_create.append({
                     'report_date': report_date,
                     'company_id': company_id,
-                    'company_name': company_name,
                     'rate_revenue':rate_revenue,
                     'fnb_revenue':fnb_revenue,
                     'total_revenue':total_revenue,
@@ -418,11 +602,14 @@ date_series AS (
                     'out_of_order': out_of_order,
                     'available_rooms':available_rooms,
                     'in_house': in_house,
-                    'pax_chi_inf': pax_chi_inf,
-                    'average_rate_per_room': average_rate_per_room,
+                    'pax_adults': pax_adults,
+                    'pax_children': pax_children,
+                    'pax_infants': pax_infants,
+                    'pax_totals': pax_totals,
+                    'rate_per_room': rate_per_room,
                     'rate_per_pax': rate_per_pax,
-                    'meals_per_pax': meals_per_pax,
-                    'expected_occupied_rate': expected_occupied_rate,
+                    'meals_per_pax': rate_per_meal,
+                    'expected_occupied_rate': occupancy_rate,
                 })
 
 

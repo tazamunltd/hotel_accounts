@@ -3242,7 +3242,7 @@ msgstr "غرفة متصلة"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__contact_leader
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
 msgid "Contact / Leader"
-msgstr "جهة الاتصال / القائد"
+msgstr "جهة الاتصال / المرشد"
 
 #. module: setup_configuration
 #: model:ir.ui.menu,name:setup_configuration.sub_menu_contact_group

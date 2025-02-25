@@ -887,6 +887,8 @@ class WebAppController(http.Controller):
             all_rooms.append(available_rooms_dict)
 
         hotel_data['room_types'] = all_rooms
+        if hotel_data['total_available_rooms'] <= 0:
+            return {"status": "error", "hotels": "No rooms available"}
 
         posting_items, meal_data2 = self.get_posting_items(hotel_id=hotel_id)
         # services_data = self.get_model_data('hotel.service', ['id', 'name', 'unit_price'])
@@ -1268,7 +1270,7 @@ class WebAppController(http.Controller):
             meal_data_ids = []
             services_data = []
 
-            if partner_rate_code != None:
+            if len(partner_rate_code) >= 1:
                 for meal_line in partner_detail.meal_pattern['meals_list_ids']:
                     meal_data.append({
                         "id": meal_line['meal_code']['id'],
@@ -1349,6 +1351,7 @@ class WebAppController(http.Controller):
                 for pax in pax_data:
                     adult_price = 0
                     child_price = 0
+                    infant_price = 0
 
                     if len(room_type_specific_rates) > 0:
                         for day in days:
@@ -1356,10 +1359,12 @@ class WebAppController(http.Controller):
                                 _var = f"room_type_{day}_pax_{pax['person_count']}"
                                 adult_price += room_type_specific_rates[_var]
                                 child_price += room_type_specific_rates["child_pax_1"] * pax["room_count"]
+                                infant_price += room_type_specific_rates["infant_pax_1"] * pax["room_count"]
                             else:
                                 _var = f"room_type_{day}_pax_1"
                                 adult_price += room_type_specific_rates[_var] * pax["person_count"]
                                 child_price += room_type_specific_rates["child_pax_1"] * pax["room_count"]
+                                infant_price += room_type_specific_rates["infant_pax_1"] * pax["room_count"]
 
                     else:
                         for day in days:
@@ -1369,10 +1374,12 @@ class WebAppController(http.Controller):
                                 # _var2 = f"room_type_{day}_pax_1"
                                 adult_price += rate_detail[_var1]
                                 child_price += rate_detail['child_pax_1']
+                                infant_price += rate_detail['infant_pax_1']
                             else:
                                 _var1 = f"{day}_pax_1"
                                 adult_price += rate_detail[_var1] * pax["person_count"]
                                 child_price += rate_detail['child_pax_1']
+                                infant_price += rate_detail['infant_pax_1']
                         # if len(rate_details) >= 1:
                         #     # adult_price += room_type_specific_rates[0][_var] * pax["person_count"]
                         #     # adult_price += rate_details[_var1] * pax["person_count"]
@@ -1391,6 +1398,7 @@ class WebAppController(http.Controller):
                         "room_count": len(available_rooms),
                         "adult": adult_price,
                         "child": child_price,
+                        "infant": infant_price,
                         "pax": pax["person_count"]
                     }
 

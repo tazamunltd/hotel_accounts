@@ -110,24 +110,42 @@ parameters AS (
 	select id as company_id 
 	, system_date::date	from res_company rc where  rc.id in (SELECT company_id FROM company_ids)
 ),
+date_series AS (
+        SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
+        FROM parameters p
+    ),
 filtered_bookings AS (
     SELECT
+		rb.company_id,  
+		rb.hotel_room_type,
+		rb.group_booking,
+		rb.partner_id,
         rbls.booking_line_id,
         MIN(CASE WHEN rbls.status = 'check_in'  THEN rbls.change_time END) AS first_check_in,
-        MAX(CASE WHEN rbls.status = 'check_out' THEN rbls.change_time END) AS last_check_out,
-        rb.partner_id,
-        rb.group_booking,
-        rb.hotel_room_type,
-        rb.company_id  -- Added company_id
+        MAX(CASE WHEN rbls.status = 'check_out' THEN rbls.change_time END) AS last_check_out
+-- 		MIN(rbls.change_time) FILTER (WHERE rbls.status = 'check_in') AS first_check_in,
+--         MAX(rbls.change_time) FILTER (WHERE rbls.status = 'check_out') AS last_check_out
+
+        
+        
+        
     FROM room_booking_line_status rbls
+	
+	INNER JOIN room_booking_line as rbl
+	ON rbls.booking_line_id = rbl.id
+	
     INNER JOIN room_booking rb
-        ON rbls.id = rb.id
+--         ON rbls.id = rb.id
+	ON rbl.booking_id = rb.id
+	
+	
+	
     GROUP BY
-        rbls.booking_line_id,
-        rb.partner_id,
-        rb.group_booking,
-        rb.hotel_room_type,
-        rb.company_id  -- Added in GROUP BY
+        rb.company_id,  -- Added company_id
+		rb.hotel_room_type,
+		rb.group_booking,
+		rb.partner_id,
+        rbls.booking_line_id
 ),
 final_report AS (
     SELECT
@@ -199,7 +217,6 @@ ORDER BY
     company_id,  -- Added in ORDER BY
     company_name,
     group_booking_name;
-
 
         """
 

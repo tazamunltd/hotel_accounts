@@ -6,6 +6,7 @@
             <field name="model">out.of.order.management.fron.desk</field>
             <field name="arch" type="xml">
                 <tree string="Out of Order List">
+                    <field name="company_id" />
                     <field name="room_fsm_location" />
                     <field name="room_number" />
                     <field name="room_type" />
@@ -102,6 +103,7 @@
                         <group>
                             <!-- Room Information -->
                             <group>
+                                <field name="company_id" />
                                 <field name="room_fsm_location" />
                                 <field name="room_number" />
                                 <field name="room_type" />
