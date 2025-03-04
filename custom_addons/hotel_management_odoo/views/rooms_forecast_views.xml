@@ -1,4 +1,38 @@
 <odoo>
+    <!-- Tree View -->
+    <record id="view_rooms_forecast_tree" model="ir.ui.view">
+        <field name="name">rooms.forecast.tree</field>
+        <field name="model">rooms.forecast.report</field>
+        <field name="arch" type="xml">
+            <tree string="Rooms Forecast Report" js_class="hotel_room_result_filter" create="false" edit="false">
+                <field name="report_date" optional="show"/>
+                <field name="room_type_name" optional="show"/>
+                <field name="total_rooms" optional="show" />
+                <field name="out_of_order" optional="show"/>
+                <field name="available" optional="show"/>
+                <field name="in_house" optional="show"/>
+                <field name="in_house_adult_count" optional="show"/>
+                <field name="in_house_child_count" optional="show"/>
+                <field name="in_house_infant_count" optional="show"/>
+                <field name="expected_arrivals" optional="show"/>
+                <field name="expected_arrivals_adult_count" optional="show"/>
+                <field name="expected_arrivals_child_count" optional="show"/>
+                <field name="expected_arrivals_infant_count" optional="show"/>
+                <field name="expected_departures" optional="show"/>
+                <field name="expected_departures_adult_count" optional="show"/>
+                <field name="expected_departures_child_count" optional="show"/>
+                <field name="expected_departures_infant_count" optional="show"/>
+                <field name="expected_in_house" optional="show"/>
+                <field name="expected_in_house_adult_count" optional="show"/>
+                <field name="expected_in_house_child_count" optional="show"/>
+                <field name="expected_in_house_infant_count" optional="show"/>
+                <field name="expected_occupied_rate" optional="show"/>
+                <field name="free_to_sell" optional="show"/>
+                <field name="company_id" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
     <!-- Pivot View -->
     <record id="view_rooms_forecast_pivot" model="ir.ui.view">
         <field name="name">rooms.forecast.pivot</field>
@@ -67,39 +101,6 @@
         </field>
     </record>
 
-    <!-- Tree View -->
-    <record id="view_rooms_forecast_tree" model="ir.ui.view">
-        <field name="name">rooms.forecast.tree</field>
-        <field name="model">rooms.forecast.report</field>
-        <field name="arch" type="xml">
-            <tree string="Hotel Room Results" js_class="hotel_room_result_filter">
-                <field name="report_date" optional="show"/>
-                <field name="room_type_name" optional="show"/>
-                <field name="total_rooms" optional="show" />
-                <field name="out_of_order" optional="show"/>
-                <field name="available" optional="show"/>
-                <field name="in_house" optional="show"/>
-                <field name="in_house_adult_count" optional="show"/>
-                <field name="in_house_child_count" optional="show"/>
-                <field name="in_house_infant_count" optional="show"/>
-                <field name="expected_arrivals" optional="show"/>
-                <field name="expected_arrivals_adult_count" optional="show"/>
-                <field name="expected_arrivals_child_count" optional="show"/>
-                <field name="expected_arrivals_infant_count" optional="show"/>
-                <field name="expected_departures" optional="show"/>
-                <field name="expected_departures_adult_count" optional="show"/>
-                <field name="expected_departures_child_count" optional="show"/>
-                <field name="expected_departures_infant_count" optional="show"/>
-                <field name="expected_in_house" optional="show"/>
-                <field name="expected_in_house_adult_count" optional="show"/>
-                <field name="expected_in_house_child_count" optional="show"/>
-                <field name="expected_in_house_infant_count" optional="show"/>
-                <field name="expected_occupied_rate" optional="show"/>
-                <field name="free_to_sell" optional="show"/>
-                <field name="company_id" optional="show"/>
-            </tree>
-        </field>
-    </record>
 
     <record id="action_run_process_by_rooms_forecast" model="ir.actions.server">
         <field name="name">Run Rooms Forecast</field>
@@ -110,65 +111,8 @@
 action = env["rooms.forecast.report"].action_run_process_by_rooms_forecast()
         ]]>
         </field>
+        <!-- <field name="context">{'create': False}</field> -->
     </record>
-
-    <!-- Action Server -->
-    <!-- <record id="action_run_process_by_rooms_forecast" model="ir.actions.server">
-        <field name="name">Run Rooms Forecast</field>
-        <field name="model_id" ref="model_rooms_forecast_report"/>
-        <field name="state">code</field>
-        <field name="code">
-            <![CDATA[
-if env.context.get('filtered_date_range'):
-    model.run_process_by_rooms_forecast()
-
-    action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Rooms Forecast Report',
-    'res_model': 'rooms.forecast.report',
-    'view_mode': 'tree,pivot,graph',
-    'views': [
-        (env.ref('hotel_management_odoo.view_rooms_forecast_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_rooms_forecast_pivot').id, 'pivot'),
-        (env.ref('hotel_management_odoo.view_rooms_forecast_graph').id, 'graph'),
-    ],
-        'target': 'current',
-    }
-else:
-    action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Rooms Forecast Report',
-    'res_model': 'rooms.forecast.report',
-    'view_mode': 'tree,pivot,graph',
-    'views': [
-        (env.ref('hotel_management_odoo.view_rooms_forecast_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_rooms_forecast_pivot').id, 'pivot'),
-        (env.ref('hotel_management_odoo.view_rooms_forecast_graph').id, 'graph'),
-    ],
-        'domain': [('id', '=', False)],  # Ensures no data is displayed
-        'target': 'current',
-    }
-]]>
-        </field> -->
-
-        <!-- <field name="code">
-            <![CDATA[
-model.run_process_by_rooms_forecast()
-action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Rooms Forecast Report',
-    'res_model': 'rooms.forecast.report',
-    'view_mode': 'tree,pivot,graph',
-    'views': [
-        (env.ref('hotel_management_odoo.view_rooms_forecast_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_rooms_forecast_pivot').id, 'pivot'),
-        (env.ref('hotel_management_odoo.view_rooms_forecast_graph').id, 'graph'),
-    ],
-    'target': 'current',
-}
-            ]]>
-        </field> -->
-    <!-- </record> -->
 
     <!-- Menu Item -->
     <menuitem

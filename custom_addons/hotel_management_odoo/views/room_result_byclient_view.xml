@@ -5,7 +5,7 @@
         <field name="name">room.result.by.client.tree</field>
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
-            <tree js_class="hotel_room_result_filter" >
+            <tree js_class="hotel_room_result_filter" create="false" edit="false">
                 <field name="report_date" />
                 <field name="room_type" />
                 <field name="client_id" optional="show" />
@@ -69,7 +69,7 @@ action = env["room.result.by.client"].action_run_process()
         <field name="name">Room Results By Client</field>
         <field name="res_model">room.result.by.client</field>
         <field name="view_mode">tree,pivot,graph</field>
-        <field name="context">{}</field>
+        <field name="context">{'create': False}</field>
     </record>
 
     <!-- Menu Item -->

@@ -5,7 +5,7 @@
         <field name="name">monthly.allotment.charts.tree</field>
         <field name="model">monthly.allotment.charts</field>
         <field name="arch" type="xml">
-            <tree js_class="hotel_room_result_filter">
+            <tree js_class="hotel_room_result_filter" create="false" edit="false">
                 <field name="report_date" optional="show"/>
                 <field name="company_id" optional="show"/>
                 <field name="room_type" optional="show"/>

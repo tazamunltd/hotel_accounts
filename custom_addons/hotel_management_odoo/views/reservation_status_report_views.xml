@@ -5,7 +5,7 @@
             <field name="name">reservation.status.report.tree</field>
             <field name="model">reservation.status.report</field>
             <field name="arch" type="xml">
-                <tree string="Reservation Status Reports" js_class="hotel_room_result_filter">
+                <tree string="Reservation Status Reports" js_class="hotel_room_result_filter" create="false" edit="false">
                     <field name="company_id" optional="show"/>   
                     <field name="partner_name" optional="show"/>
                     <field name="group_booking" optional="show"/>

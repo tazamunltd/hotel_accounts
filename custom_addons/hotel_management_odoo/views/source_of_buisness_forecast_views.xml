@@ -5,7 +5,7 @@
             <field name="name">source.of.buisness.forecast.tree</field>
             <field name="model">source.of.buisness.forecast</field>
             <field name="arch" type="xml">
-                <tree string="Source of Buisness Forecast Reports" js_class="hotel_room_result_filter">
+                <tree string="Source of Buisness Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false">
                     <field name="report_date" optional="show"/>
                     <field name="company_id" optional="show"/>
                     <field name="room_type_name" optional="show"/>
@@ -103,63 +103,7 @@ action = env["source.of.buisness.forecast"].action_run_process_by_source_of_buis
             </field>
         </record>
 
-        <!-- Action -->
-    <!-- <record id="action_run_process_by_source_of_buisness_forecast" model="ir.actions.server">
-        <field name="name">Run process by source of buisness forecast</field>
-        <field name="model_id" ref="model_source_of_buisness_forecast"/> -->
-        <!-- <field name="state">code</field>
-        <field name="code">
-            <![CDATA[
-if env.context.get('filtered_date_range'):
-    model.run_process_by_source_of_buisness_forecast()
-
-    action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Source of Buisness Forecast',
-    'res_model': 'source.of.buisness.forecast',
-    'view_mode': 'tree,graph,pivot',
-    'views': [
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_graph').id, 'graph'),
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_pivot').id, 'pivot'),
-    ],
-        'target': 'current',
-    }
-else:
-    action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Source of Buisness Forecast',
-    'res_model': 'source.of.buisness.forecast',
-    'view_mode': 'tree,graph,pivot',
-    'views': [
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_graph').id, 'graph'),
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_pivot').id, 'pivot'),
-    ],
-        'domain': [('id', '=', False)],  # Ensures no data is displayed
-        'target': 'current',
-    }
-]]>
-        </field> -->
-
-        <!-- <field name="code">
-            <![CDATA[
-model.run_process_by_source_of_buisness_forecast()
-action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Source of Buisness Forecast',
-    'res_model': 'source.of.buisness.forecast',
-    'view_mode': 'tree,graph,pivot',
-    'views': [
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_graph').id, 'graph'),
-        (env.ref('hotel_management_odoo.view_source_of_buisness_forecast_pivot').id, 'pivot'),
-    ],
-    'target': 'current',
-}
-            ]]>
-        </field> -->
-    <!-- </record>  -->
+        
 
         <menuitem id="menu_source_of_buisness_forecast_report"
               name="Source of Buisness Forecast Report"

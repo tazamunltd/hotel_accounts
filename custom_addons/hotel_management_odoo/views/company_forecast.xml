@@ -5,7 +5,7 @@
             <field name="name">company.forecast.report.tree</field>
             <field name="model">company.forecast.report</field>
             <field name="arch" type="xml">
-                <tree string="Company Forecast Reports" js_class="hotel_room_result_filter">
+                <tree string="Company Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false">
                     <field name="report_date" optional="show"/>
                     <field name="company_name" optional="show"/>
                     <field name="room_type_name" optional="show"/>

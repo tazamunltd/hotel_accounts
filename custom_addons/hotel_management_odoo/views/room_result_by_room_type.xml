@@ -31,7 +31,7 @@
         <field name="name">room.result.by.room.type.tree</field>
         <field name="model">room.result.by.room.type</field>
         <field name="arch" type="xml">
-            <tree js_class="hotel_room_result_filter">
+            <tree js_class="hotel_room_result_filter" create="false" edit="false">
                 <field name="report_date" optional="show"/>
                 <field name="room_type" optional="show"/>
                 <field name="expected_inhouse" optional="show"/>

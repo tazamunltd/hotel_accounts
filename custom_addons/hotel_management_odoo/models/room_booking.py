@@ -1976,9 +1976,14 @@ class RoomBooking(models.Model):
     @api.onchange('group_booking')
     def _onchange_group_booking(self):
         if self.group_booking:
+            print(f"Group Booking Selected: {self.group_booking}")  
+            print(f"Company in Group Booking: {self.group_booking.company}")
             self.nationality = self.group_booking.nationality.id if self.group_booking.nationality else False
             self.reference_contact_= self.group_booking.reference if self.group_booking.reference else False
-            self.partner_id = self.group_booking.company.id if self.group_booking.company else False
+            # self.partner_id = self.group_booking.company.id if self.group_booking.company else False
+            # Ensure 'partner_id' (Contact) is assigned correctly
+            # Ensure 'partner_id' (Contact) is assigned correctly
+            
             self.source_of_business = self.group_booking.source_of_business.id if self.group_booking.source_of_business else False
             self.rate_code = self.group_booking.rate_code.id if self.group_booking.rate_code else False
             self.meal_pattern = self.group_booking.group_meal_pattern.id if self.group_booking.group_meal_pattern else False
@@ -1986,7 +1991,8 @@ class RoomBooking(models.Model):
             self.house_use = self.group_booking.house_use
             self.complementary = self.group_booking.complimentary
             self.payment_type = self.group_booking.payment_type
-            self.is_agent = self.group_booking.is_grp_company
+            # self.is_agent = self.group_booking.is_grp_company
+
             
             self.complementary_codes = self.group_booking.complimentary_codes.id if self.group_booking.complimentary_codes else False
             self.house_use_codes = self.group_booking.house_use_codes_.id if self.group_booking.house_use_codes_ else False
@@ -1996,6 +2002,13 @@ class RoomBooking(models.Model):
             else:
                 self.vip = False
                 self.vip_code = False
+
+            self.is_agent = self.group_booking.is_grp_company
+            if self.group_booking.company:
+                self.partner_id = self.group_booking.company.id
+            else:
+                # Debugging line
+                self.partner_id = False  # Reset partner_id if no company is set
             # self.meal_pattern = self.group_booking.meal_pattern.id if self.group_booking.meal_pattern else False
             # self.partner_id = self.group_booking.contact.id if self.group_booking.contact else False
 
@@ -2113,7 +2126,7 @@ class RoomBooking(models.Model):
 
     @api.onchange('is_agent')
     def _onchange_is_agent(self):
-        self.partner_id = False
+        # self.partner_id = False
         return {
             'domain': {
                 'partner_id': [('is_company', '=', self.is_agent)]
@@ -2397,20 +2410,45 @@ class RoomBooking(models.Model):
             # Set checkout_date to the end of the checkin_date
             self.checkout_date = self.checkin_date + timedelta(hours=23, minutes=59, seconds=59)
 
-    no_of_nights = fields.Integer(string="No of Nights", default=1)
+    # no_of_nights = fields.Integer(string="No of Nights", default=1)
+
+    no_of_nights = fields.Integer(
+        string="No of Nights",
+        compute="_compute_no_of_nights",
+        inverse="_inverse_no_of_nights",
+        store=True,
+        readonly=False,  # so the user can edit it if you want to allow that
+    )
+
+    @api.depends('checkin_date', 'checkout_date')
+    def _compute_no_of_nights(self):
+        """
+        Calculate the difference in days between Check-In and Check-Out.
+        If either date is missing or checkout < checkin, result is 0.
+        """
+        for rec in self:
+            if rec.checkin_date and rec.checkout_date:
+                # If checkout is before checkin, just interpret as 0
+                delta_days = (rec.checkout_date - rec.checkin_date).days
+                rec.no_of_nights = delta_days if delta_days >= 0 else 0
+            else:
+                rec.no_of_nights = 0
+
+    def _inverse_no_of_nights(self):
+        """
+        When a user edits no_of_nights directly, recompute checkout_date
+        based on checkin_date + no_of_nights days.
+        """
+        for rec in self:
+            # Only update checkout_date if we have a checkin_date
+            # and a non-negative no_of_nights
+            if rec.checkin_date and rec.no_of_nights >= 0:
+                rec.checkout_date = rec.checkin_date + timedelta(days=rec.no_of_nights)
+            # If checkin_date is empty or no_of_nights < 0, do nothing
+
     
-    # @api.constrains('checkin_date', 'checkout_date')
-    # def _check_dates(self):
-    #     for record in self:
-    #         if record.checkin_date and record.checkout_date:
-    #             if record.checkout_date < record.checkin_date:
-    #                 # Reset checkout_date
-    #                 record.checkout_date = record.checkin_date + timedelta(days=1)
-    #                 # Raise validation error
-    #                 raise ValidationError(
-    #                     "Check-Out Date cannot be before Check-In Date. "
-    #                     "It has been reset to one day after the Check-In Date."
-    #                 )
+    
+    
 
     @api.onchange('checkout_date')
     def _onchange_checkout_date(self):
@@ -2467,76 +2505,11 @@ class RoomBooking(models.Model):
                 self.checkout_date = self.checkin_date + \
                                      timedelta(days=self.no_of_nights)
 
-    # working
-    # @api.onchange('checkin_date')
-    # def _onchange_checkin_date(self):
-    #     if self.checkin_date:
-    #         # Convert current time to user's timezone
-    #         current_time = fields.Datetime.context_timestamp(self, fields.Datetime.now())
-    #         buffer_time = current_time - timedelta(minutes=10)
-
-    #         # Convert checkin_date to user's timezone for comparison
-    #         checkin_user_tz = fields.Datetime.context_timestamp(self, self.checkin_date)
-
-    #         if checkin_user_tz < buffer_time:
-    #             # Reset to current time if invalid
-    #             self.checkin_date = fields.Datetime.to_string(current_time)
-    #             return {
-    #                 'warning': {
-    #                     'title': 'Invalid Date',
-    #                     'message': "Check-In Date cannot be in the Past."
-    #                 }
-    #             }
-
-    #         # Set checkout_date to next day same time
-    #         # end_of_day = checkin_user_tz.replace(hour=23, minute=59, second=59)
-    #         self.checkout_date = self.checkin_date + timedelta(hours=23, minutes=59, seconds=59)
-
+    
     def _adjust_checkout_date(self):
         """Adjust checkout_date to one day after checkin_date if invalid."""
         if self.checkin_date:
             self.checkout_date = self.checkin_date + timedelta(days=1)
-
-    # @api.constrains('checkout_date')
-    # def _onchange_checkout_date(self):
-
-    #     if self.checkout_date and self.checkin_date:
-    #         # Compare dates without converting to the user's timezone
-    #         if self.checkout_date <= self.checkin_date:
-    #             # Set checkout_date to one day after checkin_date
-
-    #             # self.checkout_date = False
-    #             # self.checkout_date = self.checkin_date + timedelta(days=1)
-    #             # raise UserError(
-    #             #     "Check-Out Date must be after Check-In Date. It has been adjusted accordingly.")
-
-    #             self._adjust_checkout_date()
-
-    #             # Show a warning message
-    #             return {
-    #                 'warning': {
-    #                     'title': 'Invalid Date',
-    #                     'message': "Check-Out Date must be after Check-In Date. It has been set to one day after the Check-In Date."
-    #                 }
-    #             }
-
-    # @api.onchange('checkout_date')
-    # def _onchange_checkout_date(self):
-    #     if self.checkout_date and self.checkin_date and self.checkout_date <= self.checkin_date:
-    #         self.checkout_date = self.checkin_date + timedelta(days=1)
-    #         # Raise a UserError (modal popup) to alert the user each time.
-    #         raise UserError("Check-Out Date must be after Check-In Date. It has been adjusted accordingly.")
-
-    # @api.constrains('checkin_date', 'checkout_date')
-    # def _check_dates(self):
-    #     print("Inside line 1956")
-    #     for record in self:
-    #         if record.checkout_date and record.checkin_date:
-    #             print(record.checkout_date, record.checkin_date)
-    #             if record.checkout_date <= record.checkin_date:
-    #                 raise UserError(
-    #                     "Check-Out Date must be greater than Check-In Date."
-    #                 )
 
     hotel_policy = fields.Selection([("prepaid", "On Booking"),
                                      ("manual", "On Check In"),
