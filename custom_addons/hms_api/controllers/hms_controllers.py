@@ -1236,6 +1236,19 @@ class WebAppController(http.Controller):
 
             hotel_data = {"hotel_id": hotel.id, "name": hotel.name, "age_threshold": hotel.age_threshold}
 
+            amenities = request.env['hotel.amenity'].search([('company_id', '=', hotel.id)])
+            amenities_data = []
+            for amenity in amenities:
+                amenities_data.append({
+                    "id": amenity.id,
+                    "name": amenity.name,
+                    "icon": f"data:image/png;base64,{amenity.icon.image.decode('utf-8')}",
+                    "description": amenity.description,
+                    "frequency": amenity.frequency
+                })
+
+            hotel_data["amenities"] = amenities_data
+
             rate_details = request.env['rate.detail'].sudo().search([
                 ('rate_code_id', '=', rate_code.id),
                 ('from_date', '<=', check_in),
@@ -1270,7 +1283,8 @@ class WebAppController(http.Controller):
             meal_data_ids = []
             services_data = []
 
-            if len(partner_rate_code) >= 1:
+            # if len(partner_rate_code) >= 1:
+            if partner_rate_code != None:
                 for meal_line in partner_detail.meal_pattern['meals_list_ids']:
                     meal_data.append({
                         "id": meal_line['meal_code']['id'],

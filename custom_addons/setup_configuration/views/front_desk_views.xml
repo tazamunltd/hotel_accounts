@@ -38,10 +38,10 @@
                             <div class="card-body py-1 px-2">
                                 <div class="row g-2">
                                     <div class="col-md-6">
-                                        <div class="form-control form-control-sm">
+                                        <!-- <div class="form-control form-control-sm">
                                             <field name="company_id"
                                             />
-                                        </div>
+                                        </div> -->
                                         <div class="form-group mb-1">
                                             <label for="room_type" class="form-label small">Room
                                                 Type
@@ -51,6 +51,15 @@
                                             <field name="room_type"
                                             />
                                         </div>
+                                        <div class="form-group mb-1">
+                                            <label for="application_room_type" class="form-label small">Application Room Type
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="application_room_type"
+                                            />
+                                        </div>
+                                        
                                         <div class="form-group mb-1">
                                             <label for="description" class="form-label small">
                                                 Description
@@ -790,11 +799,11 @@
                                         <field name="name"
                                                placeholder="Enter Name"/>
                                     </div>
-                                    <div class="form-group mb-1">
+                                    <!-- <div class="form-group mb-1">
                                         <label for="company_id" class="form-label small">Company</label>
                                         <field name="company_id"
                                                class="form-control form-control-sm" readonly="1"/>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -816,10 +825,36 @@
         <field name="arch" type="xml">
             <tree string="Meal Code Sub Type">
                 <field name="name"/>
-                <field name="company_id"/>
+                <!-- <field name="company_id"/> -->
             </tree>
         </field>
     </record>
+
+    <record id="view_application_room_type_tree" model="ir.ui.view">
+        <field name="name">application.room.type.tree</field>
+        <field name="model">application.room.type</field>
+        <field name="arch" type="xml">
+            <tree string="Application Room Types">
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_application_room_type_form" model="ir.ui.view">
+        <field name="name">application.room.type.form</field>
+        <field name="model">application.room.type</field>
+        <field name="arch" type="xml">
+            <form string="Application Room Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
 
     <record id="view_meal_code_kanban" model="ir.ui.view">
         <field name="name">meal.code.kanban</field>

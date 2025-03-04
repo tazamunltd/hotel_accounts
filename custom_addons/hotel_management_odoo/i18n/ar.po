@@ -922,7 +922,7 @@ msgstr "الوصول"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Arrival ("
-msgstr ""
+msgstr "الوصول ("
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -1162,7 +1162,7 @@ msgstr "تم الحجز"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Blocked ("
-msgstr ""
+msgstr "محجوز (غير متاح) ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_update_wizard__blocked_room_action
@@ -1344,7 +1344,7 @@ msgstr "تم الإلغاء"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Cancelled ("
-msgstr ""
+msgstr "ملغي ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_type__card
@@ -2014,7 +2014,7 @@ msgstr "مؤكد"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Confirmed ("
-msgstr ""
+msgstr "مؤكد ("
 
 #. module: hotel_management_odoo
 #. odoo-python
@@ -2408,7 +2408,7 @@ msgstr ""
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Default ("
-msgstr ""
+msgstr "الافتراضي ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__pax_1_rb
@@ -2534,7 +2534,7 @@ msgstr "مغادرة"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Departure ("
-msgstr ""
+msgstr "المغادرة ("
 
 #. module: hotel_management_odoo
 #. odoo-python
@@ -4463,7 +4463,7 @@ msgstr "مقيميين"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "In House ("
-msgstr ""
+msgstr "نزيل مقيم (داخل الفندق) ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_company_forecast_report__in_house_adults
@@ -5936,7 +5936,7 @@ msgstr ""
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Not Confirm ("
-msgstr ""
+msgstr "غير مؤكد ("
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -8942,14 +8942,14 @@ msgstr ""
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Today's Checked-In ("
-msgstr ""
+msgstr "النزلاء الذين سجلوا دخول اليوم ("
 
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Today's Checked-Out ("
-msgstr ""
+msgstr "النزلاء الذين غادروا اليوم ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_event_booking_line__price_total
@@ -9587,7 +9587,7 @@ msgstr "قائمة الانتظار"
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Waiting List ("
-msgstr ""
+msgstr "قائمة الانتظار ("
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_room_booking

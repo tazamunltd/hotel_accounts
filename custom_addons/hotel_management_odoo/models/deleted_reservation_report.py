@@ -137,9 +137,24 @@ company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
 system_date_company AS (
-	select id as company_id 
-	, system_date::date	from res_company rc where  rc.id in (SELECT company_id FROM company_ids)
+    SELECT 
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
+    FROM res_company rc 
+    WHERE rc.id IN (SELECT company_id FROM company_ids)
 ),
+
+date_series AS (
+    SELECT generate_series(
+        GREATEST(p.from_date, c.create_date), 
+        p.to_date, 
+        INTERVAL '1 day'
+    )::date AS report_date
+    FROM parameters p
+    CROSS JOIN system_date_company c
+),
+
     transformed AS (
         SELECT
             rb.id,

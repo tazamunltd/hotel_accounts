@@ -13,9 +13,9 @@ class ReservationSummaryReport(models.Model):
     company_name = fields.Char(string='Booking Type')
     group_booking_name = fields.Char(string='Group')
     rms = fields.Integer(string='RMS')
-    dlx = fields.Integer(string='DLX')
+    sng = fields.Integer(string='SNG')
     dbl =  fields.Integer(string='DBL')
-    qud =  fields.Integer(string='QUD')
+    tpl =  fields.Integer(string='TPL')
     oth =  fields.Integer(string='OTH')
     first_arrival = fields.Date(string='First Arrival')
     last_departure = fields.Date(string='Last Departure')
@@ -72,7 +72,7 @@ class ReservationSummaryReport(models.Model):
 
         results = self.search(domain)
         return results.read([
-            'company_name', 'group_booking_name', 'rms', 'dlx', 'dbl', 'qud', 'oth', 'first_arrival', 'last_departure'
+            'company_name', 'group_booking_name', 'rms', 'sng', 'dbl', 'tpl', 'oth', 'first_arrival', 'last_departure'
         ])
 
     @api.model
@@ -103,17 +103,28 @@ parameters AS (
             '{from_date}'::date AS from_date,
             '{to_date}'::date AS to_date
     ),
-    company_ids AS (
+company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
-    system_date_company AS (
-	select id as company_id 
-	, system_date::date	from res_company rc where  rc.id in (SELECT company_id FROM company_ids)
+system_date_company AS (
+    SELECT 
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
+    FROM res_company rc 
+    WHERE rc.id IN (SELECT company_id FROM company_ids)
 ),
+
 date_series AS (
-        SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
-        FROM parameters p
-    ),
+    SELECT generate_series(
+        GREATEST(p.from_date, c.create_date), 
+        p.to_date, 
+        INTERVAL '1 day'
+    )::date AS report_date
+    FROM parameters p
+    CROSS JOIN system_date_company c
+),
+
 filtered_bookings AS (
     SELECT
 		rb.company_id,  
@@ -184,19 +195,19 @@ SELECT
 
     -- Pivoted room-type columns
     SUM(
-      CASE WHEN COALESCE(room_type::text, '') ILIKE '%DELX%' THEN 1 ELSE 0 END
-    ) AS dlx,
+      CASE WHEN COALESCE(room_type::text, '') ILIKE '%SNG%' THEN 1 ELSE 0 END
+    ) AS sng,
     SUM(
-      CASE WHEN COALESCE(room_type::text, '') ILIKE '%DUBL%' THEN 1 ELSE 0 END
+      CASE WHEN COALESCE(room_type::text, '') ILIKE '%DBL%' THEN 1 ELSE 0 END
     ) AS dbl,
     SUM(
-      CASE WHEN COALESCE(room_type::text, '') ILIKE '%QUAD%' THEN 1 ELSE 0 END
-    ) AS qud,
+      CASE WHEN COALESCE(room_type::text, '') ILIKE '%TPL%' THEN 1 ELSE 0 END
+    ) AS tpl,
     SUM(
       CASE WHEN 
-        COALESCE(room_type::text, '') NOT ILIKE '%DELX%'
-        AND COALESCE(room_type::text, '') NOT ILIKE '%DUBL%'
-        AND COALESCE(room_type::text, '') NOT ILIKE '%QUAD%'
+        COALESCE(room_type::text, '') NOT ILIKE '%SNG%'
+        AND COALESCE(room_type::text, '') NOT ILIKE '%DBL%'
+        AND COALESCE(room_type::text, '') NOT ILIKE '%TPL%'
       THEN 1
       ELSE 0
       END
@@ -217,7 +228,6 @@ ORDER BY
     company_id,  -- Added in ORDER BY
     company_name,
     group_booking_name;
-
         """
 
         self.env.cr.execute(query)
@@ -239,9 +249,9 @@ ORDER BY
                     company_name,
                     group_booking_name,
                     rms,
-                    dlx,
+                    sng,
                     dbl,
-                    qud,
+                    tpl,
                     oth,
                     first_arrival,
                     last_departure
@@ -267,9 +277,9 @@ ORDER BY
                     'company_name': company_name,
                     'group_booking_name': group_booking_name,
                     'rms': rms,
-                    'dlx': dlx,
+                    'sng': sng,
                     'dbl': dbl,
-                    'qud': qud,
+                    'tpl': tpl,
                     'oth': oth,
                     'first_arrival': first_arrival,
                     'last_departure': last_departure

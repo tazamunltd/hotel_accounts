@@ -1,6 +1,12 @@
 from odoo import _, models, fields,api
 from odoo.exceptions import ValidationError
 
+class ApplicationRoomType(models.Model):
+    _name = 'application.room.type'
+    
+    name = fields.Char(string="Application Room Type", required=True, tracking=True)
+    description = fields.Char(string=_("Description"),tracking=True, translate=True)
+    # company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
 
 class RoomType(models.Model):
     _name = 'room.type'
@@ -9,13 +15,14 @@ class RoomType(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True, readonly=True)
-    room_type = fields.Char(string=_("Room Type"), required=True,tracking=True, translate=True)
+    room_type = fields.Char(string=_("Hotel Room Type"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
     generic_type = fields.Char(string=_("Generic Type"),tracking=True, translate=True)
     user_sort = fields.Integer(string="User Sort", default=0,tracking=True)
     obsolete = fields.Boolean(string="Obsolete", default=False,tracking=True)
     image_ids = fields.One2many('room.type.image', 'room_type_id', string="Images")
+    application_room_type = fields.Many2one('application.room.type',string='Application Room Type')
 
 class RoomTypeImage(models.Model):
     _name = 'room.type.image'
@@ -129,9 +136,10 @@ class MealCode(models.Model):
         ('iftar', 'Iftar'),
         ('sohor', 'Sohor'),
     ], string="Type", default="unspecified",tracking=True)
-    meal_code_sub_type = fields.Many2one('meal.code.sub.type', string="Meal Code Sub Type",
-    domain=lambda self: [
-        ('company_id', '=', self.env.company.id)],)
+
+    meal_code_sub_type = fields.Many2one('meal.code.sub.type', string="Meal Code Sub Type")
+    # domain=lambda self: [
+    #     ('company_id', '=', self.env.company.id)],)
     
     
 class MealPatternSubType(models.Model):

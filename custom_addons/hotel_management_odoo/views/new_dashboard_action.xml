@@ -8,8 +8,8 @@
 
     <!-- Menu item for the new dashboard -->
     <menuitem id="menu_new_hotel_dashboard"
-        name="New Dashboard"
+        name="Dashboard"
         parent="hotel_management_odoo.hotel_management_menu_root"
         action="action_new_hotel_dashboard"
-        sequence="1"/>
+        sequence="10"/>
 </odoo>

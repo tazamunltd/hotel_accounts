@@ -3307,12 +3307,12 @@
                                     <span class="fw-bold"> General Information</span>
                                 </div>
                                 <div class="card-body py-1 px-2">
-                                    <div class="form-group mb-1">
+                                    <!-- <div class="form-group mb-1">
                                         <label for="company_id" class="form-label">Hotel</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="company_id"/>
-                                    </div>
+                                    </div> -->
                                     <div class="form-group mb-1">
                                         <label for="market_segment" class="form-label">Market
                                             Segment</label>
@@ -3489,12 +3489,12 @@
                                     <span class="fw-bold"> General Information</span>
                                 </div>
                                 <div class="card-body py-1 px-2">
-                                    <div class="form-group mb-2">
+                                    <!-- <div class="form-group mb-2">
                                         <label for="company_id" class="form-label">Hotel</label>
                                     </div>
                                     <div class="form-control form-control-sm">
                                         <field name="company_id" />
-                                    </div>
+                                    </div> -->
                                     <div class="form-group mb-2">
                                         <label for="source" class="form-label">Source</label>
                                     </div>

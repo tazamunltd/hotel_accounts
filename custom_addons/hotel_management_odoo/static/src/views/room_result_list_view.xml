@@ -1,7 +1,9 @@
 <templates>
     <t t-name="reservation.RoomResultListView" t-inherit="web.ListRenderer" t-inherit-mode="primary">
         <xpath expr="//div[hasclass('o_list_renderer')]" position="before">
-            <RoomResultDashBoard modelName="props.list.resModel" />
+            <RoomResultDashBoard 
+            modelName="props.list.resModel"
+            context="props.list.context" />
         </xpath>
     </t>
 </templates>

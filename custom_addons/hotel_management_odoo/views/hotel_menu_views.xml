@@ -8,7 +8,7 @@
     <!--    Configuration menu-->
     <menuitem id="hotel_config_menu"
               name="Configuration"
-              sequence="110"
+              sequence="40"
               parent="hotel_management_menu_root"/>
 
     <menuitem id="hotel_transaction_menu"

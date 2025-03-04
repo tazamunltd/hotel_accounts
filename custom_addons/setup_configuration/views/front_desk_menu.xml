@@ -110,6 +110,12 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+    <record id="action_application_room_type" model="ir.actions.act_window">
+        <field name="name">Application Room Types</field>
+        <field name="res_model">application.room.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
 
     <menuitem id="sub_menu_front_desk" 
               name="Front Desk" 
@@ -122,13 +128,13 @@
               parent="sub_menu_front_desk"
               action="action_room_type"
               /> -->
-    <menuitem id="sub_menu_room_type" 
+    <!-- <menuitem id="sub_menu_room_type" 
               name="Room Type" 
               action="action_room_type"
               parent="menu_hotel_configuration"
               sequence="10"
               groups="base.group_system"
-              />
+              /> -->
     <menuitem id="sub_menu_meal_code_sub_type" 
               name="Meal Code Sub Type" 
               action="action_meal_code_sub_type"
@@ -136,7 +142,13 @@
               sequence="11"
               groups="base.group_system"
               />
-
+    <menuitem id="sub_menu_application_room_type" 
+              name="Application Room Type" 
+              action="action_application_room_type"
+              parent="menu_hotel_configuration"
+              sequence="16"
+              groups="base.group_system"
+              />
 
     <!-- <menuitem id="sub_menu_meal_pattern"
               name="Meal Pattern"

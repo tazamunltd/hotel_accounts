@@ -5,7 +5,7 @@
         <field name="name">room.result.by.client.tree</field>
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
-            <tree string="Room Result By Client" js_class="hotel_room_result_filter">
+            <tree js_class="hotel_room_result_filter" >
                 <field name="report_date" />
                 <field name="room_type" />
                 <field name="client_id" optional="show" />
@@ -20,7 +20,7 @@
         <field name="name">room.result.by.client.graph</field>
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
-            <graph string="Room Results By Client" type="bar">
+            <graph type="bar">
                 <field name="report_date" type="row" />
                 <field name="room_type" type="row" />
                 <field name="client_id" type="row" />
@@ -37,7 +37,7 @@
         <field name="name">room.result.by.client.pivot</field>
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
-            <pivot string="Room Results By Client">
+            <pivot>
                 <field name="report_date" type="row" />
                 <field name="room_type" type="row" />
                 <field name="client_id" type="row" />
@@ -51,41 +51,7 @@
     </record>
 
     <!-- Server Action -->
-    <!-- <record id="action_run_process" model="ir.actions.server">
-    <field name="name">Run Room Process</field>
-    <field name="model_id" ref="model_room_result_by_client" />
-    <field name="state">code</field>
-    <field name="code"><![CDATA[
-if env.context.get('filtered_date_range'):
-    model.run_process()
-
-    action = {
-        'type': 'ir.actions.act_window',
-        'name': 'Room Results',
-        'res_model': 'room.result.by.client',
-        'view_mode': 'tree,pivot',
-        'views': [
-            (env.ref('hotel_management_odoo.view_room_result_by_client_tree').id, 'tree'),
-            (env.ref('hotel_management_odoo.view_room_result_by_client_pivot').id, 'pivot'),
-            (env.ref('hotel_management_odoo.view_room_result_by_client_graph').id, 'graph'),
-        ],
-        'target': 'current',
-    }
-else:
-    action = {
-        'type': 'ir.actions.act_window',
-        'name': 'Room Results',
-        'res_model': 'room.result.by.client',
-        'view_mode': 'tree,pivot',
-        'views': [
-            (env.ref('hotel_management_odoo.view_room_result_by_client_tree').id, 'tree'),
-            (env.ref('hotel_management_odoo.view_room_result_by_client_pivot').id, 'pivot'),
-            (env.ref('hotel_management_odoo.view_room_result_by_client_graph').id, 'graph'),
-        ],
-        'domain': [('id', '=', False)],  # Ensures no data is displayed when no date filter is set
-        'target': 'current',
-    }
-]]></field> -->
+    
 <record id="action_run_process" model="ir.actions.server">
     <field name="name">Run Room Process</field>
     <field name="model_id" ref="model_room_result_by_client"/>
@@ -97,37 +63,6 @@ action = env["room.result.by.client"].action_run_process()
     </field>
 </record>
 
-    <!-- <record id="action_run_process" model="ir.actions.server">
-        <field name="name">Run Room Process</field>
-        <field name="model_id" ref="model_room_result_by_client" />
-        <field name="state">code</field>
-        <field name="code"><![CDATA[
-model.run_process()
-action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Room Results',
-    'res_model': 'room.result.by.client',
-    'view_mode': 'tree,pivot',
-    'views': [
-        (env.ref('hotel_management_odoo.view_room_result_by_client_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_room_result_by_client_pivot').id, 'pivot'),
-        (env.ref('hotel_management_odoo.view_room_result_by_client_graph').id, 'graph'),
-    ],
-    'target': 'current',
-}
-]]></field>
-    </record> -->
-
-    <!-- Report Action -->
-    <!--    <record id="action_room_result_by_client_report" model="ir.actions.report">-->
-    <!--        <field name="name">Room Results By Client Report</field>-->
-    <!--        <field name="model">room.result.by.client</field>-->
-    <!--        <field name="report_type">qweb-pdf</field>-->
-    <!--        <field name="report_name">hotel_management_odoo.report_room_result_by_client</field>-->
-    <!--        <field name="report_file">hotel_management_odoo.report_room_result_by_client</field>-->
-    <!--        <field name="binding_model_id" ref="model_room_result_by_client"/>-->
-    <!--        <field name="binding_type">report</field>-->
-    <!--    </record>-->
 
     <!-- Action Window -->
     <record id="action_room_result_by_client" model="ir.actions.act_window">

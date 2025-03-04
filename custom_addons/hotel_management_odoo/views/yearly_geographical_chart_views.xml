@@ -5,7 +5,7 @@
         <field name="name">yearly.geographical.chart.tree</field>
         <field name="model">yearly.geographical.chart</field>
         <field name="arch" type="xml">
-            <tree string="Yearly Geographical Chart" js_class="hotel_room_result_filter">
+            <tree js_class="hotel_room_result_filter">
                 <field name="report_date" optional="show"/>
                 <field name="room_type" optional="show"/>
                 <field name="company_id" optional="show"/>
@@ -22,7 +22,7 @@
         <field name="name">yearly.geographical.chart.graph</field>
         <field name="model">yearly.geographical.chart</field>
         <field name="arch" type="xml">
-            <graph string="Yearly Geographical Analysis">
+            <graph>
                 <field name="report_date" type="row"/>
                 <field name="room_type"/>
                 <field name="company_id"/>
@@ -38,7 +38,7 @@
         <field name="name">yearly.geographical.chart.pivot</field>
         <field name="model">yearly.geographical.chart</field>
         <field name="arch" type="xml">
-            <pivot string="Yearly Geographical Analysis">
+            <pivot>
                 <field name="report_date" type="row"/>
                 <field name="room_type"/>
                 <field name="company_id"/>

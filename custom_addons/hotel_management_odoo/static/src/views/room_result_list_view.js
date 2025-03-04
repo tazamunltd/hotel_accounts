@@ -9,6 +9,7 @@ export class RoomResultRenderer extends ListRenderer {
     setup() {
         super.setup();
         this.modelName = this.props.list.resModel;
+        this.context = this.props.list.context;
     }
 }
 

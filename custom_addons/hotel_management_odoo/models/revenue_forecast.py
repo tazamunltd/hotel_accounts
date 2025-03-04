@@ -131,17 +131,26 @@ WITH parameters AS (
 company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
-
 system_date_company AS (
-    SELECT id as company_id, system_date::date 
+    SELECT 
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
     FROM res_company rc 
-    WHERE rc.id IN {tuple(company_ids) if len(company_ids) > 1 else f"({company_ids[0]})"}
+    WHERE rc.id IN (SELECT company_id FROM company_ids)
 ),
+
 date_series AS (
-        SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
-        FROM parameters p
-    ),
-    inventory AS (
+    SELECT generate_series(
+        GREATEST(p.from_date, c.create_date), 
+        p.to_date, 
+        INTERVAL '1 day'
+    )::date AS report_date
+    FROM parameters p
+    CROSS JOIN system_date_company c
+),
+
+inventory AS (
     SELECT
         hi.company_id,
         SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count,
@@ -259,7 +268,9 @@ in_house AS (
         lls.company_id,
 		lls.company_name
 
-),
+)
+-- Select * from in_house;
+,
 out_of_order AS (
     SELECT
         lls.report_date,
@@ -301,7 +312,9 @@ lls.report_date,
         lls.company_id,
 		lls.company_name
    
-),   
+)
+-- Select * from yesterday_in_house;
+,   
   
 expected_arrivals AS (
     SELECT 
@@ -519,11 +532,11 @@ SELECT
 	fr.total_rooms,
 	fr.out_of_order_rooms,
 	fr.available_rooms,
-	SUM(fr.expected_in_house) AS in_house,
-    SUM(fr.expected_in_house_adults) AS pax_adults,
-    SUM(fr.expected_in_house_children) AS pax_children,
-    SUM(fr.expected_in_house_infants) AS pax_infants,
-    SUM(fr.expected_in_house_adults + fr.expected_in_house_children + fr.expected_in_house_infants) AS pax_total,
+	SUM(fr.in_house_count) AS in_house,
+    SUM(fr.in_house_adults) AS pax_adults,
+    SUM(fr.in_house_children) AS pax_children,
+    SUM(fr.in_house_infants) AS pax_infants,
+    SUM(fr.in_house_adults + fr.in_house_children + fr.in_house_infants) AS pax_total,
 	CASE WHEN  fr.available_rooms >0 THEN
 	SUM(fr.expected_in_house) * 100 / fr.available_rooms
 	ELSE SUM(0)
@@ -552,9 +565,10 @@ SELECT
 FROM final_report fr
 
 WHERE fr.company_id IN (SELECT company_id FROM company_ids)  -- ✅ Fix: Apply WHERE condition here
-  AND (COALESCE(fr.expected_arrivals, 0) + COALESCE(fr.expected_departures, 0) + COALESCE(fr.in_house_count, 0)) > 0
+--   AND (COALESCE(fr.expected_arrivals, 0) + COALESCE(fr.expected_departures, 0) + COALESCE(fr.in_house_count, 0)) > 0
 GROUP BY fr.report_date, fr.company_name, fr.company_id , fr.total_rooms, fr.out_of_order_rooms, fr.available_rooms
 ORDER BY fr.report_date, fr.company_id;
+
         """
     
          

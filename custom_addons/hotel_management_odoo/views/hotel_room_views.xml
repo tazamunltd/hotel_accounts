@@ -514,26 +514,29 @@
 
     <menuitem id="hotel_room_menu" name="Room" action="hotel_room_action" parent="hotel_codes" sequence="3" />
 
-    <menuitem id="sub_menu_meal_codes" name="Meal Codes" parent="hotel_codes" action="setup_configuration.action_meal_code" sequence="4" />
-
-    <menuitem id="sub_menu_meal_pattern" name="Meal Pattern" parent="hotel_codes" action="setup_configuration.action_meal_pattern" sequence="5" />
-    <menuitem id="sub_menu_meal_pattern_sub_type" name="Meal Pattern Sub Type" parent="hotel_codes" action="setup_configuration.action_meal_pattern_sub_type" sequence="6" />
+    <menuitem id="sub_menu_room_type" name="Room Type" action="setup_configuration.action_room_type" parent="hotel_codes" sequence="4"/>
 
 
-    <menuitem id="sub_menu_telephone_extension" name="Telephone Extension" parent="hotel_codes" action="setup_configuration.action_telephone_extension" sequence="7" />
+    <menuitem id="sub_menu_meal_codes" name="Meal Codes" parent="hotel_codes" action="setup_configuration.action_meal_code" sequence="5" />
 
-    <menuitem id="sub_menu_department_codes" name="Department Codes" parent="hotel_codes" action="setup_configuration.action_department_code" sequence="8" />
-
-    <menuitem id="sub_menu_posting_items" name="Posting Items" parent="hotel_codes" action="setup_configuration.action_posting_item" sequence="9" />
-
-    <menuitem id="sub_menu_dummy_room_codes" name="Dummy Room Codes" parent="hotel_codes" action="setup_configuration.action_dummy_room_code" sequence="10" />
+    <!-- <menuitem id="sub_menu_meal_code_sub_type" name="Meal Code Sub Type" action="setup_configuration.action_meal_code_sub_type" parent="hotel_codes" sequence="6" /> -->
 
 
-    <menuitem id="sub_menu_budget_entries" name="Budget Entries" parent="hotel_codes" action="setup_configuration.action_budget_entry" sequence="11" />
+    <menuitem id="sub_menu_meal_pattern" name="Meal Pattern" parent="hotel_codes" action="setup_configuration.action_meal_pattern" sequence="7" />
+    <menuitem id="sub_menu_meal_pattern_sub_type" name="Meal Pattern Sub Type" parent="hotel_codes" action="setup_configuration.action_meal_pattern_sub_type" sequence="8" />
 
-    <menuitem id="sub_menu_cash_box_codes" name="Cash Box Codes" parent="hotel_codes" action="setup_configuration.action_cash_box_code" sequence="12" />
 
-    
+    <menuitem id="sub_menu_telephone_extension" name="Telephone Extension" parent="hotel_codes" action="setup_configuration.action_telephone_extension" sequence="9" />
 
+    <menuitem id="sub_menu_department_codes" name="Department Codes" parent="hotel_codes" action="setup_configuration.action_department_code" sequence="10" />
+
+    <menuitem id="sub_menu_posting_items" name="Posting Items" parent="hotel_codes" action="setup_configuration.action_posting_item" sequence="11" />
+
+    <menuitem id="sub_menu_dummy_room_codes" name="Dummy Room Codes" parent="hotel_codes" action="setup_configuration.action_dummy_room_code" sequence="12" />
+
+
+    <menuitem id="sub_menu_budget_entries" name="Budget Entries" parent="hotel_codes" action="setup_configuration.action_budget_entry" sequence="13" />
+
+    <menuitem id="sub_menu_cash_box_codes" name="Cash Box Codes" parent="hotel_codes" action="setup_configuration.action_cash_box_code" sequence="14" />
 
 </odoo>

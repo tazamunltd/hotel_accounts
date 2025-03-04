@@ -34,7 +34,7 @@ class YearlyGeographicalChart(models.Model):
             self.env["yearly.geographical.chart"].run_process_by_region()
 
             return {
-                'name': _('Yearly Geographical Chart'),
+                'name': _('Yearly Geographical Chart Report'),
                 'type': 'ir.actions.act_window',
                 'res_model': 'yearly.geographical.chart',
                 'view_mode': 'tree,graph,pivot',
@@ -50,7 +50,7 @@ class YearlyGeographicalChart(models.Model):
             }
         else:
             return {
-                'name': _('Yearly Geographical Chart'),
+                'name': _('Yearly Geographical Chart Report'),
                 'type': 'ir.actions.act_window',
                 'res_model': 'yearly.geographical.chart',
                 'view_mode': 'tree,graph,pivot',
@@ -138,17 +138,25 @@ class YearlyGeographicalChart(models.Model):
 company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
-date_series AS (
-    SELECT DISTINCT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
-    FROM parameters p
-),
 system_date_company AS (
     SELECT 
-        rc.id AS company_id, 
-        rc.system_date::date AS system_date
-    FROM res_company rc
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
+    FROM res_company rc 
     WHERE rc.id IN (SELECT company_id FROM company_ids)
 ),
+
+date_series AS (
+    SELECT generate_series(
+        GREATEST(p.from_date, c.create_date), 
+        p.to_date, 
+        INTERVAL '1 day'
+    )::date AS report_date
+    FROM parameters p
+    CROSS JOIN system_date_company c
+),
+
 room_type_data AS (
     SELECT
         rt.id AS room_type_id,

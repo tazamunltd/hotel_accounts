@@ -147,16 +147,25 @@ class MealsForecastReport(models.Model):
 company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
+system_date_company AS (
+    SELECT 
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
+    FROM res_company rc 
+    WHERE rc.id IN (SELECT company_id FROM company_ids)
+),
 
 date_series AS (
-    SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
+    SELECT generate_series(
+        GREATEST(p.from_date, c.create_date), 
+        p.to_date, 
+        INTERVAL '1 day'
+    )::date AS report_date
     FROM parameters p
+    CROSS JOIN system_date_company c
 ),
-system_date_company AS (
-    SELECT id as company_id, system_date::date 
-    FROM res_company rc 
-    WHERE rc.id IN {tuple(company_ids) if len(company_ids) > 1 else f"({company_ids[0]})"}
-),
+
 inventory AS (
     SELECT
         hi.company_id,
@@ -211,7 +220,8 @@ base_data AS (
     WHERE rb.company_id in (SELECT company_id FROM company_ids)
 ),
 latest_line_status AS (
-    SELECT DISTINCT ON (bd.booking_line_id, ds.report_date)
+    SELECT 
+    -- 	DISTINCT ON (bd.booking_line_id, ds.report_date)
 		ds.report_date,
         bd.system_date,
         bd.checkin_date,
@@ -308,9 +318,9 @@ expected_arrivals AS (
 		lls.meal_pattern_id,
 		lls.meal_pattern_name,
         COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count,
-	    SUM(lls.adult_count) AS ea_adults_count,
-        SUM(lls.child_count) AS ea_children_count,
-        SUM(lls.infant_count) AS ea_infants_count
+	    SUM(lls.adult_count)/2 AS ea_adults_count,
+        SUM(lls.child_count)/2 AS ea_children_count,
+        SUM(lls.infant_count)/2 AS ea_infants_count
     FROM latest_line_status lls
     WHERE lls.checkin_date = lls.report_date
       AND lls.final_status IN ('confirmed', 'block')
@@ -391,7 +401,7 @@ final_report AS (
         COALESCE(ed.ed_infants_count, 0) AS expected_departures_infants,
         (COALESCE(ed.ed_adults_count, 0) + COALESCE(ed.ed_children_count, 0) + COALESCE(ed.ed_infants_count, 0)) AS expected_departures_total,
 	
-		 CASE WHEN mk.report_date < mk.system_date THEN
+		 CASE WHEN mk.report_date <= mk.system_date THEN
             ih.in_house_count
         ELSE
             GREATEST(
@@ -402,7 +412,7 @@ final_report AS (
             )
         END AS in_house_count,
         --COALESCE(ih.in_house_count, 0) AS in_house,
-		CASE WHEN mk.report_date < mk.system_date THEN
+		CASE WHEN mk.report_date <= mk.system_date THEN
             ih.in_house_adults
         ELSE
             GREATEST(
@@ -413,7 +423,7 @@ final_report AS (
             )
         END AS in_house_adults,
         --COALESCE(ih.in_house_adults, 0) AS in_house_adults,
-		CASE WHEN mk.report_date < mk.system_date THEN
+		CASE WHEN mk.report_date <= mk.system_date THEN
             ih.in_house_children
         ELSE
             GREATEST(
@@ -423,7 +433,7 @@ final_report AS (
                 0
             )
         END AS in_house_children,
-		CASE WHEN mk.report_date < mk.system_date THEN
+		CASE WHEN mk.report_date <= mk.system_date THEN
             ih.in_house_infants
         ELSE
             GREATEST(
@@ -433,7 +443,7 @@ final_report AS (
                 0
             )
         END AS in_house_infants,
-       CASE WHEN mk.report_date < mk.system_date THEN
+       CASE WHEN mk.report_date <= mk.system_date THEN
             (COALESCE(ih.in_house_adults, 0) + COALESCE(ih.in_house_children, 0) + COALESCE(ih.in_house_infants, 0)) 
         ELSE
             GREATEST(

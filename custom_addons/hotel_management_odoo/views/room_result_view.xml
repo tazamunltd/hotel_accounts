@@ -73,63 +73,7 @@
     </record>
 
     <!-- Action Server -->
-    <!-- <record id="action_run_process_room_availability" model="ir.actions.server">
-        <field name="name">Run Hotel Room Process</field>
-        <field name="model_id" ref="model_hotel_room_result" />
-        <field name="state">code</field>
-        <field name="code">
-            <![CDATA[
-model.run_process_room_availability()
-action = {
-    'type': 'ir.actions.act_window',
-    'name': 'Hotel Room Results',
-    'res_model': 'hotel.room.result',
-    'view_mode': 'tree,pivot,graph',
-    'views': [
-        (env.ref('hotel_management_odoo.view_hotel_room_result_tree').id, 'tree'),
-        (env.ref('hotel_management_odoo.view_hotel_room_result_pivot').id, 'pivot'),
-        (env.ref('hotel_management_odoo.view_hotel_room_result_graph').id, 'graph'),
-    ],
-    'target': 'current',
-}
-            ]]>
-        </field>
-    </record> -->
-    <!-- <record id="action_run_process_room_availability" model="ir.actions.server">
-    <field name="name">Run Hotel Room Process</field>
-    <field name="model_id" ref="hotel_management_odoo.model_hotel_room_result"/>
-    <field name="state">code</field>
-    <field name="code">
-        <![CDATA[
-if env.context.get('filtered_date_range'):
-    model.run_process_room_availability()
-
-    action = {
-        'type': 'ir.actions.act_window',
-        'res_model': 'hotel.room.result',
-        'view_mode': 'tree,pivot,graph',
-        'views': [
-            (env.ref('hotel_management_odoo.view_hotel_room_result_tree').id, 'tree'),
-            (env.ref('hotel_management_odoo.view_hotel_room_result_pivot').id, 'pivot'),
-            (env.ref('hotel_management_odoo.view_hotel_room_result_graph').id, 'graph'),
-        ],
-        'target': 'current',
-    }
-else:
-    action = {
-        'type': 'ir.actions.act_window',
-        'res_model': 'hotel.room.result',
-        'view_mode': 'tree,pivot,graph',
-        'views': [
-            (env.ref('hotel_management_odoo.view_hotel_room_result_tree').id, 'tree'),
-            (env.ref('hotel_management_odoo.view_hotel_room_result_pivot').id, 'pivot'),
-            (env.ref('hotel_management_odoo.view_hotel_room_result_graph').id, 'graph'),
-        ],
-        'domain': [('id', '=', False)],  # Ensures no data is displayed
-        'target': 'current',
-    }
-]]>
-    </field> -->
+    
     <record id="action_run_process_room_availability" model="ir.actions.server">
         <field name="name">Run Hotel Room Process</field>
         <field name="model_id" ref="model_hotel_room_result"/>
@@ -140,6 +84,13 @@ action = env["hotel.room.result"].action_run_process_room_availability()
         ]]>
         </field>
 </record>
+
+    <record id="action_room_result" model="ir.actions.act_window">
+        <field name="name">Hotel Room Results </field>
+        <field name="res_model">hotel.room.result</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="context">{}</field>
+    </record>
 
 
     <!-- Menu Item -->

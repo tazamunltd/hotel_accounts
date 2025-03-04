@@ -4,7 +4,7 @@
         <field name="name">room.result.by.room.type.pivot</field>
         <field name="model">room.result.by.room.type</field>
         <field name="arch" type="xml">
-            <pivot string="Room Results by Room Type">
+            <pivot>
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="company_id" type="row"/>
@@ -17,7 +17,7 @@
         <field name="name">room.result.by.room.type.graph</field>
         <field name="model">room.result.by.room.type</field>
         <field name="arch" type="xml">
-            <graph string="Room Results by Room Type" type="bar">
+            <graph type="bar">
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="company_id" type="row"/>
@@ -31,7 +31,7 @@
         <field name="name">room.result.by.room.type.tree</field>
         <field name="model">room.result.by.room.type</field>
         <field name="arch" type="xml">
-            <tree string="Room Results by Room Type" js_class="hotel_room_result_filter">
+            <tree js_class="hotel_room_result_filter">
                 <field name="report_date" optional="show"/>
                 <field name="room_type" optional="show"/>
                 <field name="expected_inhouse" optional="show"/>

@@ -1645,7 +1645,7 @@
 
 
     <!--     Reservation menu -->
-    <menuitem id="room_booking_menu" name="Reservation" sequence="10"
+    <menuitem id="room_booking_menu" name="Reservation" sequence="20"
         parent="hotel_management_menu_root" />
 
     <menuitem id="individual_reservation_menu" name="Reservation" sequence="10"

@@ -35,7 +35,7 @@ class RoomResultByRoomType(models.Model):
             self.env["room.result.by.room.type"].run_process_by_room_type()
 
             return {
-                'name': _('Room Results by Room Type'),
+                'name': _('Room Results by Room Type Report'),
                 'type': 'ir.actions.act_window',
                 'res_model': 'room.result.by.room.type',
                 'view_mode': 'tree,pivot,graph',
@@ -51,7 +51,7 @@ class RoomResultByRoomType(models.Model):
             }
         else:
             return {
-                'name': _('Room Results by Room Type'),
+                'name': _('Room Results by Room Type Report'),
                 'type': 'ir.actions.act_window',
                 'res_model': 'room.result.by.room.type',
                 'view_mode': 'tree,pivot,graph',
@@ -103,27 +103,36 @@ class RoomResultByRoomType(models.Model):
         # to_date = system_date + timedelta(days=7)
         # get_company = self.env.company.id
         company_ids = [company.id for company in self.env.companies]
+
         query = f"""
-            
 WITH parameters AS (
     SELECT
         '{from_date}'::date AS from_date,
         '{to_date}'::date AS to_date
 ),
+
 company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
-
 system_date_company AS (
-    SELECT id as company_id, system_date::date 
+    SELECT 
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
     FROM res_company rc 
     WHERE rc.id IN (SELECT company_id FROM company_ids)
-),  -- ✅ Add comma here to properly separate the CTEs
+),
 
-    date_series AS (
-        SELECT generate_series(p.from_date, p.to_date, INTERVAL '1 day')::date AS report_date
-        FROM parameters p
-    ),
+date_series AS (
+    SELECT generate_series(
+        GREATEST(p.from_date, c.create_date), 
+        p.to_date, 
+        INTERVAL '1 day'
+    )::date AS report_date
+    FROM parameters p
+    CROSS JOIN system_date_company c
+),
+
 
 
 /* ----------------------------------------------------------------------------

@@ -21,7 +21,7 @@
         <field name="name">monthly.allotment.charts.graph</field>
         <field name="model">monthly.allotment.charts</field>
         <field name="arch" type="xml">
-            <graph string="Room Results by Room Type" type="bar">
+            <graph type="bar">
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="source_of_business" type="row"/>
@@ -36,7 +36,7 @@
         <field name="name">monthly.allotment.charts.pivot</field>
         <field name="model">monthly.allotment.charts</field>
         <field name="arch" type="xml">
-            <pivot string="Room Results by Room Type">
+            <pivot >
                 <field name="report_date" type="row"/>
                 <field name="room_type" type="row"/>
                 <field name="source_of_business" type="row"/>

@@ -1986,6 +1986,8 @@ class RoomBooking(models.Model):
             self.house_use = self.group_booking.house_use
             self.complementary = self.group_booking.complimentary
             self.payment_type = self.group_booking.payment_type
+            self.is_agent = self.group_booking.is_grp_company
+            
             self.complementary_codes = self.group_booking.complimentary_codes.id if self.group_booking.complimentary_codes else False
             self.house_use_codes = self.group_booking.house_use_codes_.id if self.group_booking.house_use_codes_ else False
             if self.group_booking.company and self.group_booking.company.is_vip:
@@ -8314,46 +8316,9 @@ class SystemDate(models.Model):
             if record.checkout_time and not time_pattern.match(record.checkout_time):
                 raise ValidationError(f"Invalid check-out time format: {record.checkout_time}. Please use HH:MM:SS.")
 
-    # @api.model
-    # def create(self, vals):
-    #     # Print the input values for the company
-    #     print("Creating company with values:", vals)
-
-    #     # Create the company record
-    #     company = super(SystemDate, self).create(vals)
-
-    #     # Prepare sequence data
-    #     sequence_data = {
-    #         'name': f"{company.name}",
-    #         'code': f"room.booking",
-    #         'company_id': company.id,
-    #         'prefix': '',
-    #         'padding': 5,
-    #         'number_increment': 1,
-    #     }
-
-    #     # Print the sequence data before creation
-    #     print("Creating sequence with values:", sequence_data)
-
-    #     # Create a sequence for the new company
-    #     self.env['ir.sequence'].create(sequence_data)
-
-    #     # Print confirmation after sequence creation
-    #     print(
-    #         f"Sequence created for company {company.name} (ID: {company.id})")
-
-    #     return company
 
     owner = fields.Char(string='Owner')
-    # system_date = fields.Datetime(string="System Date")
-
-    # system_date = fields.Date(
-    #     string="System Date",
-    #     default=fields.Date.context_today,
-    #     tracking=True,
-    #     required=True,
-    #     help="The current system date."
-    # )
+    
     system_date = fields.Datetime(
         string="System Date",
         default=lambda self: fields.Datetime.now(),
@@ -8362,31 +8327,16 @@ class SystemDate(models.Model):
         help="The current system date and time."
     )
 
-    # @api.onchange('system_date')
-    # def _onchange_system_date(self):
-    #     if self.system_date:
-    #         # Raise a warning notification
-    #         return {
-    #             'warning': {
-    #                 'title': "System Date Changed",
-    #                 'message': f"The system date has been updated to {self.system_date}.",
-    #             }
-    #         }
+    @api.constrains('system_date')
+    def _check_system_date(self):
+        """Ensure that system_date is not earlier than the company's creation date."""
+        for record in self:
+            if record.system_date and record.create_date and record.system_date <= record.create_date:
+                raise ValidationError(f"System Date ({record.system_date.date()}) cannot be earlier than the company's creation date ({record.create_date.date()}).")
 
-    # def write(self, vals):
-    #     if 'system_date' in vals:
-    #         for record in self:
-    #             # Notify users about the change
-    #             message = f"The system date has been updated to {vals['system_date']}."
-    #             self.env['bus.bus']._sendone(
-    #                 record.id,
-    #                 'system_date_notification',
-    #                 {'title': "System Date Changed", 'message': message}
-    #             )
-    #     return super(SystemDate, self).write(vals)
+    
 
-    inventory_ids = fields.One2many(
-        'hotel.inventory', 'company_id', string="Inventory")
+    inventory_ids = fields.One2many('hotel.inventory', 'company_id', string="Inventory")
     age_threshold = fields.Integer(string="Age Threshold")  #
 
     # data fields for hotel web
