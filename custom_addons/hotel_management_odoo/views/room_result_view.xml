@@ -52,7 +52,7 @@
         <field name="name">hotel.room.result.tree</field>
         <field name="model">hotel.room.result</field>
         <field name="arch" type="xml">
-            <tree string="Hotel Room Result" js_class="hotel_room_result_filter" create="false" edit="false">
+            <tree string="Hotel Room Result" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
                 <field name="report_date" />
                 <field name="room_type" />
                 <field name="total_rooms" optional="show" />

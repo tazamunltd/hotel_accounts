@@ -2416,6 +2416,7 @@ class RoomBooking(models.Model):
         string="No of Nights",
         compute="_compute_no_of_nights",
         inverse="_inverse_no_of_nights",
+        default=1,
         store=True,
         readonly=False,  # so the user can edit it if you want to allow that
     )

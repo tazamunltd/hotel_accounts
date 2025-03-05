@@ -5,7 +5,7 @@
             <field name="name">deleted.reservation.report.tree</field>
             <field name="model">deleted.reservation.report</field>
             <field name="arch" type="xml">
-                <tree string="Deleted Reservation Report" js_class="hotel_room_result_filter" create="false" edit="false">
+                <tree string="Deleted Reservation Report" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
                     <field name="id" optional="show"/>
                     <field name="company_id" optional="show"/>
                     <field name="partner_name" optional="show"/>

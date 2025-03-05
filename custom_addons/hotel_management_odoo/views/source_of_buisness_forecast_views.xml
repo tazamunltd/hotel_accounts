@@ -5,7 +5,7 @@
             <field name="name">source.of.buisness.forecast.tree</field>
             <field name="model">source.of.buisness.forecast</field>
             <field name="arch" type="xml">
-                <tree string="Source of Buisness Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false">
+                <tree string="Source of Buisness Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
                     <field name="report_date" optional="show"/>
                     <field name="company_id" optional="show"/>
                     <field name="room_type_name" optional="show"/>

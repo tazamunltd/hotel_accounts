@@ -5,7 +5,7 @@
         <field name="name">room.result.by.client.tree</field>
         <field name="model">room.result.by.client</field>
         <field name="arch" type="xml">
-            <tree js_class="hotel_room_result_filter" create="false" edit="false">
+            <tree js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
                 <field name="report_date" />
                 <field name="room_type" />
                 <field name="client_id" optional="show" />

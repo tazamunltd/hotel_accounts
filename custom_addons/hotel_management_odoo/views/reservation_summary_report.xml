@@ -5,7 +5,7 @@
             <field name="name">reservation.summary.report.tree</field>
             <field name="model">reservation.summary.report</field>
             <field name="arch" type="xml">
-                <tree string="Reservation Summary Reports" js_class="hotel_room_result_filter" create="false" edit="false">
+                <tree string="Reservation Summary Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
                     <field name = "company_id" optional="show"/>
                     <field name = "company_name" optional="show"/>
                     <field name = "group_booking_name" optional="show"/>

@@ -4,7 +4,7 @@
         <field name="name">rooms.forecast.tree</field>
         <field name="model">rooms.forecast.report</field>
         <field name="arch" type="xml">
-            <tree string="Rooms Forecast Report" js_class="hotel_room_result_filter" create="false" edit="false">
+            <tree string="Rooms Forecast Report" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
                 <field name="report_date" optional="show"/>
                 <field name="room_type_name" optional="show"/>
                 <field name="total_rooms" optional="show" />
