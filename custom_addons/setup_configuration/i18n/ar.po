@@ -1116,7 +1116,7 @@ msgid ""
 "Details</span>"
 msgstr ""
 "<i class=\"fa fa-key\"/>\n"
-"                                <span class=\"fw-bold\"> تفاصيل الكود "
+"                                <span class=\"fw-bold\"> تفاصيل الاكواد "
 "المعتمد</span>"
 
 #. module: setup_configuration
@@ -2441,7 +2441,7 @@ msgstr "قائمة الوصول"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__arrivals
 msgid "Arrivals"
-msgstr "الوصول"
+msgstr "وصول"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__default_sign__main
@@ -2586,7 +2586,7 @@ msgstr "إعادة فتح حساب الغرفة تلقائيًا"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__rhythm__auto_check_in
 msgid "Automatically Activated by Check In"
-msgstr "يتم التنشيط تلقائيًا عن طريق تسجيل الوصول"
+msgstr "يتم التنشيط تلقائيًا عن طريق الوصول"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_dummy_room_code__auto_reopen_room_account
@@ -2733,7 +2733,7 @@ msgstr "يشتري"
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_group_profile__status_code__canceled
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__status_code__canceled
 msgid "Canceled"
-msgstr "تم الإلغاء"
+msgstr "ملغي"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_cancellation_code
@@ -2760,7 +2760,7 @@ msgstr "اكواد الإلغاء"
 #: model:ir.model.fields.selection,name:setup_configuration.selection__trace_record__status__cancelled
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_trace_record_form
 msgid "Cancelled"
-msgstr "تم الإلغاء"
+msgstr "ملغي"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_reservation_main__travel_method__car
@@ -3004,12 +3004,12 @@ msgstr "انقر لفتح التقويم"
 #. module: setup_configuration
 #: model_terms:ir.actions.act_window,help:setup_configuration.action_market_category
 msgid "Click to create a new market category."
-msgstr "انقر هنا لإنشاء فئة سوق جديدة."
+msgstr "انقر هنا لإنشاء فئة تسويق جديد."
 
 #. module: setup_configuration
 #: model_terms:ir.actions.act_window,help:setup_configuration.action_market_segment
 msgid "Click to create a new market segment."
-msgstr "انقر هنا لإنشاء قطاع سوق جديد."
+msgstr "انقر هنا لإنشاء قطاع تسويق جديد."
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_yearly_geographical_chart__client_id
@@ -3185,7 +3185,7 @@ msgstr "كود مجاني"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_complimentary_code_pivot
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_complimentary_code_tree
 msgid "Complimentary Codes"
-msgstr "اكواد مجانية"
+msgstr "اكواد ضيافة"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__concierge
@@ -3242,7 +3242,7 @@ msgstr "غرفة متصلة"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__contact_leader
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
 msgid "Contact / Leader"
-msgstr "جهة الاتصال / المرشد"
+msgstr "العميل / المرشد"
 
 #. module: setup_configuration
 #: model:ir.ui.menu,name:setup_configuration.sub_menu_contact_group
@@ -3833,7 +3833,7 @@ msgstr "تاريخ المغادرة"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__status_code__departures
 msgid "Departures"
-msgstr "المغادرة"
+msgstr "مغادرة"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_frontdesk_inhouse_guest_main__deposit
@@ -4782,7 +4782,7 @@ msgstr "الليلة الأولى"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__first_visit
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__first_visit
 msgid "First Visit"
-msgstr "الزيارة الأولى"
+msgstr "تاريخ اول وصول"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
@@ -5638,12 +5638,12 @@ msgstr "خدمة الغرف"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_reservation_main__house_use
 #: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__how_taken__house_use
 msgid "House Use"
-msgstr "استخدام المنزل"
+msgstr "استخدام داخلي"
 
 #. module: setup_configuration
 #: model:ir.ui.menu,name:setup_configuration.sub_menu_house_use_codes
 msgid "House Use Codes"
-msgstr "اكواد استخدام المنزل"
+msgstr "اكواد استخدام داخلي"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__concierge_traces__from_department__housekeeping
@@ -6337,7 +6337,7 @@ msgstr "فردي"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_number_specific_rate_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_specific_rate_form
 msgid "Infant"
-msgstr "الرضيع"
+msgstr "الرضع"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_rate_detail__infant_meal_rate
@@ -6353,7 +6353,7 @@ msgstr "معدل الرضع"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_reservation_main_form
 msgid "Infants"
-msgstr "الأطفال الرضع"
+msgstr "الرضع"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_reservation_group_profile_form
@@ -6742,7 +6742,7 @@ msgstr "آخر تحديث في"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__last_visit
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__last_visit
 msgid "Last Visit"
-msgstr "الزيارة الاخيرة"
+msgstr "تاريخ اخر مغادرة"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__frontdesk_inhouse_guest_main__visit_reason__leisure
@@ -8494,7 +8494,7 @@ msgstr "اكواد خارج الخدمة"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_out_of_order_management_tree
 msgid "Out of Order List"
-msgstr "قائمة خارج الترتيب"
+msgstr "قائمة خارج الطلب"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_out_of_order_management
@@ -8820,7 +8820,7 @@ msgstr "إضافة بند التحميل"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item__posting_item_selection
 msgid "Posting Item Option"
-msgstr "خيار بند التحميل"
+msgstr "طريقة الاحتساب"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_search
@@ -9308,7 +9308,7 @@ msgstr "حجز"
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_comment_category__usage_reservation
 msgid "Reservation / Inhouse"
-msgstr "الحجز / في المنزل"
+msgstr "الحجز / مقيميين"
 
 #. module: setup_configuration
 #: model:ir.model,name:setup_configuration.model_reservation_adults
@@ -10350,7 +10350,7 @@ msgstr "حالة"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_reservation_main__status_code
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_frontdesk_inhouse_guest_form
 msgid "Status Code"
-msgstr "كود الحالة"
+msgstr "الحالة"
 
 #. module: setup_configuration
 #: model:ir.model.fields,help:setup_configuration.field_additional_attribute__activity_state
@@ -10834,7 +10834,7 @@ msgstr "إجمالي عدد الرضع"
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__total_nights
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_profile_main__total_nights
 msgid "Total Nights"
-msgstr "مجموع الليالي"
+msgstr "إجمالي الليالي"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__total_no_shows
@@ -11161,7 +11161,7 @@ msgstr "رسوم غير محددة"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__return_check__upon_check_in
 msgid "Upon Check In"
-msgstr "عند تسجيل الوصول"
+msgstr "عند الوصول"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rate_code__rhythm__upon_check_out
@@ -11447,7 +11447,7 @@ msgstr "هل تم استلام القسيمة؟"
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__reservation_status_code__count_as__wait_list
 msgid "Wait List"
-msgstr "قائمة الانتظار"
+msgstr "إنتظار"
 
 #. module: setup_configuration
 #: model:ir.ui.menu,name:setup_configuration.sub_menu_walk_in

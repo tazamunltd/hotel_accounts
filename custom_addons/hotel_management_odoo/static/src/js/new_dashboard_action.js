@@ -10,6 +10,7 @@ class NewDashBoard extends Component {
         this.orm = useService("orm");
         this.user = useService("user");
         this.notification = useService("notification");
+        this.companyService = useService("company");
         
         // Initialize state
         this.state = useState({
@@ -46,7 +47,8 @@ class NewDashBoard extends Component {
                 );
 
                 if (userInfo && userInfo.length > 0) {
-                    const companyId = userInfo[0].company_id[0];
+//                    const companyId = userInfo[0].company_id[0];
+                    const companyId = this.companyService.currentCompany.id;
                     const companyData = await this.orm.call(
                         'res.company',
                         'search_read',
@@ -55,22 +57,24 @@ class NewDashBoard extends Component {
                     );
 
                     if (companyData && companyData.length > 0) {
+                        const companyId = this.companyService.currentCompany.id;
+//                        const companyId1 = this.user.companyId;
+                        await this.updateSystemDate(companyId);
                         const systemDate =
                           companyData[0].system_date ||
                           new Date().toISOString().split("T")[0];
-
+//                        console.log("this is called once again");
+                        console.log(companyId,companyData);
                         // Set start date to 3 days before the system date
                         const startDate = new Date(systemDate);
-                        console.log("START DATE", startDate);
-                        startDate.setDate(startDate.getDate() - 3);
+                        startDate.setDate(startDate.getDate());
                         this.state.startDate = startDate
                           .toISOString()
                           .split("T")[0];
 
                         // Set end date to 3 days after the system date
                         const endDate = new Date(systemDate);
-                        console.log("END DATE", endDate);
-                        endDate.setDate(endDate.getDate() + 3);
+                        endDate.setDate(endDate.getDate() + 30);
                         this.state.endDate = endDate
                           .toISOString()
                           .split("T")[0];
@@ -209,7 +213,7 @@ class NewDashBoard extends Component {
                                     beginAtZero: true,
                                     title: {
                                         display: true,
-                                        text: 'Number of Bookings'
+                                        text: _t('Number of Bookings')
                                     }
                                 }
                             },
@@ -219,7 +223,7 @@ class NewDashBoard extends Component {
                                 },
                                 title: {
                                     display: true,
-                                    text: 'Bookings by Country'
+                                    text: _t('Bookings by Country')
                                 }
                             }
                         }
@@ -233,13 +237,13 @@ class NewDashBoard extends Component {
                                 x: {
                                     title: {
                                         display: true,
-                                        text: 'Date'
+                                        text: _t('Date')
                                     }
                                 },
                                 y: {
                                     title: {
                                         display: true,
-                                        text: 'Count'
+                                        text: _t('Count')
                                     },
                                     beginAtZero: true
                                 }
@@ -272,8 +276,8 @@ class NewDashBoard extends Component {
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: {
-                                x: { title: { display: true, text: 'Date' }},
-                                y: { title: { display: true, text: 'Count' }, beginAtZero: true }
+                                x: { title: { display: true, text: _t('Date') }},
+                                y: { title: { display: true, text: _t('Count') }, beginAtZero: true }
                             }
                         }
                     },
@@ -312,7 +316,7 @@ class NewDashBoard extends Component {
                                     beginAtZero: true,
                                     title: {
                                         display: true,
-                                        text: 'Count'
+                                        text: _t('Count')
                                     }
                                 }
                             }
@@ -396,6 +400,41 @@ class NewDashBoard extends Component {
                 reject(error);
             }
         });
+    }
+
+     async updateSystemDate(companyId) {
+        try {
+            const companyData = await this.orm.call(
+                'res.company',
+                'search_read',
+                [[['id', '=', companyId]]],
+                { fields: ['system_date'] }
+            );
+
+            if (companyData && companyData.length > 0) {
+                const systemDate =
+                  companyData[0].system_date ||
+                  new Date().toISOString().split("T")[0];
+
+                // Set start date to 3 days before the system date
+                const startDate = new Date(systemDate);
+                startDate.setDate(startDate.getDate());
+                this.state.startDate = startDate
+                  .toISOString()
+                  .split("T")[0];
+
+                // Set end date to 3 days after the system date
+                const endDate = new Date(systemDate);
+                endDate.setDate(endDate.getDate() + 30);
+                this.state.endDate = endDate
+                  .toISOString()
+                  .split("T")[0];
+
+                console.log('System Date updated:', systemDate);
+            }
+        } catch (error) {
+            console.error('Error updating system date:', error);
+        }
     }
 
     async fetchData() {
@@ -536,7 +575,7 @@ class NewDashBoard extends Component {
               labels: data.occupancy_labels,
               datasets: [
                 {
-                  label: "Occupancy Rate (%)",
+                  label: _t("Occupancy Rate (%)"),
                   data: data.occupancy_data,
                   borderColor: "#4e73df",
                   backgroundColor: "rgba(78, 115, 223, 0.2)",
@@ -592,7 +631,7 @@ class NewDashBoard extends Component {
               labels: data.source_labels,
               datasets: [
                 {
-                  label: "Bookings by Source",
+                  label: _t("Bookings by Source"),
                   data: data.source_data,
                   backgroundColor: "#4e73df",
                   borderColor: "#4e73df",
@@ -618,7 +657,7 @@ class NewDashBoard extends Component {
               labels: data.expectation_labels,
               datasets: [
                 {
-                  label: "Expected Occupancy (%)",
+                  label: _t("Expected Occupancy (%)"),
                   data: data.expectation_data,
                   borderColor: "#1cc88a",
                   backgroundColor: "rgba(28, 200, 138, 0.2)",
@@ -635,14 +674,14 @@ class NewDashBoard extends Component {
                 labels: data.arrival_labels.map((date) => this.formatDate(date)),
                 datasets: [
                     {
-                        label: "Arrivals",
+                        label: _t("Arrivals"),
                         data: data.arrival_data,
                         backgroundColor: "rgba(54, 162, 235, 0.7)",
                         borderColor: "rgba(54, 162, 235, 1)",
                         borderWidth: 1,
                     },
                     {
-                        label: "Departures",
+                        label: _t("Departures"),
                         data: data.departure_data,
                         backgroundColor: "rgba(255, 99, 132, 0.7)",
                         borderColor: "rgba(255, 99, 132, 1)",
@@ -698,33 +737,69 @@ class NewDashBoard extends Component {
 
         if (this.charts.inventoryChart) {
             this.charts.inventoryChart.data = {
-                labels: ['Total Room', 'Out of Service', 'Out of Order', 'House Use', 'Availability'],
-                datasets: [{
-                    data: [inventoryData.totalRoom, inventoryData.outOfService, inventoryData.outOfOrder, inventoryData.houseUse, inventoryData.availability],
-                    backgroundColor: ['#4e73df', '#e74a3b', '#f6c23e', '#36b9cc', '#1cc88a']
-                }]
+              labels: [
+                _t("Total Room"),
+                _t("Out of Service"),
+                _t("Out of Order"),
+                _t("House Use"),
+                _t("Availability"),
+              ],
+              datasets: [
+                {
+                  data: [
+                    inventoryData.totalRoom,
+                    inventoryData.outOfService,
+                    inventoryData.outOfOrder,
+                    inventoryData.houseUse,
+                    inventoryData.availability,
+                  ],
+                  backgroundColor: [
+                    "#4e73df",
+                    "#e74a3b",
+                    "#f6c23e",
+                    "#36b9cc",
+                    "#1cc88a",
+                  ],
+                },
+              ],
             };
             this.charts.inventoryChart.update();
         }
 
         if (this.charts.forecastChart) {
             this.charts.forecastChart.data = {
-                labels: ['In House', 'Out of Service', 'Out of Order', 'House Use', 'Availability'],
-                datasets: [{
-                    data: [forecastData.InHouse, forecastData.outOfService, forecastData.outOfOrder, forecastData.houseUse, forecastData.availability],
-                    backgroundColor: '#36b9cc'
-                }]
+              labels: [
+                _t("In House"),
+                _t("Out of Service"),
+                _t("Out of Order"),
+                _t("House Use"),
+                _t("Availability"),
+              ],
+              datasets: [
+                {
+                  data: [
+                    forecastData.InHouse,
+                    forecastData.outOfService,
+                    forecastData.outOfOrder,
+                    forecastData.houseUse,
+                    forecastData.availability,
+                  ],
+                  backgroundColor: "#36b9cc",
+                },
+              ],
             };
             this.charts.forecastChart.update();
         }
 
         if (this.charts.salesChart) {
             this.charts.salesChart.data = {
-                labels: ['Overbooked', 'Free to Sell'],
-                datasets: [{
-                    data: [salesData.overbooked, salesData.freeToSell],
-                    backgroundColor: ['#e74a3b', '#1cc88a']
-                }]
+              labels: [_t("Overbooked"), _t("Free to Sell")],
+              datasets: [
+                {
+                  data: [salesData.overbooked, salesData.freeToSell],
+                  backgroundColor: ["#e74a3b", "#1cc88a"],
+                },
+              ],
             };
             this.charts.salesChart.update();
         }

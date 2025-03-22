@@ -38,12 +38,12 @@ msgstr "<b>الرقم التسلسلي:</b>"
 #. module: maintenance_housekeeping
 #: model_terms:ir.ui.view,arch_db:maintenance_housekeeping.hr_equipment_request_view_form
 msgid "<span class=\"badge text-bg-warning float-end\">Canceled</span>"
-msgstr "<span class=\"badge text-bg-warning float-end\">تم الإلغاء</span>"
+msgstr "<span class=\"badge text-bg-warning float-end\">ملغي</span>"
 
 #. module: maintenance_housekeeping
 #: model_terms:ir.ui.view,arch_db:maintenance_housekeeping.hr_equipment_request_view_kanban
 msgid "<span class=\"badge text-bg-warning float-end\">Cancelled</span>"
-msgstr "<span class=\"badge text-bg-warning float-end\">تم الإلغاء</span>"
+msgstr "<span class=\"badge text-bg-warning float-end\">ملغي</span>"
 
 #. module: maintenance_housekeeping
 #: model_terms:ir.ui.view,arch_db:maintenance_housekeeping.hr_equipment_request_view_form
@@ -223,7 +223,7 @@ msgstr "يلغي"
 #. module: maintenance_housekeeping
 #: model_terms:ir.ui.view,arch_db:maintenance_housekeeping.hr_equipment_request_view_search
 msgid "Cancelled"
-msgstr "تم الإلغاء"
+msgstr "ملغي"
 
 #. module: maintenance_housekeeping
 #: model:ir.model.fields,field_description:maintenance_housekeeping.field_maintenance_housekeeping_request__category_id

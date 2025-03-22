@@ -921,7 +921,8 @@ export class OfflineSearchWidget extends Component {
         const checkOut = new Date(this.state.checkOutDate);
         const diffTime = checkOut.getTime() - checkIn.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        this.state.noOfNights = diffDays > 0 ? diffDays : 1;
+        // this.state.noOfNights = diffDays > 0 ? diffDays : 1;
+        this.state.noOfNights = diffDays >= 0 ? diffDays : 0;
     }
 
     //--------------------------------------------------------------------------
@@ -1672,7 +1673,7 @@ export class OfflineSearchWidget extends Component {
              if (!this.state.contactId) {
                 this.notification.add(
                     "Please select a valid Contact (Partner) before creating a booking.",
-                    { type: "danger", sticky: true }
+                    { type: "danger", sticky: false }
                 );
                 return;
             }
@@ -1698,9 +1699,9 @@ export class OfflineSearchWidget extends Component {
             let context_ = {
                 company_id: this.state.hotel,
                 room_count: this.state.searchResults[searchidx].searched_rooms,
-                checkin_date: this.state.checkInDate,
+                checkin_date: `${this.state.checkInDate} 10:00:00`,
                 no_of_nights: this.state.noOfNights,
-                checkout_date: this.state.checkOutDate,
+                checkout_date: `${this.state.checkOutDate} 10:00:00`,
                 adult_count: this.state.adults,
                 child_count: this.state.children,
                 infant_count: this.state.infants,

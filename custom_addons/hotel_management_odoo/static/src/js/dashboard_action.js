@@ -1,4 +1,5 @@
 /** @odoo-module */
+import { _t } from "@web/core/l10n/translation";
 import { registry } from '@web/core/registry';
 import { useService } from "@web/core/utils/hooks";
 const { Component, onWillStart, onMounted, useState } = owl;
@@ -360,99 +361,115 @@ class CustomDashBoard extends Component {
                 ];
                 
                 this.charts.occupancyStatus = new window.Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: [
-                            'In-house',
-                            'Available',
-                            'Reserved',
-                            'Out of Order',
-                            'House Use',
-                            'Complementary'
+                  type: "pie",
+                  data: {
+                    labels: [
+                      "In-house",
+                      "Available",
+                      "Reserved",
+                      "Out of Order",
+                      "House Use",
+                      "Complementary",
+                    ],
+                    datasets: [
+                      {
+                        data: data,
+                        backgroundColor: [
+                          "#4CAF50", // Green for in-house
+                          "#2196F3", // Blue for available
+                          "#FFC107", // Amber for reserved
+                          "#F44336", // Red for out of order
+                          "#9C27B0", // Purple for house use
+                          "#FF9800", // Orange for complementary
                         ],
-                        datasets: [{
-                            data: data,
-                            backgroundColor: [
-                                '#4CAF50',  // Green for in-house
-                                '#2196F3',  // Blue for available
-                                '#FFC107',  // Amber for reserved
-                                '#F44336',  // Red for out of order
-                                '#9C27B0',  // Purple for house use
-                                '#FF9800'   // Orange for complementary
-                            ]
-                        }]
+                      },
+                    ],
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                      padding: {
+                        right: 100, // Add padding for legend
+                      },
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        layout: {
-                            padding: {
-                                right: 100  // Add padding for legend
-                            }
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: "right",
+                        labels: {
+                          padding: 20,
+                          generateLabels: function (chart) {
+                            const datasets = chart.data.datasets;
+                            const labels = chart.data.labels;
+                            const total = datasets[0].data.reduce(
+                              (a, b) => a + b,
+                              0
+                            );
+
+                            return labels.map((label, i) => ({
+                              text: `${label}: ${datasets[0].data[i]} (${(
+                                (datasets[0].data[i] / total) *
+                                100
+                              ).toFixed(1)}%)`,
+                              fillStyle: datasets[0].backgroundColor[i],
+                              strokeStyle: datasets[0].backgroundColor[i],
+                              lineWidth: 0,
+                              hidden: false,
+                              index: i,
+                            }));
+                          },
+                          font: {
+                            size: 12,
+                          },
+                          color: "#333",
                         },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'right',
-                                labels: {
-                                    padding: 20,
-                                    generateLabels: function(chart) {
-                                        const datasets = chart.data.datasets;
-                                        const labels = chart.data.labels;
-                                        const total = datasets[0].data.reduce((a, b) => a + b, 0);
-                                        
-                                        return labels.map((label, i) => ({
-                                            text: `${label}: ${datasets[0].data[i]} (${((datasets[0].data[i]/total)*100).toFixed(1)}%)`,
-                                            fillStyle: datasets[0].backgroundColor[i],
-                                            strokeStyle: datasets[0].backgroundColor[i],
-                                            lineWidth: 0,
-                                            hidden: false,
-                                            index: i
-                                        }));
-                                    },
-                                    font: {
-                                        size: 12
-                                    },
-                                    color: '#333'
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'Room Occupancy Status Distribution',
-                                padding: {
-                                    top: 10,
-                                    bottom: 30
-                                },
-                                font: {
-                                    size: 16,
-                                    weight: 'bold'
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.raw || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                color: '#fff',
-                                font: {
-                                    weight: 'bold',
-                                    size: 12
-                                },
-                                formatter: function(value, context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${percentage}%`;
-                                }
-                            }
-                        }
-                    }
+                      },
+                      title: {
+                        display: true,
+                        text: _t("Room Occupancy Status Distribution"),
+                        padding: {
+                          top: 10,
+                          bottom: 30,
+                        },
+                        font: {
+                          size: 16,
+                          weight: "bold",
+                        },
+                      },
+                      tooltip: {
+                        callbacks: {
+                          label: function (context) {
+                            const label = context.label || "";
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce(
+                              (a, b) => a + b,
+                              0
+                            );
+                            const percentage = ((value / total) * 100).toFixed(
+                              1
+                            );
+                            return `${label}: ${value} (${percentage}%)`;
+                          },
+                        },
+                      },
+                      datalabels: {
+                        color: "#fff",
+                        font: {
+                          weight: "bold",
+                          size: 12,
+                        },
+                        formatter: function (value, context) {
+                          const total = context.dataset.data.reduce(
+                            (a, b) => a + b,
+                            0
+                          );
+                          const percentage = ((value / total) * 100).toFixed(1);
+                          return `${percentage}%`;
+                        },
+                      },
+                    },
+                  },
                 });
             }
         } catch (error) {
@@ -470,90 +487,97 @@ class CustomDashBoard extends Component {
 
             if (window.Chart) {
                 this.charts.dailyOccupancy = new window.Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: this.state.occupancyHistory.dates,
-                        datasets: [{
-                            label: 'Occupancy Rate (%)',
-                            data: this.state.occupancyHistory.rates,
-                            backgroundColor: '#2196F3',
-                            borderColor: '#1976D2',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Daily Occupancy Rate Trend',
-                                padding: {
-                                    top: 10,
-                                    bottom: 30
-                                }
-                            }
+                  type: "bar",
+                  data: {
+                    labels: this.state.occupancyHistory.dates,
+                    datasets: [
+                      {
+                        // label: 'Occupancy Rate (%)',
+                        label: _t("Occupancy Rate (%)"),
+                        data: this.state.occupancyHistory.rates,
+                        backgroundColor: "#2196F3",
+                        borderColor: "#1976D2",
+                        borderWidth: 1,
+                      },
+                    ],
+                  },
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                      title: {
+                        display: true,
+                        text: _t("Daily Occupancy Rate Trend"),
+                        padding: {
+                          top: 10,
+                          bottom: 30,
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                ticks: {
-                                    callback: function(value) {
-                                        return value + '%';
-                                    }
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Occupancy Rate'
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Date'
-                                }
-                            }
-                        },
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Occupancy: ${context.raw}%`;
-                                    }
-                                }
-                            },
-                            datalabels: {
-                                anchor: 'end',
-                                align: 'top',
-                                formatter: function(value) {
-                                    return value + '%';
-                                },
-                                font: {
-                                    weight: 'bold'
-                                },
-                                color: '#1976D2'
-                            }
-                        }
+                      },
                     },
-                    plugins: [{
-                        afterDraw: function(chart) {
-                            var ctx = chart.ctx;
-                            chart.data.datasets.forEach(function(dataset) {
-                                chart.getDatasetMeta(0).data.forEach(function(bar, index) {
-                                    var data = dataset.data[index];
-                                    ctx.fillStyle = '#1976D2';
-                                    ctx.textAlign = 'center';
-                                    ctx.textBaseline = 'bottom';
-                                    ctx.font = 'bold 12px Arial';
-                                    ctx.fillText(data + '%', bar.x, bar.y - 5);
-                                });
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                          callback: function (value) {
+                            return value + "%";
+                          },
+                        },
+                        title: {
+                          display: true,
+                          text: _t("Occupancy Rate"),
+                        },
+                      },
+                      x: {
+                        title: {
+                          display: true,
+                          text: _t("Date"),
+                        },
+                      },
+                    },
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          label: function (context) {
+                            return `Occupancy: ${context.raw}%`;
+                          },
+                        },
+                      },
+                      datalabels: {
+                        anchor: "end",
+                        align: "top",
+                        formatter: function (value) {
+                          return value + "%";
+                        },
+                        font: {
+                          weight: "bold",
+                        },
+                        color: "#1976D2",
+                      },
+                    },
+                  },
+                  plugins: [
+                    {
+                      afterDraw: function (chart) {
+                        var ctx = chart.ctx;
+                        chart.data.datasets.forEach(function (dataset) {
+                          chart
+                            .getDatasetMeta(0)
+                            .data.forEach(function (bar, index) {
+                              var data = dataset.data[index];
+                              ctx.fillStyle = "#1976D2";
+                              ctx.textAlign = "center";
+                              ctx.textBaseline = "bottom";
+                              ctx.font = "bold 12px Arial";
+                              ctx.fillText(data + "%", bar.x, bar.y - 5);
                             });
-                        }
-                    }]
+                        });
+                      },
+                    },
+                  ],
                 });
             }
         } catch (error) {
@@ -574,13 +598,13 @@ class CustomDashBoard extends Component {
                 data: {
                     labels: this.state.arrivalsVsDepartures.dates,
                     datasets: [{
-                        label: 'Arrivals',
+                        label: _t('Arrivals'),
                         data: this.state.arrivalsVsDepartures.arrivals,
                         backgroundColor: 'rgba(75, 192, 192, 0.8)',
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1
                     }, {
-                        label: 'Departures',
+                        label: _t('Departures'),
                         data: this.state.arrivalsVsDepartures.departures,
                         backgroundColor: 'rgba(255, 99, 132, 0.8)',
                         borderColor: 'rgba(255, 99, 132, 1)',
@@ -654,49 +678,54 @@ class CustomDashBoard extends Component {
             }
 
             this.charts.roomStatusByType = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: this.state.roomStatusByType.types,
-                    datasets: [{
-                        label: 'Available',
-                        data: this.state.roomStatusByType.available,
-                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                        stack: 'Stack 0',
-                    }, {
-                        label: 'Occupied',
-                        data: this.state.roomStatusByType.occupied,
-                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                        stack: 'Stack 0',
-                    }, {
-                        label: 'Reserved',
-                        data: this.state.roomStatusByType.reserved,
-                        backgroundColor: 'rgba(255, 206, 86, 0.8)',
-                        stack: 'Stack 0',
-                    }, {
-                        label: 'Out of Order',
-                        data: this.state.roomStatusByType.outOfOrder,
-                        backgroundColor: 'rgba(153, 102, 255, 0.8)',
-                        stack: 'Stack 0',
-                    }]
+              type: "bar",
+              data: {
+                labels: this.state.roomStatusByType.types,
+                datasets: [
+                  {
+                    label: _t("Available"),
+                    data: this.state.roomStatusByType.available,
+                    backgroundColor: "rgba(75, 192, 192, 0.8)",
+                    stack: "Stack 0",
+                  },
+                  {
+                    label: _t("Occupied"),
+                    data: this.state.roomStatusByType.occupied,
+                    backgroundColor: "rgba(255, 99, 132, 0.8)",
+                    stack: "Stack 0",
+                  },
+                  {
+                    label: _t("Reserved"),
+                    data: this.state.roomStatusByType.reserved,
+                    backgroundColor: "rgba(255, 206, 86, 0.8)",
+                    stack: "Stack 0",
+                  },
+                  {
+                    label: _t("Out of Order"),
+                    data: this.state.roomStatusByType.outOfOrder,
+                    backgroundColor: "rgba(153, 102, 255, 0.8)",
+                    stack: "Stack 0",
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "top",
+                  },
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true
-                        }
-                    }
-                }
+                scales: {
+                  x: {
+                    stacked: true,
+                  },
+                  y: {
+                    stacked: true,
+                    beginAtZero: true,
+                  },
+                },
+              },
             });
         } catch (error) {
             console.error('Error rendering room status by type chart:', error);
@@ -712,37 +741,40 @@ class CustomDashBoard extends Component {
             }
 
             this.charts.roomAvailabilityTimeline = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: this.state.availabilityTimeline.dates,
-                    datasets: [{
-                        label: 'Available Rooms',
-                        data: this.state.availabilityTimeline.available,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true
-                    }, {
-                        label: 'Total Rooms',
-                        data: this.state.availabilityTimeline.total,
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                        fill: true
-                    }]
+              type: "line",
+              data: {
+                labels: this.state.availabilityTimeline.dates,
+                datasets: [
+                  {
+                    label: _t("Available Rooms"),
+                    data: this.state.availabilityTimeline.available,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    fill: true,
+                  },
+                  {
+                    label: _t("Total Rooms"),
+                    data: this.state.availabilityTimeline.total,
+                    borderColor: "rgba(153, 102, 255, 1)",
+                    backgroundColor: "rgba(153, 102, 255, 0.2)",
+                    fill: true,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "top",
+                  },
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+              },
             });
         } catch (error) {
             console.error('Error rendering room availability timeline chart:', error);
@@ -755,26 +787,31 @@ class CustomDashBoard extends Component {
 
         if (window.Chart) {
             new window.Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [this.state.expected_occupied_rate, 100 - this.state.expected_occupied_rate],
-                        backgroundColor: ['#4CAF50', '#EEEEEE']
-                    }]
+              type: "doughnut",
+              data: {
+                datasets: [
+                  {
+                    data: [
+                      this.state.expected_occupied_rate,
+                      100 - this.state.expected_occupied_rate,
+                    ],
+                    backgroundColor: ["#4CAF50", "#EEEEEE"],
+                  },
+                ],
+              },
+              options: {
+                circumference: 180,
+                rotation: -90,
+                plugins: {
+                  legend: {
+                    display: false,
+                  },
+                  title: {
+                    display: true,
+                    text: _t("Occupancy Rate"),
+                  },
                 },
-                options: {
-                    circumference: 180,
-                    rotation: -90,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Occupancy Rate'
-                        }
-                    }
-                }
+              },
             });
         }
     }
@@ -802,40 +839,43 @@ class CustomDashBoard extends Component {
 
             const ctx = document.getElementById('arrivalsVsDeparturesChart').getContext('2d');
             new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: result.dates,
-                    datasets: [{
-                        label: 'Arrivals',
-                        data: result.arrivals,
-                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Departures',
-                        data: result.departures,
-                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
+              type: "bar",
+              data: {
+                labels: result.dates,
+                datasets: [
+                  {
+                    label: _t("Arrivals"),
+                    data: result.arrivals,
+                    backgroundColor: "rgba(75, 192, 192, 0.8)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1,
+                  },
+                  {
+                    label: _t("Departures"),
+                    data: result.departures,
+                    backgroundColor: "rgba(255, 99, 132, 0.8)",
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    borderWidth: 1,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "top",
+                  },
+                  title: {
+                    display: false,
+                  },
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+              },
             });
         } catch (error) {
             console.error('Error fetching arrivals vs departures data:', error);
@@ -894,52 +934,57 @@ class CustomDashBoard extends Component {
 
             const ctx = document.getElementById('roomStatusByTypeChart').getContext('2d');
             new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: result.types,
-                    datasets: [{
-                        label: 'Available',
-                        data: result.available,
-                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                        stack: 'Stack 0',
-                    }, {
-                        label: 'Occupied',
-                        data: result.occupied,
-                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
-                        stack: 'Stack 0',
-                    }, {
-                        label: 'Reserved',
-                        data: result.reserved,
-                        backgroundColor: 'rgba(255, 206, 86, 0.8)',
-                        stack: 'Stack 0',
-                    }, {
-                        label: 'Out of Order',
-                        data: result.outOfOrder,
-                        backgroundColor: 'rgba(153, 102, 255, 0.8)',
-                        stack: 'Stack 0',
-                    }]
+              type: "bar",
+              data: {
+                labels: result.types,
+                datasets: [
+                  {
+                    label: _t("Available"),
+                    data: result.available,
+                    backgroundColor: "rgba(75, 192, 192, 0.8)",
+                    stack: "Stack 0",
+                  },
+                  {
+                    label: _t("Occupied"),
+                    data: result.occupied,
+                    backgroundColor: "rgba(255, 99, 132, 0.8)",
+                    stack: "Stack 0",
+                  },
+                  {
+                    label: _t("Reserved"),
+                    data: result.reserved,
+                    backgroundColor: "rgba(255, 206, 86, 0.8)",
+                    stack: "Stack 0",
+                  },
+                  {
+                    label: _t("Out of Order"),
+                    data: result.outOfOrder,
+                    backgroundColor: "rgba(153, 102, 255, 0.8)",
+                    stack: "Stack 0",
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "top",
+                  },
+                  title: {
+                    display: false,
+                  },
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true
-                        }
-                    }
-                }
+                scales: {
+                  x: {
+                    stacked: true,
+                  },
+                  y: {
+                    stacked: true,
+                    beginAtZero: true,
+                  },
+                },
+              },
             });
         } catch (error) {
             console.error('Error fetching room status by type data:', error);
@@ -956,40 +1001,43 @@ class CustomDashBoard extends Component {
 
             const ctx = document.getElementById('roomAvailabilityTimelineChart').getContext('2d');
             new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: result.dates,
-                    datasets: [{
-                        label: 'Available Rooms',
-                        data: result.available,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true
-                    }, {
-                        label: 'Total Rooms',
-                        data: result.total,
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                        fill: true
-                    }]
+              type: "line",
+              data: {
+                labels: result.dates,
+                datasets: [
+                  {
+                    label: _t("Available Rooms"),
+                    data: result.available,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    fill: true,
+                  },
+                  {
+                    label: _t("Total Rooms"),
+                    data: result.total,
+                    borderColor: "rgba(153, 102, 255, 1)",
+                    backgroundColor: "rgba(153, 102, 255, 0.2)",
+                    fill: true,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "top",
+                  },
+                  title: {
+                    display: false,
+                  },
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+              },
             });
         } catch (error) {
             console.error('Error fetching room availability timeline data:', error);

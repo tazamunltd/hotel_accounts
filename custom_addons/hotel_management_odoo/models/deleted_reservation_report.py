@@ -137,31 +137,29 @@ company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
 system_date_company AS (
-    SELECT 
-        id AS company_id, 
-        system_date::date AS system_date,
-        create_date::date AS create_date
-    FROM res_company rc 
-    WHERE rc.id IN (SELECT company_id FROM company_ids)
-),
-
-date_series AS (
-    SELECT generate_series(
-        GREATEST(p.from_date, c.create_date), 
-        p.to_date, 
-        INTERVAL '1 day'
-    )::date AS report_date
-    FROM parameters p
-    CROSS JOIN system_date_company c
-),
-
+        SELECT 
+            id AS company_id, 
+            system_date::date AS system_date,
+            create_date::date AS create_date
+        FROM res_company rc 
+        WHERE rc.id IN (SELECT company_id FROM company_ids)
+    ),
+    date_series AS (
+        SELECT generate_series(
+            GREATEST(p.from_date, c.create_date), 
+            p.to_date, 
+            INTERVAL '1 day'
+        )::date AS report_date
+        FROM parameters p
+        CROSS JOIN system_date_company c
+    ),
     transformed AS (
         SELECT
             rb.id,
             rb.company_id,
             'deleted reservations' AS state,
             rb.state AS original_state,
-            COALESCE(jsonb_extract_path_text(gb.name::jsonb, 'en_US'),'N/A') AS group_booking_name,
+            COALESCE(jsonb_extract_path_text(gb.name::jsonb, 'en_US'), 'N/A') AS group_booking_name,
             rb.room_count,
             rb.adult_count,
             rb.room_id,
@@ -171,9 +169,21 @@ date_series AS (
             (rb.checkout_date - rb.checkin_date) AS no_of_nights,
             rb.vip,
             rb.house_use,
-            COALESCE(jsonb_extract_path_text(mc.meal_code::jsonb, 'en_US'),'N/A') AS meal_pattern_code,
-            COALESCE(jsonb_extract_path_text(cc.code::jsonb, 'en_US'),'N/A') AS complementary_code,
-            COALESCE(jsonb_extract_path_text(rc_country.name::jsonb, 'en_US'), 'N/A') AS nationality,
+
+            /* Use mp.name instead of mp.code here */
+            COALESCE(
+                jsonb_extract_path_text(mp.meal_pattern::jsonb, 'en_US'),
+                'N/A'
+            ) AS meal_pattern_code,
+
+            COALESCE(
+                jsonb_extract_path_text(cc.code::jsonb, 'en_US'),
+                'N/A'
+            ) AS complementary_code,
+            COALESCE(
+                jsonb_extract_path_text(rc_country.name::jsonb, 'en_US'),
+                'N/A'
+            ) AS nationality,
             rb.date_order,
             rp.id AS partner_id,
             rp.company_id AS partner_company_id,
@@ -182,29 +192,28 @@ date_series AS (
             rb.ref_id_bk,
             rb.write_uid AS write_user,
             wp.name AS write_user_name
-        FROM 
-            room_booking rb
-        LEFT JOIN 
-            group_booking gb ON rb.group_booking = gb.id
-        LEFT JOIN 
-            meal_code mc ON rb.meal_pattern = mc.id
-        LEFT JOIN 
-            complimentary_code cc ON rb.complementary_codes = cc.id
-        LEFT JOIN 
-            res_country rc_country ON rb.nationality = rc_country.id
-        LEFT JOIN 
-            res_users ru ON rb.write_uid = ru.id
-        LEFT JOIN 
-            res_partner rp ON rb.partner_id = rp.id
-        LEFT JOIN 
-            hotel_room hr ON rb.room_id = hr.id
-        LEFT JOIN 
-            res_partner wp ON ru.partner_id = wp.id
+        FROM room_booking rb
+        LEFT JOIN group_booking gb 
+               ON rb.group_booking = gb.id
+        LEFT JOIN meal_pattern mp  -- changed from meal_code to meal_pattern
+               ON rb.meal_pattern = mp.id
+        LEFT JOIN complimentary_code cc 
+               ON rb.complementary_codes = cc.id
+        LEFT JOIN res_country rc_country 
+               ON rb.nationality = rc_country.id
+        LEFT JOIN res_users ru 
+               ON rb.write_uid = ru.id
+        LEFT JOIN res_partner rp 
+               ON rb.partner_id = rp.id
+        LEFT JOIN hotel_room hr 
+               ON rb.room_id = hr.id
+        LEFT JOIN res_partner wp 
+               ON ru.partner_id = wp.id
         WHERE rb.company_id IN (SELECT company_id FROM company_ids) 
-            AND rb.date_order BETWEEN (SELECT from_date FROM parameters) 
-            AND (SELECT to_date FROM parameters) AND
-            rb.active = FALSE
-            AND rb.state IN ('no_show', 'cancel', 'not_confirmed')  -- <-- New condition here
+          AND rb.date_order BETWEEN (SELECT from_date FROM parameters) 
+                               AND (SELECT to_date FROM parameters)
+          AND rb.active = FALSE
+          AND rb.state IN ('no_show', 'cancel', 'not_confirmed')
     )
 SELECT
     t.id,
@@ -232,12 +241,10 @@ SELECT
     t.ref_id_bk,
     t.write_user,
     t.write_user_name
-FROM 
-    transformed t
-LEFT JOIN 
-    room_types rt 
-    ON t.hotel_room_type = rt.room_type_id
-GROUP BY 
+FROM transformed t
+LEFT JOIN room_types rt
+       ON t.hotel_room_type = rt.room_type_id
+GROUP BY
     t.id,
     t.company_id,
     t.state,
@@ -263,8 +270,7 @@ GROUP BY
     t.ref_id_bk,
     t.write_user,
     t.write_user_name
-ORDER BY 
-    t.date_order;
+ORDER BY t.date_order;
         """
 
         self.env.cr.execute(query)

@@ -975,8 +975,11 @@ class RoomBookingLine(models.Model):
                     print(f"Created new infant record for booking: {parent_booking.id}, Room Sequence: {counter}")
             else:
                 existing_infant.write({'room_id': self.room_id.id})
+    
 
     def write(self, vals):
+        
+        record_to_delete = []
         records_to_update = []
         records_to_delete = []
         parent_bookings_to_update = []
@@ -1238,7 +1241,10 @@ class RoomBookingLine(models.Model):
                                 'checkout_date': parent_booking.checkout_date,
                                 'state': 'block',
                                 'group_booking': parent_booking.group_booking.id,
-                                'is_offline_search': False
+                                'is_offline_search': False,
+                                # 'is_grp_company': parent_booking.is_grp_company,
+                                'is_agent': parent_booking.is_agent,
+                                'no_of_nights': parent_booking.no_of_nights
                                 # 'is_room_line_readonly': True,
                             }
 
@@ -1248,6 +1254,16 @@ class RoomBookingLine(models.Model):
                             # Create the new child booking
                             new_id_booking =self.env['room.booking'].create(new_booking_vals)
                             print('line 1141', self.counter, new_id_booking.id)
+                            
+                              # Ensure 'counter' field exists in 'room.booking'
+
+                            # Search for room.booking.line records with the same counter
+                            print('1259', self.counter, record.id, parent_booking.id)
+                            lines_to_delete = self.env['room.booking.line'].search([('counter', '=', self.counter),  ('booking_id', '=', parent_booking.id)])
+                            print('1261', lines_to_delete)
+                            record_to_delete.append(lines_to_delete)
+                            # Delete the records
+                            
                             # if counter is None:
                             #     counter = 1  # or some default fallback
                             self.create_adult_record(parent_booking,new_id_booking, self.counter)
@@ -1272,9 +1288,11 @@ class RoomBookingLine(models.Model):
         for booking, booking_vals in parent_bookings_to_update:
             # print(f"Updating parent booking: {booking}, values: {booking_vals}")
             booking.write(booking_vals)
-
+        
+        
         # Call super to finalize other updates
         result = super(RoomBookingLine, self).write(vals)
+            
         lines_to_update = None
         counter_line = 0
         booking_id_check = 0
@@ -1326,6 +1344,36 @@ class RoomBookingLine(models.Model):
                 ])
                 # super(RoomBookingLine, self).write(vals)
                 result = lines_to_update.write({'room_id': line.room_id.id})
+        
+        for line in record_to_delete:
+            line_booking_obj = line.booking_id
+            line_booking = line.booking_id.id
+            line_counter = line.counter
+            super(RoomBookingLine, line).unlink()
+            adult_lines = self.env['reservation.adult'].search([
+                    # Match parent booking ID
+                    ('reservation_id', '=', line_booking),
+                    ('room_sequence', '=', line_counter)  # Exclude matching counter value
+                ], order='room_sequence asc')
+            adult_lines.unlink()
+            child_lines = self.env['reservation.child'].search([
+                    # Match parent booking ID
+                    ('reservation_id', '=', line_booking),
+                    ('room_sequence', '=', line_counter)  # Exclude matching counter value
+                ], order='room_sequence asc')
+            child_lines.unlink()
+            infant_lines = self.env['reservation.infant'].search([
+                    # Match parent booking ID
+                    ('reservation_id', '=', line_booking),
+                    ('room_sequence', '=', line_counter)  # Exclude matching counter value
+                ], order='room_sequence asc')
+            infant_lines.unlink()
+
+            if len(line_booking_obj.room_line_ids) > 0:
+                    print('530', len(line_booking_obj.room_line_ids), line_booking_obj)
+                    line_booking_obj.write({'room_count': len(line_booking_obj.room_line_ids)})
+            
+            
         return result
 
     

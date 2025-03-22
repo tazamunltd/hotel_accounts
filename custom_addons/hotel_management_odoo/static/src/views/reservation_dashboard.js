@@ -153,7 +153,6 @@ export class ReservationDashBoard extends Component {
       console.error("Tree view element not found");
       return;
     }
-    console.log("trueview", treeViewElement);
     // Attach an event listener for checkbox changes
     //        treeViewElement.addEventListener("change", (event) => {
     //            const targetCheckbox = event.target;
@@ -299,7 +298,6 @@ export class ReservationDashBoard extends Component {
     if (!this.dashboardData.selectedIds.includes(bookingName)) {
       this.dashboardData.selectedIds.push(bookingName);
     }
-    console.log("Updated Selected IDs:", this.dashboardData.selectedIds);
   }
 
   removeFromSelected(bookingName, parentBookingName) {
@@ -334,10 +332,6 @@ export class ReservationDashBoard extends Component {
         });
     }
 
-    console.log(
-      "Updated Selected IDs after removal:",
-      this.dashboardData.selectedIds
-    );
   }
 
   handleCheckboxChange(checkbox) {
@@ -389,7 +383,6 @@ export class ReservationDashBoard extends Component {
       }
     }
 
-    console.log("Updated Selected IDs:", this.dashboardData.selectedIds);
   }
 
   /**
@@ -406,7 +399,6 @@ export class ReservationDashBoard extends Component {
     // console.log('system date:', systemDate, 'type:', typeof systemDate);
 
     const systemDateString = await this.fetchSystemDate();
-    console.log("system date", systemDateString);
 
     // Convert the string to a Date object
     const [day, month, year] = systemDateString.split("/").map(Number);
@@ -493,10 +485,19 @@ export class ReservationDashBoard extends Component {
       domain = [["state", "=", "check_out"]];
       actionName = "Check-Out";
     } else if (filter_name === "vacant") {
-      // Redirect to the specific URL
-      window.location.href =
-        "/web#action=425&model=room.booking&view_type=list&cids=27&menu_id=306";
-      return; // Exit after redirection
+      this.action.doAction({
+        type: "ir.actions.act_window",
+        name: "Room Booking",
+        res_model: "room.booking",
+        view_mode: "list",
+        views: [[false, "list"]],
+        target: "current",
+      });
+      return;
+      // // Redirect to the specific URL
+      // window.location.href =
+      //   "/web#action=425&model=room.booking&view_type=list";
+      // return; // Exit after redirection
     }
 
     //     if (filter_name === "vacant") {

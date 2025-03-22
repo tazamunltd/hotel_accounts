@@ -817,11 +817,11 @@
         <field name="model_id" ref="model_group_booking" />
         <field name="state">code</field>
         <field name="code">
-            action = {
+        action = {
             'type': 'ir.actions.act_url',
-            'url': '/generate_rc/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)),
+            'url': '/generate_rc/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)) + '&amp;company_id=' + str(env.company.id),
             'target': 'self',
-            }
+        }
         </field>
         <field name="binding_model_id" ref="model_group_booking" />
         <field name="binding_type">action</field>

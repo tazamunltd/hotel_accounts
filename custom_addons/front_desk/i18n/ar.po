@@ -178,7 +178,7 @@ msgstr "زر الإلغاء"
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__cancelled
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__cancel
 msgid "Cancelled"
-msgstr "ملغى"
+msgstr "ملغي"
 
 #. module: front_desk
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__payment_type__cash
@@ -189,7 +189,7 @@ msgstr "الدفع نقدًا"
 #: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__checkin_date
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__check_in
 msgid "Check In"
-msgstr "تسجيل الوصول"
+msgstr "وصول"
 
 #. module: front_desk
 #: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__checkout_date
@@ -1006,7 +1006,7 @@ msgstr "عدد الأشخاص"
 #. module: front_desk
 #: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__duration
 msgid "Number of days which will automatically count from the check-in and check-out date."
-msgstr "عدد الأيام الذي سيتم حسابه تلقائيًا من تاريخ تسجيل الوصول والمغادرة."
+msgstr "عدد الأيام الذي سيتم حسابه تلقائيًا من تاريخ الوصول والمغادرة."
 
 #. module: front_desk
 #: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_has_error_counter
@@ -1037,7 +1037,7 @@ msgstr "عند الحجز"
 #. module: front_desk
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__hotel_policy__manual
 msgid "On Check In"
-msgstr "عند تسجيل الوصول"
+msgstr "عند الوصول"
 
 #. module: front_desk
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__hotel_policy__picking
@@ -1967,12 +1967,12 @@ msgstr "الحالات المرئية"
 #. module: front_desk
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__wait_list
 msgid "Wait List"
-msgstr "قائمة الانتظار"
+msgstr "إنتظار"
 
 #. module: front_desk
 #: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__waiting
 msgid "Waiting List"
-msgstr "قائمة الانتظار"
+msgstr "إنتظار"
 
 #. module: front_desk
 #: model:ir.model,name:front_desk.model_room_booking_front_desk

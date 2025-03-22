@@ -527,6 +527,9 @@ class RoomBooking(models.Model):
                 # Compare checkin_date with system_date
                 print(checkin_date_, system_date, "line 528", (checkin_date_ < system_date))
                 record.is_checkin_in_past = (checkin_date_ < system_date)
+                # if len(record.parent_booking_id.room_line_ids) > 0:
+                #     print('530', len(record.parent_booking_id.room_line_ids), record.parent_booking_id)
+                #     record.parent_booking_id.write({'room_count': len(record.parent_booking_id.room_line_ids)})
             else:
                 record.is_checkin_in_past = False
 
@@ -2421,32 +2424,58 @@ class RoomBooking(models.Model):
         readonly=False,  # so the user can edit it if you want to allow that
     )
 
+    # @api.depends('checkin_date', 'checkout_date')
+    # def _compute_no_of_nights(self):
+    #     """
+    #     Calculate the difference in days between Check-In and Check-Out.
+    #     If either date is missing or checkout < checkin, result is 0.
+    #     """
+    #     for rec in self:
+    #         if rec.checkin_date and rec.checkout_date:
+    #             # If checkout is before checkin, just interpret as 0
+    #             delta_days = (rec.checkout_date - rec.checkin_date).days
+    #             rec.no_of_nights = delta_days if delta_days >= 0 else 0
+    #         else:
+    #             rec.no_of_nights = 0
+
     @api.depends('checkin_date', 'checkout_date')
     def _compute_no_of_nights(self):
-        """
-        Calculate the difference in days between Check-In and Check-Out.
-        If either date is missing or checkout < checkin, result is 0.
-        """
         for rec in self:
             if rec.checkin_date and rec.checkout_date:
-                # If checkout is before checkin, just interpret as 0
-                delta_days = (rec.checkout_date - rec.checkin_date).days
-                rec.no_of_nights = delta_days if delta_days >= 0 else 0
+                # Convert to date objects so time of day is ignored
+                in_date = fields.Date.to_date(rec.checkin_date)
+                out_date = fields.Date.to_date(rec.checkout_date)
+                diff_days = (out_date - in_date).days
+                rec.no_of_nights = diff_days if diff_days >= 0 else 0
             else:
                 rec.no_of_nights = 0
+
+    # def _inverse_no_of_nights(self):
+    #     """
+    #     When a user edits no_of_nights directly, recompute checkout_date
+    #     based on checkin_date + no_of_nights days.
+    #     """
+    #     for rec in self:
+    #         # Only update checkout_date if we have a checkin_date
+    #         # and a non-negative no_of_nights
+    #         if rec.checkin_date and rec.no_of_nights >= 0:
+    #             rec.checkout_date = rec.checkin_date + timedelta(days=rec.no_of_nights)
+    #         # If checkin_date is empty or no_of_nights < 0, do nothing
 
     def _inverse_no_of_nights(self):
         """
         When a user edits no_of_nights directly, recompute checkout_date
         based on checkin_date + no_of_nights days.
+        If no_of_nights is 0, set checkout_date to 2 hours after checkin_date.
         """
         for rec in self:
-            # Only update checkout_date if we have a checkin_date
-            # and a non-negative no_of_nights
-            if rec.checkin_date and rec.no_of_nights >= 0:
-                rec.checkout_date = rec.checkin_date + timedelta(days=rec.no_of_nights)
-            # If checkin_date is empty or no_of_nights < 0, do nothing
-
+            if rec.checkin_date:
+                if rec.no_of_nights > 0:
+                    # Normal case: Add no_of_nights days
+                    rec.checkout_date = rec.checkin_date + timedelta(days=rec.no_of_nights)
+                else:
+                    # If no_of_nights is 0, set checkout_date to 2 hours after checkin_date
+                    rec.checkout_date = rec.checkin_date + timedelta(hours=2)
     
     
     
@@ -2470,8 +2499,7 @@ class RoomBooking(models.Model):
     def _onchange_checkin_date_or_no_of_nights(self):
         if self.checkin_date:
             # Convert current time to user's timezone
-            current_time = fields.Datetime.context_timestamp(
-                self, fields.Datetime.now())
+            current_time = fields.Datetime.context_timestamp(self, fields.Datetime.now())
             buffer_time = current_time - timedelta(minutes=10)
 
             # Convert checkin_date to user's timezone for comparison
@@ -2697,11 +2725,12 @@ class RoomBooking(models.Model):
     #     ],tracking=True)
 
     hotel_room_type = fields.Many2one(
-        'room.type',
+        'hotel.inventory',
         string="Room Type",
         domain=lambda self: [
-            ('obsolete', '=', False),
-            ('company_id', '=', self.env.company.id)
+            # ('obsolete', '=', False),
+            ('company_id', '=', self.env.company.id),
+            ('room_type.obsolete', '=', False),
         ],
         tracking=True
     )
@@ -5928,6 +5957,8 @@ class RoomBooking(models.Model):
                 _("Please Enter time zone in user settings."))
 
     room_count = fields.Integer(string='Rooms', tracking=True)
+    
+    
 
     @api.onchange('room_count')
     def _check_room_count(self):
@@ -6783,15 +6814,15 @@ class RoomBooking(models.Model):
                     ('hotel_room_type', '=', room_type_id),
                     # ('booking_id.room_count', '=', 1),
                     # ('adult_count', '=', availability['pax']),
-                    ('checkin_date', '<=', checkout_date),
-                    ('checkout_date', '>=', checkin_date),
+                    ('checkin_date', '<', checkout_date),
+                    ('checkout_date', '>', checkin_date),
                     # ('checkout_date', '!=', today_date), 
                     ('checkout_date', 'not like', today_date + '%'),
-                    ('state', 'in', ['check_in', 'block']),
+                    ('state', 'in', ['check_in', 'block','confirmed']),
                     # Exclude allocated lines
                     ('id', 'not in', self.env.context.get('already_allocated', []))
                 ])
-                print('6769', booked_rooms)
+                print('6769', booked_rooms,self.env.context.get('already_allocated', []))
 
                 rooms_on_hold_count = self.env['rooms.on.hold.management.front.desk'].search_count([
                     ('company_id', '=', self.env.company.id),
@@ -6817,7 +6848,7 @@ class RoomBooking(models.Model):
                     ('state', '=', 'confirmed'),
                     ('id', 'not in', self.env.context.get('already_allocated', []))
                 ])
-
+                print('6832', confirmed_bookings)
                 # Get the count of room_line_ids for confirmed bookings
                 confirmed_room_lines_count = sum(len(booking.room_line_ids) for booking in confirmed_bookings)
                 print('6795',confirmed_room_lines_count )
@@ -6841,8 +6872,8 @@ class RoomBooking(models.Model):
                         ('hotel_room_type', '=', room_type_id),
                         # ('booking_id.room_count', '=', 1),
                         # ('adult_count', '=', availability['pax']),
-                        ('checkin_date', '<=', checkout_date),
-                        ('checkout_date', '>=', checkin_date),
+                        ('checkin_date', '<', checkout_date),
+                        ('checkout_date', '>', checkin_date),
                         ('booking_id.state', 'in', [
                             'confirmed', 'check_in', 'block']),
                     ], limit=current_rooms_reserved)
@@ -7113,10 +7144,10 @@ class RoomBooking(models.Model):
 
             booked_rooms = self.env['room.booking'].search_count([
                 ('hotel_room_type', '=', room_type_id),
-                ('checkin_date', '<=', checkout_date),
-                ('checkout_date', '>=', checkin_date),
+                ('checkin_date', '<', checkout_date),
+                ('checkout_date', '>', checkin_date),
                 ('checkout_date', 'not like', today_date + '%'),
-                ('state', 'in', ['check_in', 'block']),
+                ('state', 'in', ['check_in', 'block','confirmed']),
                 ('id', 'not in', self.env.context.get('already_allocated', []))
             ])
             print(f"Booked rooms count: {booked_rooms}")
@@ -8246,7 +8277,7 @@ class AccountMoveLine(models.Model):
 
     posting_item_id = fields.Many2one(
         'posting.item', string="Posting Item",
-        required=True, help="Select the posting item."
+        required=False, help="Select the posting item."
     )
     posting_description = fields.Char(
         string="Description",
@@ -8295,11 +8326,42 @@ class SystemDate(models.Model):
     
     system_date = fields.Datetime(
         string="System Date",
-        default=lambda self: fields.Datetime.now(),
+        # default=lambda self: fields.Datetime.now(),
+        default=lambda self: self._default_system_date(),
         tracking=True,
         required=True,
         help="The current system date and time."
     )
+
+    def action_update_system_date(self):
+        """Add 1 day to the system_date for each record in self."""
+        for rec in self:
+            if rec.system_date:
+                rec.system_date = rec.system_date + timedelta(days=1)
+            else:
+                rec.system_date = fields.Date.context_today(self)
+
+    @api.model
+    def _default_system_date(self):
+        """
+        Returns today's date with the time set to 23:30 (11:30 PM) **without timezone info**.
+        """
+        user_tz = self.env.user.tz or 'UTC'  # Get user timezone or default to UTC
+        today_date = fields.Date.context_today(self)  # Today's date in user’s timezone
+        default_time = time(20, 00)  # 23:30:00 (11:30 PM)
+
+        # Combine date and time
+        user_timezone = pytz.timezone(user_tz)
+        local_dt = user_timezone.localize(datetime.combine(today_date, default_time))  # Localized datetime
+
+        # Convert to UTC
+        utc_dt = local_dt.astimezone(pytz.utc)
+
+        # **FIX:** Convert to naive datetime (remove timezone info)
+        naive_utc_dt = utc_dt.replace(tzinfo=None)
+
+        return naive_utc_dt  # Store as naive datetime
+
 
     @api.constrains('system_date')
     def _check_system_date(self):
@@ -8407,6 +8469,7 @@ class HotelInventory(models.Model):
     _description = 'Hotel Inventory'
     _table = 'hotel_inventory'  # This should match the database table name
 
+    _rec_name = 'room_type'
     # image = fields.Image(string="Image", max_width=128, max_height=128)
     image = fields.Binary(string='Image', attachment=True)
     hotel_name = fields.Integer(string="Hotel Name")

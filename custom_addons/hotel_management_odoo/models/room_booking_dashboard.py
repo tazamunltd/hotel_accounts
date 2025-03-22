@@ -674,7 +674,7 @@ class RoomBookingDashboard(models.Model):
                 'salesData'     : cumulative_sales,
              }
             
-            _logger.info('Returning dashboard data: %s', response_data)
+            # _logger.info('Returning dashboard data: %s', response_data)
             return response_data
             
         except Exception as e:

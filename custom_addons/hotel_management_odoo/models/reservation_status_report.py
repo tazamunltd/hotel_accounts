@@ -145,28 +145,27 @@ company_ids AS (
     SELECT unnest(ARRAY{company_ids}::int[]) AS company_id
 ),
 system_date_company AS (
-    SELECT 
-        id AS company_id, 
-        system_date::date AS system_date,
-        create_date::date AS create_date
-    FROM res_company rc 
-    WHERE rc.id IN (SELECT company_id FROM company_ids)
-),
-
-date_series AS (
-    SELECT generate_series(
-        GREATEST(p.from_date, c.create_date), 
-        p.to_date, 
-        INTERVAL '1 day'
-    )::date AS report_date
-    FROM parameters p
-    CROSS JOIN system_date_company c
-),
+        SELECT 
+            id AS company_id, 
+            system_date::date AS system_date,
+            create_date::date AS create_date
+        FROM res_company rc 
+        WHERE rc.id IN (SELECT company_id FROM company_ids)
+    ),
+    date_series AS (
+        SELECT generate_series(
+            GREATEST(p.from_date, c.create_date), 
+            p.to_date, 
+            INTERVAL '1 day'
+        )::date AS report_date
+        FROM parameters p
+        CROSS JOIN system_date_company c
+    ),
 
     transformed AS (
         SELECT
             rb.company_id,
-            rb.ref_id_bk, -- Including ref_id_bk
+            rb.ref_id_bk,
             CASE
                 WHEN rb.state IN ('confirmed', 'block') THEN 'reserved'
                 WHEN rb.state IN ('cancel') THEN 'cancelled'
@@ -176,56 +175,60 @@ date_series AS (
             COALESCE(jsonb_extract_path_text(gb.name::jsonb, 'en_US')) AS group_booking_name,
             rb.room_count,
             rb.adult_count,
-            rbl.room_id, -- Fetching room_id from room_booking_line_status
+            rbl.room_id,
             rb.hotel_room_type,
             rb.checkin_date,
             rb.checkout_date,
             (rb.checkout_date - rb.checkin_date) AS no_of_nights,
             rb.vip,
             rb.house_use,
-            COALESCE(jsonb_extract_path_text(mc.meal_code::jsonb, 'en_US'),'N/A') AS meal_pattern_code,
-            COALESCE(jsonb_extract_path_text(cc.code::jsonb, 'en_US'),'N/A') AS complementary_code,
+            COALESCE(jsonb_extract_path_text(mp.meal_pattern::jsonb, 'en_US'),'N/A') AS meal_pattern_code,
+
+            -- IMPORTANT: make sure the table name and field match your DB exactly
+            COALESCE(jsonb_extract_path_text(cc.code::jsonb, 'en_US'), 'N/A') AS complementary_code,
+            
             COALESCE(jsonb_extract_path_text(rc_country.name::jsonb, 'en_US'), 'N/A') AS nationality,
             rb.date_order,
             rp.id AS partner_id,
             rp.company_id AS partner_company_id,
             rp.name AS partner_name,
             rb.write_uid AS write_user,
-			wp.name AS write_user_name
-        FROM
-            room_booking rb
-        LEFT JOIN
-            room_booking_line rbl ON rb.id = rbl.booking_id -- Joining room_booking_line_status
-        LEFT JOIN
-            group_booking gb ON rb.group_booking = gb.id
-        LEFT JOIN
-            meal_code mc ON rb.meal_pattern = mc.id
-        LEFT JOIN
-            complimentary_code cc ON rb.complementary_codes = cc.id
-        LEFT JOIN
-            res_country rc_country ON rb.nationality = rc_country.id
-        LEFT JOIN
-            res_users ru ON rb.write_uid = ru.id
-        LEFT JOIN
-            res_partner rp ON rb.partner_id = rp.id
-		LEFT JOIN 
-            res_partner wp ON ru.partner_id = wp.id 
+            wp.name AS write_user_name
+        FROM room_booking rb
+        LEFT JOIN room_booking_line rbl 
+               ON rb.id = rbl.booking_id
+        LEFT JOIN group_booking gb 
+               ON rb.group_booking = gb.id
+        LEFT JOIN meal_pattern mp 
+               ON rb.meal_pattern = mp.id
+
+        -- FIX:  The table is spelled “complimentary_code” while the FK field in room_booking is spelled “complementary_codes.”
+        LEFT JOIN complimentary_code cc 
+               ON rb.complementary_codes = cc.id
+
+        LEFT JOIN res_country rc_country 
+               ON rb.nationality = rc_country.id
+        LEFT JOIN res_users ru 
+               ON rb.write_uid = ru.id
+        LEFT JOIN res_partner rp 
+               ON rb.partner_id = rp.id
+        LEFT JOIN res_partner wp 
+               ON ru.partner_id = wp.id
         WHERE
             rb.company_id IN (SELECT company_id FROM company_ids) 
             AND rb.date_order BETWEEN (SELECT from_date FROM parameters) 
-            AND (SELECT to_date FROM parameters)
-    
+                                AND (SELECT to_date FROM parameters)
     )
 SELECT
     t.company_id,
-    t.ref_id_bk, -- Including ref_id_bk
+    t.ref_id_bk,
     t.state,
     t.original_state,
     t.group_booking_name,
     t.room_count,
     t.adult_count,
     t.room_id,
-    COALESCE(jsonb_extract_path_text(hr.name::jsonb, 'en_US')) AS room_name, -- Displaying name field from hotel_room
+    COALESCE(jsonb_extract_path_text(hr.name::jsonb, 'en_US')) AS room_name,
     t.hotel_room_type,
     rt.room_type_name,
     t.checkin_date,
@@ -241,19 +244,17 @@ SELECT
     t.partner_company_id,
     t.partner_name,
     t.write_user,
-    t.write_user_name -- Adding write_name from res_partner
-FROM
-    transformed t
-LEFT JOIN
-    room_types rt ON t.hotel_room_type = rt.room_type_id
-LEFT JOIN
-    hotel_room hr ON t.room_id = hr.id -- Joining hotel_room to get room name
-LEFT JOIN
-    res_partner wp ON t.write_user = wp.id -- Joining res_partner to get write_name
+    t.write_user_name
+FROM transformed t
+LEFT JOIN room_types rt 
+       ON t.hotel_room_type = rt.room_type_id
+LEFT JOIN hotel_room hr 
+       ON t.room_id = hr.id
+-- Already have t.write_user_name from “t” – no need to re-join res_partner again
 WHERE
     t.state IN ('reserved', 'cancelled', 'no_show') 
 GROUP BY
-    t.ref_id_bk, -- Grouping by ref_id_bk
+    t.ref_id_bk,
     t.company_id,
     t.state,
     t.original_state,
@@ -261,7 +262,7 @@ GROUP BY
     t.room_count,
     t.adult_count,
     t.room_id,
-    hr.name, -- Grouping by room name
+    hr.name,
     t.hotel_room_type,
     rt.room_type_name,
     t.checkin_date,
@@ -277,11 +278,8 @@ GROUP BY
     t.partner_company_id,
     t.partner_name,
     t.write_user,
-    t.write_user_name -- Adding write_name to GROUP BY
-ORDER BY
-    t.state;
-
-
+    t.write_user_name
+ORDER BY t.state;
         """
 
         self.env.cr.execute(query)
