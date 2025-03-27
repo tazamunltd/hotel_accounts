@@ -698,7 +698,7 @@
                 <field name="first_visit" optional="show" />
                 <field name="last_visit" optional="show" />
                 <field name="status_code" optional="show" />
-                <field name="total_stays" optional="show" />
+                <!-- <field name="total_stays" optional="show" /> -->
                 <field name="total_room_count" optional="show" />
                 <field name="total_adult_count" optional="show" />
                 <field name="total_child_count" optional="show" />
@@ -776,7 +776,7 @@
                 <field name="rate_code" />
                 <field name="first_visit" />
                 <field name="last_visit" />
-                <field name="total_stays" />
+                <!-- <field name="total_stays" /> -->
 
             </search>
         </field>
@@ -792,7 +792,7 @@
                 <field name="status_code" type="row" />
                 <field name="expected_rooms" type="measure" />
                 <field name="total_revenue" type="measure" />
-                <field name="total_stays" type="measure" />
+                <!-- <field name="total_stays" type="measure" /> -->
                 <field name="total_nights" type="measure" />
             </pivot>
         </field>

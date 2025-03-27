@@ -32,6 +32,10 @@ class RoomResultByClient(models.Model):
     @api.model
     def action_run_process(self):
         """Runs the room process based on context and returns the action."""
+        system_date = self.env.company.system_date.date()  # or fields.Date.today() if needed
+        default_from_date = system_date
+        default_to_date = system_date + timedelta(days=30)
+
         if self.env.context.get('filtered_year_range'):
             self.env["room.result.by.client"].run_process()
 
@@ -48,6 +52,16 @@ class RoomResultByClient(models.Model):
                 'target': 'current',
             }
         else:
+            self.env["room.result.by.client"].run_process(
+                from_date=default_from_date,
+                to_date=default_to_date
+            )
+
+            # 3) Show only records for that 30-day window by specifying a domain
+            domain = [
+                ('report_date', '>=', default_from_date),
+                ('report_date', '<=', default_to_date),
+            ]
             return {
                 'name': _('Yearly Reservation Chart Report'),
                 'type': 'ir.actions.act_window',
@@ -58,7 +72,7 @@ class RoomResultByClient(models.Model):
                     (self.env.ref('hotel_management_odoo.view_room_result_by_client_pivot').id, 'pivot'),
                     (self.env.ref('hotel_management_odoo.view_room_result_by_client_graph').id, 'graph'),
                 ],
-                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'domain': domain,  # Ensures no data is displayed
                 'target': 'current',
             }
 
@@ -97,6 +111,11 @@ class RoomResultByClient(models.Model):
         _logger.info("Started run_process")
         # SQL Query (modified)
         self.env.cr.execute("DELETE FROM room_result_by_client")
+        if not from_date or not to_date:
+            # Fallback if the method is called without parameters
+            system_date = self.env.company.system_date.date()
+            from_date = system_date
+            to_date = system_date + timedelta(days=30)
         _logger.info("Existing records deleted")
         # system_date = self.env.company.system_date.date()
         # from_date = system_date - timedelta(days=7)

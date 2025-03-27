@@ -30,6 +30,9 @@ class YearlyGeographicalChart(models.Model):
     @api.model
     def action_run_process_by_region(self):
         """Runs the yearly geographical process based on context and returns the action."""
+        system_date = self.env.company.system_date.date()  # or fields.Date.today() if needed
+        default_from_date = system_date
+        default_to_date = system_date + timedelta(days=30)
         if self.env.context.get('filtered_date_range'):
             self.env["yearly.geographical.chart"].run_process_by_region()
 
@@ -49,6 +52,16 @@ class YearlyGeographicalChart(models.Model):
                 'target': 'current',
             }
         else:
+            self.env["yearly.geographical.chart"].run_process_by_region(
+                from_date=default_from_date,
+                to_date=default_to_date
+            )
+
+            # 3) Show only records for that 30-day window by specifying a domain
+            domain = [
+                ('report_date', '>=', default_from_date),
+                ('report_date', '<=', default_to_date),
+            ]
             return {
                 'name': _('Yearly Geographical Chart Report'),
                 'type': 'ir.actions.act_window',
@@ -62,7 +75,7 @@ class YearlyGeographicalChart(models.Model):
                     (self.env.ref(
                         'hotel_management_odoo.yearly_geographical_chart_pivot_view').id, 'pivot'),
                 ],
-                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'domain': domain,  # Ensures no data is displayed
                 'target': 'current',
             }
 
@@ -71,7 +84,7 @@ class YearlyGeographicalChart(models.Model):
         """
         Search for available rooms based on the provided criteria.
         """
-        self.run_process_by_Region(from_date, to_date)
+        self.run_process_by_region(from_date, to_date)
         company_ids = [company.id for company in self.env.companies]
         domain = [
             ('report_date', '>=', from_date),
@@ -104,7 +117,7 @@ class YearlyGeographicalChart(models.Model):
 
         try:
             # Run the process to generate results
-            self.run_process_by_Region()
+            self.run_process_by_region()
         except Exception as e:
             # Log the error and raise a user-friendly error
             _logger.error(f"Error generating room results: {str(e)}")
@@ -117,13 +130,18 @@ class YearlyGeographicalChart(models.Model):
 #         COALESCE((SELECT MAX(rb.checkout_date::date) FROM room_booking rb), CURRENT_DATE) AS to_date
 # ),
 
-    def run_process_by_Region(self,from_date = None, to_date = None):
+    def run_process_by_region(self,from_date = None, to_date = None):
         """Execute the SQL query and process the results."""
         _logger.info("Started run_process_by_Region")
         
         # Delete existing records
         self.search([]).unlink()
         _logger.info("Existing records deleted")
+        if not from_date or not to_date:
+            # Fallback if the method is called without parameters
+            system_date = self.env.company.system_date.date()
+            from_date = system_date
+            to_date = system_date + timedelta(days=30)
         # system_date = self.env.company.system_date.date()
         # from_date = system_date - timedelta(days=7)
         # to_date = system_date + timedelta(days=7)

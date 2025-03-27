@@ -1,6 +1,7 @@
 from odoo import models, fields, api, _
 import logging
 import datetime
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -37,6 +38,10 @@ class MealsByNationalityForecast(models.Model):
     @api.model
     def action_run_process_by_meals_by_nationality_forecast(self):
         """Runs the meals by nationality forecast process based on context and returns the action."""
+        system_date = self.env.company.system_date.date()  # or fields.Date.today() if needed
+        default_from_date = system_date
+        default_to_date = system_date + timedelta(days=30)
+
         if self.env.context.get('filtered_date_range'):
             self.env["meals.by.nationality.forecast"].run_process_by_meals_by_nationality_forecast()
 
@@ -53,6 +58,16 @@ class MealsByNationalityForecast(models.Model):
                 'target': 'current',
             }
         else:
+            self.env["meals.by.nationality.forecast"].run_process_by_meals_by_nationality_forecast(
+                from_date=default_from_date,
+                to_date=default_to_date
+            )
+
+            # 3) Show only records for that 30-day window by specifying a domain
+            domain = [
+                ('report_date', '>=', default_from_date),
+                ('report_date', '<=', default_to_date),
+            ]
             return {
                 'name': _('Meals by Nationality Forecast Report'),
                 'type': 'ir.actions.act_window',
@@ -63,7 +78,7 @@ class MealsByNationalityForecast(models.Model):
                     (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_graph').id, 'graph'),
                     (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
                 ],
-                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'domain': domain,  # Ensures no data is displayed
                 'target': 'current',
             }
 
@@ -139,6 +154,12 @@ class MealsByNationalityForecast(models.Model):
 
         # Scoped deletion to current company
         self.search([]).unlink()
+
+        if not from_date or not to_date:
+            # Fallback if the method is called without parameters
+            system_date = self.env.company.system_date.date()
+            from_date = system_date
+            to_date = system_date + timedelta(days=30)
         _logger.info("Existing records for the current company deleted")
         
         # system_date = self.env.company.system_date.date()

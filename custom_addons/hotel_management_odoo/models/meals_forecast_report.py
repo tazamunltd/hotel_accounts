@@ -1,6 +1,7 @@
 from odoo import models, fields, api, _
 import logging
 import datetime
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -38,6 +39,9 @@ class MealsForecastReport(models.Model):
     @api.model
     def action_run_process_by_meals_forecast(self):
         """Runs the meals forecast process based on context and returns the action."""
+        system_date = self.env.company.system_date.date()  # or fields.Date.today() if needed
+        default_from_date = system_date
+        default_to_date = system_date + timedelta(days=30)
         if self.env.context.get('filtered_date_range'):
             self.env["meals.forecast.report"].run_process_by_meals_forecast()
 
@@ -57,6 +61,16 @@ class MealsForecastReport(models.Model):
                 'target': 'current',
             }
         else:
+            self.env["meals.forecast.report"].run_process_by_meals_forecast(
+                from_date=default_from_date,
+                to_date=default_to_date
+            )
+
+            # 3) Show only records for that 30-day window by specifying a domain
+            domain = [
+                ('report_date', '>=', default_from_date),
+                ('report_date', '<=', default_to_date),
+            ]
             return {
                 'name': _('Meals Forecast Report'),
                 'type': 'ir.actions.act_window',
@@ -70,7 +84,7 @@ class MealsForecastReport(models.Model):
                     (self.env.ref(
                         'hotel_management_odoo.view_meals_forecast_report_graph').id, 'graph'),
                 ],
-                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'domain': domain,  # Ensures no data is displayed
                 'target': 'current',
             }
 
@@ -131,6 +145,11 @@ class MealsForecastReport(models.Model):
         # Delete existing records
         self.search([]).unlink()
         _logger.info("Existing records deleted")
+        if not from_date or not to_date:
+            # Fallback if the method is called without parameters
+            system_date = self.env.company.system_date.date()
+            from_date = system_date
+            to_date = system_date + timedelta(days=30)
         # system_date = self.env.company.system_date.date()
         # from_date = system_date - datetime.timedelta(days=7)
         # to_date = system_date + datetime.timedelta(days=7)

@@ -269,9 +269,21 @@
 
                     <!-- Confirm Button: Visible when state is 'Not Confirmed', 'Block', 'No Show',
                     or 'Waiting' -->
-                    <button name="action_confirm" string="Confirm" class="btn-primary"
+                    <!-- <button name="action_confirm" string="Confirm" class="btn-primary"
                         invisible="state not in ('not_confirmed', 'no_show', 'waiting','block') or is_checkin_in_past or hide_confirm_button or hide_buttons_front_desk"
-                        type="object" />
+                        type="object" /> -->
+                    
+                    <button name="action_confirm" string="UnBlock" class="btn-primary" type="object" invisible="state != 'block'
+                            or is_checkin_in_past
+                            or hide_confirm_button
+                            or hide_buttons_front_desk" />
+
+                    <!-- Confirm button: Visible when state is 'not_confirmed','no_show','waiting' -->
+                    <button name="action_confirm" string="Confirm" class="btn-primary" type="object" invisible="state not in ('not_confirmed','no_show','waiting')
+                            or is_checkin_in_past
+                            or hide_confirm_button
+                            or hide_buttons_front_desk" />
+
 
                     <!-- Cancel Button: Visible when state is 'Not Confirmed', 'Confirmed', or
                     'Waiting' -->
@@ -285,9 +297,15 @@
                         type="object" confirm="Are you sure you want to send booking to waiting" />
 
                     <!-- Block Button: Visible when state is 'Confirmed', 'CheckIn', or 'No Show' -->
-                    <button name="action_block" string="Block" class="btn-primary"
+                    <!-- <button name="action_block" string="Block" class="btn-primary"
                         invisible="state not in ('confirmed', 'check_in', 'no_show') or is_checkin_in_past"
-                        type="object" confirm="Are you sure you want to block this booking?" />
+                        type="object" confirm="Are you sure you want to block this booking?" /> -->
+                    <!-- UnCheck-In button: only visible if state is 'check_in' -->
+                    <button name="action_block" string="UnCheck-In" class="btn-primary" invisible="state != 'check_in'" type="object" confirm="Are you sure you want to un-check-in this booking?"/>
+
+                    <!-- Original Block button: only visible if state in ('confirmed','no_show') -->
+                    <button name="action_block" string="Block" class="btn-primary" invisible="state not in ('confirmed','no_show') or is_checkin_in_past" type="object" confirm="Are you sure you want to block this booking?"/>
+
 
                     <!-- Not Confirmed Button: Visible when state is 'Confirmed', 'Cancel', or
                     'Waiting' -->
@@ -296,9 +314,16 @@
                         type="object" confirm="Are you sure you want to not confirm this booking?" />
 
                     <!-- Check-In Button: Visible when state is 'Block' or 'Check-Out' -->
-                    <button name="action_checkin" string="Check-In" class="btn-primary"
+                    <!-- <button name="action_checkin" string="Check-In" class="btn-primary"
                         invisible="state not in ('block', 'check_out') or is_checkin_in_past or hide_confirm_button or hide_admin_buttons or is_checkout_in_past"
-                        type="object" confirm="Are you sure you want to check-in this booking?" />
+                        type="object" confirm="Are you sure you want to check-in this booking?" /> -->
+
+                    <!-- UnCheck-Out button: only visible if state is 'check_out' -->
+                    <button name="action_checkin" string="UnCheck-Out" class="btn-primary" invisible="state != 'check_out'" type="object" confirm="Are you sure you want to un-check-out this booking?"/>
+
+                    <!-- Original Check-In button: only visible if state == 'block' -->
+                    <button name="action_checkin" string="Check-In" class="btn-primary" invisible="state != 'block'" type="object" confirm="Are you sure you want to check-in this booking?"/>
+
 
                     <!-- Check-Out Button: Visible only when state is 'Check-In' -->
                     <button name="action_checkout" string="Check-Out" class="btn-primary"
@@ -361,6 +386,7 @@
                                     <field name="maintenance_request_sent" />
                                     <field name="show_group_booking" />
                                     <field name="rooms_searched" />
+                                    <field name="company_ids_" />
                                     <field name="all_rooms_assigned" />
                                     <field name="allow_profile_change"
                                         readonly="state in ('check_out', 'no_show')" />
@@ -451,9 +477,10 @@
                                                     Company</label>
                                             </div>
                                             <div class="form-group mb-1">
+                                                <label for="partner_id" class="form-label small mb-0">Contact</label>
                                                 <field name="partner_id"
                                                     readonly="state in ('check_out')"
-                                                    domain="[('is_company', '=', is_agent)]"
+                                                    domain="[('is_company', '=', is_agent), ('user_ids', '=', False), ('id', 'not in', company_ids_)]"
                                                     class="form-control form-control-sm"
                                                     placeholder=" Select Contact"
                                                     />

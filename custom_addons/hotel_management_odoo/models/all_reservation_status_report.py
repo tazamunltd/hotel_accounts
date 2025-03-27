@@ -1,6 +1,7 @@
 from odoo import models, fields, api, _
 import logging
 import datetime
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -54,6 +55,9 @@ class AllReservationStatusReport(models.Model):
     @api.model
     def action_run_process_by_all_reservation_status_report(self):
         """Runs the all reservation status process based on context and returns the action."""
+        system_date = self.env.company.system_date.date()  # or fields.Date.today() if needed
+        default_from_date = system_date
+        default_to_date = system_date + timedelta(days=30)
         if self.env.context.get('filtered_date_range'):
             self.env["all.reservation.status.report"].run_process_by_all_reservation_status_report()
 
@@ -70,6 +74,16 @@ class AllReservationStatusReport(models.Model):
                 'target': 'current',
             }
         else:
+            self.env["all.reservation.status.report"].run_process_by_all_reservation_status_report(
+                from_date=default_from_date,
+                to_date=default_to_date
+            )
+
+            # 3) Show only records for that 30-day window by specifying a domain
+            domain = [
+                ('date_order', '>=', default_from_date),
+                ('date_order', '<=', default_to_date),
+            ]
             return {
                 'name': _('All Reservation Status Report'),
                 'type': 'ir.actions.act_window',
@@ -80,7 +94,7 @@ class AllReservationStatusReport(models.Model):
                     (self.env.ref('hotel_management_odoo.view_all_reservation_status_report_graph').id, 'graph'),
                     (self.env.ref('hotel_management_odoo.view_all_reservation_status_report_pivot').id, 'pivot'),
                 ],
-                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'domain': domain,  # Ensures no data is displayed
                 'target': 'current',
             }
 
@@ -115,6 +129,11 @@ class AllReservationStatusReport(models.Model):
 
         # Delete existing records
         self.search([]).unlink()
+        if not from_date or not to_date:
+            # Fallback if the method is called without parameters
+            system_date = self.env.company.system_date.date()
+            from_date = system_date
+            to_date = system_date + timedelta(days=30)
         _logger.info("Existing records deleted")
         company_ids = [company.id for company in self.env.companies]
 

@@ -73,7 +73,7 @@
                         class="btn btn-info border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px;">
                         <i class="fa fa-sign-in fa-2x mb-1 text-white"></i>
-                        <span class="text-white">Arrival (<t
+                        <span class="text-white">Exp.Arrival (<t
                                 t-esc="dashboardData.today_checkin" />)</span>
                     </a>
                 </div>
@@ -84,7 +84,7 @@
                         class="btn border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px; background-color: #6f42c1;">
                         <i class="fa fa-sign-out fa-2x mb-1 text-white"></i>
-                        <span class="text-white fw-bold">Departure (<t
+                        <span class="text-white fw-bold">Exp.Departure  (<t
                                 t-esc="dashboardData.today_checkout" />)</span>
                     </a>
                 </div>
@@ -124,7 +124,7 @@
                         class="btn btn-info border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px;">
                         <i class="fa fa-sign-in fa-2x mb-1 text-white"></i>
-                        <span class="text-white fw-bold">Today's Checked-In (<t t-esc="dashboardData.actual_checkin_count" />)</span>
+                        <span class="text-white fw-bold">Arrival (<t t-esc="dashboardData.actual_checkin_count" />)</span>
                     </a>
                 </div>
                  <div class="p-0" t-on-click="setSearchContext" t-att-filter_name="'actual_checkout'">
@@ -132,7 +132,7 @@
                         class="btn border-0 rounded-3 d-flex flex-column align-items-center justify-content-center"
                         style="width: 110px; height: 110px; background-color: #6f42c1;">
                         <i class="fa fa-sign-out fa-2x mb-1 text-white"></i>
-                        <span class="text-white fw-bold">Today's Checked-Out (<t t-esc="dashboardData.actual_checkout_count" />)</span>
+                        <span class="text-white fw-bold">Departure (<t t-esc="dashboardData.actual_checkout_count" />)</span>
                     </a>
                 </div>
 

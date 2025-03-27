@@ -898,19 +898,7 @@ class RoomBooking(models.Model):
     def retrieve_dashboard(self):
 
         company = self.env.company  # This fetches the current company
-        # user_tz = self.env.user.tz or 'UTC'
-        # local_time = Datetime.context_timestamp(self, company.system_date)
-        # print('Local Time:', local_time)
-
-        # # Extract the date part
-        # system_date_date = local_time.date()
-        # print('System Date (Date Only):', system_date_date)
-
-        # system_date = company.system_date  
-        # system_date = fields.Date.to_date(system_date)
-        # system_date = system_date.strftime("%m/%d/%Y").lstrip('0').replace('/0', '/')
-        # print('848',system_date)
-        # system_date = company.system_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        
         system_date = (
             company.system_date.replace(hour=0, minute=0, second=0, microsecond=0)
             if company.system_date
@@ -981,7 +969,10 @@ class RoomBooking(models.Model):
         checkout_count = self.search_count([('state', '=', 'check_out')])
 
         total_rooms_count = self.env['hotel.room'].search_count([])
-        get_total_reservation_count = self.env['room.booking'].search_count([('company_id', '=', self.env.company.id)])
+        # get_total_reservation_count = self.env['room.booking'].search_count([('company_id', '=', self.env.company.id)])
+        get_total_reservation_count = confirmed_count + not_confirm_count + waiting_count + checkin_count + checkout_count
+
+        
         
 
 
@@ -1000,7 +991,8 @@ class RoomBooking(models.Model):
             'checkout': checkout_count,
             'actual_checkin_count': actual_checkin_count,
             'actual_checkout_count': actual_checkout_count,
-            'vacant': get_total_reservation_count
+            'vacant': get_total_reservation_count,
+            # 'default': confirmed_count + not_confirm_count + waiting_count + checkin_count + checkout_count,
         }
         return result
 
@@ -2055,9 +2047,41 @@ class RoomBooking(models.Model):
     partner_id = fields.Many2one(
         'res.partner',
         string='Contact',
-        required=True
-
+        required=False
+        
     )
+
+    company_ids_ = fields.Many2many(
+        'res.partner',
+        compute='_compute_company_ids',
+        store=False
+        )
+
+    def _compute_company_ids(self):
+        for rec in self:
+            companies = self.env['res.company'].search([]).mapped('partner_id').ids
+            rec.company_ids_ = companies
+
+
+    
+    @api.onchange('is_agent')
+    def _onchange_is_agent(self):
+        # (Optional) Clear the previously selected partner:
+        # self.partner_id = False
+        
+        # Gather partner IDs used by Odoo companies
+        company_partner_ids = self.env['res.company'].search([]).mapped('partner_id').ids
+        print("company_partner_ids", company_partner_ids)
+        
+        # Return a domain excluding those company-partner IDs
+        return {
+            'domain': {
+                'partner_id': [
+                    ('is_company', '=', self.is_agent),
+                    ('id', 'not in', company_partner_ids),
+                ]
+            }
+        }
 
     # reference_contact = fields.Many2one(
     #     'res.partner',
@@ -2109,32 +2133,7 @@ class RoomBooking(models.Model):
                 self.vip_code = False
 
 
-    # @api.onchange('partner_id')
-    # def _onchange_customer(self):
-    #     if self.group_booking:
-    #         # If group_booking is selected, skip this onchange
-    #         return
-    #     if self.partner_id:
-    #         self.nationality = self.partner_id.nationality.id
-    #         self.source_of_business = self.partner_id.source_of_business.id
-    #         self.rate_code = self.partner_id.rate_code.id
-    #         self.market_segment = self.partner_id.market_segments.id
-    #         self.meal_pattern = self.partner_id.meal_pattern.id
-    #         if self.partner_id.is_vip:
-    #             self.vip = True
-    #             self.vip_code = self.partner_id.vip_code.id if self.partner_id.vip_code else False
-    #         else:
-    #             self.vip = False
-    #             self.vip_code = False
 
-    @api.onchange('is_agent')
-    def _onchange_is_agent(self):
-        # self.partner_id = False
-        return {
-            'domain': {
-                'partner_id': [('is_company', '=', self.is_agent)]
-            }
-        }
 
     # date_order = fields.Datetime(string="Order Date",
     #                              required=True, copy=False,
@@ -2157,6 +2156,9 @@ class RoomBooking(models.Model):
     #     # system_date = self.env['res.company'].search([], limit=1).system_date
     #     return system_date or fields.Datetime.now()
 
+    search_done = fields.Boolean(string="Search Done", default=False)
+
+
     def write(self, vals):
         self.check_room_meal_validation(vals, True)
 
@@ -2170,10 +2172,21 @@ class RoomBooking(models.Model):
         
         if 'active' in vals:
             return super(RoomBooking, self).write(vals)
+            # Check if partner_id is present (either in vals or existing record)
+        # new_partner_id = vals.get('partner_id', self.partner_id.id)
+        # if not new_partner_id:
+        #     raise ValidationError("partner id cannot be blank, Select the partner id")
+        
+        
 
         if 'room_count' in vals and vals['room_count'] <= 0:
             raise ValidationError(
                 "Room count cannot be zero or less. Please select at least one room.")
+
+        # if 'room_count' in vals and not self.env.context.get('room_search'):
+        #     raise ValidationError("Please click 'Search' to sync room availability or discard the changes.")
+
+        
 
         if 'adult_count' in vals and vals['adult_count'] <= 0:
             raise ValidationError(
@@ -3691,10 +3704,7 @@ class RoomBooking(models.Model):
             if record.state in ['block', 'confirmed', 'waiting', 'cancel']:
                 record.state = 'not_confirmed'
 
-    # def action_confirm(self):
-    #      for record in self:
-    #         record.state = 'confirmed'
-
+    
     def action_confirm(self):
         # today = datetime.now().date()
         today = self.env.company.system_date.date()
@@ -3702,6 +3712,9 @@ class RoomBooking(models.Model):
             if record.checkin_date and record.checkin_date.date() < today:
                 raise ValidationError(
                     _("You cannot confirm a booking with a check-in date in the past."))
+
+            if not record.partner_id:
+                raise ValidationError(_("The field 'Contact' is required. Please fill it before confirming."))
 
             if not record.nationality:
                 raise ValidationError(_("The field 'Nationality' is required. Please fill it before confirming."))
@@ -3755,30 +3768,7 @@ class RoomBooking(models.Model):
 
         return True
 
-        # record.state = "confirmed"
-
-        # for search_result in record.availability_results:
-        #     search_result.available_rooms -= search_result.rooms_reserved
-
-        # for line in record.room_line_ids:
-        #     line.room_id = False
-        #     line.state_ = 'confirmed'
-        # for line in record.room_line_ids:
-        #     return {
-        #         'name': _("Confirm Booking"),
-        #         'type': 'ir.actions.act_window',
-        #         'res_model': 'confirm.booking.wizard',
-        #         'view_mode': 'form',
-        #         'target': 'new',
-        #         'context': {
-        #             'default_message': _("Room ID will be deleted for the line in 'block' state. Do you want to proceed?"),
-        #             'default_line_id': line.id,
-        #             'default_booking_id': record.id,
-        #         },
-        #     }
-        # line.room_id = False
-        # line.state_ = 'confirmed'
-
+    
     def action_waiting(self):
         # today = datetime.now().date()
         today = self.env.company.system_date.date()
@@ -5957,15 +5947,15 @@ class RoomBooking(models.Model):
                 _("Please Enter time zone in user settings."))
 
     room_count = fields.Integer(string='Rooms', tracking=True)
-    
-    
 
-    @api.onchange('room_count')
-    def _check_room_count(self):
-        for record in self:
-            if record.room_count < 0:
-                pass
-                # raise ValidationError("Kindly select at least one room for room booking.")
+    # @api.onchange('room_count')
+    # def _check_room_count(self):
+    #     print("ONCHANGE CALLED ROOM")
+    #     self.action_clear_rooms()
+    #     self.action_search_rooms()
+    #     # print("Room Count:", self.room_count)
+    #     # self.search_done = False
+
 
     adult_count = fields.Integer(string='Adults', tracking=True)
 
@@ -6842,8 +6832,8 @@ class RoomBooking(models.Model):
                 print(f"Out of order rooms count: {out_of_order_rooms_count}")
                 confirmed_bookings = self.env['room.booking'].search([
                     ('hotel_room_type', '=', room_type_id),
-                    ('checkin_date', '<=', checkout_date),
-                    ('checkout_date', '>=', checkin_date),
+                    ('checkin_date', '<', checkout_date),
+                    ('checkout_date', '>', checkin_date),
                     ('checkout_date', 'not like', today_date + '%'),
                     ('state', '=', 'confirmed'),
                     ('id', 'not in', self.env.context.get('already_allocated', []))
@@ -6851,7 +6841,10 @@ class RoomBooking(models.Model):
                 print('6832', confirmed_bookings)
                 # Get the count of room_line_ids for confirmed bookings
                 confirmed_room_lines_count = sum(len(booking.room_line_ids) for booking in confirmed_bookings)
-                print('6795',confirmed_room_lines_count )
+                if sum(len(booking.room_line_ids) for booking in confirmed_bookings) > 0:
+                    confirmed_room_lines_count -= 1
+
+                print('6795',confirmed_room_lines_count)
 
                 
                 booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count+confirmed_room_lines_count
@@ -7147,7 +7140,7 @@ class RoomBooking(models.Model):
                 ('checkin_date', '<', checkout_date),
                 ('checkout_date', '>', checkin_date),
                 ('checkout_date', 'not like', today_date + '%'),
-                ('state', 'in', ['check_in', 'block','confirmed']),
+                ('state', 'in', ['check_in', 'block']),
                 ('id', 'not in', self.env.context.get('already_allocated', []))
             ])
             print(f"Booked rooms count: {booked_rooms}")
@@ -7176,8 +7169,10 @@ class RoomBooking(models.Model):
                     ('state', '=', 'confirmed'),
                     ('id', 'not in', self.env.context.get('already_allocated', []))
                 ])
-            
+
             confirmed_room_lines_count = sum(len(booking.room_line_ids) for booking in confirmed_bookings)
+            if sum(len(booking.room_line_ids) for booking in confirmed_bookings) > 0:
+                confirmed_room_lines_count -= 1
             print('6795',confirmed_room_lines_count )
 
                 
@@ -7466,7 +7461,6 @@ class RoomBooking(models.Model):
     #         booking._compute_show_in_tree()
 
     def action_clear_rooms(self):
-        print('inside clear')
         clear_search_results = self.env.context.get(
             'clear_search_results', False)
 
@@ -7489,7 +7483,6 @@ class RoomBooking(models.Model):
                 search_results.unlink()
                 print('6750', search_results)
             booking.write({'state': 'not_confirmed'})
-        print('outside clear')
 
     def action_split_rooms(self):
         for booking in self:
@@ -7744,6 +7737,9 @@ class RoomBooking(models.Model):
             ctr += 1
 
     def action_search_rooms(self):
+        # self.search_done = True
+
+        self.action_clear_rooms()
         max_num_person = self.env['hotel.room'].search(
             [], order='num_person desc', limit=1).num_person
 
@@ -7829,8 +7825,12 @@ class RoomBooking(models.Model):
             # record.flush(['availability_results', 'rooms_searched'])  # Ensure changes are written to the database
 
             # Write results to availability_results field
+            # record.with_context(room_search=True)
             record.write({'availability_results': result_lines})
+            
 
+   
+   
     room_count_tree = fields.Integer(
         string="Room Count", store=False)
 
@@ -8092,7 +8092,7 @@ class ResPartnerDetails(models.Model):
     _description = 'Partner Details'
     _rec_name = 'partner_id' 
 
-    partner_id = fields.Many2one('res.partner', string="Partner", required=True)
+    partner_id = fields.Many2one('res.partner', string="Partner", required=False)
     partner_company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company, tracking=True)
     rate_code = fields.Many2one('rate.code', string="Rate Code")
     source_of_business = fields.Many2one('source.business', string="Source of Business")
@@ -8340,6 +8340,15 @@ class SystemDate(models.Model):
                 rec.system_date = rec.system_date + timedelta(days=1)
             else:
                 rec.system_date = fields.Date.context_today(self)
+
+            # Update the cron's nextcall based on system_date
+            cron = self.env.ref(
+                'hotel_management_odoo.cron_move_to_no_show', raise_if_not_found=False)
+            if cron:
+                cron.nextcall = datetime.combine(
+                    rec.system_date, datetime.min.time())
+
+        self.env['room.booking'].move_to_no_show()
 
     @api.model
     def _default_system_date(self):

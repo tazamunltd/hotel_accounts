@@ -192,17 +192,17 @@
                         >
                             <div class="accordion-body">
                                 <div class="row g-3">
-                                <div class="form-group">
-                                    <label for="contact" class="form-label">Contact</label>
-                                    <select id="contact" class="form-select" t-model="state.contactId" t-on-change="onContactChange">
-                                        <option value="">Select Contact</option>
-                                        <t t-foreach="state.contacts" t-as="contact" t-key="contact.id">
-                                            <option t-att-value="contact.id">
-                                                <t t-esc="contact.name || 'Unnamed Contact'"/>
-                                            </option>
-                                        </t>
-                                    </select>
-                                </div>
+<!--                                <div class="form-group">-->
+<!--                                    <label for="contact" class="form-label">Contact</label>-->
+<!--                                    <select id="contact" class="form-select" t-model="state.contactId" t-on-change="onContactChange">-->
+<!--                                        <option value="">Select Contact</option>-->
+<!--                                        <t t-foreach="state.contacts" t-as="contact" t-key="contact.id">-->
+<!--                                            <option t-att-value="contact.id">-->
+<!--                                                <t t-esc="contact.name || 'Unnamed Contact'"/>-->
+<!--                                            </option>-->
+<!--                                        </t>-->
+<!--                                    </select>-->
+<!--                                </div>-->
                                     <!-- Guest Count -->
                                     <div class="col-md-3">
                                         <div class="form-group">

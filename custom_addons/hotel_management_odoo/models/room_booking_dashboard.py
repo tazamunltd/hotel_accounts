@@ -123,7 +123,9 @@ class RoomBookingDashboard(models.Model):
                 'not_confirmed': len(bookings.filtered(lambda b: b.state == 'not_confirmed')),
                 'waiting': len(bookings.filtered(lambda b: b.state == 'waiting')),
                 'cancelled': len(bookings.filtered(lambda b: b.state == 'cancel')),
-                'blocked': len(bookings.filtered(lambda b: b.state == 'block'))
+                'blocked': len(bookings.filtered(lambda b: b.state == 'block')),
+                'check_in': len(bookings.filtered(lambda b: b.state == 'check_in')),
+                'check_out': len(bookings.filtered(lambda b: b.state == 'check_out'))
             }
             
             # Calculate total reservations (confirmed + blocked + waiting)
@@ -133,7 +135,7 @@ class RoomBookingDashboard(models.Model):
                 metrics['waiting']
             )
             
-            # print(metrics)
+            print("Metrics", metrics)
             # Generate date range for occupancy data
             date_range = []
             current_date = start_date
@@ -640,6 +642,8 @@ class RoomBookingDashboard(models.Model):
                 'cancelled': metrics['cancelled'],
                 'blocked': metrics['blocked'],
                 'total_reservations': metrics['total_reservations'],
+                'check_in': metrics['check_in'],
+                'check_out': metrics['check_out'],
                 
                 # Occupancy chart data
                 'occupancy_labels': occupancy_labels,

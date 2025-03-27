@@ -20,6 +20,9 @@ class MonthlyGroupsCharts(models.Model):
     @api.model
     def action_run_process_by_monthly_groups_charts(self):
         """Runs the monthly groups charts process based on context and returns the action."""
+        system_date = self.env.company.system_date.date()  # or fields.Date.today() if needed
+        default_from_date = system_date
+        default_to_date = system_date + timedelta(days=30)
         if self.env.context.get('filtered_date_range'):
             self.env["monthly.groups.charts"].run_process_by_monthly_groups_charts()
 
@@ -36,6 +39,16 @@ class MonthlyGroupsCharts(models.Model):
                 'target': 'current',
             }
         else:
+            self.env["monthly.groups.charts"].run_process_by_monthly_groups_charts(
+                from_date=default_from_date,
+                to_date=default_to_date
+            )
+
+            # 3) Show only records for that 30-day window by specifying a domain
+            domain = [
+                ('report_date', '>=', default_from_date),
+                ('report_date', '<=', default_to_date),
+            ]
             return {
                 'name': _('Monthly Groups Chart Report'),
                 'type': 'ir.actions.act_window',
@@ -46,7 +59,7 @@ class MonthlyGroupsCharts(models.Model):
                     (self.env.ref('hotel_management_odoo.view_monthly_groups_charts_graph').id, 'graph'),
                     (self.env.ref('hotel_management_odoo.view_monthly_groups_charts_pivot').id, 'pivot'),
                 ],
-                'domain': [('id', '=', False)],  # Ensures no data is displayed
+                'domain': domain,  # Ensures no data is displayed
                 'target': 'current',
             }
 
@@ -69,7 +82,6 @@ class MonthlyGroupsCharts(models.Model):
     @api.model
     def action_generate_results(self):
         """Generate and update room results by client."""
-        print("line 34")
         try:
             # Call the run_process method to execute the query and process results
             self.run_process_by_monthly_groups_charts()
@@ -85,6 +97,11 @@ class MonthlyGroupsCharts(models.Model):
         # Delete existing records
         self.search([]).unlink()
         _logger.info("Existing records deleted")
+        if not from_date or not to_date:
+            # Fallback if the method is called without parameters
+            system_date = self.env.company.system_date.date()
+            from_date = system_date
+            to_date = system_date + timedelta(days=30)
         # system_date = self.env.company.system_date.date()
         # from_date = system_date - timedelta(days=7)
         # to_date = system_date + timedelta(days=7)

@@ -485,15 +485,23 @@ export class ReservationDashBoard extends Component {
       domain = [["state", "=", "check_out"]];
       actionName = "Check-Out";
     } else if (filter_name === "vacant") {
-      this.action.doAction({
-        type: "ir.actions.act_window",
-        name: "Room Booking",
-        res_model: "room.booking",
-        view_mode: "list",
-        views: [[false, "list"]],
-        target: "current",
-      });
-      return;
+      domain = [
+        [
+          "state",
+          "in",
+          ["confirmed", "not_confirmed", "waiting", "check_in", "check_out"],
+        ],
+      ];
+      actionName = "Default";
+      // this.action.doAction({
+      //   type: "ir.actions.act_window",
+      //   name: "Room Booking",
+      //   res_model: "room.booking",
+      //   view_mode: "list",
+      //   views: [[false, "list"]],
+      //   target: "current",
+      // });
+      // return;
       // // Redirect to the specific URL
       // window.location.href =
       //   "/web#action=425&model=room.booking&view_type=list";

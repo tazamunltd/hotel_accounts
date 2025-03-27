@@ -101,7 +101,7 @@
                             </div>
                         </div>
                         <!-- Block Card -->
-                        <div class="col-md-2">
+                        <!-- <div class="col-md-2">
                             <div class="card metric-card">
                                 <div class="card-body text-center d-flex align-items-center">
                                     <div class="metric-icon bg-secondary-light me-3">
@@ -113,7 +113,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!-- Total Reservations Card -->
                         <div class="col-md-2">
                             <div class="card metric-card total-reservations">

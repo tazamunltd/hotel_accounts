@@ -4143,21 +4143,86 @@ class WebAppController(http.Controller):
         else:
             nationality = self.get_country_translation(nationality)  # Translate if applicable
 
+        status_label = dict(booking._fields['status_code'].selection).get(
+            booking.status_code, 
+            not_available_text
+        )
 
         guest_details = [
-            ("Arrival Date:", f"{booking.first_visit or not_available_text}", "تاريخ الوصول:", "Group Name:",
-             f"{booking.name or not_available_text}", "اسم المجموعة:"),
-            ("Departure Date:", f"{booking.last_visit or not_available_text}", "تاريخ المغادرة:", "Company Name:",
-             f"{booking.company_id.name or self.get_arabic_text('N/A')}", "اسم الشركة:"),
-            ("Nights:", f"{booking.total_nights or not_available_text}", "عدد الليالي:", "Nationality:",
-             nationality, "جنسية المجموعة:"),  # Arabic dynamically applied
-            ("No. of Rooms:", f"{booking.total_room_count or not_available_text}", "عدد الغرف:", "Contact:",
-             f"{booking.phone_1 or self.get_arabic_text('N/A')}", "مسؤول المجموعة:"),
-            ("No. of Paxs:", f"{booking.total_adult_count or not_available_text}", "عدد الأفراد:", "Mobile No.:",
-             f"{booking.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:"),
-            ("Rate Code:", f"{booking.rate_code.code or not_available_text}", "كود التعاقد:", "Status:", "", "حالة الحجز:"),
-            ("Meal Pattern:", f"{booking.group_meal_pattern.meal_pattern or not_available_text}", "نظام الوجبات:", "Date Created:", "", "تاريخ إنشاء الحجز:"),
+            ("Arrival Date:",
+            f"{booking.first_visit or not_available_text}",
+            "تاريخ الوصول:",
+
+            "Group Name:",
+            f"{booking.name or not_available_text}",
+            "اسم المجموعة:"),
+
+            ("Departure Date:",
+            f"{booking.last_visit or not_available_text}",
+            "تاريخ المغادرة:",
+
+            "Company Name:",
+            f"{booking.company_id.name or self.get_arabic_text('N/A')}",
+            "اسم الشركة:"),
+
+            ("Nights:",
+            f"{booking.total_nights or not_available_text}",
+            "عدد الليالي:",
+
+            "Nationality:",
+            nationality,
+            "جنسية المجموعة:"),
+
+            ("No. of Rooms:",
+            f"{booking.total_room_count or not_available_text}",
+            "عدد الغرف:",
+
+            "Contact:",
+            f"{booking.company.name or self.get_arabic_text('N/A')}",
+            "مسؤول المجموعة:"),
+
+            ("No. of Paxs:",
+            f"{booking.total_adult_count or not_available_text}",
+            "عدد الأفراد:",
+
+            "Mobile No.:",
+            f"{booking.phone_1 or self.get_arabic_text('N/A')}",
+            "رقم الجوال:"),
+
+            ("Rate Code:",
+            f"{booking.rate_code.code or not_available_text}",
+            "كود التعاقد:",
+
+            # 3) Use the status_label from above:
+            "Status:",
+            status_label,
+            "حالة الحجز:"),
+
+            ("Meal Pattern:",
+            f"{booking.group_meal_pattern.meal_pattern or not_available_text}",
+            "نظام الوجبات:",
+
+            # 4) Use the booking’s create_date for “Date Created.”
+            "Date Created:",
+            f"{booking.create_date or not_available_text}",
+            "تاريخ إنشاء الحجز:"),
         ]
+
+
+        # guest_details = [
+        #     ("Arrival Date:", f"{booking.first_visit or not_available_text}", "تاريخ الوصول:", "Group Name:",
+        #      f"{booking.name or not_available_text}", "اسم المجموعة:"),
+        #     ("Departure Date:", f"{booking.last_visit or not_available_text}", "تاريخ المغادرة:", "Company Name:",
+        #      f"{booking.company_id.name or self.get_arabic_text('N/A')}", "اسم الشركة:"),
+        #     ("Nights:", f"{booking.total_nights or not_available_text}", "عدد الليالي:", "Nationality:",
+        #      nationality, "جنسية المجموعة:"),  # Arabic dynamically applied
+        #     ("No. of Rooms:", f"{booking.total_room_count or not_available_text}", "عدد الغرف:", "Contact:",
+        #      f"{booking.phone_1 or self.get_arabic_text('N/A')}", "مسؤول المجموعة:"),
+        #     ("No. of Paxs:", f"{booking.total_adult_count or not_available_text}", "عدد الأفراد:", "Mobile No.:",
+        #      f"{booking.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:"),
+        #     ("Rate Code:", f"{booking.rate_code.code or not_available_text}", "كود التعاقد:", "Status:", "", "حالة الحجز:"),
+        #     ("Meal Pattern:", f"{booking.group_meal_pattern.meal_pattern or not_available_text}", "نظام الوجبات:", "Date Created:", "", "تاريخ إنشاء الحجز:"),
+        # ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in guest_details:
             # Left column (English + Arabic)
@@ -4169,7 +4234,7 @@ class WebAppController(http.Controller):
             c.drawString(RIGHT_LABEL_X, y_position, r_label)
 
             # For "Full Name" or "Nationality", call draw_arabic_text_left instead of drawString
-            if r_label in ("Group Name:", "Nationality:"):
+            if r_label in ("Group Name:", "Nationality:", "Company Name:", "Contact:", "Mobile No.:"):
                 draw_arabic_text_left(c, RIGHT_VALUE_X, y_position, r_value)
             else:
                 c.drawString(RIGHT_VALUE_X, y_position, r_value)

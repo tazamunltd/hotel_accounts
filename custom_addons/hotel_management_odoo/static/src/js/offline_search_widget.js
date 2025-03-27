@@ -1670,13 +1670,13 @@ export class OfflineSearchWidget extends Component {
                 throw new Error('Hotel is required');
             }
 //            console.log(this.state.contactId,"contact id");
-             if (!this.state.contactId) {
-                this.notification.add(
-                    "Please select a valid Contact (Partner) before creating a booking.",
-                    { type: "danger", sticky: false }
-                );
-                return;
-            }
+//             if (!this.state.contactId) {
+//                this.notification.add(
+//                    "Please select a valid Contact (Partner) before creating a booking.",
+//                    { type: "danger", sticky: false }
+//                );
+//                return;
+//            }
 
 
 
@@ -1697,7 +1697,7 @@ export class OfflineSearchWidget extends Component {
 
             // Prepare booking context
             let context_ = {
-                company_id: this.state.hotel,
+//                company_id: this.state.hotel,
                 room_count: this.state.searchResults[searchidx].searched_rooms,
                 checkin_date: `${this.state.checkInDate} 10:00:00`,
                 no_of_nights: this.state.noOfNights,

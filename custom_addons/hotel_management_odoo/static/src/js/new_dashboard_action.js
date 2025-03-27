@@ -24,7 +24,9 @@ class NewDashBoard extends Component {
                 waiting: 0,
                 cancelled: 0,
                 blocked: 0,
-                total_reservations: 0
+                total_reservations: 0,
+                check_in: 0,
+                check_out: 0,
             },
         inventoryData: [],
         forecastData: [],
@@ -374,9 +376,9 @@ class NewDashBoard extends Component {
                     this.charts[chartId] = new Chart(ctx, {
                         type: config.type,
                         data: {
-                            labels: [],
+                            labels: [""],
                             datasets: [{
-                                data: [],
+                                data: [0],
                                 backgroundColor: [
                                     '#4e73df',
                                     '#1cc88a',
@@ -468,13 +470,26 @@ class NewDashBoard extends Component {
             
             // Update metrics
             this.state.metrics = {
-                total: data.total || 0,
-                confirmed: data.confirmed || 0,
-                not_confirmed: data.not_confirmed || 0,
-                waiting: data.waiting || 0,
-                cancelled: data.cancelled || 0,
-                blocked: data.blocked || 0,
-                total_reservations: data.total_reservations || 0
+              total: data.total || 0,
+              // confirmed: data.confirmed || 0,
+              confirmed:
+                (data.confirmed || 0) +
+                (data.blocked || 0) +
+                (data.check_in || 0) +
+                (data.check_out || 0),
+              not_confirmed: data.not_confirmed || 0,
+              waiting: data.waiting || 0,
+              cancelled: data.cancelled || 0,
+              blocked: data.blocked || 0,
+              //   total_reservations: data.total_reservations || 0,
+              total_reservations:
+                (data.confirmed || 0) +
+                (data.blocked || 0) +
+                (data.check_in || 0) +
+                (data.check_out || 0) +
+                (data.not_confirmed || 0) +
+                (data.waiting || 0) +
+                (data.cancelled || 0),
             };
 
             // Update charts if they exist
@@ -572,7 +587,7 @@ class NewDashBoard extends Component {
             });
 
             this.charts.occupancyChart.data = {
-              labels: data.occupancy_labels,
+              labels: data.occupancy_labels && data.occupancy_labels.length ? data.occupancy_labels : [""],
               datasets: [
                 {
                   label: _t("Occupancy Rate (%)"),
@@ -594,12 +609,12 @@ class NewDashBoard extends Component {
             data.segment_labels
           ) {
             console.log("Updating segment chart:", {
-              labels: data.segment_labels,
+              labels: data.segment_labels && data.segment_labels.length ? data.segment_labels : [""],
               data: data.segment_data,
             });
 
             this.charts.marketSegmentChart.data = {
-              labels: data.segment_labels,
+              labels: data.segment_labels && data.segment_labels.length ? data.segment_labels : [""],
               datasets: [
                 {
                   data: data.segment_data,
@@ -628,7 +643,7 @@ class NewDashBoard extends Component {
             });
 
             this.charts.businessSourceChart.data = {
-              labels: data.source_labels,
+              labels: data.source_labels && data.source_labels.length ? data.source_labels : [""],
               datasets: [
                 {
                   label: _t("Bookings by Source"),
@@ -671,7 +686,10 @@ class NewDashBoard extends Component {
           // Update Arrival vs Departure Chart
         if (this.charts.arrivalDepartureChart && data.arrival_labels && data.arrival_data && data.departure_data) {
             this.charts.arrivalDepartureChart.data = {
-                labels: data.arrival_labels.map((date) => this.formatDate(date)),
+                labels: (data.arrival_labels && data.arrival_labels.length
+  ? data.arrival_labels.map((date) => this.formatDate(date))
+  : [""]
+),
                 datasets: [
                     {
                         label: _t("Arrivals"),
@@ -726,7 +744,7 @@ class NewDashBoard extends Component {
 
             // ✅ Update Chart.js Data
             this.charts.roomTypeDistribution.data = {
-                labels: labels, // Dates on the X-axis
+                labels: labels && labels.length ? labels : [""], // Dates on the X-axis
                 datasets: datasets
             };
 
