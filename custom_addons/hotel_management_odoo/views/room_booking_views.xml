@@ -249,7 +249,7 @@
         <field name="model_id" ref="model_room_booking" />
         <field name="state">code</field>
         <field name="code">
-            records.action_archive_as_delete()
+            records.action_archive_as_delete_redirect()
         </field>
         <field name="binding_model_id" ref="model_room_booking" />
         <field name="binding_type">action</field>        <!-- Makes it appear in the Actions menu -->

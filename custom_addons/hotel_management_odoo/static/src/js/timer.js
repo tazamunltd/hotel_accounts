@@ -17,8 +17,6 @@ export class TimerWidget extends Component {
     // Initial state
     this.state = { systemDate: null };
 
-    // Log the user ID before fetching data
-    // console.log("TimerWidget: Current User ID =>", this.userService.userId);
 
     // Setup company change watcher using onWillStart lifecycle hook
     onWillStart(async () => {
@@ -28,7 +26,6 @@ export class TimerWidget extends Component {
       // Show notification when the page loads
       if (this.state.systemDate) {
         this.notificationService.add(`System Date: ${this.state.systemDate}`, {
-          // title: "Welcome!",
           type: "info",
         });
       }
@@ -69,7 +66,7 @@ export class TimerWidget extends Component {
         [companyId],
         ["system_date"]
       );
-      console.log("TimerWidget: res.company record =>", company);
+      
 
       if (company && company.system_date) {
         // Format and store the system date in component state
@@ -80,12 +77,6 @@ export class TimerWidget extends Component {
           month: "2-digit",
           year: "numeric",
         });
-
-        // Log the final formatted date
-        console.log(
-          "TimerWidget: Computed systemDate =>",
-          this.state.systemDate
-        );
 
         // Trigger render
         this.render();

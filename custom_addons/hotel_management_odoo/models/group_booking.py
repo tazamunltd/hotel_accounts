@@ -150,23 +150,6 @@ class GroupBooking(models.Model):
                 lambda b: b.state == 'check_in')
             record.total_stays = len(checked_in_bookings)
 
-            # Get all create_date values from `room_booking_ids`
-            # create_dates = record.room_booking_ids.mapped('create_date')
-
-            # if create_dates:
-            #     # Set the earliest date in `first_visit`
-            #     record.first_visit = min(create_dates)
-
-            #     # Set the latest date in `last_visit`
-            #     record.last_visit = max(create_dates)
-            # else:
-            #     # If no bookings, set both `first_visit` and `last_visit` to False
-            #     record.first_visit = False
-            #     record.last_visit = False
-
-            # # Debugging output (Optional, useful for testing)
-            # print(f"Group Booking {record.id}: Total Stays: {record.total_stays}, "
-            #       f"First Visit: {record.first_visit}, Last Visit: {record.last_visit}")
 
     total_nights = fields.Integer(
         string='Total Nights',
@@ -175,11 +158,26 @@ class GroupBooking(models.Model):
         tracking=True
     )
 
-    @api.depends('room_booking_ids')
+    @api.depends('first_visit', 'last_visit')
     def _compute_total_nights(self):
         for record in self:
-            record.total_nights = sum(
-                record.room_booking_ids.mapped('no_of_nights') or [0])
+            # Check if both first_visit and last_visit are set
+            if record.first_visit and record.last_visit:
+                # Ensure the dates are in the correct format (date object)
+                first_visit = fields.Date.from_string(record.first_visit)
+                last_visit = fields.Date.from_string(record.last_visit)
+
+                # Calculate the difference between the dates
+                total_nights = (last_visit - first_visit).days
+                record.total_nights = total_nights
+            else:
+                record.total_nights = 0
+
+    # @api.depends('room_booking_ids')
+    # def _compute_total_nights(self):
+    #     for record in self:
+    #         record.total_nights = sum(
+    #             record.room_booking_ids.mapped('no_of_nights') or [0])
 
     first_visit = fields.Date(
         string='First Visit',
@@ -195,55 +193,52 @@ class GroupBooking(models.Model):
         tracking=True,
     )
 
-    # @api.depends('room_booking_ids.create_date')
-    # def _compute_first_and_last_visit(self):
-    #     for record in self:
-    #         # Filter reservations linked to this particular group_booking
-    #         if record.room_booking_ids:
-    #             # Extract all create_date values from related reservations
-    #             create_dates = record.room_booking_ids.mapped('create_date')
-    #             # print(f"Group Booking {record.id}: Create Dates: {create_dates}")
-
-    #             # Set the earliest date in `first_visit`
-    #             record.first_visit = min(create_dates)
-    #             # print(f"Group Booking {record.id}: First Visit: {record.first_visit}")
-
-    #             # Set the latest date in `last_visit`
-    #             record.last_visit = max(create_dates)
-    #             print(f"Group Booking {record.id}: Last Visit: {record.last_visit}")
-
-    #             # Debugging
-    #             # print(f"Group Booking {record.id}: First Visit: {record.first_visit}, Last Visit: {record.last_visit}")
-    #         else:
-    #             # If no reservations exist for the group booking, clear the values
-    #             record.first_visit = False
-    #             record.last_visit = False
-
-    @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date')
+    @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date', 'room_booking_ids.state')
     def _compute_first_and_last_visit(self):
         for record in self:
-            if record.room_booking_ids:
-                # Extract all check-in dates
-                checkin_dates = record.room_booking_ids.mapped('checkin_date')
-                checkout_dates = record.room_booking_ids.mapped('checkout_date')
-
-                # Earliest check-in
-                if checkin_dates:
-                    earliest_checkin = min(checkin_dates)
-                    record.first_visit = earliest_checkin
-                else:
-                    record.first_visit = False
-
-                # Latest check-out
-                if checkout_dates:
-                    latest_checkout = max(checkout_dates)
-                    record.last_visit = latest_checkout
-                else:
-                    record.last_visit = False
+            # Earliest check-in (you can leave this logic as is if you still want
+            # to display the earliest planned checkin_date).
+            checkin_dates = record.room_booking_ids.mapped('checkin_date')
+            if checkin_dates:
+                record.first_visit = min(checkin_dates)
             else:
-                # No bookings
                 record.first_visit = False
+
+            # For last_visit, consider only bookings that have state = 'check_out'.
+            checked_out_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'check_out' and b.checkout_date)
+            if checked_out_bookings:
+                checkout_dates = checked_out_bookings.mapped('checkout_date')
+                record.last_visit = max(checkout_dates)
+            else:
                 record.last_visit = False
+
+
+
+    # @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date')
+    # def _compute_first_and_last_visit(self):
+    #     for record in self:
+    #         if record.room_booking_ids:
+    #             # Extract all check-in dates
+    #             checkin_dates = record.room_booking_ids.mapped('checkin_date')
+    #             checkout_dates = record.room_booking_ids.mapped('checkout_date')
+
+    #             # Earliest check-in
+    #             if checkin_dates:
+    #                 earliest_checkin = min(checkin_dates)
+    #                 record.first_visit = earliest_checkin
+    #             else:
+    #                 record.first_visit = False
+
+    #             # Latest check-out
+    #             if checkout_dates:
+    #                 latest_checkout = max(checkout_dates)
+    #                 record.last_visit = latest_checkout
+    #             else:
+    #                 record.last_visit = False
+    #         else:
+    #             # No bookings
+    #             record.first_visit = False
+    #             record.last_visit = False
     
     
     total_revenue = fields.Float(

@@ -1,7 +1,8 @@
 /** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
+import { Component, onMounted, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { useEnv } from "@web/core/utils/hooks";
 
 // Configuration object for model-specific settings
 const MODEL_CONFIG = {
@@ -97,7 +98,9 @@ export class RoomResultDashBoard extends Component {
     this.orm = useService("orm");
     this.view = useService("view");
     this.actionService = useService("action");
-    
+    this.userService = useService("user");
+    this.companyService = useService("company");
+
     const fromDate = this.props.context?.from_date || "";
     const toDate = this.props.context?.to_date || "";
 
@@ -116,6 +119,50 @@ export class RoomResultDashBoard extends Component {
       endDateField: "report_date",
       methodName: "search_available_rooms",
     };
+
+    onMounted(() => {
+      // Check if filter dates are not provided (i.e., apply system date)
+      if (!fromDate && !toDate) {
+        const companyId = this.companyService.currentCompany.id;
+        console.log("Company ID:", companyId);
+        this.updateSystemDate(companyId);
+      }
+    });
+  }
+
+  async updateSystemDate(companyId) {
+    try {
+      const companyData = await this.orm.call(
+        "res.company",
+        "search_read",
+        [[["id", "=", companyId]]],
+        { fields: ["system_date"] }
+      );
+
+      console.log("Company Data:", companyData);
+
+      if (companyData && companyData.length > 0) {
+        // Fallback to "today" if system_date is not set
+        const systemDate =
+          companyData[0].system_date || new Date().toISOString().split("T")[0];
+
+        // Convert system date string into a JS Date
+        const startDate = new Date(systemDate);
+        // If you truly want "system_date + 0 days", leave it as is
+        // If you wanted "system_date - 3 days", do: startDate.setDate(startDate.getDate() - 3);
+
+        const endDate = new Date(systemDate);
+        endDate.setDate(endDate.getDate() + 30); // +30 days from system_date
+
+        // Update state so the date pickers & filter reflect these
+        this.state.startDate = startDate.toISOString().split("T")[0];
+        this.state.endDate = endDate.toISOString().split("T")[0];
+
+        console.log("System Date updated to:", systemDate);
+      }
+    } catch (error) {
+      console.error("Error updating system date:", error);
+    }
   }
 
   onApplyFilter = async () => {

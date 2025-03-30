@@ -9087,6 +9087,16 @@ msgid "Waiting List"
 msgstr "قائمة الانتظار"
 
 #. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "UnCheck-In"
+msgstr "إلغاء الوصول"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "UnCheck-Out"
+msgstr "إلغاء المغادرة"
+
+#. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format

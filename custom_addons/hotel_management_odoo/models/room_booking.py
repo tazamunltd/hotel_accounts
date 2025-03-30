@@ -26,25 +26,10 @@ class RoomBooking(models.Model):
     _description = "Waiting List Room Availability"
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    # package_ids = fields.One2many('hotel.package_handling', 'booking_id', string="Packages")
 
-    # show_offline_search = fields.Boolean(
-    #     compute="_compute_show_offline_search",
-    #     store=False,  # Not stored, as it's dynamic
-    # )
+    
 
-    # def _compute_show_offline_search(self):
-    #     for record in self:
-    #         record.show_offline_search = record.state != 'confirmed'
-
-    # def generateRcPDF(self):
-    #     # Redirect to the controller to generate the PDFs
-    #     booking_ids = ','.join(map(str, self.ids))
-    #     return {
-    #         'type': 'ir.actions.act_url',
-    #         'url': f'/generate_rc/bookings_pdf?booking_ids={booking_ids}',
-    #         'target': 'self',
-    #     }
+    
 
     def generateRcGuestPDF(self):
         # Redirect to the controller to generate the PDFs
@@ -477,6 +462,40 @@ class RoomBooking(models.Model):
 
     is_offline_search = fields.Boolean(string="Is Offline search", default=True)
 
+    def action_archive_as_delete_redirect(self):
+        self.action_archive_as_delete()  
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Success',
+                'message': 'Reservation(s) deleted successfully!',
+                'sticky': True,  # False means it disappears automatically
+                'type': 'success',
+                # Optionally redirect to a view:
+                # 'next': {
+                #    'type': 'ir.actions.act_window',
+                #    'res_model': 'room.booking',
+                #    'view_mode': 'tree,form',
+                #    'target': 'current',
+                # }
+            }
+        }
+
+        # self.env.user.notify_info(
+        #         message=f"Reservation(s) deleted successfully!",
+        #         title="Success"
+        #     )
+        
+        # return {
+        #     'type': 'ir.actions.act_window',
+        #     'name': 'Room Bookings',
+        #     'res_model': 'room.booking',
+        #     'view_mode': 'tree,form',
+        #     'target': 'current',
+        # }
+
     def action_archive_as_delete(self):
         """Validate states and archive records."""
         # Define allowed states
@@ -496,6 +515,8 @@ class RoomBooking(models.Model):
         # Archive all records in valid states
         for record in self:
             record.active = False
+
+        
 
     # @api.depends('checkin_date')
     # def _compute_is_checkin_in_past(self):
@@ -2170,8 +2191,32 @@ class RoomBooking(models.Model):
             #     vals['date_order'] = company.system_date
 
         
-        if 'active' in vals:
-            return super(RoomBooking, self).write(vals)
+        if 'active' in vals and vals['active'] is False:
+            res = super(RoomBooking, self).write(vals)
+            
+            self.env.user.notify_success(
+                message="Reservation(s) deleted successfully!",
+                title="Success",
+                sticky=False
+            )
+            # res = super(RoomBooking, self).write(vals)
+            # {
+            #     'type': 'ir.actions.client',
+            #     'tag': 'display_notification',
+            #     'params': {
+            #         'title': 'Success',
+            #         'message': 'Reservation(s) deleted successfully!',
+            #         'sticky': True,  # False means it disappears automatically
+            #         'type': 'success',
+            #         # Optionally redirect to a view:
+                    
+            #     }
+            # }
+            return res
+
+
+
+            # return super(RoomBooking, self).write(vals)
             # Check if partner_id is present (either in vals or existing record)
         # new_partner_id = vals.get('partner_id', self.partner_id.id)
         # if not new_partner_id:
@@ -7779,6 +7824,8 @@ class RoomBooking(models.Model):
                 record.hotel_room_type.id if record.hotel_room_type else None
             )
 
+            total_available_rooms = 0
+
             # If result is a tuple, unpack it
             if isinstance(result, tuple) and len(result) == 2:
                 total_available_rooms, results = result
@@ -7810,14 +7857,14 @@ class RoomBooking(models.Model):
             for res in results:
                 if not isinstance(res, dict):
                     raise ValueError(f"Expected a dictionary, but got: {res}")
-                available_rooms = int(res.get('available_rooms', 0))
+                available_rooms = total_available_rooms
                 if available_rooms:
                     result_lines.append((0, 0, {
                         'company_id': res['company_id'],
                         'room_type': res['room_type'],
                         # 'pax': res['pax'],
                         'rooms_reserved': res['rooms_reserved'],
-                        'available_rooms': res['available_rooms']
+                        'available_rooms': total_available_rooms
                     }))
 
             # Write results to availability_results and mark search_done
@@ -8310,6 +8357,10 @@ class SystemDate(models.Model):
 
     checkin_time = fields.Char(string="Check-in Time 24hrs", help="Select the check-in time")
     checkout_time = fields.Char(string="Check-out Time 24hrs", help="Select the check-out time")
+
+    @api.model
+    def get_system_date(self):
+        return self.env.company.system_date
     
     
     @api.constrains('checkin_time', 'checkout_time')
