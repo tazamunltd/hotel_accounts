@@ -2102,13 +2102,16 @@ class WebAppController(http.Controller):
         right_margin = 20
         top_margin = 50
         bottom_margin = 50
+        arabic_val = 0
+
 
         # Register a font that supports Arabic
         if platform.system() == "Windows":
             font_path = "C:/Windows/Fonts/arial.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
-
+            arabic_val = 15
+            logger.info("ARABIC VALUES for the length values:{arabic_val}")
             # Register the font
         try:
             pdfmetrics.registerFont(TTFont('CustomFont', font_path))
@@ -2388,7 +2391,9 @@ class WebAppController(http.Controller):
         RIGHT_LABEL_X = LEFT_ARABIC_X + 90
         RIGHT_VALUE_X = RIGHT_LABEL_X + 100
         # Keep Arabic close to the value
-        RIGHT_ARABIC_X = RIGHT_VALUE_X + 115
+        RIGHT_ARABIC_X = RIGHT_VALUE_X + 115 - arabic_val
+        logger.info("RC report values:{RIGHT_ARABIC_X}")
+        logger.info(RIGHT_ARABIC_X)
 
         str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
         str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
@@ -2861,13 +2866,15 @@ class WebAppController(http.Controller):
         bottom_margin = 50
         line_height = 15
         y_position = height - top_margin
-
+        arabic_val = 0
+        logger.info("arabic val value for the check")
         # Register a font that supports Arabic
         if platform.system() == "Windows":
             font_path = "C:/Windows/Fonts/arial.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
-
+            arabic_val = 15
+        logger.info(arabic_val)
             # Register the font
         try:
             pdfmetrics.registerFont(TTFont('CustomFont', font_path))
@@ -3143,7 +3150,7 @@ class WebAppController(http.Controller):
         RIGHT_LABEL_X = LEFT_ARABIC_X + 90
         RIGHT_VALUE_X = RIGHT_LABEL_X + 90
         # Keep Arabic close to the value
-        RIGHT_ARABIC_X = RIGHT_VALUE_X + 115
+        RIGHT_ARABIC_X = RIGHT_VALUE_X + 115 - arabic_val
         str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
         str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
         # line_height = 20
