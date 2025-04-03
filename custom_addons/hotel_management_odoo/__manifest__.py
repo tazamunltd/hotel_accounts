@@ -138,6 +138,9 @@
             'hotel_management_odoo/static/src/views/hotel_room_result.js',
             'hotel_management_odoo/static/src/views/templates.xml',
             'hotel_management_odoo/static/src/js/plotly_min.js',
+            'hotel_management_odoo/static/src/xml/delete_with_notification.xml',
+            'hotel_management_odoo/static/src/js/delete_with_notification.js',
+
 
         ],
     },

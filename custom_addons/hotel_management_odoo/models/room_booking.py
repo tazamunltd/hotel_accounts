@@ -462,26 +462,34 @@ class RoomBooking(models.Model):
 
     is_offline_search = fields.Boolean(string="Is Offline search", default=True)
 
-    def action_archive_as_delete_redirect(self):
-        self.action_archive_as_delete()  
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Success',
-                'message': 'Reservation(s) deleted successfully!',
-                'sticky': True,  # False means it disappears automatically
-                'type': 'success',
-                # Optionally redirect to a view:
-                # 'next': {
-                #    'type': 'ir.actions.act_window',
-                #    'res_model': 'room.booking',
-                #    'view_mode': 'tree,form',
-                #    'target': 'current',
-                # }
-            }
-        }
+    @api.model
+    def action_archive_as_delete_redirect(self,record_ids):
+        records = self.browse(record_ids)
+        if records.exists():
+            records.action_archive_as_delete()
+        # self.action_archive_as_delete()
+        # self.action_archive_as_delete()
+        # return {
+        #     'status': 'success',
+        #     'message': 'Reservation(s) deleted successfully!',
+        # }
+        # return {
+        #     'type': 'ir.actions.client',
+        #     'tag': 'display_notification',
+        #     'params': {
+        #         'title': 'Success',
+        #         'message': 'Reservation(s) deleted successfully!',
+        #         'sticky': True,  # False means it disappears automatically
+        #         'type': 'success',
+        #         # Optionally redirect to a view:
+        #         # 'next': {
+        #         #    'type': 'ir.actions.act_window',
+        #         #    'res_model': 'room.booking',
+        #         #    'view_mode': 'tree,form',
+        #         #    'target': 'current',
+        #         # }
+        #     }
+        # }
 
         # self.env.user.notify_info(
         #         message=f"Reservation(s) deleted successfully!",
@@ -2194,11 +2202,11 @@ class RoomBooking(models.Model):
         if 'active' in vals and vals['active'] is False:
             res = super(RoomBooking, self).write(vals)
             
-            self.env.user.notify_success(
-                message="Reservation(s) deleted successfully!",
-                title="Success",
-                sticky=False
-            )
+            # self.env.user.notify_success(
+            #     message="Reservation(s) deleted successfully1!",
+            #     title="Success",
+            #     sticky=False
+            # )
             # res = super(RoomBooking, self).write(vals)
             # {
             #     'type': 'ir.actions.client',

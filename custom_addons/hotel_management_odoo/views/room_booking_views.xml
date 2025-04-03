@@ -244,17 +244,32 @@
         </field>
     </record>
 
+<!--    <record id="action_delete_room_booking" model="ir.actions.server">-->
+<!--        <field name="name">Delete</field>-->
+<!--        <field name="model_id" ref="model_room_booking" />-->
+<!--        <field name="state">code</field>-->
+<!--        <field name="code">-->
+<!--            records.action_archive_as_delete_redirect()-->
+<!--        </field>-->
+<!--        <field name="binding_model_id" ref="model_room_booking" />-->
+<!--        <field name="binding_type">action</field>        &lt;!&ndash; Makes it appear in the Actions menu &ndash;&gt;-->
+<!--    </record>-->
     <record id="action_delete_room_booking" model="ir.actions.server">
-        <field name="name">Delete</field>
-        <field name="model_id" ref="model_room_booking" />
-        <field name="state">code</field>
-        <field name="code">
-            records.action_archive_as_delete_redirect()
-        </field>
-        <field name="binding_model_id" ref="model_room_booking" />
-        <field name="binding_type">action</field>        <!-- Makes it appear in the Actions menu -->
-    </record>
-
+    <field name="name">Delete</field>
+    <field name="model_id" ref="model_room_booking" />
+    <field name="binding_model_id" ref="model_room_booking" />
+    <field name="binding_type">action</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'delete_with_notification_js',
+    'params': {
+        'record_ids': records.ids or [record.id],
+    }
+}
+    ]]></field>
+</record>
     <!--     Room Booking Form View -->
     <record id="room_booking_view_form" model="ir.ui.view">
         <field name="name">room.booking.view.form</field>

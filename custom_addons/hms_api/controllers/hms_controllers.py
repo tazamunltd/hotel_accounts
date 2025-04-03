@@ -2110,7 +2110,7 @@ class WebAppController(http.Controller):
             font_path = "C:/Windows/Fonts/arial.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
-            arabic_val = 15
+            arabic_val = 19
             logger.info("ARABIC VALUES for the length values:{arabic_val}")
             # Register the font
         try:
@@ -2873,7 +2873,7 @@ class WebAppController(http.Controller):
             font_path = "C:/Windows/Fonts/arial.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
-            arabic_val = 15
+            arabic_val = 19
         logger.info(arabic_val)
             # Register the font
         try:
@@ -4541,3 +4541,17 @@ class WebAppController(http.Controller):
         c.save()
         buffer.seek(0)
         return buffer
+
+    @http.route('/delete_reservations', type='json', auth='user', methods=['POST'], csrf=False)
+    def delete_reservations(self, record_ids):
+        if not record_ids:
+            return {'status': 'error', 'message': 'No records provided'}
+
+        records = request.env['room.booking'].sudo().browse(record_ids)
+        if not records.exists():
+            return {'status': 'error', 'message': 'Records not found'}
+
+        # ✅ Soft delete instead of unlink
+        records.write({'active': False})
+
+        return {'status': 'success', 'message': 'Reservations archived (inactive)'}
