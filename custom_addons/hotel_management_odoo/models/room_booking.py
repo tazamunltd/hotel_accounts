@@ -8263,7 +8263,36 @@ having min(free_to_sell) >= %(room_count)s;
         """Search rooms with sufficient free-to-sell based on check-in/check-out."""
         self.ensure_one()
         self.action_clear_rooms()
-        # Build the SQL query string
+        max_num_person = self.env['hotel.room'].search(
+        [], order='num_person desc', limit=1).num_person
+
+        all_num_persons = self.env['hotel.room'].search(
+            []).mapped('num_person')
+        # print("all_num_persons", all_num_persons)
+
+        for record in self:
+            if record.parent_booking_name and len(record.room_line_ids) == 1 and record.state == 'confirmed':
+                raise ValidationError(
+                    f"The booking '{record.name}' has already been split. You are not allowed to change the room."
+                )
+
+            if max_num_person == 0:
+                raise ValidationError(
+                    f"No room is configured for this company {record.company_id.name}. Please configure at least one room.")
+
+            # if max_num_person > 0 and record.adult_count > max_num_person:
+            #     raise ValidationError(f"The maximum allowed number of persons per room is {max_num_person}. Please reduce the number of adults.")
+            if record.adult_count > 99:
+                raise ValidationError(
+                    f"The maximum allowed number of persons per room is 99. Please reduce the number of adults.")
+
+            if record.room_count <= 0 or record.adult_count <= 0:
+                raise ValidationError(
+                    "Room count and adult count cannot be zero or less. Please select at least one room and one adult.")
+
+            record._get_forecast_rates()
+
+            # Build the SQL query string
         query = self._get_room_search_query()
         
         # Construct the parameters for the SQL
