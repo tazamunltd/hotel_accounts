@@ -108,16 +108,13 @@ class GroupBooking(models.Model):
     def _compute_pax_and_room_count(self):
         for record in self:
             adult_counts = record.room_booking_ids.mapped('adult_count')
-            print("Group Booking %s - Adult Counts from Room Bookings: %s", record.id, adult_counts)
             record.total_adult_count = sum(adult_counts or [0])
             # record.total_adult_count = sum(record.room_booking_ids.mapped('adult_count') or [0])
             child_counts = record.room_booking_ids.mapped('child_count')
-            print("Group Booking %s - Child Counts from Room Bookings: %s" % (record.id, child_counts))
             record.total_child_count = sum(child_counts or [0])
             
             # Get and log infant counts
             infant_counts = record.room_booking_ids.mapped('infant_count')
-            print("Group Booking %s - Infant Counts from Room Bookings: %s" % (record.id, infant_counts))
             record.total_infant_count = sum(infant_counts or [0])
             
             record.total_room_count = sum(record.room_booking_ids.mapped('room_count') or [0])

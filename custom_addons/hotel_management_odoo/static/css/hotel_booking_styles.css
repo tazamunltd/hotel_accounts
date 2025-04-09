@@ -15,6 +15,6 @@
     overflow: hidden; /* Hide overflow */
     text-overflow: unset; /* Remove ellipsis */
     display: inline-block; /* Keep it inline */
-    max-width:64px;
+    max-width:66px;
 }
 

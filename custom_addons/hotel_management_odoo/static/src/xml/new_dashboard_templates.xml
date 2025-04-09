@@ -63,7 +63,8 @@
                             <div class="card metric-card">
                                 <div class="card-body text-center d-flex align-items-center">
                                     <div class="metric-icon bg-warning-light me-3">
-                                        <i class="fa fa-clock text-warning"/>
+                                        <i class="fa fa-clock-o text-warning" aria-hidden="true"></i>
+
                                     </div>
                                     <div class="metric-content">
                                         <h3 class="mb-0 text-warning" t-esc="state.metrics.not_confirmed"/>

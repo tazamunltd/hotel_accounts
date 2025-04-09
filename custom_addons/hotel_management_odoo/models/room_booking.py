@@ -1050,7 +1050,7 @@ class RoomBooking(models.Model):
         tracking=True
     )
 
-    name = fields.Char(string="Booking ID", readonly=True, index=True,
+    name = fields.Char(string="Booking ID", readonly=True, index=True,copy=False,
                        default="New", help="Name of Folio", tracking=True)
 
     rate_forecast_ids = fields.One2many(
@@ -2120,14 +2120,6 @@ class RoomBooking(models.Model):
 
     reference_contact_ = fields.Char(string=_('Contact Reference'))
 
-    # @api.onchange('partner_id')
-    # def _onchange_customer(self):
-    #     if self.partner_id:
-    #         self.nationality = self.partner_id.nationality.id
-    #         self.source_of_business = self.partner_id.source_of_business.id
-    #         self.rate_code = self.partner_id.rate_code.id
-
-    
 
     @api.onchange('partner_id')
     def _onchange_customer(self):
@@ -2254,16 +2246,38 @@ class RoomBooking(models.Model):
         if 'checkin_date' in vals and not vals['checkin_date']:
             raise ValidationError(_("Check-In Date is required and cannot be empty."))
         
+        # if 'checkin_date' in vals or 'checkout_date' in vals:
+        #     for booking in self:
+        #         updated_checkin_date = vals.get('checkin_date', booking.checkin_date)
+        #         updated_checkout_date = vals.get('checkout_date', booking.checkout_date)
+        #
+        #         # Update the associated room.booking.line records
+        #         booking.room_line_ids.write({
+        #             'checkin_date': updated_checkin_date,
+        #             'checkout_date': updated_checkout_date
+        #         })
         if 'checkin_date' in vals or 'checkout_date' in vals:
             for booking in self:
                 updated_checkin_date = vals.get('checkin_date', booking.checkin_date)
                 updated_checkout_date = vals.get('checkout_date', booking.checkout_date)
 
-                # Update the associated room.booking.line records
-                booking.room_line_ids.write({
-                    'checkin_date': updated_checkin_date,
-                    'checkout_date': updated_checkout_date
-                })
+                if booking.state == 'block' and booking.room_line_ids:
+                    for line in booking.room_line_ids:
+                        overlapping_bookings = self.env['room.booking.line'].search([
+                            ('room_id', '=', line.room_id.id),
+                            ('id', '!=', line.id),  # Exclude current line
+                            ('state', '=', 'block'),  # You can also include other active states like 'confirmed'
+                            ('checkin_date', '<', updated_checkout_date),
+                            ('checkout_date', '>', updated_checkin_date)
+                        ])
+                        if overlapping_bookings:
+                            raise UserError(f"Room {line.room_id.name} is already booked for the selected date range.")
+
+                    # No conflicts found, update the dates
+                    booking.room_line_ids.write({
+                        'checkin_date': updated_checkin_date,
+                        'checkout_date': updated_checkout_date
+                    })
 
         # if 'date_order' not in vals:
         #     system_date = self.env['res.company'].search(
@@ -4647,6 +4661,16 @@ class RoomBooking(models.Model):
 
     @api.model
     def create(self, vals_list):
+
+        if not vals_list.get('company_id'):
+            vals_list['company_id'] = self.env.company.id
+
+            # Only generate Booking ID if it's still "New"
+        if vals_list.get('name', 'New') == 'New':
+            company = self.env['res.company'].browse(vals_list['company_id'])
+            prefix = company.name + '/' if company else ''
+            next_seq = self.env['ir.sequence'].next_by_code('room.booking') or '00001'
+            vals_list['name'] = prefix + next_seq
         self.check_room_meal_validation(vals_list, False)
         # print('2427', vals_list)
         # if 'state' not in vals_list:
@@ -5099,6 +5123,28 @@ class RoomBooking(models.Model):
     #                     % line.room_id.name
     #                 )
     #             ids.add(line.room_id.id)
+
+
+    def copy(self, default=None):
+        restricted_states = ['not_confirmed', 'confirmed', 'block', 'check_in', 'check_out', 'cancel', 'no_show']
+        if self.state not in restricted_states:
+            raise UserError(_("You cannot duplicate a booking that is in '%s' state.") % self.state.capitalize())
+
+        # Don’t provide 'name' in default, so create() assigns it automatically
+        default = dict(default or {})
+        
+        # system_date = self.env.user.company_id.system_date
+        # default['checkin_date'] = system_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # default['checkout_date'] = checkin_date + timedelta(days=1)
+
+        # checkin_date = self.env.user.company_id.system_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        # default['checkin_date'] = checkin_date
+
+        # # Set checkout_date to 1 day after checkin_date (start of day)
+        # default['checkout_date'] = checkin_date + timedelta(days=1)
+
+        return super(RoomBooking, self).copy(default)
 
     def create_list(self, line_ids):
         """Returns a Dictionary containing the Booking line Values"""
@@ -7193,7 +7239,7 @@ class RoomBooking(models.Model):
                 ('checkin_date', '<', checkout_date),
                 ('checkout_date', '>', checkin_date),
                 ('checkout_date', 'not like', today_date + '%'),
-                ('state', 'in', ['check_in', 'block']),
+                ('state', 'in', ['check_in', 'block', 'confirmed']),
                 ('id', 'not in', self.env.context.get('already_allocated', []))
             ])
             print(f"Booked rooms count: {booked_rooms}")
@@ -7789,99 +7835,583 @@ class RoomBooking(models.Model):
 
             ctr += 1
 
+    def _get_room_search_query(self):
+        """
+        Get the room search query template that filters rooms based on availability.
+        Only returns rooms where free-to-sell quantity >= requested room count
+        across the entire date range.
+        
+        Returns:
+            str: SQL query for room search with availability calculations
+            
+        Modified: 2025-01-09T12:52:13+05:00
+        """
+        return """
+        WITH RECURSIVE
+parameters AS (
+    SELECT
+		%(from_date)s::date AS from_date,
+        %(to_date)s::date AS to_date
+		),
+company_ids AS (
+    select CAST(%(company_id)s AS INTEGER) as company_id
+),
+system_date_company AS (
+    SELECT 
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
+    FROM res_company rc 
+    WHERE rc.id IN (SELECT company_id FROM company_ids)
+),
+-- 2. Generate report dates from the earliest system_date to the specified to_date
+date_series AS (
+    SELECT generate_series(
+        (SELECT MIN(system_date) FROM system_date_company), 
+        (SELECT to_date FROM parameters),
+        INTERVAL '1 day'
+    )::date AS report_date
+),
+-- 3. Base data & Latest status per booking line
+base_data AS (
+        SELECT
+            rb.id AS booking_id,
+            rb.parent_booking_id,
+            rb.company_id,
+            rb.checkin_date::date AS checkin_date,
+            rb.checkout_date::date AS checkout_date,
+            rbl.id AS booking_line_id,
+            rbl.sequence,
+            rbl.room_id,
+            rbl.hotel_room_type AS room_type_id,
+            rbls.status,
+            rbls.change_time,
+            rb.house_use,
+            rb.complementary
+        FROM room_booking rb
+        JOIN room_booking_line rbl ON rb.id = rbl.booking_id
+        LEFT JOIN room_booking_line_status rbls ON rbl.id = rbls.booking_line_id
+        WHERE rb.company_id IN (SELECT company_id FROM company_ids) and rb.active = true
+
+),
+latest_line_status AS (
+    SELECT DISTINCT ON (bd.booking_line_id, ds.report_date)
+           bd.booking_line_id,
+           ds.report_date,
+           bd.checkin_date,
+           bd.checkout_date,
+           bd.company_id,
+           bd.room_type_id,
+           bd.status AS final_status,
+           bd.change_time,
+           bd.house_use,
+           bd.complementary
+    FROM base_data bd
+    JOIN date_series ds 
+      ON ds.report_date BETWEEN bd.checkin_date AND bd.checkout_date
+    WHERE bd.change_time::date <= ds.report_date
+    ORDER BY
+       bd.booking_line_id,
+       ds.report_date DESC,
+       bd.change_time DESC NULLS LAST
+)
+	-- select * from latest_line_status;
+	,
+-- 4. Compute the system date metrics (anchor values)
+-- Actual in_house on system_date (using check_in status)
+system_date_in_house AS (
+    SELECT
+        sdc.system_date AS report_date,
+        sdc.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS in_house_count
+    FROM latest_line_status lls
+    JOIN system_date_company sdc ON sdc.company_id = lls.company_id
+    WHERE lls.final_status = 'check_in'
+      AND sdc.system_date BETWEEN lls.checkin_date AND lls.checkout_date
+    GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
+),
+-- Expected arrivals on system_date: bookings where checkin_date equals system_date and status is confirmed or block
+system_date_expected_arrivals AS (
+    SELECT
+        sdc.system_date AS report_date,
+        sdc.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
+    FROM latest_line_status lls
+    JOIN system_date_company sdc ON sdc.company_id = lls.company_id
+    WHERE lls.checkin_date = sdc.system_date
+      AND lls.final_status IN ('confirmed', 'block')
+    GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
+),
+-- Expected departures on system_date: bookings where checkout_date equals system_date and status in (check_in, confirmed, block)
+system_date_expected_departures AS (
+    SELECT
+        sdc.system_date AS report_date,
+        sdc.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
+    FROM latest_line_status lls
+    JOIN system_date_company sdc ON sdc.company_id = lls.company_id
+    WHERE lls.checkout_date = sdc.system_date
+      AND lls.final_status IN ('check_in', 'confirmed', 'block')
+    GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
+),
+-- Compute the anchor expected_in_house on the system_date using the formula:
+-- expected_in_house = in_house (from check_in) + expected arrivals – expected departures
+system_date_base AS (
+  SELECT
+    sdc.system_date AS report_date,
+    sdc.company_id,
+    rt.id AS room_type_id,
+    COALESCE(sdih.in_house_count, 0) AS in_house,
+    COALESCE(sdea.expected_arrivals_count, 0) AS expected_arrivals,
+    COALESCE(sded.expected_departures_count, 0) AS expected_departures,
+    (COALESCE(sdih.in_house_count, 0)
+     + COALESCE(sdea.expected_arrivals_count, 0)
+     - COALESCE(sded.expected_departures_count, 0)) AS expected_in_house
+  FROM system_date_company sdc
+  CROSS JOIN room_type rt
+  LEFT JOIN system_date_in_house sdih 
+         ON sdih.company_id = sdc.company_id 
+         AND sdih.room_type_id = rt.id 
+         AND sdih.report_date = sdc.system_date
+  LEFT JOIN system_date_expected_arrivals sdea 
+         ON sdea.company_id = sdc.company_id 
+         AND sdea.room_type_id = rt.id 
+         AND sdea.report_date = sdc.system_date
+  LEFT JOIN system_date_expected_departures sded 
+         ON sded.company_id = sdc.company_id 
+         AND sded.room_type_id = rt.id 
+         AND sded.report_date = sdc.system_date
+),
+-- 5. For subsequent dates, calculate expected arrivals and departures per report_date
+expected_arrivals AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
+    FROM latest_line_status lls
+    WHERE lls.checkin_date = lls.report_date
+      AND lls.final_status IN ('confirmed','block')
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+expected_departures AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
+    FROM latest_line_status lls
+    WHERE lls.checkout_date = lls.report_date
+      AND lls.final_status IN ('check_in','confirmed','block')
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+-- 6. Recursive Calculation for in_house and expected_in_house
+-- For days after the system date, set:
+--   new in_house = previous day's expected_in_house (i.e. yesterday’s expected in_house)
+--   new expected_in_house = new in_house + (today's expected arrivals) - (today's expected departures)
+recursive_in_house AS (
+    -- Anchor row: system_date_base values
+    SELECT 
+        sdb.report_date,
+        sdb.company_id,
+        sdb.room_type_id,
+        sdb.in_house,
+        sdb.expected_in_house
+    FROM system_date_base sdb
+    UNION ALL
+    -- Recursive step: for each subsequent day
+    SELECT
+        ds.report_date,
+        r.company_id,
+        r.room_type_id,
+        r.expected_in_house AS in_house,  -- new in_house equals previous expected_in_house
+        (r.expected_in_house + COALESCE(ea.expected_arrivals_count, 0)
+                              - COALESCE(ed.expected_departures_count, 0)) AS expected_in_house
+    FROM recursive_in_house r
+    JOIN date_series ds 
+         ON ds.report_date = r.report_date + INTERVAL '1 day'
+    LEFT JOIN expected_arrivals ea 
+         ON ea.report_date = ds.report_date 
+         AND ea.company_id = r.company_id 
+         AND ea.room_type_id = r.room_type_id
+    LEFT JOIN expected_departures ed 
+         ON ed.report_date = ds.report_date 
+         AND ed.company_id = r.company_id 
+         AND ed.room_type_id = r.room_type_id
+),
+recursive_in_house_distinct AS (
+  SELECT
+    report_date,
+    company_id,
+    room_type_id,
+    MAX(in_house) AS in_house,
+    MAX(expected_in_house) AS expected_in_house
+  FROM recursive_in_house
+  GROUP BY report_date, company_id, room_type_id
+),
+-- 7. Additional Metrics (house use, complementary use, inventory, out_of_order, rooms on hold, out_of_service)
+house_use_cte AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS house_use_count
+    FROM latest_line_status lls
+    WHERE lls.house_use = TRUE
+      AND lls.final_status IN ('check_in', 'check_out')
+      AND lls.report_date BETWEEN lls.checkin_date AND lls.checkout_date
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+complementary_use_cte AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS complementary_use_count
+    FROM latest_line_status lls
+    WHERE lls.complementary = TRUE
+      AND lls.final_status IN ('check_in', 'check_out')
+      AND lls.report_date BETWEEN lls.checkin_date AND lls.checkout_date
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+inventory AS (
+    SELECT
+        hi.company_id,
+        hi.room_type AS room_type_id,
+        SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count,
+        SUM(COALESCE(hi.overbooking_rooms, 0)) AS overbooking_rooms,
+        BOOL_OR(COALESCE(hi.overbooking_allowed, false)) AS overbooking_allowed
+    FROM hotel_inventory hi
+    GROUP BY hi.company_id, hi.room_type
+),
+out_of_order AS (
+    SELECT
+        rt.id AS room_type_id,
+        hr.company_id,
+        ds.report_date,
+        COUNT(DISTINCT hr.id) AS out_of_order_count
+    FROM date_series ds
+    JOIN out_of_order_management_fron_desk ooo
+      ON ds.report_date BETWEEN ooo.from_date AND ooo.to_date
+    JOIN hotel_room hr
+      ON hr.id = ooo.room_number
+    JOIN room_type rt
+      ON hr.room_type_name = rt.id
+    GROUP BY rt.id, hr.company_id, ds.report_date
+),
+rooms_on_hold AS (
+    SELECT
+        rt.id AS room_type_id,
+        hr.company_id,
+        ds.report_date,
+        COUNT(DISTINCT hr.id) AS rooms_on_hold_count
+    FROM date_series ds
+    JOIN rooms_on_hold_management_front_desk roh
+      ON ds.report_date BETWEEN roh.from_date AND roh.to_date
+    JOIN hotel_room hr
+      ON hr.id = roh.room_number
+    JOIN room_type rt
+      ON hr.room_type_name = rt.id
+    GROUP BY rt.id, hr.company_id, ds.report_date
+),
+out_of_service AS (
+    SELECT
+        rt.id AS room_type_id,
+        hr.company_id,
+        ds.report_date,
+        COUNT(DISTINCT hr.id) AS out_of_service_count
+    FROM date_series ds
+    JOIN housekeeping_management hm
+      ON hm.out_of_service = TRUE
+      AND (hm.repair_ends_by IS NULL OR ds.report_date <= hm.repair_ends_by)
+    JOIN hotel_room hr
+      ON hr.room_type_name = hm.room_type
+    JOIN room_type rt
+      ON hr.room_type_name = rt.id
+    GROUP BY rt.id, hr.company_id, ds.report_date
+),
+-- 8. Final Report (metrics aggregated per report_date, company and room type)
+final_report AS (
+    SELECT
+        ds.report_date,
+        rc.id AS company_id,
+        rc.name AS company_name,
+        rt.id AS room_type_id,
+        COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
+        COALESCE(inv.total_room_count, 0) AS total_rooms,
+        COALESCE(inv.overbooking_rooms, 0) AS overbooking_rooms,
+        COALESCE(inv.overbooking_allowed, false) AS overbooking_allowed,
+        COALESCE(ooo.out_of_order_count, 0) AS out_of_order,
+        COALESCE(roh.rooms_on_hold_count, 0) AS rooms_on_hold,
+        COALESCE(oos.out_of_service_count, 0) AS out_of_service,
+        COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
+        COALESCE(ed.expected_departures_count, 0) AS expected_departures,
+        COALESCE(hc.house_use_count, 0) AS house_use_count,
+        COALESCE(cc.complementary_use_count, 0) AS complementary_use_count,
+        (COALESCE(inv.total_room_count, 0)
+         - COALESCE(ooo.out_of_order_count, 0)
+         - COALESCE(roh.rooms_on_hold_count, 0)) AS available_rooms,
+        COALESCE((
+          SELECT in_house_count 
+          FROM system_date_in_house sdi 
+          WHERE sdi.company_id = rc.id 
+            AND sdi.room_type_id = rt.id 
+            AND sdi.report_date = ds.report_date
+        ), 0) AS in_house
+    FROM date_series ds
+    LEFT JOIN res_company rc
+         ON rc.id IN (SELECT company_id FROM company_ids)
+    CROSS JOIN room_type rt
+    INNER JOIN inventory inv
+         ON inv.company_id = rc.id AND inv.room_type_id = rt.id
+    LEFT JOIN out_of_order ooo
+         ON ooo.company_id = rc.id AND ooo.room_type_id = rt.id AND ooo.report_date = ds.report_date
+    LEFT JOIN rooms_on_hold roh
+         ON roh.company_id = rc.id AND roh.room_type_id = rt.id AND roh.report_date = ds.report_date
+    LEFT JOIN out_of_service oos
+         ON oos.company_id = rc.id AND oos.room_type_id = rt.id AND oos.report_date = ds.report_date
+    LEFT JOIN expected_arrivals ea
+         ON ea.company_id = rc.id AND ea.room_type_id = rt.id AND ea.report_date = ds.report_date
+    LEFT JOIN expected_departures ed
+         ON ed.company_id = rc.id AND ed.room_type_id = rt.id AND ed.report_date = ds.report_date
+    LEFT JOIN house_use_cte hc
+         ON hc.company_id = rc.id AND hc.room_type_id = rt.id AND hc.report_date = ds.report_date
+    LEFT JOIN complementary_use_cte cc
+         ON cc.company_id = rc.id AND cc.room_type_id = rt.id AND cc.report_date = ds.report_date
+    LEFT JOIN system_date_company sdc
+         ON sdc.company_id = rc.id
+    WHERE ds.report_date >= (SELECT from_date FROM parameters)
+),
+-- 9. Final Output: Join recursive in_house values with aggregated metrics
+final_output AS (
+    SELECT
+      fr.report_date,
+      fr.company_id,
+      fr.company_name,
+      fr.room_type_id,
+      fr.room_type_name,
+      SUM(fr.total_rooms) AS total_rooms,
+      BOOL_OR(fr.overbooking_allowed) AS any_overbooking_allowed,
+      SUM(fr.overbooking_rooms) AS total_overbooking_rooms,
+      SUM(fr.out_of_order) AS out_of_order,
+      SUM(fr.rooms_on_hold) AS rooms_on_hold,
+      SUM(fr.out_of_service) AS out_of_service,
+      SUM(fr.expected_arrivals) AS expected_arrivals,
+      SUM(fr.expected_departures) AS expected_departures,
+      SUM(fr.house_use_count) AS house_use_count,
+      SUM(fr.complementary_use_count) AS complementary_use_count,
+      SUM(fr.available_rooms) AS available_rooms,
+      rih.in_house AS in_house,
+      rih.expected_in_house AS expected_in_house,
+      CASE 
+        WHEN BOOL_OR(fr.overbooking_allowed) THEN
+          CASE
+            WHEN SUM(fr.available_rooms) < 0 
+              OR SUM(fr.overbooking_rooms) < 0 
+              OR rih.expected_in_house < 0 THEN 0
+            ELSE GREATEST(0, SUM(fr.available_rooms) + SUM(fr.overbooking_rooms) - rih.expected_in_house)
+          END
+        ELSE
+          CASE
+            WHEN SUM(fr.available_rooms) < 0 THEN 0
+            ELSE GREATEST(0, SUM(fr.available_rooms) - rih.expected_in_house)
+          END
+      END AS free_to_sell,
+      GREATEST(0, rih.expected_in_house - SUM(fr.available_rooms)) AS over_booked
+    FROM final_report fr
+    JOIN recursive_in_house_distinct rih
+      ON fr.report_date = rih.report_date
+     AND fr.company_id = rih.company_id
+     AND fr.room_type_id = rih.room_type_id
+    WHERE fr.report_date >= (SELECT from_date FROM parameters)
+    GROUP BY
+      fr.report_date,
+      fr.company_id,
+      fr.company_name,
+      fr.room_type_id,
+      fr.room_type_name,
+      rih.in_house,
+      rih.expected_in_house
+    ORDER BY
+      fr.report_date,
+      fr.company_name,
+      fr.room_type_name
+)
+
+SELECT
+	
+    room_type_id,
+	room_type_name,
+    company_id,
+    company_name,
+	
+    min(free_to_sell) AS min_free_to_sell,
+	total_rooms,
+	any_overbooking_allowed as has_overbooking,
+	total_overbooking_rooms
+	
+FROM final_output
+	group by room_type_id,room_type_name,company_id,company_name,total_rooms,any_overbooking_allowed,total_overbooking_rooms
+having min(free_to_sell) >= %(room_count)s;
+        """
+
+
     def action_search_rooms(self):
-        # self.search_done = True
-
+        """Search rooms with sufficient free-to-sell based on check-in/check-out."""
+        self.ensure_one()
         self.action_clear_rooms()
-        max_num_person = self.env['hotel.room'].search(
-            [], order='num_person desc', limit=1).num_person
+        # Build the SQL query string
+        query = self._get_room_search_query()
+        
+        # Construct the parameters for the SQL
+        params = {
+            'company_id': self.env.company.id,
+            'from_date': self.checkin_date,  # or self.checkin_date.date() if it's a DateTime field
+            'to_date': self.checkout_date,   # or self.checkout_date.date()
+            'room_count': self.room_count,
+            'room_type_id': self.hotel_room_type.id,
+        }
+        
+        # Execute the query
+        self.env.cr.execute(query, params)
+        
+        # Fetch results as a list of dictionaries
+        results = self.env.cr.dictfetchall()
+        
+        if self.hotel_room_type:
+            filtered_results = [
+                res for res in results if res['room_type_id'] == self.hotel_room_type.id
+            ]
+        else:
+            # Find the one with max min_free_to_sell
+            filtered_results = []
+            if results:
+                best_result = max(results, key=lambda x: x['min_free_to_sell'])
+                filtered_results.append(best_result)
+        result_lines = []
+        for res in filtered_results:
+            if not isinstance(res, dict):
+                raise ValueError(f"Expected a dictionary, but got: {res}")
+            
+            # This is the value you want to store as "available_rooms"
+            available_rooms = res['min_free_to_sell']
+            
+            # Only add lines if there's at least 1 available room
+            if available_rooms > 0:
+                result_lines.append((0, 0, {
+                    # Map these to your field names
+                    'company_id': res['company_id'],
+                    'room_type': res['room_type_id'],  # or maybe store the ID: res['room_type_id']
+                    # If you want to store how many rooms user requested, you can do:
+                    'rooms_reserved': self.room_count,
+                    'available_rooms': available_rooms,
+                }))
 
-        all_num_persons = self.env['hotel.room'].search(
-            []).mapped('num_person')
-        # print("all_num_persons", all_num_persons)
+        # Finally, write them back to the record
+        self.write({'availability_results': result_lines})
+        
+        
+        # `results` now contains your aggregated availability data.
+        return results
 
-        for record in self:
-            if record.parent_booking_name and len(record.room_line_ids) == 1 and record.state == 'confirmed':
-                raise ValidationError(
-                    f"The booking '{record.name}' has already been split. You are not allowed to change the room."
-                )
 
-            if max_num_person == 0:
-                raise ValidationError(
-                    f"No room is configured for this company {record.company_id.name}. Please configure at least one room.")
 
-            # if max_num_person > 0 and record.adult_count > max_num_person:
-            #     raise ValidationError(f"The maximum allowed number of persons per room is {max_num_person}. Please reduce the number of adults.")
-            if record.adult_count > 99:
-                raise ValidationError(
-                    f"The maximum allowed number of persons per room is 99. Please reduce the number of adults.")
+    # def action_search_rooms(self):
+    #     # self.search_done = True
 
-            # if record.adult_count not in all_num_persons:
-            #     raise ValidationError(f"There is no room available for the specified adult count: {record.adult_count}")
+    #     self.action_clear_rooms()
+    #     max_num_person = self.env['hotel.room'].search(
+    #         [], order='num_person desc', limit=1).num_person
 
-            if record.room_count <= 0 or record.adult_count <= 0:
-                raise ValidationError(
-                    "Room count and adult count cannot be zero or less. Please select at least one room and one adult.")
+    #     all_num_persons = self.env['hotel.room'].search(
+    #         []).mapped('num_person')
+    #     # print("all_num_persons", all_num_persons)
 
-            record._get_forecast_rates()
-            result = record.check_room_availability_all_hotels_split_across_type(
-                record.checkin_date,
-                record.checkout_date,
-                record.room_count,
-                record.adult_count,
-                record.hotel_room_type.id if record.hotel_room_type else None
-            )
+    #     for record in self:
+    #         if record.parent_booking_name and len(record.room_line_ids) == 1 and record.state == 'confirmed':
+    #             raise ValidationError(
+    #                 f"The booking '{record.name}' has already been split. You are not allowed to change the room."
+    #             )
 
-            total_available_rooms = 0
+    #         if max_num_person == 0:
+    #             raise ValidationError(
+    #                 f"No room is configured for this company {record.company_id.name}. Please configure at least one room.")
 
-            # If result is a tuple, unpack it
-            if isinstance(result, tuple) and len(result) == 2:
-                total_available_rooms, results = result
-            else:
-                raise ValueError(
-                    "Expected a tuple with 2 elements, but got:", result)
+    #         # if max_num_person > 0 and record.adult_count > max_num_person:
+    #         #     raise ValidationError(f"The maximum allowed number of persons per room is {max_num_person}. Please reduce the number of adults.")
+    #         if record.adult_count > 99:
+    #             raise ValidationError(
+    #                 f"The maximum allowed number of persons per room is 99. Please reduce the number of adults.")
 
-            # Handle action dictionary directly if insufficient rooms
-            if isinstance(results, list) and len(results) == 1 and isinstance(results[0], dict) and results[0].get(
-                    'type') == 'ir.actions.act_window':
-                return results[0]
+    #         # if record.adult_count not in all_num_persons:
+    #         #     raise ValidationError(f"There is no room available for the specified adult count: {record.adult_count}")
 
-            # Validate results as a list of dictionaries
-            if not isinstance(results, list):
-                raise ValueError(
-                    "Expected a list of dictionaries, but got:", results)
+    #         if record.room_count <= 0 or record.adult_count <= 0:
+    #             raise ValidationError(
+    #                 "Room count and adult count cannot be zero or less. Please select at least one room and one adult.")
 
-            # Calculate total rooms reserved
-            total_reserved_rooms = sum(
-                [res['rooms_reserved'] for res in record.availability_results])
-            requested_rooms = record.room_count
+    #         record._get_forecast_rates()
+    #         result = record.check_room_availability_all_hotels_split_across_type(
+    #             record.checkin_date,
+    #             record.checkout_date,
+    #             record.room_count,
+    #             record.adult_count,
+    #             record.hotel_room_type.id if record.hotel_room_type else None
+    #         )
 
-            # if total_reserved_rooms + requested_rooms > total_available_rooms:  # Check if enough rooms are available
-            #     raise ValidationError(
-            #         "Only {} rooms are available.".format(total_available_rooms - total_reserved_rooms))
+    #         total_available_rooms = 0
 
-            # Process valid results if rooms are available
-            result_lines = []
-            for res in results:
-                if not isinstance(res, dict):
-                    raise ValueError(f"Expected a dictionary, but got: {res}")
-                available_rooms = total_available_rooms
-                if available_rooms:
-                    result_lines.append((0, 0, {
-                        'company_id': res['company_id'],
-                        'room_type': res['room_type'],
-                        # 'pax': res['pax'],
-                        'rooms_reserved': res['rooms_reserved'],
-                        'available_rooms': total_available_rooms
-                    }))
+    #         # If result is a tuple, unpack it
+    #         if isinstance(result, tuple) and len(result) == 2:
+    #             total_available_rooms, results = result
+    #         else:
+    #             raise ValueError(
+    #                 "Expected a tuple with 2 elements, but got:", result)
 
-            # Write results to availability_results and mark search_done
-            # record.write({'availability_results': result_lines, 'rooms_searched': True})
-            # record.flush(['availability_results', 'rooms_searched'])  # Ensure changes are written to the database
+    #         # Handle action dictionary directly if insufficient rooms
+    #         if isinstance(results, list) and len(results) == 1 and isinstance(results[0], dict) and results[0].get(
+    #                 'type') == 'ir.actions.act_window':
+    #             return results[0]
 
-            # Write results to availability_results field
-            # record.with_context(room_search=True)
-            record.write({'availability_results': result_lines})
+    #         # Validate results as a list of dictionaries
+    #         if not isinstance(results, list):
+    #             raise ValueError(
+    #                 "Expected a list of dictionaries, but got:", results)
+
+    #         # Calculate total rooms reserved
+    #         total_reserved_rooms = sum(
+    #             [res['rooms_reserved'] for res in record.availability_results])
+    #         requested_rooms = record.room_count
+
+    #         # if total_reserved_rooms + requested_rooms > total_available_rooms:  # Check if enough rooms are available
+    #         #     raise ValidationError(
+    #         #         "Only {} rooms are available.".format(total_available_rooms - total_reserved_rooms))
+
+    #         # Process valid results if rooms are available
+    #         result_lines = []
+    #         for res in results:
+    #             if not isinstance(res, dict):
+    #                 raise ValueError(f"Expected a dictionary, but got: {res}")
+    #             available_rooms = total_available_rooms
+    #             if available_rooms:
+    #                 result_lines.append((0, 0, {
+    #                     'company_id': res['company_id'],
+    #                     'room_type': res['room_type'],
+    #                     # 'pax': res['pax'],
+    #                     'rooms_reserved': res['rooms_reserved'],
+    #                     'available_rooms': total_available_rooms
+    #                 }))
+
+    #         # Write results to availability_results and mark search_done
+    #         # record.write({'availability_results': result_lines, 'rooms_searched': True})
+    #         # record.flush(['availability_results', 'rooms_searched'])  # Ensure changes are written to the database
+
+    #         # Write results to availability_results field
+    #         # record.with_context(room_search=True)
+    #         record.write({'availability_results': result_lines})
             
 
    
@@ -8409,6 +8939,11 @@ class SystemDate(models.Model):
 
         self.env['room.booking'].move_to_no_show()
 
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
+
     @api.model
     def _default_system_date(self):
         """
@@ -8563,6 +9098,18 @@ class HotelInventory(models.Model):
                         'message': "Web Allowed Reservations cannot be greater than Total Room Count.",
                     }
                 }
+
+    
+    def write(self, vals):
+        result = super().write(vals)
+        for record in self:
+            if 'overbooking_rooms' in vals:
+                room_count = vals.get('overbooking_rooms', record.overbooking_rooms)
+                self.env.user.notify_info(
+                    message=f"Overbooking allowed with {room_count} room(s).",
+                    title="Overbooking Info"
+                )
+        return result
 
 
 class RoomAvailabilityResult(models.Model):

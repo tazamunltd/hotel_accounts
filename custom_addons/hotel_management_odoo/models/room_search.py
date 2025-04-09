@@ -584,6 +584,8 @@ FROM final_output
 having min(free_to_sell) >= %(room_count)s;
         """
 
+    
+    
     def action_cancel(self):
         """
         Cancel the room search

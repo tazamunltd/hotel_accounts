@@ -2107,7 +2107,8 @@ class WebAppController(http.Controller):
 
         # Register a font that supports Arabic
         if platform.system() == "Windows":
-            font_path = "C:/Windows/Fonts/arial.ttf"
+            # font_path = "C:/Windows/Fonts/arial.ttf"
+            font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
             arabic_val = 19
@@ -2391,7 +2392,7 @@ class WebAppController(http.Controller):
         RIGHT_LABEL_X = LEFT_ARABIC_X + 90
         RIGHT_VALUE_X = RIGHT_LABEL_X + 100
         # Keep Arabic close to the value
-        RIGHT_ARABIC_X = RIGHT_VALUE_X + 115 - arabic_val
+        RIGHT_ARABIC_X = RIGHT_VALUE_X + 100 
         logger.info("RC report values:{RIGHT_ARABIC_X}")
         logger.info(RIGHT_ARABIC_X)
 
@@ -2466,35 +2467,35 @@ class WebAppController(http.Controller):
         # Guest Details: Add all fields dynamically
         
         guest_details = [
-            ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:", 
-            "Full Name:", f"{booking.partner_id.name}", "الاسم الكامل:              "),
+            ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:           ", 
+            "Full Name:", f"{booking.partner_id.name}", "الاسم الكامل:               "),
 
-            ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:", 
-            "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                      "),
+            ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:           ", 
+            "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                        "),
 
             ("Arrival (Hijri):", checkin_hijri_str, "تاريخ الوصول (هجري):", 
-            "Nationality:", nationality, "الجنسية:                    "),  # Nationality translated correctly
+            "Nationality:", nationality, "الجنسية:                      "),  # Nationality translated correctly
 
             ("Departure (Hijri):", checkout_hijri_str, "تاريخ المغادرة (هجري):", 
-            "Mobile No:", f"{booking.partner_id.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:                "),
+            "Mobile No:", f"{booking.partner_id.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:                  "),
 
-            ("No. of Nights:", f"{booking.no_of_nights}", "عدد الليالي:", 
+            ("No. of Nights:", f"{booking.no_of_nights}", "عدد الليالي:               ", 
             "Passport No:", "", "رقم جواز السفر:           "),
 
-            ("Room Number:", f"{booking.room_ids_display}", "رقم الغرفة:", 
-            "ID No:", "", "رقم الهوية:                 "),
+            ("Room Number:", f"{booking.room_ids_display}", "رقم الغرفة:               ", 
+            "ID No:", "", "رقم الهوية:                   "),
 
-            ("Room Type:", f"{booking.room_type_display}", "نوع الغرفة:", 
-            "No. of pax:", f"{booking.adult_count}", "عدد الأشخاص:             "),
+            ("Room Type:", f"{booking.room_type_display}", "نوع الغرفة:              ", 
+            "No. of pax:", f"{booking.adult_count}", "عدد الأشخاص:               "),
 
-            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", 
-            "No. of child:", f"{booking.child_count}", "عدد الأطفال:              "),
+            ("Rate Code:", f"{display_rate_code}", "رمز السعر:               ", 
+            "No. of child:", f"{booking.child_count}", "عدد الأطفال:                 "),
 
-            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", 
-            "No. of infants:", f"{booking.infant_count}", "عدد الرضع:               "),
+            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:            ", 
+            "No. of infants:", f"{booking.infant_count}", "عدد الرضع:                   "),
 
-            ("Room Disc:", f"{room_discount}", "خصم الغرفة: ", 
-            "Meal Disc:", f"{meal_discount}", "خصم الوجبة:               "),
+            ("Room Disc:", f"{room_discount}", "خصم الغرفة:              ", 
+            "Meal Disc:", f"{meal_discount}", "خصم الوجبة:                 "),
         ]
 
 
@@ -2529,15 +2530,15 @@ class WebAppController(http.Controller):
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
         # Payment Details
         payment_details = [
-            ("Payment Method:", f"{pay_type}", "نظام الدفع:", "Room Rate(Avg):", f"{avg_rate}",
-             "السعر اليومي للغرفة:       "),
-            ("VAT:", "", "القيمة المضافة:", "Meals Rate(Avg):", f"{avg_meals}", "سعر الوجبات اليومي:        "),
-            ("Municipality:", "", "رسوم البلدية:", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
-             "إجمالي المشاركات الثابتة:  "),
-            ("Total Taxes:", "", "إجمالي الضرائب:", "Total Packages:", f"{booking.total_package_forecast}",
-             "إجمالي الحزم:              "),
-            ("VAT ID:", "", "الرقم الضريبي:", "Remaining:", "", "المبلغ المتبقي:               "),
-            ("Payments:", "", "المدفوعات:", "Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:             ")
+            ("Payment Method:", f"{pay_type}", "نظام الدفع:                ", "Room Rate(Avg):", f"{avg_rate}",
+             "السعر اليومي للغرفة:      "),
+            ("VAT:", "", "القيمة المضافة:            ", "Meals Rate(Avg):", f"{avg_meals}", "سعر الوجبات اليومي:      "),
+            ("Municipality:", "", "رسوم البلدية:              ", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
+             "إجمالي المشاركات الثابتة:"),
+            ("Total Taxes:", "", "إجمالي الضرائب:          ", "Total Packages:", f"{booking.total_package_forecast}",
+             "إجمالي الحزم:               "),
+            ("VAT ID:", "", "الرقم الضريبي:            ", "Remaining:", "", "المبلغ المتبقي:               "),
+            ("Payments:", "", "المدفوعات:                ", "Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:              ")
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
@@ -2870,7 +2871,8 @@ class WebAppController(http.Controller):
         logger.info("arabic val value for the check")
         # Register a font that supports Arabic
         if platform.system() == "Windows":
-            font_path = "C:/Windows/Fonts/arial.ttf"
+            # font_path = "C:/Windows/Fonts/arial.ttf"
+            font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
             arabic_val = 19
@@ -3150,19 +3152,17 @@ class WebAppController(http.Controller):
         RIGHT_LABEL_X = LEFT_ARABIC_X + 90
         RIGHT_VALUE_X = RIGHT_LABEL_X + 90
         # Keep Arabic close to the value
-        RIGHT_ARABIC_X = RIGHT_VALUE_X + 115 - arabic_val
+        RIGHT_ARABIC_X = RIGHT_VALUE_X + 95 
         str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
         str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
         # line_height = 20
         pax_count = booking.adult_count  # + booking.child_count
         booking_type = "Company" if booking.is_agent else "Individual"
         group_booking_id = booking.group_booking.id
-        print('line 3095',group_booking_id)
         group_bookings = []
         if booking.group_booking:
             env_booking = request.env['room.booking'].with_company(current_company_id)
             group_bookings = env_booking.search([('group_booking', '=', group_booking_id)])
-        print('1977', group_bookings)
         rate_list = []
         meal_list = []
         table_row = []
@@ -3314,39 +3314,26 @@ class WebAppController(http.Controller):
 
         # Guest Details: Add all fields dynamically
         guest_details = [
-            ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:", "Full Name:", f"{booking.partner_id.name}",
+            ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:           ", "Full Name:", f"{booking.partner_id.name}",
              "الاسم الكامل:               "),
-            ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:", "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                      "),
+            ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:          ", "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                        "),
             ("Arrival (Hijri):", checkin_hijri_str, "تاريخ الوصول (هجري):", "Nationality:",
-             nationality, "الجنسية:                    "),
+             nationality, "الجنسية:                     "),
             ("Departure (Hijri):", checkout_hijri_str, "تاريخ المغادرة (هجري):", "Mobile No:",
-             f"{booking.partner_id.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:                "),
+             f"{booking.partner_id.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:                 "),
 
-            ("Rate Code:", f"{display_rate_code}", "رمز السعر:", "No. of child:",
-             f"{booking.child_count}", "عدد الأطفال:               "),
-            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:", "No. of infants:",
-             f"{booking.infant_count}", "عدد الرضع:                ") ,
-            ("Room Rate Avg:", f"{avg_rate}", "خصم الغرفة:", "Meal Rate Avg:", f"{avg_meal}", "خصم الوجبة:              "),
-            ("Room Rate Min:", f"{min(rate_list) if rate_list else 0}", "خصم الغرفة الأدنى:", "Meal Rate Min:", f"{min(meal_list) if meal_list else 0}",
-             "خصم الوجبة الأدنى:      "),
-            ("Room Rate Max:", f"{max(rate_list) if rate_list else 0}", "خصم الغرفة الأعلى:", "Meal Rate Max:", f"{max(meal_list) if meal_list else 0}",
-             "خصم الوجبة الأعلى:      "),
+            ("Rate Code:", f"{display_rate_code}", "رمز السعر:               ", "No. of child:",
+             f"{booking.child_count}", "عدد الأطفال:                "),
+            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:           ", "No. of infants:",
+             f"{booking.infant_count}", "عدد الرضع:                  ") ,
+            ("Room Rate Avg:", f"{avg_rate}", "خصم الغرفة:             ", "Meal Rate Avg:", f"{avg_meal}", "خصم الوجبة:                "),
+            ("Room Rate Min:", f"{min(rate_list) if rate_list else 0}", "خصم الغرفة الأدنى:     ", "Meal Rate Min:", f"{min(meal_list) if meal_list else 0}",
+             "خصم الوجبة الأدنى:        "),
+            ("Room Rate Max:", f"{max(rate_list) if rate_list else 0}", "خصم الغرفة الأعلى:    ", "Meal Rate Max:", f"{max(meal_list) if meal_list else 0}",
+             "خصم الوجبة الأعلى:       "),
 
         ]
 
-        # Iterate through guest details and draw strings
-        # for l_label, l_value, l_arabic, r_label, r_value, r_arabic in guest_details:
-        #     # Left column
-        #     c.drawString(LEFT_LABEL_X, y_position, l_label)
-        #     c.drawString(LEFT_VALUE_X, y_position, l_value)
-        #     draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
-
-        #     # Right column
-        #     c.drawString(RIGHT_LABEL_X, y_position, r_label)
-        #     c.drawString(RIGHT_VALUE_X, y_position, r_value)
-        #     draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
-
-        #     y_position -= line_height
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in guest_details:
             # Left column (English + Arabic)
@@ -3379,16 +3366,16 @@ class WebAppController(http.Controller):
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
         # Payment Details
         payment_details = [
-            ("VAT:", "", "القيمة المضافة:", "Total Meals Rate:", f"{booking.total_meal_forecast}",
-             "إجمالي سعر الوجبات:    "),
-            ("Municipality:", "", "رسوم البلدية:", "Total Room rate:", f"{booking.total_rate_forecast}",
-             "إجمالي سعر الغرفة:      "),
-            ("Total Taxes:", "", "إجمالي الضرائب:", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
+            ("VAT:", "", "القيمة المضافة:         ", "Total Meals Rate:", f"{booking.total_meal_forecast}",
+             "إجمالي سعر الوجبات:     "),
+            ("Municipality:", "", "رسوم البلدية:            ", "Total Room rate:", f"{booking.total_rate_forecast}",
+             "إجمالي سعر الغرفة:       "),
+            ("Total Taxes:", "", "إجمالي الضرائب:        ", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
              "إجمالي المشاركات الثابتة:"),
-            ("VAT ID:", "", "الرقم الضريبي:", "Total Packages:", f"{booking.total_package_forecast}", "إجمالي الحزم:             "),
-            ("Remaining:", "", "المبلغ المتبقي:", "Payments:", "", "المدفوعات:                "),
-            ("Payment Method:", f"{pay_type}", "نظام الدفع:", "Total Amount:", f"{booking.total_total_forecast}",
-             "المبلغ الإجمالي:           ")
+            ("VAT ID:", "", "الرقم الضريبي:          ", "Total Packages:", f"{booking.total_package_forecast}", "إجمالي الحزم:               "),
+            ("Remaining:", "", "المبلغ المتبقي:          ", "Payments:", "", "المدفوعات:                  "),
+            ("Payment Method:", f"{pay_type}", "نظام الدفع:              ", "Total Amount:", f"{booking.total_total_forecast}",
+             "المبلغ الإجمالي:             ")
 
         ]
 
@@ -3700,12 +3687,15 @@ class WebAppController(http.Controller):
         right_margin = 20
         top_margin = 50
         bottom_margin = 50
+        arabic_val = 0
 
         # Register a font that supports Arabic
         if platform.system() == "Windows":
-            font_path = "C:/Windows/Fonts/arial.ttf"
+            # font_path = "C:/Windows/Fonts/arial.ttf"
+            font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
+            arabic_val = 19
 
             # Register the font
         try:
@@ -4050,7 +4040,8 @@ class WebAppController(http.Controller):
         RIGHT_LABEL_X = LEFT_ARABIC_X + 90
         RIGHT_VALUE_X = RIGHT_LABEL_X + 90
         # Keep Arabic close to the value
-        RIGHT_ARABIC_X = RIGHT_VALUE_X + 168
+        RIGHT_ARABIC_X = RIGHT_VALUE_X + 155
+        # RIGHT_ARABIC_X = RIGHT_VALUE_X + 115 - arabic_val
 
         user_lang = request.env.user.lang
 
@@ -4084,11 +4075,11 @@ class WebAppController(http.Controller):
         #     status_label = self.get_arabic_text_status(status_label)
 
         status_label = self.get_status_label(booking.status_code)
-
+        formatted_create_date = booking.create_date.strftime("%Y-%m-%d %H:%M:%S") if booking.create_date else not_available_text
         guest_details = [
             ("Arrival Date:",
             f"{booking.first_visit or not_available_text}",
-            "تاريخ الوصول:",
+            "تاريخ الوصول:  ",
 
             "Group Name:",
             f"{booking.name or not_available_text}",
@@ -4096,15 +4087,15 @@ class WebAppController(http.Controller):
 
             ("Departure Date:",
             f"{booking.last_visit or not_available_text}",
-            "تاريخ المغادرة:",
+            "تاريخ المغادرة: ",
 
             "Company Name:",
             f"{booking.company_id.name or self.get_arabic_text('N/A')}",
-            "اسم الشركة:       "),
+            "اسم الشركة:        "),
 
             ("Nights:",
             f"{booking.total_nights or not_available_text}",
-            "عدد الليالي:",
+            "عدد الليالي:     ",
 
             "Nationality:",
             nationality,
@@ -4112,7 +4103,7 @@ class WebAppController(http.Controller):
 
             ("No. of Rooms:",
             f"{booking.total_room_count or not_available_text}",
-            "عدد الغرف:",
+            "عدد الغرف:     ",
 
             "Contact:",
             f"{booking.company.name or self.get_arabic_text('N/A')}",
@@ -4120,29 +4111,29 @@ class WebAppController(http.Controller):
 
             ("No. of Paxs:",
             f"{booking.total_adult_count or not_available_text}",
-            "عدد الأفراد:",
+            "عدد الأفراد:     ",
 
             "Mobile No.:",
             f"{booking.phone_1 or self.get_arabic_text('N/A')}",
-            "رقم الجوال:        "),
+            "رقم الجوال:          "),
 
             ("Rate Code:",
             f"{booking.rate_code.code or not_available_text}",
-            "كود التعاقد:",
+            "كود التعاقد:     ",
 
             # 3) Use the status_label from above:
             "Status:",
             status_label,
-            "حالة الحجز:        "),
+            "حالة الحجز:          "),
 
             ("Meal Pattern:",
             f"{booking.group_meal_pattern.meal_pattern or not_available_text}",
-            "نظام الوجبات:",
+            "نظام الوجبات:  ",
 
             # 4) Use the booking’s create_date for “Date Created.”
             "Date Created:",
-            f"{booking.create_date or not_available_text}",
-            "تاريخ إنشاء الحجز:"),
+            f"{formatted_create_date}",
+            "تاريخ إنشاء الحجز: "),
         ]
 
 
@@ -4164,17 +4155,18 @@ class WebAppController(http.Controller):
             draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
             y_position -= line_height
 
-
+        pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
+        # print(pay_type, 'line 4171',dict(booking.fields_get()['payment_type']['selection']))
         payment_details = [
-            ("Total VAT:", "", "القيمة المضافة:", "Payment Method:", f"{booking.payment_type or 'N/A'}", "نظام الدفع:         "),
-            ("Total Municipality:", "", "رسوم البلدية:", "Daily Room Rate:", f"{report_data['avg_rate']}",
-             "اليومي للغرف:     "),
+            ("Total VAT:", "", "القيمة المضافة:", "Payment Method:", f"{pay_type or 'N/A'}", "نظام الدفع:          "),
+            ("Total Municipality:", "", "رسوم البلدية:   ", "Daily Room Rate:", f"{report_data['avg_rate']}",
+             "اليومي للغرف:      "),
             ("Total Amount:", "", "المبلغ المطلوب:", "Daily Meals Rate:", f"{report_data['avg_meals']}",
-             "اليومي للوجبات:   "),
-            ("Payments:", "", "المبلغ المدفوع:", "Total Room Rate:", f"{report_data['total_room_rate']}",
-             "إجمالي الغرف:     "),
-            ("Remaining:", "", "المبلغ المتبقي:", "Total Meals Rate:", f"{report_data['total_meal_rate']}",
-             "إجمالي الوجبات:   "),
+             "اليومي للوجبات:    "),
+            ("Payments:", "", "المبلغ المدفوع:  ", "Total Room Rate:", f"{report_data['total_room_rate']}",
+             "إجمالي الغرف:      "),
+            ("Remaining:", "", "المبلغ المتبقي:  ", "Total Meals Rate:", f"{report_data['total_meal_rate']}",
+             "إجمالي الوجبات:    "),
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
