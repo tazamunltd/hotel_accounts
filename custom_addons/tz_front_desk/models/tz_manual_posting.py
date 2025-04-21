@@ -112,27 +112,39 @@ class TzHotelManualPosting(models.Model):
         if not vals_list:
             return super(TzHotelManualPosting, self).create(vals_list)
 
-        # Handle sequence creation
-        sequence = self.env['ir.sequence'].search(
-            [('code', '=', 'tz.manual.posting'),
-             ('company_id', '=', self.env.company.id)],
-            limit=1
-        )
+        # Get or create the sequence
+        sequence = self.env['ir.sequence'].sudo().search([
+            ('code', '=', 'tz.manual.posting'),
+            ('company_id', '=', self.env.company.id)
+        ], limit=1)
+
         if not sequence:
-            raise ValueError(f"No sequence configured for company: {self.env.company.name}")
+            # Create the sequence if it doesn't exist
+            sequence = self.env['ir.sequence'].sudo().create({
+                'name': f'Manual Posting Reference - {self.env.company.name}',
+                'code': 'tz.manual.posting',
+                'prefix': f'{self.env.company.name}/',
+                'padding': 5,
+                'company_id': self.env.company.id,
+                'currency_id': self.currency_id.id,
+            })
 
         # Process each record
         records = self.env['tz.manual.posting']
         for vals in vals_list:
-            # Generate sequence if needed
-            if vals.get('name', 'New') == 'New':
-                next_sequence = sequence.next_by_id()
-                vals['name'] = f"{self.env.company.name}/{next_sequence}"
+            try:
+                # Generate sequence if needed
+                if vals.get('name', 'New') == 'New':
+                    vals['name'] = sequence.next_by_id()
 
-            # Create the record first
-            record = super(TzHotelManualPosting, self).create([vals])
-            records += record
-            record.save_to_master_folio()
+                # Create the record
+                record = super(TzHotelManualPosting, self).create([vals])
+                records += record
+                record.save_to_master_folio()
+
+            except Exception as e:
+                _logger.error("Failed to create manual posting: %s", str(e))
+                continue  # Skip problematic records but continue with others
 
         return records
 

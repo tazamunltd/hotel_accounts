@@ -43,6 +43,7 @@
                             <field name="guest_id"/>
                             <field name="check_in"/>
                             <field name="check_out"/>
+                            <field name="currency_id"/>
                         </group>
                         <group>
                             <field name="company_id"/>

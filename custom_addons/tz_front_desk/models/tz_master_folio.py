@@ -27,12 +27,10 @@ class TzMasterFolio(models.Model):
     municipality_tax = fields.Float(string="Municipality Tax")
     grand_total = fields.Float(string="Grand Total", compute='_compute_totals', store=True)
     folio_line_ids = fields.One2many('tz.master.folio.line', 'folio_id', string="Folio Lines")
-    #!!!!
     currency_id = fields.Many2one(
         'res.currency',
         string='Currency',
-        tracking=True,
-        default=lambda self: self.env.company.currency_id #!!!! remove it
+        tracking=True
     )
 
     invoice_ids = fields.One2many(
@@ -119,7 +117,7 @@ class TzMasterFolio(models.Model):
             raise UserError(_("Invoice created but posting failed: %s") % str(e))
 
         # Update folio status
-        self.write({'invoice_status': 'invoiced'})
+        self.sudo().write({'invoice_status': 'invoiced'})
 
         return invoice
 
