@@ -1,4 +1,5 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 class TzMasterFolio(models.Model):
     _name = 'tz.master.folio'
@@ -26,6 +27,26 @@ class TzMasterFolio(models.Model):
     municipality_tax = fields.Float(string="Municipality Tax")
     grand_total = fields.Float(string="Grand Total", compute='_compute_totals', store=True)
     folio_line_ids = fields.One2many('tz.master.folio.line', 'folio_id', string="Folio Lines")
+    #!!!!
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        tracking=True,
+        default=lambda self: self.env.company.currency_id #!!!! remove it
+    )
+
+    invoice_ids = fields.One2many(
+        'account.move',
+        'folio_id',
+        string='Invoices',
+        readonly=True
+    )
+
+    invoice_status = fields.Selection([
+        ('no', 'Nothing to Invoice'),
+        ('to_invoice', 'To Invoice'),
+        ('invoiced', 'Fully Invoiced')
+    ], string='Invoice Status', default='no', readonly=True, copy=False)
 
     @api.depends('folio_line_ids.debit_amount', 'folio_line_ids.credit_amount', 'value_added_tax', 'municipality_tax')
     def _compute_totals(self):
@@ -42,6 +63,74 @@ class TzMasterFolio(models.Model):
         if vals.get('name', 'New') == 'New':
             vals['name'] = self.env['ir.sequence'].next_by_code('tz.master.folio') or 'New'
         return super(TzMasterFolio, self).create(vals)
+
+    def create_invoice(self):
+        """
+        Create an invoice (account.move) from the folio and its lines
+        Returns the created invoice
+        """
+        self.ensure_one()
+
+        # Validate before creating invoice
+        if not self.folio_line_ids:
+            raise UserError(_("Cannot create invoice from an empty folio"))
+
+        if not self.guest_id:
+            raise UserError(_("Please set a customer/guest for this folio"))
+
+        # Prepare invoice values
+        invoice_vals = {
+            'move_type': 'out_invoice',  # Customer invoice
+            'invoice_date': fields.Date.context_today(self),
+            'partner_id': self.guest_id.id,
+            'currency_id': self.currency_id.id or self.company_id.currency_id.id,
+            'invoice_origin': self.name,
+            'company_id': self.company_id.id,
+            'no_account_entry': True,
+            'invoice_line_ids': []
+        }
+
+        # Prepare invoice lines from folio lines
+        for line in self.folio_line_ids:
+            # Skip zero amount lines
+            amount = line.debit_amount or -line.credit_amount
+            if not amount:
+                continue
+
+            line_vals = {
+                'name': line.description or _("Folio Charge"),
+                'quantity': 1,
+                'price_unit': amount,
+                # 'account_id': self._get_invoice_line_account(line).id,
+                # 'tax_ids': [(6, 0, self._get_invoice_line_taxes(line).ids)],
+            }
+            invoice_vals['invoice_line_ids'].append((0, 0, line_vals))
+
+        # Create the invoice
+        invoice = self.env['account.move'].create(invoice_vals)
+
+        # Link the invoice back to the folio
+        invoice.write({'folio_id': self.id})
+
+        # Post the invoice automatically
+        try:
+            invoice.action_post()
+        except Exception as e:
+            raise UserError(_("Invoice created but posting failed: %s") % str(e))
+
+        # Update folio status
+        self.write({'invoice_status': 'invoiced'})
+
+        return invoice
+
+    def _get_invoice_line_taxes(self, folio_line):
+        """Determine taxes for invoice line"""
+        # Use taxes from product if available
+        if folio_line.product_id and folio_line.product_id.taxes_id:
+            return folio_line.product_id.taxes_id.filtered(lambda t: t.company_id == self.company_id)
+
+        # Fallback to no taxes
+        return self.env['account.tax']
 
 
 class TzMasterFolioLine(models.Model):

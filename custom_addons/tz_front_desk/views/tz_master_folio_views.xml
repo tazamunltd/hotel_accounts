@@ -22,6 +22,14 @@
         <field name="model">tz.master.folio</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button
+                        name="create_invoice"
+                        string="Create Invoice"
+                        class="oe_highlight"
+                        type="object"
+                    />
+                </header>
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -42,6 +50,7 @@
                             <field name="group_id"/>
                             <field name="rooming_info"/>
                             <field name="bill_number"/>
+                            <field name="invoice_ids" widget="many2many_tags" options="{'no_open': True}"/>
                         </group>
                     </group>
                     <notebook>

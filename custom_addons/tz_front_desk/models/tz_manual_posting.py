@@ -195,7 +195,7 @@ class TzHotelManualPosting(models.Model):
                 'system_date': self.date_shift,
                 'room_id': self.room_list.id if self.type == 'room' else False,
                 'group_id': self.group_list.id if self.type == 'group' else False,
-                # 'guest_id': self.guest_id.id if self.guest_id else False,
+                'guest_id': self.partner_id.id if self.partner_id else False,
                 'check_in': self.date_shift
             }
             folio = self.env['tz.master.folio'].sudo().create(folio_vals)
