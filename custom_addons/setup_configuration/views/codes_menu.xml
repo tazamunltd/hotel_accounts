@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action for Additional Attribute -->
+    <record id="action_additional_attribute" model="ir.actions.act_window">
+        <field name="name">Additional Attributes</field>
+        <field name="res_model">additional.attribute</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Template -->
+    <record id="action_template" model="ir.actions.act_window">
+        <field name="name">Templates</field>
+        <field name="res_model">template</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Comment Category -->
+    <record id="action_comment_category" model="ir.actions.act_window">
+        <field name="name">Comment Categories</field>
+        <field name="res_model">comment.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Trace Predefined Text -->
+    <record id="action_trace_predefined_text" model="ir.actions.act_window">
+        <field name="name">Trace Predefined Texts</field>
+        <field name="res_model">trace.predefined.text</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Message Predefined Text -->
+    <record id="action_message_predefined_text" model="ir.actions.act_window">
+        <field name="name">Message Predefined Texts</field>
+        <field name="res_model">message.predefined.text</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Locators Predefined Text -->
+    <record id="action_locators_predefined_text" model="ir.actions.act_window">
+        <field name="name">Locators Predefined Texts</field>
+        <field name="res_model">locators.predefined.text</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+        
+    <menuitem id="sub_menu_additional_attributes" 
+    name="Additional Attributes" 
+    parent="menu_code"
+    action= "action_additional_attribute"
+    sequence="5"/>
+
+    <menuitem id="sub_menu_templates" 
+    name="Templates" 
+    parent="menu_code"
+    action= "action_template"
+    sequence="6"/>
+
+    <menuitem id="sub_menu_comment_category" 
+    name="Comment Category" 
+    parent="menu_code"
+    action= "action_comment_category"
+    sequence="7"/>
+
+    <menuitem id="sub_menu_trace_predefined_text" 
+    name="Trace Predefined Text" 
+    parent="menu_code"
+    action= "action_trace_predefined_text"
+    sequence="8"/>
+
+    <menuitem id="sub_menu_message_predefined_text" 
+    name="Message Predefined Text" 
+    parent="menu_code"
+    action= "action_message_predefined_text"
+    sequence="9"/>
+
+    <menuitem id="sub_menu_kocators_predefined_text" 
+    name="Locators Predefined Text" 
+    parent="menu_code"
+    action= "action_locators_predefined_text"
+    sequence="10"/>
+
+
+
+
+</odoo>

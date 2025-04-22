@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_web_cors_web_cors,web_cors.web_cors,model_web_cors_web_cors,base.group_user,1,1,1,1

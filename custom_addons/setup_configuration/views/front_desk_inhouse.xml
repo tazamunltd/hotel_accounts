@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for In-House Guests -->
+    <record id="view_frontdesk_inhouse_guest_form" model="ir.ui.view">
+        <field name="name">frontdesk.inhouse.guest.form</field>
+        <field name="model">frontdesk.inhouse.guest.main</field>
+        <field name="arch" type="xml">
+            <form string="In-House Guests">
+                <sheet>
+                    <notebook>
+                        <!-- Main Page -->
+                        <page string="Main">
+                            <group>
+                                <!-- Guest Details -->
+                                <group>
+                                    <field name="guest_id" string="Guest ID#"/>
+                                    <field name="ref" string="Reference"/>
+                                </group>
+                                <group>
+                                    <field name="last_name" string="Last Name"/>
+                                    <field name="first_name" string="First Name"/>
+                                </group>
+
+                                <!-- Room Details -->
+                                <group>
+                                    <field name="room_number" string="Room Number"/>
+                                    <field name="room_type" string="Room Type"/>
+                                    <field name="no_of_rooms" string="No. of Rooms"/>
+                                    <field name="pax_room" string="Pax/Room"/>
+                                    <field name="smoking" string="No Smoking"/>
+                                </group>
+                                <group>
+                                    <field name="arrival_date" string="Arrival Date"/>
+                                    <field name="departure_date" string="Departure Date"/>
+                                </group>
+
+                                <!-- Rate & Meal Information -->
+                                <group>
+                                    <field name="rate_code" string="Rate Code"/>
+                                    <field name="meal_pattern" string="Meal Pattern"/>
+                                    <field name="status_code" string="Status Code"/>
+                                    <field name="company" string="Company"/>
+                                    <field name="nationality" string="Nationality"/>
+                                </group>
+
+                                <!-- Children & Extra Information -->
+                                <group>
+                                    <field name="total_children" string="Total Children"/>
+                                    <field name="total_infants" string="Total Infants"/>
+                                    <field name="extra_beds" string="Extra Beds"/>
+                                    <field name="companions" string="Companions"/>
+                                </group>
+
+                                <!-- Allotment, Discounts, and Remarks -->
+                                <group>
+                                    <field name="rate_value" string="Rate Value"/>
+                                    <field name="meals_value" string="Meals Value"/>
+                                    <field name="allotment" string="Allotment"/>
+                                </group>
+                                <group>
+                                    <field name="discount_rate" string="Discount on Rate (%)"/>
+                                    <field name="discount_meals" string="Discount on Meals (%)"/>
+                                </group>
+                                <group>
+                                    <field name="source_of_business" string="Source of Business"/>
+                                    <field name="market_segment" string="Market Segment"/>
+                                </group>
+                                <group>
+                                    <field name="remarks" string="Remarks"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Optional">
+                            <group>
+                                <!-- Optional Details -->
+                                <group>
+                                    <field name="how_taken"/>
+                                    <field name="travel_method"/>
+                                    <field name="visit_reason"/>
+                                </group>
+                                <group>
+                                    <field name="house_use"/>
+                                    <field name="complimentary"/>
+                                    <field name="vip_stay"/>
+                                </group>
+
+                                <!-- Payment Information -->
+                                <group>
+                                    <field name="payment_type"/>
+                                    <field name="credit_limit_value"/>
+                                </group>
+                                <group>
+                                    <field name="comments"/>
+                                </group>
+                            </group>
+
+                            <!-- Safe Box and Sponsor Information -->
+                            <group>
+                                <field name="safe_box_code"/>
+                                <field name="voucher_received"/>
+                                <field name="deposit"/>
+                                <field name="sponsor"/>
+                                <field name="reserved_by"/>
+                            </group>
+                        </page>
+                        <page string="Adults">
+                            <field name="adult_ids">
+                                <tree string="Adults" editable="top">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Children">
+                            <field name="child_ids">
+                                <tree string="Children" editable="top">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+
+                        </page>
+                        <page string="Infants">
+                            <field name="infant_ids">
+                                <tree string="Infants" editable="top">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <!-- Profiles Page -->
+                        <page string="Profiles">
+                            <field name="profile_ids">
+                                <tree string="Profiles" editable="top">
+                                    <field name="profile_id" string="Profile ID"/>
+                                    <field name="name" string="Name"/>
+                                    <field name="description" string="Description"/>
+                                </tree>
+                            </field>
+
+                            <!-- Linked Profile Section -->
+                            <group string="Linked Profile">
+                                <field name="linked_profile_id"/>
+                                <field name="description"/>
+                            </group>
+                        </page>
+                        <page string="Attributes">
+                            <field name="inhouse_attributes"></field>
+                        </page>
+                    </notebook>
+                </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for In-House Guests -->
+    <record id="view_frontdesk_inhouse_guest_tree" model="ir.ui.view">
+        <field name="name">frontdesk.inhouse.guest.tree</field>
+        <field name="model">frontdesk.inhouse.guest.main</field>
+        <field name="arch" type="xml">
+            <tree string="In-House Guests">
+                <field name="guest_id" string="Guest ID"/>
+                <field name="last_name" string="Last Name"/>
+                <field name="first_name" string="First Name"/>
+                <field name="room_number" string="Room Number"/>
+                <field name="arrival_date" string="Arrival Date"/>
+                <field name="departure_date" string="Departure Date"/>
+                <field name="rate_code" string="Rate Code"/>
+                <field name="meal_pattern" string="Meal Pattern"/>
+                <field name="nationality" string="Nationality"/>
+                <field name="status_code" string="Status"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_guest_comments_guest_comments_tree" model="ir.ui.view">
+        <field name="name">guest_comments.guest_comments.tree</field>
+        <field name="model">guest_comments.guest_comments</field>
+        <field name="arch" type="xml">
+            <tree string="Guest Comments">
+                <field name="comment_id" string="Comment ID"/>
+                <field name="comment_category"/>
+                <field name="room_number"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record model="ir.ui.view" id="guest_comments_form">
+    <field name="name">guest_comments.form</field>
+    <field name="model">guest_comments.guest_comments</field>
+    <field name="arch" type="xml">
+        <form string="Guest Comments">
+        <sheet>
+            <group>
+                <field name="comment_category"/>
+                <field name="room_number"/>
+                <field name="description"/>
+                <field name="created_by"/>
+                <field name="status"/>
+            </group>
+        </sheet>
+        <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+        </form>
+    </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_guest_locator_tree">
+    <field name="name">guest.locator.tree</field>
+    <field name="model">guest.locator</field>
+    <field name="arch" type="xml">
+        <tree string="Guest Locator">
+        <field name="id"/>
+        <field name="user_text"/>
+        </tree>
+    </field>
+    </record>
+
+
+    <record id="view_trace_record_form" model="ir.ui.view">
+        <field name="name">trace.record.form</field>
+        <field name="model">trace.record</field>
+        <field name="arch" type="xml">
+            <form string="Trace Record">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="trace_id" string="ID#" />
+                            <field name="from_department" string="From" />
+                            <field name="target" string="Target" />
+                            <field name="user_id" string="User ID" />
+                            <field name="room_number" string="Room Number" />
+                            <field name="guest" string="Guest" />
+                        </group>
+                        <group>
+                            <field name="message" string="Message" widget="textarea"/>
+                            <field name="due_date" string="Due Date"/>
+                            <field name="end_date" string="End Date"/>
+                            <field name="recurring_daily" string="Recurring Daily"/>
+                            <field name="end_of_day" string="End of Day" />
+                            <field name="status" widget="statusbar" statusbar_visible="in_process,resolved,cancelled"/>
+                        </group>
+                    </group>
+                    <!-- New section for control and time stamps -->
+                    <group>
+                        <group>
+                            <field name="opened_on" string="Opened On" readonly="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_resolved" string="Resolved" type="object" class="btn-primary" />
+                        <button name="action_cancelled" string="Cancelled" type="object" class="btn-secondary" />
+                        <button name="action_amend" string="Amend Record" type="object" class="btn" />
+                    </footer>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree view for traces -->
+    <record id="view_trace_tree" model="ir.ui.view">
+        <field name="name">trace.tree.view</field>
+        <field name="model">trace.record</field>
+        <field name="arch" type="xml">
+            <tree string="Traces">
+                <field name="trace_id"/>
+                <field name="message"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Kanban view for traces -->
+    <record id="view_trace_kanban" model="ir.ui.view">
+        <field name="name">trace.kanban.view</field>
+        <field name="model">trace.record</field>
+        <field name="arch" type="xml">
+            <kanban string="Traces">
+                <field name="trace_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div>
+                            <strong><field name="trace_id"/></strong>
+                            <div><field name="message"/></div>
+                            <div><field name="room_number"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Buttons on the right side (separate from the tree view) -->
+    <template id="trace_buttons_template">
+        <div class="o_trace_buttons" style="float:right; width:200px; position:absolute; right:0;">
+            <!-- Adding buttons similar to the image for different categories -->
+            <button type="object" name="button_unresolved" class="btn btn-primary" string="Unresolved Only" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_all_sources" class="btn btn-primary" string="All Sources" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_front_desk" class="btn btn-primary" string="Front Desk" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_reservation" class="btn btn-primary" string="Reservation" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_cashier" class="btn btn-primary" string="Cashier" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_housekeeping" class="btn btn-primary" string="House Keeping" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_concierge" class="btn btn-primary" string="Concierge" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_fnb" class="btn btn-primary" string="F&amp;B" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_maintenance" class="btn btn-primary" string="Maintenance" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_it" class="btn btn-primary" string="IT" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_hr" class="btn btn-primary" string="H/R" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_security" class="btn btn-primary" string="Security" style="margin-bottom: 5px;"/>
+            <button type="object" name="button_management" class="btn btn-primary" string="Management" style="margin-bottom: 5px;"/>
+        </div>
+    </template>
+
+    <!-- Adding this template in the kanban view -->
+    <record id="view_trace_buttons" model="ir.ui.view">
+        <field name="name">trace.buttons.view</field>
+        <field name="model">trace.record</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="o_kanban_record">
+                            <!-- Main content of kanban goes here -->
+                        </div>
+                        <!-- Buttons from the template added here -->
+                        <t t-call="trace_buttons_template"/>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_guest_message_form" model="ir.ui.view">
+        <field name="name">guest.message.form</field>
+        <field name="model">guest.message</field>
+        <field name="arch" type="xml">
+            <form string="Guest Message">
+                <sheet>
+                    <group>
+                        <field name="room_id"/>
+                        <field name="from_person"/>
+                        <field name="contact_info"/>
+                        <field name="message"/>
+                        <field name="user_text"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_guest_message_tree" model="ir.ui.view">
+        <field name="name">guest.message.tree</field>
+        <field name="model">guest.message</field>
+        <field name="arch" type="xml">
+            <tree string="Guest Messages">
+                <field name="room_id"/>
+                <field name="from_person"/>
+                <field name="status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hotel_competition_entry_form" model="ir.ui.view">
+        <field name="name">hotel.competition.entry.form</field>
+        <field name="model">hotel.competition.entry</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="entry_date" widget="date"/>
+                    </group>
+                    <footer>
+                        <button string="Ok" type="object" class="btn-primary" name="confirm_entry"/>
+                        <button string="Exit" type="object" class="btn-secondary" name="exit_entry"/>
+                    </footer>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    
+
+
+
+    
+  
+</odoo>

@@ -1,0 +1,66 @@
+<odoo>
+    <record id="room_rate_forecast_view" model="ir.ui.view">
+        <field name="name">room.rate.forecast.view</field>
+        <field name="model">room.booking</field>
+        <field name="inherit_id" ref="room_booking_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Rate Details">
+                    <field name="rate_forecast_ids">
+                        <tree default_order="date asc">
+                            <field name="date"/>
+                            <field name="rate"/>
+                            <field name="meals"/>
+                            <field name="packages"/>
+                            <field name="fixed_post"/>
+                            <field name="total" readonly="1"/>
+                            <field name="before_discount"/>
+
+                        </tree>
+                        <!--                        <form string="Rate Forecast Details">-->
+                        <!--                            <sheet>-->
+                        <!--                                <group>-->
+                        <!--                                    <field name="date"/>-->
+                        <!--                                    <field name="rate"/>-->
+                        <!--                                    <field name="meals"/>-->
+                        <!--                                    <field name="packages"/>-->
+                        <!--                                    <field name="fixed_post"/>-->
+                        <!--                                    <field name="total"/>-->
+                        <!--                                    <field name="before_discount"/>-->
+                        <!--                                </group>-->
+                        <!--                            </sheet>-->
+                        <!--                        </form>-->
+                    </field>
+                    <group>
+                        <div style="display: flex; align-items: center; gap: 100px; width: max-content;">
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
+                                <label for="total_rate_forecast" string="Total Room Rate"/>
+                                <field name="total_rate_forecast" readonly="1"/>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
+                                <label for="total_meal_forecast" string="Total Meals"/>
+                                <field name="total_meal_forecast" readonly="1"/>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
+                                <label for="total_package_forecast" string="Total Packages"/>
+                                <field name="total_package_forecast" readonly="1"/>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
+                                <label for="total_fixed_post_forecast" string="Total Fixed Pst."/>
+                                <field name="total_fixed_post_forecast" readonly="1"/>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
+                                <label for="total_total_forecast" string="Grand Total"/>
+                                <field name="total_total_forecast" readonly="1"/>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
+                                <label for="total_before_discount_forecast" string="Grand Total Before Discount"/>
+                                <field name="total_before_discount_forecast" readonly="1"/>
+                            </div>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

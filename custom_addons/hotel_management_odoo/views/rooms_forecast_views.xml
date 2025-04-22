@@ -1,0 +1,125 @@
+<odoo>
+    <!-- Tree View -->
+    <record id="view_rooms_forecast_tree" model="ir.ui.view">
+        <field name="name">rooms.forecast.tree</field>
+        <field name="model">rooms.forecast.report</field>
+        <field name="arch" type="xml">
+            <tree string="Rooms Forecast Report" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
+                <field name="report_date" optional="show"/>
+                <field name="room_type_name" optional="show"/>
+                <field name="total_rooms" optional="show" />
+                <field name="out_of_order" optional="show"/>
+                <field name="available" optional="show"/>
+                <field name="in_house" optional="show"/>
+                <field name="in_house_adult_count" optional="show"/>
+                <field name="in_house_child_count" optional="show"/>
+                <field name="in_house_infant_count" optional="show"/>
+                <field name="expected_arrivals" optional="show"/>
+                <field name="expected_arrivals_adult_count" optional="show"/>
+                <field name="expected_arrivals_child_count" optional="show"/>
+                <field name="expected_arrivals_infant_count" optional="show"/>
+                <field name="expected_departures" optional="show"/>
+                <field name="expected_departures_adult_count" optional="show"/>
+                <field name="expected_departures_child_count" optional="show"/>
+                <field name="expected_departures_infant_count" optional="show"/>
+                <field name="expected_in_house" optional="show"/>
+                <field name="expected_in_house_adult_count" optional="show"/>
+                <field name="expected_in_house_child_count" optional="show"/>
+                <field name="expected_in_house_infant_count" optional="show"/>
+                <field name="expected_occupied_rate" optional="show"/>
+                <field name="free_to_sell" optional="show"/>
+                <field name="company_id" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_rooms_forecast_pivot" model="ir.ui.view">
+        <field name="name">rooms.forecast.pivot</field>
+        <field name="model">rooms.forecast.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Room Forecast">
+                <field name="report_date" type="row"/>
+                <field name="room_type_name" type="row"/>
+                <field name="total_rooms" type="measure" />
+                <field name="out_of_order" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="in_house" type="measure"/>
+                <field name="in_house_adult_count" type="measure"/>
+                <field name="in_house_child_count" type="measure"/>
+                <field name="in_house_infant_count" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_arrivals_adult_count" type="measure"/>
+                <field name="expected_arrivals_child_count" type="measure"/>
+                <field name="expected_arrivals_infant_count" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_departures_adult_count" type="measure"/>
+                <field name="expected_departures_child_count" type="measure"/>
+                <field name="expected_departures_infant_count" type="measure"/>
+                <field name="expected_in_house" type="measure"/>
+                <field name="expected_in_house_adult_count" type="measure"/>
+                <field name="expected_in_house_child_count" type="measure"/>
+                <field name="expected_in_house_infant_count" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+                <field name="company_id" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_rooms_forecast_graph" model="ir.ui.view">
+        <field name="name">rooms.forecast.graph</field>
+        <field name="model">rooms.forecast.report</field>
+        <field name="arch" type="xml">
+            <graph string="Room Forecast Results" type="bar">
+                <field name="report_date" type="row"/>
+                <field name="room_type_name" type="row"/>
+                <field name="total_rooms" type="measure" />
+                <field name="out_of_order" type="measure"/>
+                <field name="available" type="measure"/>
+                <field name="in_house" type="measure"/>
+                <field name="in_house_adult_count" type="measure"/>
+                <field name="in_house_child_count" type="measure"/>
+                <field name="in_house_infant_count" type="measure"/>
+                <field name="expected_arrivals" type="measure"/>
+                <field name="expected_arrivals_adult_count" type="measure"/>
+                <field name="expected_arrivals_child_count" type="measure"/>
+                <field name="expected_arrivals_infant_count" type="measure"/>
+                <field name="expected_departures" type="measure"/>
+                <field name="expected_departures_adult_count" type="measure"/>
+                <field name="expected_departures_child_count" type="measure"/>
+                <field name="expected_departures_infant_count" type="measure"/>
+                <field name="expected_in_house" type="measure"/>
+                <field name="expected_in_house_adult_count" type="measure"/>
+                <field name="expected_in_house_child_count" type="measure"/>
+                <field name="expected_in_house_infant_count" type="measure"/>
+                <field name="expected_occupied_rate" type="measure"/>
+                <field name="free_to_sell" type="measure"/>
+                <field name="company_id" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+
+    <record id="action_run_process_by_rooms_forecast" model="ir.actions.server">
+        <field name="name">Run Rooms Forecast</field>
+        <field name="model_id" ref="model_rooms_forecast_report"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+action = env["rooms.forecast.report"].action_run_process_by_rooms_forecast()
+        ]]>
+        </field>
+        <!-- <field name="context">{'create': False}</field> -->
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_run_process_by_rooms_forecast"
+        name="Rooms Forecast"
+        parent="menu_forecast"
+        action="action_run_process_by_rooms_forecast"
+        sequence="60"
+    />
+</odoo>

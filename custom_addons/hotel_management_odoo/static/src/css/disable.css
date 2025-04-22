@@ -1,0 +1,10 @@
+.o_readonly_modifier .o_form_uri {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+}
+.o_form_uri:has(.fa.fa-download.me-2) {
+  pointer-events: auto !important;  /* Enable clicking */
+  cursor: pointer !important;       /* Change cursor to pointer */
+  text-decoration: underline !important;  /* Make it look clickable */
+}

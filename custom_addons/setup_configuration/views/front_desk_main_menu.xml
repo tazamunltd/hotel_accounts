@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_frontdesk_walkin" model="ir.actions.act_window">
+        <field name="name">Front Desk Walk-ins</field>
+        <field name="res_model">frontdesk.walkin.main</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for In-House Guests -->
+    <record id="action_frontdesk_inhouse_guest" model="ir.actions.act_window">
+        <field name="name">In-House Guests</field>
+        <field name="res_model">frontdesk.inhouse.guest.main</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action to open form/tree views -->
+    <record model="ir.actions.act_window" id="action_guest_comments_window">
+        <field name="name">Guest Comments</field>
+        <field name="res_model">guest_comments.guest_comments</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Guest Locator -->
+    <record id="action_guest_locator_window" model="ir.actions.act_window">
+        <field name="name">Guest Locator</field>
+        <field name="res_model">guest.locator</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for the traces model -->
+    <record id="action_trace_record" model="ir.actions.act_window">
+        <field name="name">Traces</field>
+        <field name="res_model">trace.record</field>
+        <field name="view_mode">tree,form,kanban</field> <!-- Added tree, form, and kanban views -->
+    </record>
+
+    <record id="action_guest_message" model="ir.actions.act_window">
+        <field name="name">Guest Messages</field>
+        <field name="res_model">guest.message</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action to open the form view -->
+    <record id="action_hotel_competition_entry" model="ir.actions.act_window">
+        <field name="name">Hotel Competition Entry</field>
+        <field name="res_model">hotel.competition.entry</field>
+        <field name="view_mode">form,tree</field>
+        <field name="target">current</field>
+    </record>
+
+
+    <menuitem id="menu_setup_and_configuration"
+              name="Setup and Configuration"
+              sequence="2"/>
+
+    <!-- Child Menu: Hotel Details -->
+    <menuitem id="menu_front_desk"
+              name="Front Desk"
+              parent="menu_setup_and_configuration"
+              sequence="2"/>
+
+
+    <menuitem id="sub_menu_walk_in"
+              name="Walk In"
+              parent="menu_front_desk"
+              action="action_frontdesk_walkin"
+              sequence="1"/>
+    
+    <menuitem id="sub_menu_inhouse_guest"
+              name="In-House Guests"
+              parent="menu_front_desk"
+              action="action_frontdesk_inhouse_guest"
+              sequence="2"/>
+
+    <menuitem id="sub_menu_arrival_queue"
+              name="Arrival Queue"
+              parent="menu_front_desk"
+              action="action_frontdesk_walkin"
+              sequence="3"/>
+
+    <menuitem id="sub_menu_hotel_competion_entry"
+              name="Hotel Competion Entry"
+              parent="menu_front_desk"
+              action="action_hotel_competition_entry"
+              sequence="4"/>
+
+    <menuitem id="sub_menu_trace"
+              name="Traces"
+              parent="menu_front_desk"
+              action="action_trace_record"
+              sequence="5"/>
+    
+    <menuitem id="sub_menu_guest_messages"
+              name="Guests Messages"
+              parent="menu_front_desk"
+              action="action_guest_message"
+              sequence="6"/>
+
+    <menuitem id="menu_guest_comments_list" 
+              name="Guest Comments" 
+              parent="menu_front_desk" 
+              action="action_guest_comments_window"
+              sequence="7"/>
+
+    <menuitem id="menu_guest_locator" 
+              name="Guest Locator" 
+              parent="menu_front_desk" 
+              action="action_guest_locator_window"
+              sequence="8"/>
+
+
+</odoo>

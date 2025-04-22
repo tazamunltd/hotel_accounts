@@ -1,0 +1,583 @@
+<odoo>
+    <!-- Form View for Housekeeping Management -->
+    <record id="view_housekeeping_management_form" model="ir.ui.view">
+        <field name="name">housekeeping.management.form</field>
+        <field name="model">housekeeping.management</field>
+        <field name="arch" type="xml">
+            <form string="Housekeeping">
+                <sheet>
+                    <!-- Room Information -->
+                    <group string="Room Information">
+                        <group>
+                            <field name="room_fsm_location"/>
+                            <field name="room_type"/>
+                            <field name="room_number"/>
+                        </group>
+                        <group>
+                            <field name="floor_number"/>
+                            <field name="section_hk"/>
+                            <field name="block"/>
+                            <field name="building"/>
+                        </group>
+                    </group>
+
+                    <!-- Housekeeping Information -->
+                    <group string="Housekeeping Information">
+                        <field name="clean"/>
+                        <field name="out_of_service"/>
+                        <field name="repair_ends_by"/>
+                        <field name="changed_linen"/>
+                        <field name="changed_towels"/>
+                        <field name="pending_repairs"/>
+                    </group>
+
+                    <!-- Room Status (Housekeeping) -->
+                    <group string="Room Status">
+                        <field name="room_status" widget="radio"/>
+                        <field name="pax"/>
+                        <field name="child"/>
+                        <field name="infant"/>
+                    </group>
+
+                    <!-- Reason -->
+                    <group string="Reason">
+                        <field name="reason" widget="radio"/>
+                    </group>
+                    <group string="Housekeeping Status">
+                        <field name="housekeeping_status" widget="selection"/>
+                    </group>
+
+                    <!-- Button Actions for Changing Status -->
+                    <group string="Actions">
+                        <button name="action_change_to_unclean" type="object" string="Change All List To Unclean"
+                                class="oe_highlight"/>
+                        <button name="action_change_to_clean" type="object" string="Change All List To Clean"/>
+                        <button name="action_change_to_vacant" type="object" string="Change All List To Vacant"/>
+                        <button name="action_change_to_occupied" type="object" string="Change All List To Occupied"/>
+                        <button name="action_change_to_out_of_service" type="object"
+                                string="Change All List To Out of Service"/>
+                        <button name="action_change_to_in_service" type="object"
+                                string="Change All List To In Service"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Housekeeping Management -->
+    <record id="view_housekeeping_management_tree" model="ir.ui.view">
+        <field name="name">housekeeping.management.tree</field>
+        <field name="model">housekeeping.management</field>
+        <field name="arch" type="xml">
+            <tree string="Housekeeping Management">
+                <field name="room_fsm_location"/>
+                <field name="room_number"/>
+                <field name="room_type"/>
+                <field name="clean"/>
+                <field name="out_of_service"/>
+                <field name="room_status"/>
+                <field name="pax"/>
+                <field name="housekeeping_status" string="Housekeeping Status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Out of Order Management -->
+    <record id="view_out_of_order_management_form" model="ir.ui.view">
+    <field name="name">out.of.order.management.form</field>
+    <field name="model">out.of.order.management</field>
+    <field name="arch" type="xml">
+        <form string="Out of Order">
+            <sheet>
+                <group>
+                    <!-- Room Information -->
+                    <group>
+                        <field name="room_fsm_location"/>
+                        <field name="room_number"/>
+                        <field name="from_date"/>
+                        <field name="to_date"/>
+                    </group>
+
+                    <!-- Comments Section -->
+                    <group>
+                        <field name="comments"/>
+                    </group>
+                </group>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_follower_ids"/>
+                <field name="activity_ids"/>
+                <field name="message_ids"/>
+            </div>
+        </form>
+    </field>
+</record>
+
+    <!-- <record id="view_out_of_order_management_form" model="ir.ui.view">
+        <field name="name">out.of.order.management.form</field>
+        <field name="model">out.of.order.management</field>
+        <field name="arch" type="xml">
+            <form string="Out of Order">
+                <sheet>
+                    <group>
+                     
+                        <group>
+                            <field name="room_fsm_location"/>
+                            <field name="room_number"/>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                        </group>
+
+                      
+                        <group>
+                            <field name="comments"/>
+                        </group>
+                    </group>
+
+                
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+             <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+        </field>
+    </record> -->
+
+    <!-- Tree View for Out of Order Management -->
+    <record id="view_out_of_order_management_tree" model="ir.ui.view">
+        <field name="name">out.of.order.management.tree</field>
+        <field name="model">out.of.order.management</field>
+        <field name="arch" type="xml">
+            <tree string="Out of Order List">
+                <field name="room_fsm_location"/>
+                <field name="room_number"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <!-- <field name="out_of_order_code"/>
+                <field name="authorization_code"/> -->
+                <field name="comments"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- Form View for Rooms On Hold Management -->
+    <record id="view_rooms_on_hold_management_form" model="ir.ui.view">
+        <field name="name">rooms.on.hold.management.form</field>
+        <field name="model">rooms.on.hold.management</field>
+        <field name="arch" type="xml">
+            <form string="Rooms On Hold">
+                <sheet>
+                    <group>
+                        <!-- Room Information -->
+                        <group>
+                            <field name="room_fsm_location"/>
+                            <field name="room_number"/>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                        </group>
+
+                        <!-- Codes and Comments -->
+                        <!-- <group>
+                            <field name="roh_code"/>
+                            <field name="authorization_code"/>
+                        </group> -->
+                        <group>
+                            <field name="comments"/>
+                        </group>
+                    </group>
+
+                    <!-- Action Buttons -->
+                    <!-- <group string="Actions">
+                        <button name="action_end_list_today" type="object" string="End All List Today"
+                                class="oe_highlight"/>
+                        <button name="action_change_all_list" type="object" string="Change All List"/>
+                    </group> -->
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Rooms On Hold Management -->
+    <record id="view_rooms_on_hold_management_tree" model="ir.ui.view">
+        <field name="name">rooms.on.hold.management.tree</field>
+        <field name="model">rooms.on.hold.management</field>
+        <field name="arch" type="xml">
+            <tree string="Rooms On Hold List">
+                <field name="room_fsm_location"/>
+                <field name="room_number"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <field name="roh_code"/>
+                <field name="authorization_code"/>
+                <field name="comments"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Tree view for 'Housekeeping Traces' -->
+    <record id="view_housekeeping_traces_tree" model="ir.ui.view">
+        <field name="name">housekeeping.traces.tree</field>
+        <field name="model">housekeeping.traces</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="id"/>
+                <field name="message"/>
+                <field name="target"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view for 'Housekeeping Traces' -->
+    <record id="view_housekeeping_traces_form" model="ir.ui.view">
+    <field name="name">housekeeping.traces.form</field>
+    <field name="model">housekeeping.traces</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <group>
+                        <field name="id"/>
+                        <field name="target"/>
+                        <field name="date"/>
+                        <field name="from_department" string="From"/>
+                        <field name="status"/>
+                    </group>
+                    <group>
+                        <field name="room_number"/>
+                        <field name="due_date"/>
+                        <field name="end_date"/>
+                    </group>
+                </group>
+
+                <group>
+                    <field name="user_text" widget="selection"/>
+                    <field name="user_id" widget="many2one"/>
+                </group>
+
+                <group>
+                    <field name="message"/>
+                </group>
+
+                <group>
+                    <field name="recurring" widget="boolean"/>
+                    <field name="status"/>
+                </group>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_follower_ids"/>
+                <field name="activity_ids"/>
+                <field name="message_ids"/>
+            </div>
+        </form>
+    </field>
+</record>
+
+    <!-- <record id="view_housekeeping_traces_form" model="ir.ui.view">
+        <field name="name">housekeeping.traces.form</field>
+        <field name="model">housekeeping.traces</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="id"/>
+                            <field name="target"/>
+                            <field name="date"/>
+                            <field name="from_department" string="From"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="room_number"/>
+                            <field name="due_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <field name="user_text" widget="selection"/>
+                        <field name="user_id" widget="many2one"/>
+                    </group>
+
+                    <group>
+                        <field name="message"/>
+                    </group>
+
+                    <group>
+                        <field name="recurring" widget="boolean"/>
+                        <field name="status"/>
+                    </group>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+             <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+        </field>
+    </record> -->
+
+    <record id="view_concierge_traces_tree" model="ir.ui.view">
+        <field name="name">concierge.traces.tree</field>
+        <field name="model">concierge.traces</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="id"/>
+                <field name="message"/>
+                <field name="target"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_concierge_traces_form" model="ir.ui.view">
+        <field name="name">concierge.traces.form</field>
+        <field name="model">concierge.traces</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <!-- Display the ID field normally, not as read-only -->
+                            <field name="id"/>
+                            <field name="target"/>
+                            <field name="date"/>
+                            <field name="from_department" string="From" default="concierge"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="room_number"/>
+                            <field name="due_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+
+                    <!-- User Text with selection options -->
+                    <group>
+                        <field name="user_text" widget="selection"/>
+                        <field name="user_id" widget="many2one"/>
+                    </group>
+
+                    <!-- Message field -->
+                    <group>
+                        <field name="message"/>
+                    </group>
+
+                    <!-- Recurring task and status checkboxes -->
+                    <group>
+                        <field name="recurring" widget="boolean"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_maintenance_traces_tree" model="ir.ui.view">
+        <field name="name">maintenance.traces.tree</field>
+        <field name="model">maintenance.traces</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="id"/>
+                <field name="message"/>
+                <field name="target"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_maintenance_traces_form" model="ir.ui.view">
+        <field name="name">maintenance.traces.form</field>
+        <field name="model">maintenance.traces</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <!-- Display the ID field normally, not as read-only -->
+                            <field name="id"/>
+                            <field name="target"/>
+                            <field name="date"/>
+                            <field name="from_department" string="From" default="concierge"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="room_number"/>
+                            <field name="due_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+
+                    <!-- User Text with selection options -->
+                    <group>
+                        <field name="user_text" widget="selection"/>
+                        <field name="user_id" widget="many2one"/>
+                    </group>
+
+                    <!-- Message field -->
+                    <group>
+                        <field name="message"/>
+                    </group>
+
+                    <!-- Recurring task and status checkboxes -->
+                    <group>
+                        <field name="recurring" widget="boolean"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fnb_traces_tree" model="ir.ui.view">
+        <field name="name">fnb.traces.tree</field>
+        <field name="model">fnb.traces</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="id"/>
+                <field name="message"/>
+                <field name="target"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_fnb_traces_form" model="ir.ui.view">
+        <field name="name">fnb.traces.form</field>
+        <field name="model">fnb.traces</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <!-- Display the ID field normally, not as read-only -->
+                            <field name="id"/>
+                            <field name="target"/>
+                            <field name="date"/>
+                            <field name="from_department" string="From" default="concierge"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="room_number"/>
+                            <field name="due_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+
+                    <!-- User Text with selection options -->
+                    <group>
+                        <field name="user_text" widget="selection"/>
+                        <field name="user_id" widget="many2one"/>
+                    </group>
+
+                    <!-- Message field -->
+                    <group>
+                        <field name="message"/>
+                    </group>
+
+                    <!-- Recurring task and status checkboxes -->
+                    <group>
+                        <field name="recurring" widget="boolean"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_it_traces_tree" model="ir.ui.view">
+        <field name="name">it.traces.tree</field>
+        <field name="model">it.traces</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="id"/>
+                <field name="message"/>
+                <field name="target"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_it_traces_form" model="ir.ui.view">
+        <field name="name">it.traces.form</field>
+        <field name="model">it.traces</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <!-- Display the ID field normally, not as read-only -->
+                            <field name="id"/>
+                            <field name="target"/>
+                            <field name="date"/>
+                            <field name="from_department" string="From" default="concierge"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="room_number"/>
+                            <field name="due_date"/>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+
+                    <!-- User Text with selection options -->
+                    <group>
+                        <field name="user_text" widget="selection"/>
+                        <field name="user_id" widget="many2one"/>
+                    </group>
+
+                    <!-- Message field -->
+                    <group>
+                        <field name="message"/>
+                    </group>
+
+                    <!-- Recurring task and status checkboxes -->
+                    <group>
+                        <field name="recurring" widget="boolean"/>
+                        <field name="status"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+
+</odoo>

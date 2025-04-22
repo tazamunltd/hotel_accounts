@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for Reservation Main -->
+    <record id="view_reservation_reservation_main_form" model="ir.ui.view">
+        <field name="name">reservation.reservation.main.form</field>
+        <field name="model">reservation.reservation.main</field>
+        <field name="arch" type="xml">
+            <form string="Reservation">
+                <header>
+                    <!-- Buttons -->
+                    <button name="action_view_changes" string="View Changes" type="object" class="btn-primary"/>
+                    <button name="action_get_passport_info" string="Get Passport Info" type="object" class="btn-secondary"/>
+                    <button name="action_show_passport" string="Show Passport" type="object" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <notebook>
+                        <!-- Main Page -->
+                        <page string="Main">
+                            <group>
+                                <group>
+                                    <field name="guest_id"/>
+                                    <field name="last_name"/>
+                                    <field name="first_name"/>
+                                    <field name="room_number"/>
+                                    <field name="no_of_rooms"/>
+                                    <field name="pax_per_room"/>
+                                    <field name="suite"/>
+                                    <field name="no_smoking"/>
+                                </group>
+                                <group>
+                                    <field name="rate_code"/>
+                                    <field name="meal_pattern"/>
+                                    <field name="status_code"/>
+                                    <field name="company"/>
+                                    <field name="nationality"/>
+                                    <field name="arrival_date"/>
+                                    <field name="nights"/>
+                                    <field name="departure_date"/>
+                                </group>
+                                <!-- <group>
+                                    
+                                </group> -->
+                            </group>
+
+                            <group string="Group and Room Information">
+                                <group>
+                                    <field name="group_profile_id"/>
+                                    <field name="default_profile_id"/>
+                                    <field name="room_type"/>
+                                    <field name="total_children"/>
+                                    <field name="total_infants"/>
+                                    <field name="total_extra_beds"/>
+                                    <field name="companions"/>
+                                </group>
+                                <group>
+                                    <field name="allotment_value"/>
+                                    <field name="rate_value"/>
+                                    <field name="meal_value"/>
+                                    <field name="release_date"/>
+                                    <field name="discount_rate"/>
+                                    <field name="discount_meals"/>
+                                </group>
+                                <group>
+                                    <field name="source_of_business"/>
+                                    <field name="market_segment"/>
+                                </group>
+                            </group>
+
+                            <group>
+                                <field name="group_comments"/>
+                                <field name="remarks"/>
+                            </group>
+                        </page>
+
+                        <!-- Optional Page -->
+                        <page string="Optional">
+                            <group>
+                                <group>
+                                    <field name="how_taken"/>
+                                    <field name="travel_method"/>
+                                    <field name="visit_reason"/>
+                                    <field name="house_use"/>
+                                    <field name="complimentary"/>
+                                    <field name="stay_as_vip"/>
+                                </group>
+
+                                <group string="Payment Type">
+                                    <field name="payment_type" widget="radio"/>
+                                    <field name="credit_limit_value"/>
+                                </group>
+                                
+                                <group string="Safe Box Code">
+                                    <field name="safe_box_code"/>
+                                    <field name="police_bill_number"/>
+                                    <field name="voucher_received"/>
+                                    <field name="deposit"/>
+                                    <field name="sponsor"/>
+                                    <field name="reserved_by"/>
+                                </group>
+                            </group>
+                            
+                            <group>
+                                <field name="comments"/>
+                            </group>
+                        </page> 
+                        <page string="Adults">
+                            <field name="adult_ids">
+                                <tree string="Adults" editable="top">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                                <!-- <form string="Edit Adult Details">
+                                    <group>
+                                        <field name="first_name"/>
+                                        <field name="last_name"/>
+                                        <field name="profile"/>
+                                        <field name="nationality"/>
+                                        <field name="birth_date"/>
+                                        <field name="passport_number"/>
+                                        <field name="id_number"/>
+                                        <field name="visa_number"/>
+                                        <field name="id_type"/>
+                                        <field name="phone_number"/>
+                                        <field name="relation"/>
+                                    </group>
+                                </form> -->
+                            </field>
+                            <!-- <footer>
+                                <button string="Get Passport Info" type="object" class="btn-secondary"/>
+                                <button string="Show Passport" type="object" class="btn-primary"/>
+                            </footer> -->
+                        </page>
+                        <page string="Children">
+                            <field name="child_ids">
+                                <tree string="Children" editable="top">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+
+                        </page>
+                        <page string="Infants">
+                            <field name="infant_ids">
+                                <tree string="Infants" editable="top">
+                                    <field name="first_name"/>
+                                    <field name="last_name"/>
+                                    <field name="profile"/>
+                                    <field name="nationality"/>
+                                    <field name="birth_date"/>
+                                    <field name="passport_number"/>
+                                    <field name="id_number"/>
+                                    <field name="visa_number"/>
+                                    <field name="id_type"/>
+                                    <field name="phone_number"/>
+                                    <field name="relation"/>
+                                </tree>
+                            </field>
+
+                        </page>
+                        <page string="Profiles">
+                            <field name="profile_ids">
+                                <tree string="Profiles">
+                                    <field name="profile_id"/>
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                </tree>
+                            </field>
+                            <group>
+                                <field name="linked_profile_id"/>
+                            </group>
+                            <!-- <field name="description"/> -->
+                            <!-- <footer>
+                                <button string="New" type="object" class="btn-primary"/>
+                                <button string="Save" type="object" class="btn-secondary"/>
+                                <button string="Delete" type="object" class="btn-danger"/>
+                            </footer> -->
+                        </page>
+                        <page string="Attributes">
+                            <field name="reservation_attributes"></field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Reservation Main -->
+    <record id="view_reservation_reservation_main_tree" model="ir.ui.view">
+        <field name="name">reservation.reservation.main.tree</field>
+        <field name="model">reservation.reservation.main</field>
+        <field name="arch" type="xml">
+            <tree string="Reservations">
+                <field name="guest_id"/>
+                <field name="last_name"/>
+                <field name="first_name"/>
+                <field name="arrival_date"/>
+                <field name="departure_date"/>
+                <field name="room_number"/>
+                <field name="pax_per_room"/>
+                <field name="total_children"/>
+                <field name="total_infants"/>
+                <field name="meal_pattern"/>
+                <field name="room_type"/>
+                <field name="status_code"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+</odoo>

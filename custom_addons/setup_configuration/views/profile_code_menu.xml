@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action for Address Type -->
+    <record id="action_address_type" model="ir.actions.act_window">
+        <field name="name">Address Types</field>
+        <field name="res_model">address.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Contact Method Type -->
+    <record id="action_contact_method_type" model="ir.actions.act_window">
+        <field name="name">Contact Method Types</field>
+        <field name="res_model">contact.method.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Profile Category -->
+    <record id="action_profile_category" model="ir.actions.act_window">
+        <field name="name">Profile Categories</field>
+        <field name="res_model">profile.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Document Type -->
+    <record id="action_document_type" model="ir.actions.act_window">
+        <field name="name">Document Types</field>
+        <field name="res_model">document.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Credit Card Type -->
+    <record id="action_credit_card_type" model="ir.actions.act_window">
+        <field name="name">Credit Card Types</field>
+        <field name="res_model">credit.card.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Membership Card Type -->
+    <record id="action_membership_card_type" model="ir.actions.act_window">
+        <field name="name">Membership Card Types</field>
+        <field name="res_model">membership.card.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Note Category -->
+    <record id="action_note_category" model="ir.actions.act_window">
+        <field name="name">Note Categories</field>
+        <field name="res_model">note.category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- <menuitem id="sub_menu_profile_codes" 
+              name="Profile Codes" 
+              parent="menu_code"
+              sequence="4"/>
+    
+    <menuitem id="sub_menu_address_type" 
+              name="Address Type" 
+              parent="sub_menu_profile_codes"
+              action="action_address_type"
+              />
+
+    <menuitem id="sub_menu_contact_method_type" 
+              name="Contact Method Type" 
+              parent="sub_menu_profile_codes"
+              action="action_contact_method_type"
+              />
+
+    <menuitem id="sub_menu_profile_category" 
+              name="Profile Category" 
+              parent="sub_menu_profile_codes"
+              action="action_profile_category"
+              />
+
+    <menuitem id="sub_menu_document_type" 
+              name="Document Type" 
+              parent="sub_menu_profile_codes"
+              action="action_document_type"
+              />
+
+    <menuitem id="sub_menu_credit_card_type" 
+              name="Credit Card Type" 
+              parent="sub_menu_profile_codes"
+              action="action_credit_card_type"
+              />
+
+    <menuitem id="sub_menu_membership_card_type" 
+              name="Membership Card Type" 
+              parent="sub_menu_profile_codes"
+              action="action_membership_card_type"
+              />
+
+    <menuitem id="sub_menu_note_category" 
+              name="Note Category" 
+              parent="sub_menu_profile_codes"
+              action="action_note_category"
+              /> -->
+
+</odoo>

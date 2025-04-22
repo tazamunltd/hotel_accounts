@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="yearly_geographical_chart_tree_view" model="ir.ui.view">
+        <field name="name">yearly.geographical.chart.tree</field>
+        <field name="model">yearly.geographical.chart</field>
+        <field name="arch" type="xml">
+            <tree js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
+                <field name="report_date" optional="show"/>
+                <field name="room_type" optional="show"/>
+                <field name="company_id" optional="show"/>
+                <field name="nationality" optional="show"/>
+                <field name= "region" optional="show"/>
+                <field name="expected_inhouse" optional="show"/>
+                
+            </tree>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="yearly_geographical_chart_graph_view" model="ir.ui.view">
+        <field name="name">yearly.geographical.chart.graph</field>
+        <field name="model">yearly.geographical.chart</field>
+        <field name="arch" type="xml">
+            <graph>
+                <field name="report_date" type="row"/>
+                <field name="room_type"/>
+                <field name="company_id"/>
+                <field name="nationality" type="row"/>
+                <field name= "region" type="row"/>
+                <field name="expected_inhouse" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+<!-- Pivot View -->
+    <record id="yearly_geographical_chart_pivot_view" model="ir.ui.view">
+        <field name="name">yearly.geographical.chart.pivot</field>
+        <field name="model">yearly.geographical.chart</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="report_date" type="row"/>
+                <field name="room_type"/>
+                <field name="company_id"/>
+                <field name="nationality" type="row"/>
+                <field name= "region" type="row"/>
+                <field name="expected_inhouse" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+        
+
+    <record id="action_run_process_by_region" model="ir.actions.server">
+        <field name="name">Run Yearly Geographical Process</field>
+        <field name="model_id" ref="model_yearly_geographical_chart"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+action = env["yearly.geographical.chart"].action_run_process_by_region()
+        ]]>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <!-- <record id="action_run_process_by_Region" model="ir.actions.server">
+    <field name="name">Run Yearly Geographical Process</field>
+    <field name="model_id" ref="model_yearly_geographical_chart"/>
+    <field name="state">code</field>
+    <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_Region()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Yearly Geographical Chart',
+        'res_model': 'yearly.geographical.chart',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_tree_view').id, 'tree'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_graph_view').id, 'graph'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_pivot_view').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Yearly Geographical Chart',
+        'res_model': 'yearly.geographical.chart',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_tree_view').id, 'tree'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_graph_view').id, 'graph'),
+            (env.ref('hotel_management_odoo.yearly_geographical_chart_pivot_view').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field>
+</record> -->
+
+    <!-- <record id="action_run_process_by_Region" model="ir.actions.server">
+        <field name="name">Run Yearly Geographical Process</field>
+        <field name="model_id" ref="model_yearly_geographical_chart"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+model.run_process_by_Region()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Yearly Geographical Chart',
+    'res_model': 'yearly.geographical.chart',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.yearly_geographical_chart_tree_view').id, 'tree'),
+        (env.ref('hotel_management_odoo.yearly_geographical_chart_graph_view').id, 'graph'),
+        (env.ref('hotel_management_odoo.yearly_geographical_chart_pivot_view').id, 'pivot'),
+    ],
+    'target': 'current',
+}
+            ]]>
+        </field>
+    </record> -->
+    <!-- Menu Item -->
+    
+    <menuitem id="menu_yearly_geographical_chart"
+            name="Yearly Geographical Chart"
+            action="action_run_process_by_region"
+            parent="menu_reservation"
+            sequence="40"/>
+</odoo>

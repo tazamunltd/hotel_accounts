@@ -1,0 +1,168 @@
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_reservation_status_report_tree" model="ir.ui.view">
+            <field name="name">reservation.status.report.tree</field>
+            <field name="model">reservation.status.report</field>
+            <field name="arch" type="xml">
+                <tree string="Reservation Status Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
+                    <field name="company_id" optional="show"/>   
+                    <field name="partner_name" optional="show"/>
+                    <field name="group_booking" optional="show"/>
+                    <field name ="ref_id_bk" optional="show"/>
+                    <field name="room_count" optional="show"/>
+                    <field name="adult_count" optional="show"/>
+                    <field name="room_type_name" optional="show"/>
+                    <field name="room_name" optional="show"/>
+                    <field name="checkin_date" optional="show"/>
+                    <field name="checkout_date" optional="show"/>
+                    <field name="no_of_nights" optional="show"/>
+                    <field name="vip" optional="show"/>
+                    <field name="house_use" optional="show"/>
+                    <field name="meal_pattern" optional="show"/>
+                    <field name="complementary_codes" optional="show"/>
+                    <field name="nationality" optional="show"/>
+                    <field name="date_order" optional="show"/>
+                    <field name="state" optional="show"/>
+                    <field name="original_state" optional="show"/>
+                    <field name="write_user_name" optional="show"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Graph View -->
+        <record id="view_reservation_status_report_graph" model="ir.ui.view">
+            <field name="name">reservation.status.report.graph</field>
+            <field name="model">reservation.status.report</field>
+            <field name="arch" type="xml">
+                <graph string="Reservation Status Reports" type="bar">
+                    <field name="company_id" type="row"/>
+                    <field name="partner_name" type="row"/>
+                    <field name="group_booking" type="row"/>
+                    <field name="ref_id_bk" type="row"/>
+                    <field name="room_count" type="measure"/>
+                    <field name="adult_count" type="measure"/>
+                    <field name="room_type_name" type="row"/>
+                    <field name="room_name" type="row"/>
+                    <field name="checkin_date" type="row"/>
+                    <field name="checkout_date" type="row"/>
+                    <field name="no_of_nights" type="measure"/>
+                    <field name="vip" type="row"/>
+                    <field name="house_use" type="row"/>
+                    <field name="meal_pattern" type="row"/>
+                    <field name="complementary_codes" type="row"/>
+                    <field name="nationality" type="row"/>
+                    <field name="date_order" type="row"/>
+                    <field name="partner_company_id" type="row"/>
+                    <field name="write_user_name" type="row"/>
+                    <field name="state" type="row"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_reservation_status_report_pivot" model="ir.ui.view">
+            <field name="name">reservation.status.report.pivot</field>
+            <field name="model">reservation.status.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Reservation Status Reports">
+                    <field name="company_id" type="col"/>
+                    <field name="ref_id_bk" type="col"/>
+                    <field name="partner_name" type="col"/>
+                    <field name="group_booking" type="col"/>
+                    <field name="room_count" type="measure"/>
+                    <field name="adult_count" type="measure"/>
+                    <field name="room_type_name" type="col"/>
+                    <field name="room_name" type="col"/>
+                    <field name="checkin_date" type="col"/>
+                    <field name="checkout_date" type="col"/>
+                    <field name="no_of_nights" type="measure"/>
+                    <field name="vip" type="col"/>
+                    <field name="house_use" type="col"/>
+                    <field name="meal_pattern" type="col"/>
+                    <field name="complementary_codes" type="col"/>
+                    <field name="nationality" type="col"/>
+                    <field name="date_order" type="col"/>
+                    <field name="partner_name" type="col"/>
+                    <field name="write_user_name" type="col"/>
+                    <field name="state" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="action_run_process_by_reservation_status" model="ir.actions.server">
+            <field name="name">Run Process by Reservation Status</field>
+            <field name="model_id" ref="model_reservation_status_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["reservation.status.report"].action_run_process_by_reservation_status()
+        ]]>
+            </field>
+        </record>
+        <!-- Action -->
+    <!-- <record id="action_run_process_by_reservation_status" model="ir.actions.server">
+        <field name="name">Run process by reservation status</field>
+        <field name="model_id" ref="model_reservation_status_report"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_reservation_status()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Status Report',
+    'res_model': 'reservation.status.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_reservation_status_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_pivot').id, 'pivot'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Status Report',
+    'res_model': 'reservation.status.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_reservation_status_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_pivot').id, 'pivot'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
+            <![CDATA[
+model.run_process_by_reservation_status()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Status Report',
+    'res_model': 'reservation.status.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management_odoo.view_reservation_status_report_tree').id, 'tree'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_graph').id, 'graph'),
+        (env.ref('hotel_management_odoo.view_reservation_status_report_pivot').id, 'pivot'),
+    ],
+    'target': 'current',
+}
+            ]]>
+        </field> -->
+    <!-- </record> -->
+
+        <menuitem id="menu_reservation_status_report"
+              name="Reservation Status Report"
+              action="action_run_process_by_reservation_status"
+              parent="menu_reservation"
+              sequence="70"/>
+    </data>
+</odoo>

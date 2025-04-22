@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for Address Type -->
+    <record id="view_address_type_form" model="ir.ui.view">
+        <field name="name">address.type.form</field>
+        <field name="model">address.type</field>
+        <field name="arch" type="xml">
+            <form string="Address Type">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <!-- <field name="arabic_desc"/>
+                        <field name="arabic_abbr"/> -->
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                        <field name="address_type"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Address Type -->
+    <record id="view_address_type_tree" model="ir.ui.view">
+        <field name="name">address.type.tree</field>
+        <field name="model">address.type</field>
+        <field name="arch" type="xml">
+            <tree string="Address Types">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Contact Method Type -->
+    <record id="view_contact_method_type_form" model="ir.ui.view">
+        <field name="name">contact.method.type.form</field>
+        <field name="model">contact.method.type</field>
+        <field name="arch" type="xml">
+            <form string="Contact Method Type">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <!-- <field name="arabic_desc"/>
+                        <field name="arabic_abbr"/> -->
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <group string="Type">
+                        <field name="contact_type"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Contact Method Type -->
+    <record id="view_contact_method_type_tree" model="ir.ui.view">
+        <field name="name">contact.method.type.tree</field>
+        <field name="model">contact.method.type</field>
+        <field name="arch" type="xml">
+            <tree string="Contact Method Types">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Profile Category with Tabs -->
+    <record id="view_profile_category_form" model="ir.ui.view">
+        <field name="name">profile.category.form</field>
+        <field name="model">profile.category</field>
+        <field name="arch" type="xml">
+            <form string="Profile Category">
+                <sheet>
+                    <notebook>
+                        <!-- General Tab -->
+                        <page string="General">
+                            <group>
+                                <field name="code"/>
+                                <field name="description"/>
+                                <field name="abbreviation"/>
+                                <!-- <field name="arabic_desc"/>
+                                <field name="arabic_abbr"/> -->
+                                <field name="user_sort"/>
+                                <field name="obsolete"/>
+                            </group>
+                            <group string="Type">
+                                <field name="profile_type" widget='radio'/>
+                            </group>
+                        </page>
+
+                        <!-- Required Documents Tab (Empty) -->
+                        <page string="Required Documents">
+                            <!-- This section can be extended with fields when needed -->
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Profile Category -->
+    <record id="view_profile_category_tree" model="ir.ui.view">
+        <field name="name">profile.category.tree</field>
+        <field name="model">profile.category</field>
+        <field name="arch" type="xml">
+            <tree string="Profile Categories">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Document Type with Tabs -->
+    <record id="view_document_type_form" model="ir.ui.view">
+        <field name="name">document.type.form</field>
+        <field name="model">document.type</field>
+        <field name="arch" type="xml">
+            <form string="Document Type">
+                <group>
+                    <field name="code"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
+                    <field name="valid_extensions"/>
+                </group>
+                
+                <group>
+                    <field name="doc_type"/>
+                </group>
+                
+                <group string="Mandatory">
+                    <field name="mandatory_attachment"/>
+                    <field name="mandatory_doc_number"/>
+                    <field name="mandatory_doc_country"/>
+                    <field name="mandatory_doc_expiry"/>
+                </group>
+                 <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Document Type -->
+    <record id="view_document_type_tree" model="ir.ui.view">
+        <field name="name">document.type.tree</field>
+        <field name="model">document.type</field>
+        <field name="arch" type="xml">
+            <tree string="Document Types">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="valid_extensions"/>
+                <field name="doc_type"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Credit Card Type -->
+    <record id="view_credit_card_type_form" model="ir.ui.view">
+        <field name="name">credit.card.type.form</field>
+        <field name="model">credit.card.type</field>
+        <field name="arch" type="xml">
+            <form string="Credit Card Type">
+                <group>
+                    <field name="code"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
+                    <field name="number_mask"/>
+                    <field name="department_id"/>
+                </group>
+
+                <group string="Card Type">
+                    <field name="card_type"/>
+                </group>
+
+                <group string="Duplicate Check">
+                    <field name="check_duplicate"/>
+                    <field name="check_all_profiles"/>
+                </group>
+
+                <group string="Expiry Check">
+                    <field name="check_expiry"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Credit Card Type -->
+    <record id="view_credit_card_type_tree" model="ir.ui.view">
+        <field name="name">credit.card.type.tree</field>
+        <field name="model">credit.card.type</field>
+        <field name="arch" type="xml">
+            <tree string="Credit Card Types">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="card_type"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Membership Card Type -->
+    <record id="view_membership_card_type_form" model="ir.ui.view">
+        <field name="name">membership.card.type.form</field>
+        <field name="model">membership.card.type</field>
+        <field name="arch" type="xml">
+            <form string="Membership Card Type">
+                <group>
+                    <field name="code"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
+                    <field name="obsolete"/>
+                </group>
+
+                <group string="Card Type">
+                    <field name="card_type"/>
+                </group>
+
+                <group string="Duplicate Check">
+                    <field name="check_duplicate"/>
+                    <field name="check_all_profiles"/>
+                </group>
+
+                <group string="Expiry Check">
+                    <field name="check_expiry"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Membership Card Type -->
+    <record id="view_membership_card_type_tree" model="ir.ui.view">
+        <field name="name">membership.card.type.tree</field>
+        <field name="model">membership.card.type</field>
+        <field name="arch" type="xml">
+            <tree string="Membership Card Types">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="card_type"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Note Category -->
+    <record id="view_note_category_form" model="ir.ui.view">
+        <field name="name">note.category.form</field>
+        <field name="model">note.category</field>
+        <field name="arch" type="xml">
+            <form string="Note Category">
+                <group>
+                    <field name="category"/>
+                    <field name="description"/>
+                    <field name="abbreviation"/>
+                    <!-- <field name="arabic_desc"/>
+                    <field name="arabic_abbr"/> -->
+                    <field name="user_sort"/>
+                    <field name="restrict"/>
+                    <field name="obsolete"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Note Category -->
+    <record id="view_note_category_tree" model="ir.ui.view">
+        <field name="name">note.category.tree</field>
+        <field name="model">note.category</field>
+        <field name="arch" type="xml">
+            <tree string="Note Categories">
+                <field name="category"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="arabic_desc"/>
+                <field name="arabic_abbr"/> -->
+                <field name="user_sort"/>
+                <field name="restrict"/>
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+</odoo>

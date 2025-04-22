@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- <record id="view_fsm_location_form_inherit" model="ir.ui.view">
+        <field name="name">fsm.location.form.inherit</field>
+        <field name="model">fsm.location</field>
+        <field name="inherit_id" ref="fieldservice.fsm_location_form_view"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="required">False</attribute>
+            </field>
+        </field>
+    </record> -->
+
+    <record id="view_fsm_location_form_inherit" model="ir.ui.view">
+        <field name="name">fsm.location.form.inherit</field>
+        <field name="model">fsm.location</field>
+        <field name="inherit_id" ref="fieldservice.fsm_location_form_view"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="required">False</attribute>
+            </field>
+            <!-- <field name="category_id" position="after">
+                <field name="dynamic_selection_id" string="Location Type"/>
+            </field> -->
+            <field name="description" position="after">
+                <div class="form-group mb-2">
+                    <label for="dynamic_selection_id" class="form-label">Location Type</label>
+                    <field name="dynamic_selection_id" class="form-control"/>
+                </div>
+            </field>
+            <!-- <field name="fsm_parent_id" position="before">
+                <field name="company_id" string="Hotel" />
+            </field> -->
+            <!-- <field name="fsm_parent_id" position="before">
+                <div class="form-group mb-2">
+                    <label for="company_id" class="form-label">Hotel</label>
+                    <field name="company_id" class="form-control"/>
+                </div>
+            </field> -->
+            
+        </field>
+    </record>
+
+    <record id="view_fsm_location_tree_inherit" model="ir.ui.view">
+        <field name="name">fsm.location.tree.inherit</field>
+        <field name="model">fsm.location</field>
+        <field name="inherit_id" ref="fieldservice.fsm_location_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="complete_name" position="after">
+                <field name="description" string="Description"/>
+                <field name="dynamic_selection_id" string="Location Type"/>
+            </field>
+        </field>
+    </record>
+    <record id="view_fsm_location_kanban_inherit" model="ir.ui.view">
+        <field name="name">fsm.location.kanban.inherit</field>
+        <field name="model">fsm.location</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="complete_name" />
+                <field name="description" />
+                <!-- <field name="address" />
+                <field name="phone" />
+                <field name="email" /> -->
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div>
+                                <strong><field name="complete_name" /></strong>
+                            </div>
+                            <div>
+                                <span>Description:</span> <field name="description" />
+                            </div>
+                            <!-- <div>
+                                <span>Address:</span> <field name="address" />
+                            </div>
+                            <div>
+                                <span>Phone:</span> <field name="phone" />
+                            </div>
+                            <div>
+                                <span>Email:</span> <field name="email" />
+                            </div> --> 
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+
+
+    <!--Hotel Floor Tree View-->
+    <record id="hotel_floor_view_tree" model="ir.ui.view">
+        <field name="name">hotel.floor.view.tree</field>
+        <field name="model">hotel.floor</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="user_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--    Floor Menu Action-->
+    <record id="hotel_floor_action" model="ir.actions.act_window">
+        <field name="name">Floors</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hotel.floor</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <!--Floors Menu-->
+    <menuitem id="hotel_floor_menu" name="Floors" action="hotel_floor_action" parent="hotel_config_menu" sequence="50"/>
+
+
+
+    <!-- Action for FSM Location -->
+    <record id="action_fsm_location_" model="ir.actions.act_window">
+        <field name="name">Service Locations</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">fsm.location</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph,search</field>
+    </record>
+
+    <!-- Location Menu -->
+    <menuitem id="menu_location_configuration" name="Location" parent="hotel_config_menu" action="action_fsm_location_" sequence="2"/>
+</odoo>

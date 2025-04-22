@@ -1,0 +1,844 @@
+<odoo>
+    
+
+    <!-- Form View for Group Booking -->
+    <record id="view_group_booking_form" model="ir.ui.view">
+        <field name="name">group.booking.form</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <form string="Group Booking">
+                <sheet>
+                    <notebook>
+                        <!-- <page string="Main">
+                            <group>
+                                <field name="name" />
+                                <field name="address" />
+                                <field name="image" filename="document_name" />
+                                <field name="document_name" invisible="1" />
+                                <field name="name" />
+                                <field name="address" />
+                                <field name="image" filename="document_name" />
+                                <field name="document_name" invisible="1" />
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="group_name" />
+                                    <field name="is_grp_company" />
+                                    <field name="company" domain="[('is_company', '=', is_grp_company)]" />
+                                    <field name="nationality" />
+                                    <field name="group_name" />
+                                    <field name="is_grp_company" />
+                                    <field name="company" domain="[('is_company', '=', is_grp_company)]" />
+                                    <field name="nationality" />
+                                </group>
+                                <group>
+                                    <field name="source_of_business" />
+                                    <field name="status_code" />
+                                    <field name="house_use" />
+                                    <field name="house_use_codes_" invisible="house_use == False" />
+                                    <field name="complimentary" />
+                                    <field name="complimentary_codes" invisible="complimentary == False" />
+                                    <field name="source_of_business" />
+                                    <field name="status_code" />
+                                    <field name="house_use" />
+                                    <field name="house_use_codes_" invisible="house_use == False" />
+                                    <field name="complimentary" />
+                                    <field name="complimentary_codes" invisible="complimentary == False" />
+                                </group>
+                            </group>
+
+                            <group string="Payment Details">
+                                <group>
+                                    <field name="payment_type" widget="radio" />
+                                    <field name="master_folio_limit" />
+                                </group>
+                            </group>
+
+                            <group string="Rate and Market Details">
+                                <group>
+                                    <field name="rate_code" />
+                                    <field name="group_meal_pattern" />
+                                    <field name="market_segment" />
+                                    <field name="rate_code" />
+                                    <field name="group_meal_pattern" />
+                                    <field name="market_segment" />
+                                </group>
+                                <group>
+                                    <field name="reference" />
+                                    <field name="allotment" />
+                                    <field name="reference" />
+                                    <field name="allotment" />
+                                </group>
+                            </group>
+
+                            <group>
+                                <field name="allow_profile_change" />
+                                <field name="allow_profile_change" />
+                            </group>
+                            <group>
+                                <field name="person_ids">
+                                    <tree editable="bottom">
+                                        <field name="name" />
+                                        <field name="age" />
+                                        <field name="address" />
+                                        <field name="image" widget="document_upload_widget" filename="document_name" />
+                                        <field name="document_name" optional='show' />
+                                        <field name="name" />
+                                        <field name="age" />
+                                        <field name="address" />
+                                        <field name="image" widget="document_upload_widget" filename="document_name" />
+                                        <field name="document_name" optional='show' />
+
+                                    </tree>
+                                </field>
+                            </group>
+                        </page> -->
+
+                        <!-- ################ -->
+                        <page string="Main">
+                            <div class="row g-2">
+                                <!-- General Information -->
+                                <div class="col-lg-3 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span class="fw-bold"> General Information</span>
+                                        </div>
+                                        <div>
+                                        </div>
+                                        <div class="form-control-sm">
+                                            <div>
+                                                <div>
+                                                    <label for="company_id"
+                                                        class="form-control-sm">
+                                                        Hotel</label>
+                                                </div>
+                                                <field name="company_id"
+                                                    class="form-control form-control-sm"
+                                                    readonly="1"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <field name="is_grp_company" />
+                                                <label for="is_grp_company" class="form-label small">Is
+                                                    Company</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="company" domain="[('is_company', '=', is_grp_company)]" class="form-control form-control-sm" placeholder=" Select Contact" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="nationality" class="form-label small">
+                                                    Nationality</label>
+                                                <field name="nationality"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Select Country" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="address" class="form-label small">
+                                                    Address</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="address"
+                                                    placeholder="Enter Address" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="image" class="form-label small">Document</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="image" filename="document_name" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Group Information -->
+                                <div class="col-lg-2 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-users"></i>
+                                            <span class="fw-bold"> Group Information</span>
+                                        </div>
+                                        <!-- <div>
+                                            <label for="name" class="form-label small">Group
+                                                ID</label>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <field name="name"
+                                                class="form-control form-control-sm" />
+                                        </div> -->
+                                        <div>
+                                        </div>
+                                        <div class="form-control-sm">
+                                            <div>
+                                                <div>
+                                                    <label for="name"
+                                                        class="form-control-sm">
+                                                        Group ID</label>
+                                                </div>
+                                                <field name="name"
+                                                    class="form-control form-control-sm"
+                                                    readonly="1"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="group_name" class="form-label small">Group
+                                                    Name</label>
+                                            </div>
+                                            <div class="form-control form-control-sm" >
+                                                <field name="group_name"
+                                                    />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="source_of_business" class="form-label">Source
+                                                    of Business</label>
+                                                <field name="source_of_business"
+                                                    class="form-control"
+                                                    placeholder="Select Source of Business" />
+                                            </div>
+
+                                            <div class="form-group mb-1">
+                                                <label for="reference" class="form-label small">
+                                                    Reference</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="reference"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Enter Reference Contact" />
+                                            </div>
+                                            <!-- <div class="form-group mb-1">
+                                                <label for="allotment" class="form-label small">
+                                                    Allotment</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="allotment"
+                                                    class="form-control form-control-sm" />
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Code Details -->
+                                <div class="col-lg-3 col-md-4 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-barcode"></i>
+                                            <span class="fw-bold"> Code Details</span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="form-group mb-1">
+                                                <label for="status_code" class="form-label small">Status
+                                                    Code</label>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="status_code"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Select Status" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <field name="complimentary" force_save="1" />
+                                                <label for="complimentary_codes" class="form-label small">Complementary</label>
+                                            </div>
+                                            <div class="form-group mb-1"
+                                                invisible="complimentary == False">
+                                                <field name="complimentary_codes"
+                                                    class="form-control form-control-sm"
+                                                    force_save="1"
+                                                    required = "complimentary == True"
+                                                    placeholder="Select Complementary" />
+                                            </div>
+
+                                            <div class="form-group mb-1">
+                                                <field name="house_use" force_save="1" />
+                                                <label for="house_use_codes_" class="form-label small">House Use</label>
+                                            </div>
+                                            <div class="form-group mb-1"
+                                                invisible="house_use == False">
+                                                <field name="house_use_codes_"
+                                                    class="form-control form-control-sm"
+                                                    force_save="1"
+                                                    required = "house_use == True"
+                                                    placeholder="Select House Use Code" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="allow_profile_change" />
+ Allow changing profile
+                                        data in the reservation form? </div>
+                                </div>
+
+                                <!-- Rate and Market Details -->
+                                <div class="col-lg-2 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-tag"></i>
+                                            <span class="fw-bold"> Rate and Market Details</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="rate_code" class="form-label small">Rate
+                                                    Code</label>
+                                                <field name="rate_code"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Select Rate Code" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="group_meal_pattern"
+                                                    class="form-label small">Meal Pattern</label>
+                                                <field name="group_meal_pattern"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Select Meal Pattern" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="market_segment" class="form-label small">Market
+                                                    Segment</label>
+                                                <field name="market_segment"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Select Market Segment" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Payment Details -->
+                                <div class="col-lg-2 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-money"></i>
+                                            <span class="fw-bold"> Payment Details</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <div class="form-group mb-1">
+                                                <label for="payment_type" class="form-label small">Payment
+                                                    Type</label>
+                                                <field name="payment_type" widget="radio" class="form-control form-control-sm" />
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="master_folio_limit" class="form-label small">Master Folio Limit</label>
+                                                <field name="master_folio_limit" class="form-control form-control-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Person Details -->
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-user"></i>
+                                            <span class="fw-bold"> Person Details</span>
+                                        </div>
+                                        <div class="card-body py-1 px-2">
+                                            <field name="person_ids">
+                                                <tree editable="bottom" class="table table-sm">
+                                                    <field name="name" />
+                                                    <field name="age" />
+                                                    <field name="address" />
+                                                    <field name="image" widget="document_upload_widget" filename="document_name" />
+                                                    <field name="document_name" optional='show' />
+                                                </tree>
+                                            </field>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <page string="Optional">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-map-marker"></i>
+                                            <span class="fw-bold"> Address</span>
+                                        </div>
+                                        <div class="card-body py-4 px-4">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="street" class="form-label small">
+                                                            Street</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="street" class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="country_id" class="form-label small">Country</label>
+                                                        <field name="country_id" class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="city" class="form-label small">
+                                                            City</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="city" class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="zip_code" class="form-label small">ZIP Code</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="zip_code" class="form-control form-control-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="form-group mb-1">
+                                                        <label for="billing_address" class="form-label small">Billing Address</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="billing_address"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Enter Billing Address" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-user"></i>
+                                            <span class="fw-bold"> Contact / Leader</span>
+                                        </div>
+                                        <div class="card-body py-4 px-4">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="contact_leader" class="form-label small">Contact/Leader</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="contact_leader"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Select Contact" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="mobile" class="form-label small">
+                                                            Mobile</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="mobile"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Enter mobile no" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="phone_1" class="form-label small">Phone 1</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="phone_1"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Enter phone" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="phone_2" class="form-label small">Phone 2
+                                                            2</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="phone_2"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Enter phone" />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="email_address" class="form-label small">Email
+                                                            Address</label>
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <field name="email_address"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Enter email address" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <!-- <page string="Information">
+                            <group>
+                                <group>
+                                    <field name="expected_rooms" />
+                                    <field name="user_sort" />
+                                    <field name="comments" />
+                                </group>
+                            </group>
+
+                            <group string="Statistics">
+                                <group>
+                                    <field name="first_visit" />
+                                    <field name="last_visit" />
+                                    <field name="last_rate" />
+                                    <field name="total_stays" />
+                                </group>
+                                <group>
+                                    <field name="total_nights" />
+                                    <field name="total_cancellations" />
+                                    <field name="total_no_shows" />
+                                    <field name="total_revenue" />
+                                </group>
+                            </group>
+                        </page> -->
+                        <page string="Information">
+                            <div class="row g-4">
+                                <!-- Information Section -->
+                                <div class="col-lg-3 col-md-3 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-info-circle"></i>
+                                            <span class="fw-bold"> Information</span>
+                                        </div>
+                                        <div class="card-body py-4 px-4">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group mb-1">
+                                                        <label for="expected_rooms"
+                                                            class="form-label small">Expected Rooms</label>
+                                                        <field name="expected_rooms"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Enter expected room" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="form-group mb-1">
+                                                        <label for="comments"
+                                                            class="form-label small">Comments</label>
+                                                        <field name="comments"
+                                                            class="form-control form-control-sm"
+                                                            placeholder="Enter comments" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Statistics Section (Read-Only) -->
+                                <div class="col-lg-9 col-md-9 col-sm-12">
+                                    <div class="card mb-2 shadow-sm">
+                                        <div class="card-header py-1 px-2">
+                                            <i class="fa fa-chart-line"></i>
+                                            <span class="fw-bold"> Statistics</span>
+                                        </div>
+
+                                        <div class="card-body py-4 px-4">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <div class="form-group mb-1">
+                                                        <label for="first_visit" class="form-label small">First Visit</label>
+                                                        <field name="first_visit" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="last_visit" class="form-label small">Last Visit</label>
+                                                        <field name="last_visit" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="last_rate" class="form-label small">Last Rate</label>
+                                                        <field name="last_rate" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_stays" class="form-label small">Total Stays</label>
+                                                        <field name="total_stays" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_room_count" class="form-label small">Total Rooms</label>
+                                                        <field name="total_room_count" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_adult_count" class="form-label small">Total Adult</label>
+                                                        <field name="total_adult_count" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_child_count"
+                                                            class="form-label small">Total Child</label>
+                                                        <field name="total_child_count"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_infant_count" class="form-label small">Total Infant</label>
+                                                        <field name="total_infant_count" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_nights" class="form-label small">Total Nights</label>
+                                                        <field name="total_nights" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_cancellations" class="form-label small">Total
+                                                            Cancellations</label>
+                                                        <field name="total_cancellations" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_no_shows" class="form-label small">Total No Shows</label>
+                                                        <field name="total_no_shows" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_not_confirmed"
+                                                            class="form-label small">Total Not
+                                                            Confirmed</label>
+                                                        <field name="total_not_confirmed"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_confirmed"
+                                                            class="form-label small">Total Confirmed</label>
+                                                        <field name="total_confirmed"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_block" class="form-label small">Total Block</label>
+                                                        <field name="total_block" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_checkin" class="form-label small">Total Check-In</label>
+                                                        <field name="total_checkin" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_checkout" class="form-label small">Total Check-Out</label>
+                                                        <field name="total_checkout" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                    <div class="form-group mb-1">
+                                                        <label for="total_revenue" class="form-label small">Total Revenue</label>
+                                                        <field name="total_revenue" class="form-control form-control-sm" readonly="1" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+
+                        <page string="Reservation List">
+                            <!-- <field name="room_booking_ids" widget="one2many_list"
+                                context="{'default_model': 'room.booking'}" /> -->
+                            <field name="room_booking_ids" widget="one2many_list"
+                                context="{'default_model': 'room.booking'}">
+                                <tree string="Room Bookings" editable="bottom">
+                                    <field name="name" optional="show"/>
+                                    <field name="room_ids_display" optional="show"/>
+                                    <field name="room_type_display" optional="show"/>
+                                    <field name="room_count_tree" optional="show"/>
+                                    <field name="checkin_date" optional="show"/>
+                                    <field name="checkout_date" optional="show"/>
+                                    <field name="partner_id" optional="show"/>
+                                    <field name="date_order" optional="show"/>
+                                    <field name="state" optional="show"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread" />
+                    <field name="activity_ids" widget="mail_activity" />
+                    <field name="message_ids" widget="mail_thread" />
+                    <field name="activity_ids" widget="mail_activity" />
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Group Booking -->
+    <record id="view_group_booking_tree" model="ir.ui.view">
+        <field name="name">group.booking.tree</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <tree string="Group Bookings">
+                <field name="name" optional="show" />
+                <field name="group_name" optional="show" />
+                <field name="company" optional="show" />
+                <field name="nationality" optional="show" />
+                <field name="rate_code" optional="show" />
+                <field name="first_visit" optional="show" />
+                <field name="last_visit" optional="show" />
+                <field name="status_code" optional="show" />
+                <!-- <field name="total_stays" optional="show" /> -->
+                <field name="total_room_count" optional="show" />
+                <field name="total_adult_count" optional="show" />
+                <field name="total_child_count" optional="show" />
+                <field name="total_infant_count" optional="show" />
+                <field name="total_no_shows" optional="show" />
+                <field name="total_not_confirmed" optional="show" />
+                <field name="total_confirmed" optional="show" />
+                <field name="total_block" optional="show" />
+                <field name="total_checkin" optional="show" />
+                <field name="total_checkout" optional="show" />
+                <field name="total_cancellations" optional="show" />
+
+            </tree>
+        </field>
+    </record>
+    <record id="view_group_booking_kanban" model="ir.ui.view">
+        <field name="name">group.booking.kanban</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name" />
+                <field name="group_name" />
+                <field name="nationality" />
+                <field name="rate_code" />
+                <field name="total_room_count" />
+                <field name="total_adult_count" />
+                <field name="total_child_count" />
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div>
+                                <strong>
+                                    <field name="name" />
+                                </strong>
+                            </div>
+                            <div>
+                                <span>Group Name:</span>
+                                <field name="group_name" />
+                            </div>
+                            <div>
+                                <span>Nationality:</span>
+                                <field name="nationality" />
+                            </div>
+                            <div>
+                                <span>Rate Code:</span>
+                                <field name="rate_code" />
+                            </div>
+                            <div>
+                                <span>Total Rooms:</span>
+                                <field name="total_room_count" />
+                            </div>
+                            <div>
+                                <span>Total Adults:</span>
+                                <field name="total_adult_count" />
+                            </div>
+                            <div>
+                                <span>Total Children:</span>
+                                <field name="total_child_count" />
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_group_booking_search" model="ir.ui.view">
+        <field name="name">group.booking.search</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <search string="Search Group Bookings">
+                <field name="name" />
+                <field name="group_name" />
+                <field name="nationality" />
+                <field name="rate_code" />
+                <field name="first_visit" />
+                <field name="last_visit" />
+                <!-- <field name="total_stays" /> -->
+
+            </search>
+        </field>
+    </record>
+
+    <record id="view_group_booking_pivot" model="ir.ui.view">
+        <field name="name">group.booking.pivot</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <pivot string="Group Booking Analysis">
+                <field name="group_name" type="row" />
+                <field name="company" type="row" />
+                <field name="status_code" type="row" />
+                <field name="expected_rooms" type="measure" />
+                <field name="total_revenue" type="measure" />
+                <!-- <field name="total_stays" type="measure" /> -->
+                <field name="total_nights" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_group_booking_graph" model="ir.ui.view">
+        <field name="name">group.booking.graph</field>
+        <field name="model">group.booking</field>
+        <field name="arch" type="xml">
+            <graph string="Group Booking Statistics" type="bar">
+                <field name="status_code" type="row" />
+                <field name="total_revenue" type="measure" />
+                <field name="status_code" type="row" />
+                <field name="total_revenue" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_report_consolidated_rc_group" model="ir.actions.server">
+        <field name="name">Generate Group RC Report</field>
+        <field name="model_id" ref="model_group_booking" />
+        <field name="state">code</field>
+        <field name="code">
+        action = {
+            'type': 'ir.actions.act_url',
+            'url': '/generate_rc/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)) + '&amp;company_id=' + str(env.company.id),
+            'target': 'self',
+        }
+        </field>
+        <field name="binding_model_id" ref="model_group_booking" />
+        <field name="binding_type">action</field>
+    </record>
+
+
+    <!-- Action for Group Booking -->
+    <record id="group_booking_action" model="ir.actions.act_window">
+        <field name="name">Group Booking</field>
+        <field name="res_model">group.booking</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <!-- Menu Item for Group Reservation -->
+    <menuitem id="group_reservation_menu" name="Group" sequence="20" parent="room_booking_menu"
+        action="group_booking_action" />
+    <menuitem id="group_reservation_menu" name="Group" sequence="20" parent="room_booking_menu"
+        action="group_booking_action" />
+</odoo>

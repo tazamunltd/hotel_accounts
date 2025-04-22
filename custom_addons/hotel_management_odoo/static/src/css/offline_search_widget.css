@@ -1,0 +1,423 @@
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget {
+    padding: 15px;
+}
+*/
+
+/* Enhanced styles with Bootstrap accordion - 2025-01-07T21:41:25+05:00 */
+.offline-search-widget {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Header styles */
+.accordion-header {
+    background: #fff;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.accordion-header:hover {
+    background: #e9ecef;
+}
+
+.accordion-button {
+    padding: 15px 20px;
+    font-weight: 600;
+    color: #2c3e50;
+    background: transparent;
+    border: none;
+    box-shadow: none !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #fff;
+    color: #0d6efd;
+}
+
+/* Content styles */
+.accordion-body {
+    background: #fff;
+    padding: 20px;
+    border-radius: 0 0 6px 6px;
+}
+
+/* Form control styles */
+.form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Label styles */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+/* Custom compact styles */
+.form-control-xs {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    height: calc(1.5em + 0.5rem + 2px);
+}
+
+/* Search wrapper enhancements */
+.search-wrapper .dropdown-menu {
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.search-wrapper .dropdown-item {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    color: #495057;
+    transition: all 0.2s ease;
+}
+
+.search-wrapper .dropdown-item:hover {
+    background-color: #e9ecef;
+    color: #0d6efd;
+}
+
+/* Action buttons */
+.action-buttons {
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+    margin-top: 1rem;
+}
+
+.action-buttons .btn {
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Status indicators */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget h4 {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #666;
+}
+*/
+
+.offline-search-widget h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .form-group {
+    margin-bottom: 15px;
+}
+*/
+
+.offline-search-widget .form-group {
+    margin-bottom: 10px;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+*/
+
+.offline-search-widget label {
+    display: block;
+    font-size: 14px;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .form-control {
+    width: 100%;
+    height: 30px;
+    padding: 4px 8px;
+    font-size: 12px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background-color: #fff;
+}
+*/
+
+.offline-search-widget .form-control {
+    width: 100%;
+    height: 38px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget textarea.form-control {
+    height: 60px;
+    resize: vertical;
+}
+*/
+
+.offline-search-widget textarea.form-control {
+    height: 80px;
+    resize: vertical;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .checkbox-wrapper {
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+*/
+
+.offline-search-widget .checkbox-wrapper {
+    height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .checkbox-wrapper input[type="checkbox"] {
+    margin: 0;
+    height: 16px;
+    width: 16px;
+}
+*/
+
+.offline-search-widget .checkbox-wrapper input[type="checkbox"] {
+    margin: 0;
+    height: 20px;
+    width: 20px;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .action-buttons {
+    display: flex;
+    flex-direction: column;
+}
+*/
+
+.offline-search-widget .action-buttons {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+    margin-top: 1rem;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .btn {
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 3px;
+}
+*/
+
+.offline-search-widget .btn {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .btn-primary {
+    background-color: #7c7bad;
+    border-color: #7c7bad;
+    color: white;
+}
+*/
+
+.offline-search-widget .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .btn-secondary {
+    background-color: #f0f0f0;
+    border-color: #cccccc;
+    color: #4c4c4c;
+}
+*/
+
+.offline-search-widget .btn-secondary {
+    background-color: #e9ecef;
+    border-color: #e9ecef;
+    color: #495057;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .btn-warning {
+    background-color: #f0ad4e;
+    border-color: #eea236;
+    color: white;
+}
+*/
+
+.offline-search-widget .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: white;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .btn-success {
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    color: white;
+}
+*/
+
+.offline-search-widget .btn-success {
+    background-color: #34c759;
+    border-color: #34c759;
+    color: white;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget .row > [class*="col-"] {
+    padding-right: 20px;
+}
+*/
+
+.offline-search-widget .row > [class*="col-"] {
+    padding-right: 20px;
+}
+
+/* Original styles preserved for reference - 2025-01-07T21:41:25+05:00 */
+/* 
+.offline-search-widget input[type="text"],
+.offline-search-widget input[type="number"],
+.offline-search-widget input[type="datetime-local"],
+.offline-search-widget select,
+.offline-search-widget textarea {
+    background-color: #fff !important;
+}
+*/
+
+.offline-search-widget input[type="text"],
+.offline-search-widget input[type="number"],
+.offline-search-widget input[type="datetime-local"],
+.offline-search-widget select,
+.offline-search-widget textarea {
+    background-color: #fff !important;
+}
+
+/* Search Results Styles - Added 2025-01-08T01:27:09+05:00 */
+.offline-search-widget .search-results {
+    margin-top: 1.5rem;
+}
+
+.offline-search-widget .table {
+    margin-bottom: 0;
+}
+
+.offline-search-widget .table td {
+    vertical-align: middle;
+}
+
+.offline-search-widget .badge {
+    font-size: 0.875rem;
+    padding: 0.5em 0.75em;
+}
+
+.offline-search-widget .table-active {
+    background-color: rgba(var(--o-primary-rgb), 0.1) !important;
+}
+
+.offline-search-widget .btn-outline-primary:hover {
+    color: #fff;
+}
+
+/* Search Results Styling */
+.search-results .card {
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-results .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.search-results .card-body {
+    padding: 1.25rem;
+}
+
+.search-results .card-title {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.search-results .card-text {
+    color: #5d6d7e;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.search-results .btn-primary {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.no-results {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.offline-search-widget .fa-spinner {
+    animation: spin 1s linear infinite;
+}

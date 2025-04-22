@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_department_category" model="ir.actions.act_window">
+        <field name="name">Department Categories</field>
+        <field name="res_model">department.category</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
+    </record>
+
+    <!-- Action for Department Code -->
+    <record id="action_department_code" model="ir.actions.act_window">
+        <field name="name">Department Codes</field>
+        <field name="res_model">department.code</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
+    </record>
+
+    <!-- Action for Posting Item -->
+    <record id="action_posting_item" model="ir.actions.act_window">
+        <field name="name">Posting Items</field>
+        <field name="res_model">posting.item</field>
+        <field name="view_mode">tree,kanban,pivot,graph,form</field>
+    </record>
+
+    <!-- Action for Dummy Room Code -->
+    <record id="action_dummy_room_code" model="ir.actions.act_window">
+        <field name="name">Dummy Room Codes</field>
+        <field name="res_model">dummy.room.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Currency Code -->
+    <record id="action_currency_code" model="ir.actions.act_window">
+        <field name="name">Currency Codes</field>
+        <field name="res_model">currency.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Budget Entry -->
+    <record id="action_budget_entry" model="ir.actions.act_window">
+        <field name="name">Budget Entries</field>
+        <field name="res_model">budget.entry</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action for Cash Box Code -->
+    <record id="action_cash_box_code" model="ir.actions.act_window">
+        <field name="name">Cash Box Codes</field>
+        <field name="res_model">cash.box.code</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <!-- Updated Menu Items -->
+
+    <menuitem id="sub_menu_cashier" 
+              name="Cashier" 
+              parent="menu_code"
+              sequence="3"/>
+<!--     
+    <menuitem id="sub_menu_department_categories" 
+              name="Department Categories" 
+              parent="sub_menu_cashier"
+              action="action_department_category"
+              /> -->
+    
+    <menuitem id="sub_menu_department_categories" 
+              name="Department Categories" 
+              action="action_department_category"
+              parent="menu_hotel_configuration"
+              sequence="15"
+              groups="base.group_system"  
+              />
+
+              
+
+    <!-- <menuitem id="sub_menu_department_codes" 
+              name="Department Codes" 
+              parent="sub_menu_cashier"
+              action="action_department_code"
+              />
+
+    <menuitem id="sub_menu_posting_items" 
+              name="Posting Items" 
+              parent="sub_menu_cashier"
+              action="action_posting_item"
+              />
+
+    <menuitem id="sub_menu_dummy_room_codes" 
+              name="Dummy Room Codes" 
+              parent="sub_menu_cashier"
+              action="action_dummy_room_code"
+              /> -->
+
+    <!-- <menuitem id="sub_menu_currency_codes" 
+              name="Currency Codes" 
+              parent="sub_menu_cashier"
+              action="action_currency_code"
+              /> -->
+
+    <menuitem id="sub_menu_currency_codes" 
+              name="Currency Codes" 
+              action="action_currency_code"
+              parent="menu_hotel_configuration"
+              sequence="15"
+              groups="base.group_system"
+              />
+
+              
+<!-- 
+    <menuitem id="sub_menu_budget_entries" 
+              name="Budget Entries" 
+              parent="sub_menu_cashier"
+              action="action_budget_entry"
+              />
+
+    <menuitem id="sub_menu_cash_box_codes" 
+              name="Cash Box Codes" 
+              parent="sub_menu_cashier"
+              action="action_cash_box_code"
+              /> -->
+
+</odoo>

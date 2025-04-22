@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for Additional Attribute -->
+    <record id="view_additional_attribute_form" model="ir.ui.view">
+        <field name="name">additional.attribute.form</field>
+        <field name="model">additional.attribute</field>
+        <field name="arch" type="xml">
+            <form string="Additional Attribute">
+                <sheet>
+                    <notebook>
+                        <!-- Main Tab -->
+                        <page string="Main">
+                            <group>
+                                <field name="description"/>
+                                <field name="abbreviation"/>
+                                <!-- <field name="arabic_desc"/>
+                                <field name="arabic_abbr"/> -->
+                                <field name="length"/>
+                            </group>
+                            <group>
+                                <field name="type"/>
+                                <field name="entity_target"/>
+                                <field name="mandatory"/>
+                            </group>
+                        </page>
+
+                        <!-- Attribute Codes Tab (Placeholder if needed for further customizations) -->
+                        <page string="Attribute Codes">
+                            <!-- Add fields here for future customization -->
+                        </page>
+                    </notebook>
+                </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Additional Attribute -->
+    <record id="view_additional_attribute_tree" model="ir.ui.view">
+        <field name="name">additional.attribute.tree</field>
+        <field name="model">additional.attribute</field>
+        <field name="arch" type="xml">
+            <tree string="Additional Attributes">
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="arabic_desc"/>
+                <field name="arabic_abbr"/> -->
+                <field name="length"/>
+                <field name="type"/>
+                <field name="entity_target"/>
+                <field name="mandatory"/>
+            </tree>
+        </field>
+    </record>
+
+
+    
+    <!-- Form View for Template -->
+    <record id="view_template_form" model="ir.ui.view">
+        <field name="name">template.form</field>
+        <field name="model">template</field>
+        <field name="arch" type="xml">
+            <form string="Template">
+                <sheet>
+                    <group>
+                        <field name="usage"/>
+                        <field name="is_obsolete"/>
+                    </group>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                        <field name="language"/>
+                        <field name="user_sort"/>
+                    </group>
+                    <group>
+                        <field name="host"/>
+                        <field name="extension"/>
+                        <field name="file_size"/>
+                        <field name="file_name"/>
+                    </group>
+
+                    <!-- Template Content Section -->
+                    <group>
+                        <field name="template_content"/>
+                    </group>
+
+                    <!-- Buttons for template operations -->
+                    <footer>
+                        <button string="Export Html" type="object" name="action_export_template" class="btn-primary"/>
+                        <button string="Import Template" type="object" name="action_import_template" class="btn-secondary"/>
+                        <button string="Create Template" type="object" name="action_create_template" class="btn-success"/>
+                    </footer>
+                </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Template -->
+    <record id="view_template_tree" model="ir.ui.view">
+        <field name="name">template.tree</field>
+        <field name="model">template</field>
+        <field name="arch" type="xml">
+            <tree string="Templates">
+                <field name="usage"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="language"/>
+                <field name="user_sort"/>
+                <field name="host"/>
+                <field name="extension"/>
+                <field name="file_size"/>
+                <field name="file_name"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Comment Category -->
+    <record id="view_comment_category_form" model="ir.ui.view">
+        <field name="name">comment.category.form</field>
+        <field name="model">comment.category</field>
+        <field name="arch" type="xml">
+            <form string="Comment Category">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="description"/>
+                    </group>
+                    <group>
+                        <!-- <field name="arabic_desc"/> -->
+                        <field name="abbreviation"/>
+                        <!-- <field name="arabic_abbr"/> -->
+                    </group>
+                    <group>
+                        <field name="user_sort"/>
+                        <field name="obsolete"/>
+                    </group>
+                    <!-- Usage Section -->
+                    <group string="Usage">
+                        <field name="usage_profile"/>
+                        <field name="usage_reservation"/>
+                        <field name="usage_room_inspection"/>
+                        <field name="usage_group_profile"/>
+                    </group>
+                </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Comment Category -->
+    <record id="view_comment_category_tree" model="ir.ui.view">
+        <field name="name">comment.category.tree</field>
+        <field name="model">comment.category</field>
+        <field name="arch" type="xml">
+            <tree string="Comment Categories">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Tree View for Trace Predefined Text -->
+    <record id="view_trace_predefined_text_tree" model="ir.ui.view">
+        <field name="name">trace.predefined.text.tree</field>
+        <field name="model">trace.predefined.text</field>
+        <field name="arch" type="xml">
+            <tree string="Trace Predefined Texts">
+                <field name="number"/>
+                <field name="text"/>
+                <field name="department"/> <!-- Added department field in the tree view -->
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Trace Predefined Text -->
+    <record id="view_trace_predefined_text_form" model="ir.ui.view">
+        <field name="name">trace.predefined.text.form</field>
+        <field name="model">trace.predefined.text</field>
+        <field name="arch" type="xml">
+            <form string="Trace Predefined Text">
+                <group>
+                    <field name="number"/>
+                    <field name="text"/>
+                    <field name="arabic_text"/>
+                </group>
+                <group>
+                    <field name="department"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Message Predefined Text -->
+    <record id="view_message_predefined_text_form" model="ir.ui.view">
+        <field name="name">message.predefined.text.form</field>
+        <field name="model">message.predefined.text</field>
+        <field name="arch" type="xml">
+            <form string="Message Predefined Text">
+                <group>
+                    <field name="number"/>
+                    <field name="text"/>
+                    <field name="arabic_text"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Message Predefined Text -->
+    <record id="view_message_predefined_text_tree" model="ir.ui.view">
+        <field name="name">message.predefined.text.tree</field>
+        <field name="model">message.predefined.text</field>
+        <field name="arch" type="xml">
+            <tree string="Message Predefined Texts">
+                <field name="number"/>
+                <field name="text"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- Form View for Locators Predefined Text -->
+    <record id="view_locators_predefined_text_form" model="ir.ui.view">
+        <field name="name">locators.predefined.text.form</field>
+        <field name="model">locators.predefined.text</field>
+        <field name="arch" type="xml">
+            <form string="Locators Predefined Text">
+                <group>
+                    <field name="number"/>
+                    <field name="text"/>
+                    <field name="arabic_text"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Locators Predefined Text -->
+    <record id="view_locators_predefined_text_tree" model="ir.ui.view">
+        <field name="name">locators.predefined.text.tree</field>
+        <field name="model">locators.predefined.text</field>
+        <field name="arch" type="xml">
+            <tree string="Locators Predefined Texts">
+                <field name="number"/>
+                <field name="text"/>
+            </tree>
+        </field>
+    </record>
+
+
+</odoo>

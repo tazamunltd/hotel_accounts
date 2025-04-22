@@ -1,0 +1,114 @@
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_source_of_buisness_forecast_tree" model="ir.ui.view">
+            <field name="name">source.of.buisness.forecast.tree</field>
+            <field name="model">source.of.buisness.forecast</field>
+            <field name="arch" type="xml">
+                <tree string="Source of Buisness Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
+                    <field name="report_date" optional="show"/>
+                    <field name="company_id" optional="show"/>
+                    <field name="room_type_name" optional="show"/>
+                    <field name="source_of_business" optional="show"/>
+                    <field name="expected_arrivals" optional="show"/>
+                    <field name="expected_arrivals_adults" optional="show"/>
+                    <field name="expected_arrivals_children" optional="show"/>
+                    <field name="expected_arrivals_infants" optional="show"/>
+                    <field name="expected_departures" optional="show"/>
+                    <field name="expected_departures_adults" optional="show"/>
+                    <field name="expected_departures_children" optional="show"/>
+                    <field name="expected_departures_infants" optional="show"/>
+                    <field name="in_house" optional="show"/>
+                    <field name="in_house_adults" optional="show"/>
+                    <field name="in_house_children" optional="show"/>
+                    <field name="in_house_infants" optional="show"/>
+                    <field name="expected_in_house" optional="show"/>
+                    <field name="expected_in_house_adults" optional="show"/>
+                    <field name="expected_in_house_children" optional="show"/>
+                    <field name="expected_in_house_infants" optional="show"/>
+                    
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Graph View -->
+        <record id="view_source_of_buisness_forecast_graph" model="ir.ui.view">
+            <field name="name">source.of.buisness.forecast.graph</field>
+            <field name="model">source.of.buisness.forecast</field>
+            <field name="arch" type="xml">
+                <graph string="Source of Buisness Forecast Reports" type="bar">
+                    <field name="report_date" type="row"/>
+                    <field name="company_id" type="row"/>
+                    <field name="room_type_name" type="row"/>
+                    <field name="source_of_business" type="row"/>
+                    <field name="expected_arrivals" type="measure"/>
+                    <field name="expected_arrivals_adults" type="measure"/>
+                    <field name="expected_arrivals_children" type="measure"/>
+                    <field name="expected_arrivals_infants" type="measure"/>
+                    <field name="expected_departures" type="measure"/>
+                    <field name="expected_departures_adults" type="measure"/>
+                    <field name="expected_departures_children" type="measure"/>
+                    <field name="expected_departures_infants" type="measure"/>
+                    <field name="in_house" type="measure"/>
+                    <field name="in_house_adults" type="measure"/>
+                    <field name="in_house_children" type="measure"/>
+                    <field name="in_house_infants" type="measure"/>
+                    <field name="expected_in_house" type="measure"/>
+                    <field name="expected_in_house_adults" type="measure"/>
+                    <field name="expected_in_house_children" type="measure"/>
+                    <field name="expected_in_house_infants" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_source_of_buisness_forecast_pivot" model="ir.ui.view">
+            <field name="name">source.of.buisness.forecast.pivot</field>
+            <field name="model">source.of.buisness.forecast</field>
+            <field name="arch" type="xml">
+                <pivot string="Source of Buisness Forecast Reports">
+                    <field name="report_date" type="row"/>
+                    <field name="company_id" type="row"/>
+                    <field name="room_type_name" type="row"/>
+                    <field name="source_of_business" type="row"/>
+                    <field name="expected_arrivals" type="measure"/>
+                    <field name="expected_arrivals_adults" type="measure"/>
+                    <field name="expected_arrivals_children" type="measure"/>
+                    <field name="expected_arrivals_infants" type="measure"/>
+                    <field name="expected_departures" type="measure"/>
+                    <field name="expected_departures_adults" type="measure"/>
+                    <field name="expected_departures_children" type="measure"/>
+                    <field name="expected_departures_infants" type="measure"/>
+                    <field name="in_house" type="measure"/>
+                    <field name="in_house_adults" type="measure"/>
+                    <field name="in_house_children" type="measure"/>
+                    <field name="in_house_infants" type="measure"/>
+                    <field name="expected_in_house" type="measure"/>
+                    <field name="expected_in_house_adults" type="measure"/>
+                    <field name="expected_in_house_children" type="measure"/>
+                    <field name="expected_in_house_infants" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+        
+        <record id="action_run_process_by_source_of_buisness_forecast" model="ir.actions.server">
+            <field name="name">Run Process by Source of Business Forecast</field>
+            <field name="model_id" ref="model_source_of_buisness_forecast"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["source.of.buisness.forecast"].action_run_process_by_source_of_buisness_forecast()
+        ]]>
+            </field>
+        </record>
+
+        
+
+        <menuitem id="menu_source_of_buisness_forecast_report"
+              name="Source of Buisness Forecast Report"
+              action="action_run_process_by_source_of_buisness_forecast"
+              parent="menu_forecast"
+              sequence="20"/>
+    </data>
+</odoo>

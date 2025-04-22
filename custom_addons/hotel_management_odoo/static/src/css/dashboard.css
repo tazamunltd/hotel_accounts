@@ -1,0 +1,123 @@
+.main-section{
+    margin:25px;
+    padding:0px;
+    background: none;
+}
+.oh_dashboards {
+    padding: 0px !important;
+    overflow: auto;
+    height: 100%;
+}
+.dash-card .card{
+    text-align:center;
+    border:none;
+    margin:20px;
+}
+.dash-card .card:hover {
+    transform: translateY(-2px) translateZ(0) !important;
+    box-shadow: 0 10px 10px 0 rgba(62, 57, 107, 0.12), 0 0 0 transparent !important;
+}
+.dash-card .dash-count{
+    font-size:35px;
+}
+.dash-card .dash-icon-1{
+    width:100%;
+    font-size: 36px;
+    font-weight: 900;
+    margin-top:10px;
+}
+.dash-card .dash-head{
+    font-weight: 300;
+    font-size: 18px;
+}
+
+/* Metric Cards */
+.metric-card {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.metric-icon i {
+    font-size: 1.5rem;
+}
+
+.metric-content {
+    flex: 1;
+    text-align: left;
+}
+
+.metric-content h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.metric-content p {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+
+/* Background colors for icons */
+.bg-success-light {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.bg-warning-light {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-info-light {
+    background-color: rgba(23, 162, 184, 0.1);
+}
+
+.bg-danger-light {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.bg-secondary-light {
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+.bg-primary-light {
+    background-color: rgba(102, 51, 153, 0.1);
+}
+
+/* Total Reservations card specific styles */
+.total-reservations {
+    background-color: #6633991a;
+    border: 1px solid #663399;
+}
+
+.total-reservations .metric-content h3 {
+    color: #663399;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .metric-card {
+        margin-bottom: 1rem;
+    }
+    
+    .metric-content h3 {
+        font-size: 1.25rem;
+    }
+    
+    .metric-content p {
+        font-size: 0.75rem;
+    }
+}

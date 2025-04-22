@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_reservation_profile" model="ir.actions.act_window">
+        <field name="name">Reservation Profiles</field>
+        <field name="res_model">reservation.profile</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <record id="action_reservation_profile_main" model="ir.actions.act_window">
+        <field name="name">Reservation Profiles Main</field>
+        <field name="res_model">reservation.profile.main</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_reservation_group_profile" model="ir.actions.act_window">
+        <field name="name">Reservation Group Profiles</field>
+        <field name="res_model">reservation.group.profile</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first reservation group profile
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Reservation Main -->
+    <record id="action_reservation_reservation_main" model="ir.actions.act_window">
+        <field name="name">Reservations</field>
+        <field name="res_model">reservation.reservation.main</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first reservation
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Traces -->
+    <record id="action_reservation_trace" model="ir.actions.act_window">
+        <field name="name">Traces</field>
+        <field name="res_model">reservation.trace</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <menuitem id="menu_setup_and_configuration"
+              name="Setup and Configuration"
+              sequence="1"/>
+
+    <!-- Child Menu: Hotel Details -->
+    <!-- <menuitem id="menu_reservation_system"
+              name="Reservation"
+              parent="menu_setup_and_configuration"
+              sequence="1"/>
+
+
+    <menuitem id="sub_menu_profile"
+              name="Profile"
+              parent="menu_reservation_system"
+              action="action_reservation_profile_main"
+              sequence="1"/>
+
+    <menuitem id="sub_menu_group_profile"
+              name="Group Profile"
+              parent="menu_reservation_system"
+              action="action_reservation_group_profile"
+              sequence="2"/>
+    
+    <menuitem id="sub_menu_reservations"
+              name="Reservations"
+              parent="menu_reservation_system"
+              action="action_reservation_reservation_main"
+              sequence="3"/>
+
+    <menuitem id="sub_menu_traces"
+              name="Traces"
+              parent="menu_reservation_system"
+              action="action_reservation_trace"
+              sequence="4"/> -->
+
+
+
+</odoo>

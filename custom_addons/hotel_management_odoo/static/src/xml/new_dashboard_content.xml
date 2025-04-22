@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hotel_management_odoo.NewDashboardContent">
+        <!-- Date: 2025-01-19 Time: 23:24:00 - Added new dashboard metrics -->
+        <div class="container-fluid">
+            <!-- Header with Date -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Reservations</h4>
+                <div class="text-muted">
+                    <i class="fa fa-calendar me-2"></i>
+                    <span t-esc="state.systemDate"/>
+                </div>
+            </div>
+            <div class="row">
+                <!-- Expected Arrivals -->
+                <div class="col-md-2 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fa fa-sign-in text-primary me-2"></i>
+                                <h6 class="mb-0">Expected Arrivals</h6>
+                            </div>
+                            <h3 class="text-primary mb-0" t-esc="state.expectedArrivals || 0"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expected Departures -->
+                <div class="col-md-2 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fa fa-sign-out text-warning me-2"></i>
+                                <h6 class="mb-0">Expected Departures</h6>
+                            </div>
+                            <h3 class="text-warning mb-0" t-esc="state.expectedDepartures || 0"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmed -->
+                <div class="col-md-2 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fa fa-check text-success me-2"></i>
+                                <h6 class="mb-0">Confirmed</h6>
+                            </div>
+                            <h3 class="text-success mb-0" t-esc="state.bookingCounts.confirmed?.count || 0"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Not Confirmed -->
+                <div class="col-md-2 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fa fa-clock text-warning me-2"></i>
+                                <h6 class="mb-0">Not Confirmed</h6>
+                            </div>
+                            <h3 class="text-warning mb-0" t-esc="state.bookingCounts.not_confirmed?.count || 0"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waiting -->
+                <div class="col-md-2 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fa fa-list text-info me-2"></i>
+                                <h6 class="mb-0">Waiting List</h6>
+                            </div>
+                            <h3 class="text-info mb-0" t-esc="state.bookingCounts.waiting?.count || 0"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block -->
+                <div class="col-md-2 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fa fa-ban text-secondary me-2"></i>
+                                <h6 class="mb-0">Block</h6>
+                            </div>
+                            <h3 class="text-secondary mb-0" t-esc="state.bookingCounts.block?.count || 0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,21 @@
+<odoo>
+    <!-- Action for Location Tree and Form Views -->
+    <record id="action_custom_fsm_location" model="ir.actions.act_window">
+        <field name="name">Location</field>
+        <field name="res_model">fsm.location</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="fsm_location_tree_view"/>
+        <field name="help" type="html">
+            <p>
+                Manage your service locations.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for Location under Floor -->
+    <menuitem id="custom_location_menu"
+              name="Location"
+              parent="hotel_floor_menu"
+              action="action_custom_fsm_location"
+              sequence="60"/>
+</odoo>

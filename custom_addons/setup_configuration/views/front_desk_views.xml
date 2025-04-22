@@ -1,0 +1,2822 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View for Room Type -->
+    <!-- <record id="view_room_type_form" model="ir.ui.view">
+        <field name="name">room.type.form</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <form string="Room Type">
+                <group>
+                    <field name="room_type" />
+                    <field name="description" />
+                    <field name="abbreviation" />
+                    <field name="generic_type" />
+                    <field name="user_sort" />
+                    <field name="obsolete" />
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_room_type_form" model="ir.ui.view">
+        <field name="name">room.type.form</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <form string="Room Type">
+                <div class="row g-2">
+                    <!-- General Information -->
+                    <div class="col-lg-8 col-md-8 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-info-circle"></i>
+                                <span class="fw-bold">General Information</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <!-- <div class="form-control form-control-sm">
+                                            <field name="company_id"
+                                            />
+                                        </div> -->
+                                        <div class="form-group mb-1">
+                                            <label for="room_type" class="form-label small">Room
+                                                Type
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="room_type"
+                                            />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="application_room_type" class="form-label small">Application Room Type
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="application_room_type"
+                                            />
+                                        </div>
+                                        
+                                        <div class="form-group mb-1">
+                                            <label for="description" class="form-label small">
+                                                Description
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="description"
+                                            />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="abbreviation" class="form-label small">
+                                                Abbreviation
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="abbreviation"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <!-- <div class="form-group mb-1">
+                                            <label for="generic_type" class="form-label small">Generic
+                                                Type</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="generic_type"
+                                            />
+                                        </div> -->
+                                        <!-- <div class="form-group mb-1">
+                                            <label for="user_sort" class="form-label small">User
+                                                Sort</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="user_sort"
+                                                 />
+                                        </div> -->
+                                        <div class="form-group mb-1">
+                                            <label for="obsolete" class="form-label small">Obsolete</label>
+                                        </div>
+                                        <div>
+                                            <field name="obsolete" widget="boolean_toggle"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-image"></i>
+                                <span class="fw-bold">Room Type Images</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <field name="image_ids">
+                                    <tree editable="bottom">
+                                        <field name="image" widget="image"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chatter Section -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Tree View for Room Type -->
+    <record id="view_room_type_tree" model="ir.ui.view">
+        <field name="name">room.type.tree</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <tree string="Room Types">
+                <field name="room_type"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="generic_type" /> -->
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_room_type_kanban" model="ir.ui.view">
+        <field name="name">.kanban</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <kanban string="Room Types">
+                <field name="room_type"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="generic_type" /> -->
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong>
+                                <field name="room_type"/>
+                            </strong>
+                            <div>Description:
+                                <field name="description"/>
+                            </div>
+                            <div>Abbreviation:
+                                <field name="abbreviation"/>
+                            </div>
+                            <!-- <div>Generic Type: <field name="generic_type" /></div> -->
+                            <!-- <div>User Sort: <field name="user_sort" /></div> -->
+                            <div>Obsolete:
+                                <field name="obsolete"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_room_type_pivot" model="ir.ui.view">
+        <field name="name">room.type.pivot</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <pivot string="Room Types">
+                <field name="room_type" type="row"/>
+                <!-- <field name="generic_type" type="row" /> -->
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_room_type_graph" model="ir.ui.view">
+        <field name="name">room.type.graph</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <graph string="Room Types" type="bar">
+                <field name="room_type" type="row"/>
+                <!-- <field name="generic_type" type="row" /> -->
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+    <record id="view_room_type_search" model="ir.ui.view">
+        <field name="name">room.type.search</field>
+        <field name="name">room.type.search</field>
+        <field name="model">room.type</field>
+        <field name="arch" type="xml">
+            <search string="Search Room Types">
+                <field name="room_type" string="Room Type"/>
+                <field name="description" string="Description"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <!-- <field name="generic_type" string="Generic Type" /> -->
+                <!-- <field name="user_sort" string="User Sort" /> -->
+                <!-- <field name="obsolete" string="Obsolete" /> -->
+            </search>
+        </field>
+    </record>
+
+
+    <!-- <record id="view_room_specification_form" model="ir.ui.view">
+        <field name="name">room.specification.form</field>
+        <field name="model">room.specification</field>
+        <field name="arch" type="xml">
+            <form string="Room Specification">
+                <sheet>
+                    <notebook>
+                        <page string="Main">
+                            <group>
+                                <group>
+                                    <field name="room_number" />
+                                    <field name="door_sign" />
+                                    <field name="room_type" />
+                                    <field name="suite" />
+                                    <field name="connected_room" />
+                                    <field name="type_of_bed" />
+                                    <field name="type_of_bath" />
+                                </group>
+                                <group>
+                                    <field name="obsolete" />
+                                    <field name="no_smoking" />
+                                    <field name="max_pax" />
+                                    <field name="section_hk" />
+                                    <field name="telephone_ext" />
+                                    <field name="disability_features" />
+                                    <field name="extra_features" />
+                                </group>
+                                <group>
+                                    <field name="rate_code" />
+                                    <field name="rate_posting_item" />
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Count in Statistics">
+                                    <field name="count_in_statistics" widget="radio" />
+                                    <field name="count_in_availability" widget="radio" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Location">
+                            <group>
+                                <field name="floor" />
+                                <field name="block" />
+                                <field name="building" />
+                                <field name="user_sort" />
+                                <button string="Floor Plan" type="object"
+                                    name="action_view_floor_plan" />
+                            </group>
+                        </page>
+
+                        <page string="Information">
+                            <group>
+                                <field name="pending_repairs" />
+                                <field name="last_repairs" />
+                                <field name="room_description" />
+                                <field name="notes" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            
+            </form>
+        </field>
+    </record> -->
+    <record id="view_room_specification_form" model="ir.ui.view">
+        <field name="name">room.specification.form</field>
+        <field name="model">room.specification</field>
+        <field name="arch" type="xml">
+            <form string="Room Specification">
+                <div class="row g-2">
+                    <!-- Main Details -->
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-info-circle"></i>
+                                <span class="fw-bold">Main Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-1">
+                                            <label for="room_number" class="form-label small">Room
+                                                Number
+                                            </label>
+                                            <field name="room_number"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="door_sign" class="form-label small">Door
+                                                Sign
+                                            </label>
+                                            <field name="door_sign"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="room_type" class="form-label small">Room
+                                                Type
+                                            </label>
+                                            <field name="room_type"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="suite" class="form-label small">Suite</label>
+                                            <field name="suite" class="form-control form-control-sm"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-1">
+                                            <label for="connected_room" class="form-label small">Connected
+                                                Room
+                                            </label>
+                                            <field name="connected_room"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="type_of_bed" class="form-label small">Type
+                                                of Bed
+                                            </label>
+                                            <field name="type_of_bed"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="type_of_bath" class="form-label small">Type
+                                                of Bath
+                                            </label>
+                                            <field name="type_of_bath"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-cogs"></i>
+                                <span class="fw-bold">Additional Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-1">
+                                            <label for="obsolete" class="form-label small">Obsolete</label>
+                                            <field name="obsolete"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="no_smoking" class="form-label small">No
+                                                Smoking
+                                            </label>
+                                            <field name="no_smoking"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="max_pax" class="form-label small">Max Pax</label>
+                                            <field name="max_pax"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="section_hk" class="form-label small">Housekeeping
+                                                Section
+                                            </label>
+                                            <field name="section_hk"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-1">
+                                            <label for="telephone_ext" class="form-label small">Telephone
+                                                Ext
+                                            </label>
+                                            <field name="telephone_ext"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="disability_features"
+                                                   class="form-label small">Disability Features
+                                            </label>
+                                            <field name="disability_features"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="extra_features" class="form-label small">Extra
+                                                Features
+                                            </label>
+                                            <field name="extra_features"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rate Details -->
+                    <div class="col-lg-3 col-md-3 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-tags"></i>
+                                <span class="fw-bold">Rate Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="form-group mb-1">
+                                    <label for="rate_code" class="form-label small">Rate Code</label>
+                                    <field name="rate_code" class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="rate_posting_item" class="form-label small">Rate
+                                        Posting Item
+                                    </label>
+                                    <field name="rate_posting_item"
+                                           class="form-control form-control-sm"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Details -->
+                    <div class="col-lg-3 col-md-3 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-map-marker-alt"></i>
+                                <span class="fw-bold">Location</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="form-group mb-1">
+                                    <label for="floor" class="form-label small">Floor</label>
+                                    <field name="floor" class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="block" class="form-label small">Block</label>
+                                    <field name="block" class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="building" class="form-label small">Building</label>
+                                    <field name="building" class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="user_sort" class="form-label small">User Sort</label>
+                                    <field name="user_sort" class="form-control form-control-sm"/>
+                                </div>
+                                <button string="Floor Plan" type="object"
+                                        name="action_view_floor_plan"
+                                        class="btn btn-sm btn-primary mt-2"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Information -->
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-info"></i>
+                                <span class="fw-bold">Information</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="form-group mb-1">
+                                    <label for="pending_repairs" class="form-label small">Pending
+                                        Repairs
+                                    </label>
+                                    <field name="pending_repairs"
+                                           class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="last_repairs" class="form-label small">Last Repairs</label>
+                                    <field name="last_repairs" class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="room_description" class="form-label small">Room
+                                        Description
+                                    </label>
+                                    <field name="room_description"
+                                           class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="notes" class="form-label small">Notes</label>
+                                    <field name="notes" class="form-control form-control-sm"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body py-1 px-2">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Room Specification -->
+    <record id="view_room_specification_tree" model="ir.ui.view">
+        <field name="name">room.specification.tree</field>
+        <field name="model">room.specification</field>
+        <field name="arch" type="xml">
+            <tree string="Room Specifications">
+                <field name="room_number"/>
+                <field name="door_sign"/>
+                <field name="room_type"/>
+                <field name="suite"/>
+                <field name="connected_room"/>
+                <field name="type_of_bed"/>
+                <field name="type_of_bath"/>
+                <field name="floor"/>
+                <field name="block"/>
+                <field name="building"/>
+                <field name="section_hk"/>
+                <field name="user_sort"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Meal Code -->
+    <!-- <record id="view_meal_code_form" model="ir.ui.view">
+        <field name="name">meal.code.form</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <form string="Meal Code">
+                <group>
+                    <group>
+                        <field name="meal_code"/>
+                        <field name="description"/>
+                        <field name="abbreviation"/>
+                        <field name="posting_item"/>
+                        <field name="price_pax"/>
+                        <field name="price_child"/>
+                        <field name="user_sort"/>
+                    </group>
+                    <group>
+                        <field name="arabic_description"/>
+                        <field name="arabic_abbreviation"/>
+                        <field name="notes"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Type">
+                        <field name="type" widget="radio"/>
+                    </group>
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            
+            </form>
+
+        </field>
+    </record> -->
+    <record id="view_meal_code_form" model="ir.ui.view">
+        <field name="name">meal.code.form</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <form string="Meal Code">
+                <div class="row g-2">
+                    <!-- Meal Details -->
+                    <div class="col-lg-7 col-md-7 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-cutlery"></i>
+                                <span class="fw-bold">Meal Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-1">
+                                            <label for="company_id" class="form-label small">Hotel
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="company_id" readonly="1"
+                                            />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="meal_code" class="form-label small">Meal
+                                                Code
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="meal_code"
+                                            />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="description" class="form-label small">
+                                                Description
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="description"
+                                            />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="abbreviation" class="form-label small">
+                                                Abbreviation
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="abbreviation"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-1">
+                                            <label for="posting_item" class="form-label small">Posting
+                                                Item
+                                            </label>
+                                            <field name="posting_item"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+
+                                        <div class="form-group mb-1">
+                                            <label for="price_pax" class="form-label small">Price
+                                                Per Pax
+                                            </label>
+                                            <field name="price_pax"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="price_child" class="form-label small">Price
+                                                Per Child
+                                            </label>
+                                            <field name="price_child"
+                                                   class="form-control form-control-sm"/>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arabic Details -->
+                    <div class="col-lg-3 col-md-3 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-language"></i>
+                                <span class="fw-bold">Additional Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <!-- <div class="form-group mb-1">
+                                    <label for="arabic_description" class="form-label small">Arabic
+                                        Description</label>
+                                </div>
+                                <div class="form-control form-control-sm">
+                                    <field name="arabic_description"
+                                    />
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="arabic_abbreviation" class="form-label small">Arabic
+                                        Abbreviation</label>
+                                </div>
+                                <div class="form-control form-control-sm">
+                                    <field name="arabic_abbreviation"
+                                    />
+                                </div> -->
+                                <div class="form-group mb-1">
+                                    <label for="notes" class="form-label small">Notes</label>
+                                    <field name="notes" class="form-control form-control-sm"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Type -->
+                    <div class="col-lg-2 col-md-2 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-list-alt"></i>
+                                <span class="fw-bold">Meal Code Sub Type</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <!-- <div class="form-group mb-1">
+                                    <field name="type" widget="radio"
+                                        class="o_field_widget" />
+                                </div> -->
+                                <div class="form-group mb-1">
+                                    <field name="meal_code_sub_type"
+                                           class="o_field_widget"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Meal Code -->
+    <record id="view_meal_code_tree" model="ir.ui.view">
+        <field name="name">meal.code.tree</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Codes">
+                <field name="meal_code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <!-- <field name="user_sort" optional='show' /> -->
+            </tree>
+        </field>
+    </record>
+    <!-- <record id="view_meal_code_sub_type_form" model="ir.ui.view">
+        <field name="name">meal.code.sub.type.form</field>
+        <field name="model">meal.code.sub.type</field>
+        <field name="arch" type="xml">
+            <form string="Meal Code Sub Type">
+                <div class="row g-2">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-cutlery"></i>
+                                <span class="fw-bold"> Meal Code Sub Type Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="form-group mb-1">
+                                    <label for="name" class="form-label small">Name</label>
+                                    <div class="form-control form-control-sm">
+                                        <field name="name" />
+                                    </div>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="company_id" class="form-label small">Company</label>
+                                    <div class="form-control form-control-sm">
+                                        <field name="company_id" readonly="1" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_meal_code_sub_type_form" model="ir.ui.view">
+        <field name="name">meal.code.sub.type.form</field>
+        <field name="model">meal.code.sub.type</field>
+        <field name="arch" type="xml">
+            <form string="Meal Code Sub Type">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Meal Code Sub Type Details -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-cutlery"></i>
+                                    <span class="fw-bold">Meal Code Sub Type Details</span>
+                                </div>
+                                <div class="card-body py-2 px-3">
+                                    <div class="form-group mb-1">
+                                        <label for="name" class="form-label small">Name</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="name"
+                                               placeholder="Enter Name"/>
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="company_id" class="form-label small">Company</label>
+                                        <field name="company_id"
+                                               class="form-control form-control-sm" readonly="1"/>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+
+                <!-- Chatter Section -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meal_code_sub_type_tree" model="ir.ui.view">
+        <field name="name">meal.code.sub.type.tree</field>
+        <field name="model">meal.code.sub.type</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Code Sub Type">
+                <field name="name"/>
+                <!-- <field name="company_id"/> -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_application_room_type_tree" model="ir.ui.view">
+        <field name="name">application.room.type.tree</field>
+        <field name="model">application.room.type</field>
+        <field name="arch" type="xml">
+            <tree string="Application Room Types">
+                <field name="name"/>
+                <field name="description"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_application_room_type_form" model="ir.ui.view">
+        <field name="name">application.room.type.form</field>
+        <field name="model">application.room.type</field>
+        <field name="arch" type="xml">
+            <form string="Application Room Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_meal_code_kanban" model="ir.ui.view">
+        <field name="name">meal.code.kanban</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <kanban string="Meal Codes">
+                <field name="meal_code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="user_sort" /> -->
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong>
+                                <field name="meal_code"/>
+                            </strong>
+                            <div>
+                                <field name="description"/>
+                            </div>
+                            <div>
+                                <field name="abbreviation"/>
+                            </div>
+                            <!-- <div>
+                                <field name="user_sort" />
+                            </div> -->
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Pivot View -->
+    <record id="view_meal_code_pivot" model="ir.ui.view">
+        <field name="name">meal.code.pivot</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Meal Codes">
+                <field name="meal_code" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_meal_code_graph" model="ir.ui.view">
+        <field name="name">meal.code.graph</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <graph string="Meal Codes" type="bar">
+                <field name="meal_code" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+            </graph>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_meal_code_calendar" model="ir.ui.view">
+        <field name="name">meal.code.calendar</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <calendar string="Meal Codes" date_start="create_date">
+                <field name="meal_code"/>
+                <field name="description"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_meal_code_search" model="ir.ui.view">
+        <field name="name">meal.code.search</field>
+        <field name="model">meal.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Meal Codes">
+                <field name="meal_code" string="Meal Code"/>
+                <field name="description" string="Description"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <!-- <field name="user_sort" string="User Sort" /> -->
+            </search>
+        </field>
+    </record>
+
+    <!-- Form View for Meal Pattern -->
+    <!-- <record id="view_meal_pattern_form" model="ir.ui.view">
+        <field name="name">meal.pattern.form</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <form string="Meal Pattern">
+                <group>
+                    <group>
+                        <field name="meal_pattern" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="meal_posting_item" />
+                        <field name="user_sort" />
+                        <field name="taxes" />
+                    </group>
+                    <group>
+                        <field name="arabic_description" />
+                        <field name="arabic_abbreviation" />
+                    </group>
+                </group>
+                <group string="Meals List">
+                    <field name="meals_list_ids">
+                        <tree editable="bottom">
+                            <field name="line" />
+                            <field name="meal_code" />
+                            <field name="name" />
+                            <field name="quantity" />
+                            <field name="apply_on_arrival" />
+                            <field name="apply_on_departure" />
+                            <field name="apply_during_stay" />
+                        </tree>
+                    </field>
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_meal_pattern_form" model="ir.ui.view">
+        <field name="name">meal.pattern.form</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <form string="Meal Pattern">
+                <div class="row g-2">
+                    <!-- Meal Details -->
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-cutlery"></i>
+                                <span class="fw-bold">Meal Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="row g-2">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group mb-1">
+                                            <label for="company_id" class="form-label small">Hotel</label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="company_id" readonly="1"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="meal_pattern" class="form-label small">Meal
+                                                Pattern
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="meal_pattern"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="description" class="form-label small">
+                                                Description
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="description"/>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group mb-1">
+                                            <label for="abbreviation" class="form-label small">
+                                                Abbreviation
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="abbreviation"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <label for="meal_posting_item" class="form-label small">Meal
+                                                Posting Item
+                                            </label>
+                                        </div>
+                                        <div class="form-control form-control-sm">
+                                            <field name="meal_posting_item"
+                                            />
+                                        </div>
+
+                                        <div class="form-group mb-1">
+                                            <label for="taxes" class="form-label small">Taxes</label>
+                                            <field name="taxes" class="form-control form-control-sm"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-list-alt"></i>
+                                <span class="fw-bold">Meal Pattern Sub Type</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <!-- <div class="form-group mb-1">
+                                    <field name="type" widget="radio"
+                                        class="o_field_widget" />
+                                </div> -->
+                                <div class="form-group mb-1">
+                                    <field name="meal_pattern_sub_type"
+                                           class="o_field_widget"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Meals List -->
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-list"></i>
+                                <span class="fw-bold">Meals List</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <field name="meals_list_ids">
+                                    <tree editable="bottom">
+                                        <field name="line"/>
+                                        <field name="meal_code"/>
+                                        <field name="name"/>
+                                        <field name="quantity"/>
+                                        <field name="apply_on_arrival"/>
+                                        <field name="apply_on_departure"/>
+                                        <field name="apply_during_stay"/>
+                                        <field name="price" readonly="1"/>
+                                        <field name="price_child" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Tree View for Meal Pattern -->
+    <record id="view_meal_pattern_tree" model="ir.ui.view">
+        <field name="name">meal.pattern.tree</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Patterns">
+                <field name="meal_pattern" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="meal_posting_item" optional='show'/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="view_meal_pattern_kanban" model="ir.ui.view">
+        <field name="name">meal.pattern.kanban</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <kanban string="Meal Patterns">
+                <field name="meal_pattern"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="meal_posting_item"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong>
+                                <field name="meal_pattern"/>
+                            </strong>
+                            <div>Description:
+                                <field name="description"/>
+                            </div>
+                            <div>Abbreviation:
+                                <field name="abbreviation"/>
+                            </div>
+                            <div>Meal Posting Item:
+                                <field name="meal_posting_item"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_meal_pattern_pivot" model="ir.ui.view">
+        <field name="name">meal.pattern.pivot</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <pivot string="Meal Patterns">
+                <field name="meal_pattern" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="meal_posting_item" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+
+    <record id="view_meal_pattern_graph" model="ir.ui.view">
+        <field name="name">meal.pattern.graph</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <graph string="Meal Patterns" type="bar">
+                <field name="meal_pattern" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <field name="meal_posting_item" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_meal_pattern_search" model="ir.ui.view">
+        <field name="name">meal.pattern.search</field>
+        <field name="model">meal.pattern</field>
+        <field name="arch" type="xml">
+            <search string="Search Meal Patterns">
+                <field name="meal_pattern" string="Meal Pattern"/>
+                <field name="description" string="Description"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <field name="meal_posting_item" string="Meal Posting Item"/>
+            </search>
+        </field>
+    </record>
+    <!-- <record id="view_meal_pattern_sub_type_form" model="ir.ui.view">
+        <field name="name">meal.pattern.sub.type.form</field>
+        <field name="model">meal.pattern.sub.type</field>
+        <field name="arch" type="xml">
+            <form string="Meal Pattern Sub Type">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="company_id" readonly="1" />
+                    </group>
+                </sheet>
+                  <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_meal_pattern_sub_type_form" model="ir.ui.view">
+        <field name="name">meal.pattern.sub.type.form</field>
+        <field name="model">meal.pattern.sub.type</field>
+        <field name="arch" type="xml">
+            <form string="Meal Pattern Sub Type">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Meal Pattern Sub Type Details -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-utensils"></i>
+                                    <span class="fw-bold">Meal Pattern Sub Type Details</span>
+                                </div>
+                                <div class="card-body py-2 px-3">
+                                    <div class="form-group mb-1">
+                                        <label for="name" class="form-label small">Name</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="name"
+                                               placeholder="Enter Name"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="company_id" class="form-label small">Company</label>
+                                        <field name="company_id"
+                                               class="form-control form-control-sm" readonly="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+
+                <!-- Chatter Section -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_meal_pattern_sub_type_tree" model="ir.ui.view">
+        <field name="name">meal.pattern.sub.type.tree</field>
+        <field name="model">meal.pattern.sub.type</field>
+        <field name="arch" type="xml">
+            <tree string="Meal Pattern Sub Type">
+                <field name="name"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="action_meal_pattern_sub_type" model="ir.actions.act_window">
+        <field name="name">Meal Pattern Sub Types</field>
+        <field name="res_model">meal.pattern.sub.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- Form View for Authorized Code -->
+    <!-- <record id="view_authorized_code_form" model="ir.ui.view">
+        <field name="name">authorized.code.form</field>
+        <field name="model">authorized.code</field>
+        <field name="arch" type="xml">
+            <form string="Authorized Code">
+                <group>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="user_sort" />
+                        <field name="obsolete" />
+                    </group>
+                    <group>
+                        <field name="arabic_description" />
+                        <field name="arabic_abbreviation" />
+                    </group>
+                </group>
+                <group string="Can Authorize">
+                    <field name="can_authorize_complimentary" />
+                    <field name="can_authorize_vip" />
+                    <field name="can_authorize_house_use" />
+                    <field name="can_authorize_out_of_order" />
+                    <field name="can_authorize_room_on_hold" />
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_authorized_code_form" model="ir.ui.view">
+        <field name="name">authorized.code.form</field>
+        <field name="model">authorized.code</field>
+        <field name="arch" type="xml">
+            <form string="Authorized Code">
+                <div class="row g-2">
+                    <!-- Authorized Code Details -->
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-key"></i>
+                                <span class="fw-bold">Authorized Code Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="form-group mb-1">
+                                    <label for="code" class="form-label small">Code</label>
+                                </div>
+                                <div class="form-control form-control-sm">
+                                    <field name="code"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="description" class="form-label small">Description</label>
+                                </div>
+                                <div class="form-control form-control-sm">
+                                    <field name="description"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="abbreviation" class="form-label small">Abbreviation</label>
+                                </div>
+                                <div class="form-control form-control-sm">
+                                    <field name="abbreviation"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="user_sort" class="form-label small">User Sort</label>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <field name="user_sort" class="form-control form-control-sm"/>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <field name="obsolete"/>
+                                    <label for="obsolete" class="form-label small">Obsolete</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arabic Details -->
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-language"></i>
+                                <span class="fw-bold">Arabic Details</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <!-- <div class="form-group mb-1">
+                                    <label for="arabic_description" class="form-label small">Arabic
+                                        Description</label>
+                                </div>
+                                <div class="form-control form-control-sm">
+                                    <field name="arabic_description"
+                                    />
+                                </div>
+                                <div class="form-group mb-1">
+                                    <label for="arabic_abbreviation" class="form-label small">Arabic
+                                        Abbreviation</label>
+                                </div>
+                                <div class="form-control form-control-sm">
+                                    <field name="arabic_abbreviation"
+                                    />
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Can Authorize -->
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <div class="card mb-2 shadow-sm">
+                            <div class="card-header py-1 px-2">
+                                <i class="fa fa-check-circle"></i>
+                                <span class="fw-bold">Can Authorize</span>
+                            </div>
+                            <div class="card-body py-1 px-2">
+                                <div class="form-group mb-1">
+                                    <field name="can_authorize_complimentary"/>
+                                    <label for="can_authorize_complimentary"
+                                           class="form-label small">Complimentary
+                                    </label>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <field name="can_authorize_vip"/>
+                                    <label for="can_authorize_vip" class="form-label small">VIP</label>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <field name="can_authorize_house_use"/>
+                                    <label for="can_authorize_house_use" class="form-label small">House
+                                        Use
+                                    </label>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <field name="can_authorize_out_of_order"/>
+                                    <label for="can_authorize_out_of_order" class="form-label small">Out
+                                        of Order
+                                    </label>
+                                </div>
+                                <div class="form-group mb-1">
+                                    <field name="can_authorize_room_on_hold"/>
+                                    <label for="can_authorize_room_on_hold" class="form-label small">Room
+                                        on Hold
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Tree View for Authorized Code -->
+    <record id="view_authorized_code_tree" model="ir.ui.view">
+        <field name="name">authorized.code.tree</field>
+        <field name="model">authorized.code</field>
+        <field name="arch" type="xml">
+            <tree string="Authorized Codes">
+                <field name="code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <field name="user_sort" optional='show'/>
+                <field name="obsolete" optional='show'/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Complimentary Code -->
+    <!-- <record id="view_complimentary_code_form" model="ir.ui.view">
+        <field name="name">complimentary.code.form</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <form string="Complimentary Code">
+                <group>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="user_sort" />
+                        <field name="obsolete" />
+                    </group>
+                    <group>
+                        <field name="arabic_description" />
+                        <field name="arabic_abbreviation" />
+                    </group>
+                </group>
+                <group string="Type">
+                    <field name="type" widget="radio" />
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+
+    <record id="view_complimentary_code_form" model="ir.ui.view">
+        <field name="name">complimentary.code.form</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <form string="Complimentary Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Complimentary Code Details Section -->
+                        <div class="col-lg-3 col-md-3 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-gift"></i>
+                                    <span class="fw-bold">Complimentary Code Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="code"
+                                               placeholder="Enter Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="user_sort" class="form-label small">User Sort</label>
+                                        <field name="user_sort" class="form-control form-control-sm"
+                                            placeholder="Enter User Sort" />
+                                    </div> -->
+                                    <div class="form-group mb-1">
+                                        <field name="obsolete"/>
+                                        <label for="obsolete" class="form-label small">Obsolete</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arabic Details Section -->
+                        <!-- <div class="col-lg-3 col-md-3 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-language"></i>
+                                    <span class="fw-bold"> Arabic Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_description" class="form-label small">Arabic
+                                            Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_description"
+                                            placeholder="Enter Arabic Description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_abbreviation" class="form-label small">Arabic
+                                            Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbreviation"
+                                            placeholder="Enter Arabic Abbreviation" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- Type Section -->
+                        <div class="col-lg-2">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-tag"></i>
+                                    <span class="fw-bold">Type</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="type" class="form-label small">Type</label>
+                                        <field name="type" widget="radio"
+                                               class="form-control form-control-sm"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Tree View for Complimentary Code -->
+    <record id="view_complimentary_code_tree" model="ir.ui.view">
+        <field name="name">complimentary.code.tree</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <tree string="Complimentary Codes">
+                <field name="code" optional='show'/>
+                <field name="description" optional='show'/>
+                <field name="abbreviation" optional='show'/>
+                <!-- <field name="user_sort" optional='show' /> -->
+                <field name="obsolete" optional='show'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_complimentary_code_kanban" model="ir.ui.view">
+        <field name="name">complimentary.code.kanban</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <kanban string="Complimentary Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong>
+                                <field name="code"/>
+                            </strong>
+                            <div>Description:
+                                <field name="description"/>
+                            </div>
+                            <div>Abbreviation:
+                                <field name="abbreviation"/>
+                            </div>
+                            <div>User Sort:
+                                <field name="user_sort"/>
+                            </div>
+                            <div>Obsolete:
+                                <field name="obsolete"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_complimentary_code_pivot" model="ir.ui.view">
+        <field name="name">complimentary.code.pivot</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Complimentary Codes">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_complimentary_code_graph" model="ir.ui.view">
+        <field name="name">complimentary.code.graph</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <graph string="Complimentary Codes" type="bar">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+    <record id="view_complimentary_code_search" model="ir.ui.view">
+        <field name="name">complimentary.code.search</field>
+        <field name="model">complimentary.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Complimentary Codes">
+                <field name="code" string="Code"/>
+                <field name="description" string="Description"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <!-- <field name="user_sort" string="User Sort" /> -->
+                <!-- <field name="obsolete" string="Obsolete" /> -->
+            </search>
+        </field>
+    </record>
+
+
+    <!-- Form View for Out of Order Code -->
+    <!-- <record id="view_out_of_order_code_form" model="ir.ui.view">
+        <field name="name">out.of.order.code.form</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <form string="Out of Order Code">
+                <group>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="user_sort" />
+                        <field name="obsolete" />
+                    </group>
+                    <group>
+                        <field name="arabic_description" />
+                        <field name="arabic_abbreviation" />
+                    </group>
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+
+    <!-- Tree View for Out of Order Code -->
+    <record id="view_out_of_order_code_form" model="ir.ui.view">
+        <field name="name">out.of.order.code.form</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <form string="Out of Order Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Out of Order Code Details Section -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <span class="fw-bold">Out of Order Code Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="code"
+                                               placeholder="Enter Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="user_sort" class="form-label small">User Sort</label>
+                                        <field name="user_sort" class="form-control form-control-sm"
+                                            placeholder="Enter User Sort" />
+                                    </div> -->
+                                    <div class="form-group mb-1">
+                                        <field name="obsolete"/>
+                                        <label for="obsolete" class="form-label small">Obsolete</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arabic Details Section -->
+                        <!-- <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-language"></i>
+                                    <span class="fw-bold"> Arabic Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_description" class="form-label small">Arabic
+                                            Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_description"
+                                            placeholder="Enter Arabic Description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_abbreviation" class="form-label small">Arabic
+                                            Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbreviation"
+                                            placeholder="Enter Arabic Abbreviation" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Out of Order Code -->
+    <record id="view_out_of_order_code_tree" model="ir.ui.view">
+        <field name="name">out.of.order.code.tree</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <tree string="Out of Order Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_out_of_order_code_kanban" model="ir.ui.view">
+        <field name="name">out.of.order.code.kanban</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <kanban string="Out of Order Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong>
+                                <field name="code"/>
+                            </strong>
+                            <div>Description:
+                                <field name="description"/>
+                            </div>
+                            <div>Abbreviation:
+                                <field name="abbreviation"/>
+                            </div>
+                            <div>User Sort:
+                                <field name="user_sort"/>
+                            </div>
+                            <!-- <div>Obsolete: <field name="obsolete" /></div> -->
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_out_of_order_code_pivot" model="ir.ui.view">
+        <field name="name">out.of.order.code.pivot</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <pivot string="Out of Order Codes">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_out_of_order_code_graph" model="ir.ui.view">
+        <field name="name">out.of.order.code.graph</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <graph string="Out of Order Codes" type="bar">
+                <field name="code" type="row"/>
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+    <record id="view_out_of_order_code_search" model="ir.ui.view">
+        <field name="name">out.of.order.code.search</field>
+        <field name="model">out.of.order.code</field>
+        <field name="arch" type="xml">
+            <search string="Search Out of Order Codes">
+                <field name="code" string="Code"/>
+                <field name="description" string="Description"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <!-- <field name="user_sort" string="User Sort" /> -->
+                <field name="obsolete" string="Obsolete"/>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- Form View for Room on Hold Code -->
+    <record id="view_room_on_hold_code_form" model="ir.ui.view">
+        <field name="name">room.on.hold.code.form</field>
+        <field name="model">room.on.hold.code</field>
+        <field name="arch" type="xml">
+            <form string="Room on Hold Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Room on Hold Code Details Section -->
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-bed"></i>
+                                    <span class="fw-bold">Room on Hold Code Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                    </div>
+
+                                    <div class="form-control form-control-sm">
+                                        <field name="code" placeholder="Enter Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+
+                                    <div class="form-control form-control-sm">
+                                        <field name="description"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                    </div>
+
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="user_sort" class="form-label small">User Sort</label>
+                                        <field name="user_sort" class="form-control form-control-sm"
+                                            placeholder="Enter User Sort" />
+                                    </div> -->
+                                    <div class="form-group mb-1">
+                                        <field name="obsolete"/>
+                                        <label for="obsolete" class="form-label small">Obsolete</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Arabic Details Section -->
+                        <!-- <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-language"></i>
+                                    <span class="fw-bold"> Arabic Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_description" class="form-label small">Arabic
+                                            Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_description"
+                                            placeholder="Enter Arabic Description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_abbreviation" class="form-label small">Arabic
+                                            Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbreviation"
+                                            placeholder="Enter Arabic Abbreviation" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Room on Hold Code -->
+    <record id="view_room_on_hold_code_tree" model="ir.ui.view">
+        <field name="name">room.on.hold.code.tree</field>
+        <field name="model">room.on.hold.code</field>
+        <field name="arch" type="xml">
+            <tree string="Room on Hold Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for VIP Code(old) -->
+    <!-- <record id="view_vip_code_form" model="ir.ui.view">
+        <field name="name">vip.code.form</field>
+        <field name="model">vip.code</field>
+        <field name="arch" type="xml">
+            <form string="VIP Code">
+                <group>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="level" />
+                        <field name="obsolete" />
+                    </group>
+                   
+                </group>
+              
+            </form>
+        </field>
+    </record> -->
+
+    <record id="view_vip_code_form" model="ir.ui.view">
+        <field name="name">vip.code.form</field>
+        <field name="model">vip.code</field>
+        <field name="arch" type="xml">
+            <form string="VIP Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- VIP Code Details -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-star"></i>
+                                    <span class="fw-bold">VIP Code Details</span>
+                                </div>
+                                <div class="card-body py-2 px-3">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="code"
+                                               placeholder="Enter VIP Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="level" class="form-label small">Level</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="level"
+                                               placeholder="Enter VIP Level"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="obsolete"/>
+                                        <label for="obsolete" class="form-label small">Obsolete</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"
+                           options="{'post_refresh': 'recipients'}"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for VIP Code -->
+    <record id="view_vip_code_tree" model="ir.ui.view">
+        <field name="name">vip.code.tree</field>
+        <field name="model">vip.code</field>
+        <field name="arch" type="xml">
+            <tree string="VIP Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="level"/>
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- <record id="view_house_code_form" model="ir.ui.view">
+        <field name="name">house.code.form</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <form string="House Codes">
+                <sheet>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                    </group>
+                    <group>
+                        <field name="obsolete" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_house_code_form" model="ir.ui.view">
+        <field name="name">house.code.form</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <form string="House Codes">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- House Code Details -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-home"></i>
+                                    <span class="fw-bold">House Code Details</span>
+                                </div>
+                                <div class="card-body py-2 px-3">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                    </div>
+                                    <div>
+                                        <field name="code" class="form-control form-control-sm"
+                                               placeholder="Enter Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <field name="description"
+                                               class="form-control form-control-sm"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <field name="abbreviation"
+                                               class="form-control form-control-sm"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="obsolete"/>
+                                        <label for="obsolete" class="form-label small">Obsolete</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"
+                           options="{'post_refresh': 'recipients'}"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Tree View for House Code -->
+    <record id="view_house_code_tree" model="ir.ui.view">
+        <field name="name">house.code.tree</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <tree string="House Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="level" /> -->
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_house_code_kanban" model="ir.ui.view">
+        <field name="name">house.code.kanban</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <kanban string="House Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="level" /> -->
+                <!-- <field name="user_sort" /> -->
+                <field name="obsolete"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <strong>
+                                <field name="code"/>
+                            </strong>
+                            <div>Description:
+                                <field name="description"/>
+                            </div>
+                            <div>Abbreviation:
+                                <field name="abbreviation"/>
+                            </div>
+                            <!-- <div>Level: <field name="level" /></div> -->
+                            <div>User Sort:
+                                <field name="user_sort"/>
+                            </div>
+                            <div>Obsolete:
+                                <field name="obsolete"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_house_code_pivot" model="ir.ui.view">
+        <field name="name">house.code.pivot</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <pivot string="House Codes">
+                <field name="code" type="row"/>
+                <!-- <field name="level" type="row" /> -->
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </pivot>
+        </field>
+    </record>
+    <record id="view_house_code_graph" model="ir.ui.view">
+        <field name="name">house.code.graph</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <graph string="House Codes" type="bar">
+                <field name="code" type="row"/>
+                <!-- <field name="level" type="row" /> -->
+                <field name="abbreviation" type="row"/>
+                <!-- <field name="user_sort" type="measure" /> -->
+                <!-- <field name="obsolete" type="measure"/> -->
+            </graph>
+        </field>
+    </record>
+
+
+    <record id="view_house_code_search" model="ir.ui.view">
+        <field name="name">house.code.search</field>
+        <field name="model">house.code</field>
+        <field name="arch" type="xml">
+            <search string="Search House Codes">
+                <field name="code" string="Code"/>
+                <field name="description" string="Description"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <!-- <field name="level" string="Level" /> -->
+                <!-- <field name="user_sort" string="User Sort" /> -->
+                <field name="obsolete" string="Obsolete"/>
+            </search>
+        </field>
+    </record>
+
+
+    <!-- Form View for Safe Deposit Code -->
+    <!-- <record id="view_safe_deposit_code_form" model="ir.ui.view">
+        <field name="name">safe.deposit.code.form</field>
+        <field name="model">safe.deposit.code</field>
+        <field name="arch" type="xml">
+            <form string="Safe Deposit Code">
+                <group>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="user_sort" />
+                        <field name="obsolete" />
+                    </group>
+                    <group>
+                        <field name="arabic_description" />
+                        <field name="arabic_abbreviation" />
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record> -->
+
+    <!-- Tree View for Safe Deposit Code -->
+    <record id="view_safe_deposit_code_form" model="ir.ui.view">
+        <field name="name">safe.deposit.code.form</field>
+        <field name="model">safe.deposit.code</field>
+        <field name="arch" type="xml">
+            <form string="Safe Deposit Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Safe Deposit Code Details Section -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-lock"></i>
+                                    <span class="fw-bold">Safe Deposit Code Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="code"
+                                               placeholder="Enter Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="user_sort" class="form-label small">User Sort</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="user_sort"
+                                               placeholder="Enter User Sort"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="obsolete"/>
+                                        <label for="obsolete" class="form-label small">Obsolete</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arabic Details Section -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-language"></i>
+                                    <span class="fw-bold">Arabic Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="arabic_description" class="form-label small">Arabic
+                                            Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_description"
+                                            placeholder="Enter Arabic Description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_abbreviation" class="form-label small">Arabic
+                                            Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbreviation"
+                                            placeholder="Enter Arabic Abbreviation" />
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View for Hotel Code -->
+    <!-- <record id="view_hotel_code_form" model="ir.ui.view">
+        <field name="name">hotel.code.form</field>
+        <field name="model">hotel.code</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Code">
+                <group>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="arabic_description" />
+                        <field name="arabic_abbreviation" />
+                    </group>
+                    <group>
+                        <field name="number_of_rooms" />
+                        <field name="number_of_stars" />
+                        <field name="notes" />
+                    </group>
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_hotel_code_form" model="ir.ui.view">
+        <field name="name">hotel.code.form</field>
+        <field name="model">hotel.code</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Code">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Hotel Code Details Section -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-building"></i>
+                                    <span class="fw-bold">Hotel Code Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                        <field name="code" class="form-control form-control-sm"
+                                               placeholder="Enter Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                        <field name="description"
+                                               class="form-control form-control-sm"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                        <field name="abbreviation"
+                                               class="form-control form-control-sm"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="arabic_description" class="form-label small">Arabic
+                                            Description</label>
+                                        <field name="arabic_description"
+                                            class="form-control form-control-sm"
+                                            placeholder="Enter Arabic Description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_abbreviation" class="form-label small">Arabic
+                                            Abbreviation</label>
+                                        <field name="arabic_abbreviation"
+                                            class="form-control form-control-sm"
+                                            placeholder="Enter Arabic Abbreviation" />
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Details Section -->
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="fw-bold">Additional Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="number_of_rooms" class="form-label small">Number
+                                            of Rooms
+                                        </label>
+                                        <field name="number_of_rooms"
+                                               class="form-control form-control-sm"
+                                               placeholder="Enter Number of Rooms"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="number_of_stars" class="form-label small">Number
+                                            of Stars
+                                        </label>
+                                        <field name="number_of_stars"
+                                               class="form-control form-control-sm"
+                                               placeholder="Enter Number of Stars"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="notes" class="form-label small">Notes</label>
+                                        <field name="notes" class="form-control form-control-sm"
+                                               placeholder="Enter Notes"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Hotel Code -->
+    <record id="view_hotel_code_tree" model="ir.ui.view">
+        <field name="name">hotel.code.tree</field>
+        <field name="model">hotel.code</field>
+        <field name="arch" type="xml">
+            <tree string="Hotel Codes">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="number_of_rooms"/>
+                <field name="number_of_stars"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Rentable Asset -->
+    <!-- <record id="view_rentable_asset_form" model="ir.ui.view">
+        <field name="name">rentable.asset.form</field>
+        <field name="model">rentable.asset</field>
+        <field name="arch" type="xml">
+            <form string="Rentable Asset">
+                <group>
+                    <group>
+                        <field name="code" />
+                        <field name="description" />
+                        <field name="abbreviation" />
+                        <field name="arabic_description" />
+                        <field name="arabic_abbreviation" />
+                        <field name="obsolete" />
+                    </group>
+                    <group>
+                        <field name="default_type" />
+                        <field name="rhythm" />
+                    </group>
+                </group>
+
+                <group>
+                    <field name="create_as_with_guest" />
+                    <field name="use_as_default_rent_notes" />
+                    <field name="description" string="Description" />
+                </group>
+
+                <group string="Quantity">
+                    <field name="quantity_type" />
+                    <field name="default_quantity" />
+                    <field name="price" />
+                    <field name="posting_item" />
+                    <field name="free" />
+                </group>
+
+                <group string="Return Check">
+                    <field name="return_check" />
+                </group>
+
+                <group string="Options">
+                    <field name="per_pax" />
+                    <field name="per_child" />
+                    <field name="per_infant" />
+                    <field name="extra_bed" />
+                </group>
+
+                <field name="notes" />
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+
+    <record id="view_rentable_asset_form" model="ir.ui.view">
+        <field name="name">rentable.asset.form</field>
+        <field name="model">rentable.asset</field>
+        <field name="arch" type="xml">
+            <form string="Rentable Asset">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Rentable Asset Details Section -->
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-warehouse"></i>
+                                    <span class="fw-bold">Rentable Asset Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="code" class="form-label small">Code</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="code"
+                                               placeholder="Enter Code"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description"
+                                               class="form-control form-control-sm"
+                                               placeholder="Enter Description"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="abbreviation" class="form-label small">
+                                            Abbreviation
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="abbreviation"
+                                               placeholder="Enter Abbreviation"/>
+                                    </div>
+                                    <!-- <div class="form-group mb-1">
+                                        <label for="arabic_description" class="form-label small">Arabic
+                                            Description</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_description"
+                                            placeholder="Enter Arabic Description" />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="arabic_abbreviation" class="form-label small">Arabic
+                                            Abbreviation</label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="arabic_abbreviation"
+                                            placeholder="Enter Arabic Abbreviation" />
+                                    </div> -->
+                                    <div class="form-group mb-1">
+                                        <field name="obsolete"/>
+                                        <label for="obsolete" class="form-label small">Obsolete</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Details Section -->
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="fw-bold">Additional Details</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="default_type" class="form-label small">Default
+                                            Type
+                                        </label>
+                                        <field name="default_type"
+                                               class="form-control form-control-sm"
+                                               placeholder="Select Default Type"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="rhythm" class="form-label small">Rhythm</label>
+                                        <field name="rhythm" class="form-control form-control-sm"
+                                               placeholder="Enter Rhythm"/>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="create_as_with_guest"/>
+                                        <label for="create_as_with_guest" class="form-label small">Create
+                                            as With Guest
+                                        </label>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <field name="use_as_default_rent_notes"/>
+                                        <label for="use_as_default_rent_notes"
+                                               class="form-label small">Use as Default Rent Notes
+                                        </label>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="description" class="form-label small">
+                                            Description
+                                        </label>
+                                    </div>
+                                    <div class="form-control form-control-sm">
+                                        <field name="description"
+                                        />
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="return_check" class="form-label small">Return
+                                            Check
+                                        </label>
+                                        <field name="return_check"
+                                               class="form-control form-control-sm"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-cogs"></i>
+                                    <span class="fw-bold">Additional Options</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <field name="per_pax"/>
+                                        <label for="per_pax" class="form-label small">Per Pax</label>
+
+                                        <field name="per_child"/>
+                                        <label for="per_child" class="form-label small">Per Child</label>
+
+                                        <field name="per_infant"/>
+                                        <label for="per_infant" class="form-label small">Per Infant</label>
+
+                                        <field name="extra_bed"/>
+                                        <label for="extra_bed" class="form-label small">Extra Bed</label>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="notes" class="form-label small">Notes</label>
+                                        <field name="notes" class="form-control form-control-sm"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Rentable Asset -->
+    <record id="view_rentable_asset_tree" model="ir.ui.view">
+        <field name="name">rentable.asset.tree</field>
+        <field name="model">rentable.asset</field>
+        <field name="arch" type="xml">
+            <tree string="Rentable Assets">
+                <field name="code"/>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <!-- <field name="arabic_description" /> -->
+                <field name="default_type"/>
+                <field name="rhythm"/>
+                <field name="default_quantity"/>
+                <field name="price"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Telephone Extension -->
+    <!-- <record id="view_telephone_extension_form" model="ir.ui.view">
+        <field name="name">telephone.extension.form</field>
+        <field name="model">telephone.extension</field>
+        <field name="arch" type="xml">
+            <form string="Telephone Extension">
+                <group>
+                    <field name="extension_number" />
+                    <field name="room_number" />
+                    <field name="comments" />
+                </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" />
+                    <field name="message_ids" />
+                </div>
+            </form>
+        </field>
+    </record> -->
+    <record id="view_telephone_extension_form" model="ir.ui.view">
+        <field name="name">telephone.extension.form</field>
+        <field name="model">telephone.extension</field>
+        <field name="arch" type="xml">
+            <form string="Telephone Extension">
+                <sheet>
+                    <div class="row g-2">
+                        <!-- Extension Information Section -->
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-phone"></i>
+                                    <span class="fw-bold">Extension Information</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="form-group mb-1">
+                                        <label for="extension_number" class="form-label small">Extension
+                                            Number
+                                        </label>
+                                        <div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="extension_number"
+                                                       placeholder="Enter Extension Number"/>
+                                            </div>
+                                            <div class="form-group mb-1">
+                                                <label for="room_number" class="form-label small">Room
+                                                    Number
+                                                </label>
+                                                <div>
+                                                    <div class="form-control form-control-sm">
+                                                        <field name="room_number"
+                                                               placeholder="Enter Room Number"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-1">
+                                        <label for="comments" class="form-label small">Comments</label>
+                                        <field name="comments" class="form-control form-control-sm"
+                                               placeholder="Enter Comments"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View for Telephone Extension -->
+    <record id="view_telephone_extension_tree" model="ir.ui.view">
+        <field name="name">telephone.extension.tree</field>
+        <field name="model">telephone.extension</field>
+        <field name="arch" type="xml">
+            <tree string="Telephone Extensions">
+                <field name="extension_number"/>
+                <field name="room_number"/>
+            </tree>
+        </field>
+    </record>
+
+
+</odoo>

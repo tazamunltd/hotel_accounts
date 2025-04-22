@@ -1,0 +1,185 @@
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_company_forecast_report_tree" model="ir.ui.view">
+            <field name="name">company.forecast.report.tree</field>
+            <field name="model">company.forecast.report</field>
+            <field name="arch" type="xml">
+                <tree string="Company Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
+                    <field name="report_date" optional="show"/>
+                    <field name="company_name" optional="show"/>
+                    <field name="room_type_name" optional="show"/>
+                    <field name="customer_name" optional="show"/>
+                    <field name="expected_arrivals_count" optional="show"/>
+                    <field name="expected_arrivals_adults" optional="show"/>
+                    <field name="expected_arrivals_children" optional="show"/>
+                    <field name="expected_arrivals_infants" optional="show"/>
+                    <field name="expected_departures_count" optional="show"/>
+                    <field name="expected_departures_adults" optional="show"/>
+                    <field name="expected_departures_children" optional="show"/>
+                    <field name="expected_departures_infants" optional="show"/>
+                    <field name="in_house_count" optional="show"/>
+                    <field name="in_house_adults" optional="show"/>
+                    <field name="in_house_children" optional="show"/>
+                    <field name="in_house_infants" optional="show"/>
+                    <field name="expected_in_house_count" optional="show"/>
+                    <field name="expected_in_house_adults" optional="show"/>
+                    <field name="expected_in_house_children" optional="show"/>
+                    <field name="expected_in_house_infants" optional="show"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Graph View -->
+        <record id="view_company_forecast_report_graph" model="ir.ui.view">
+            <field name="name">company.forecast.report.graph</field>
+            <field name="model">company.forecast.report</field>
+            <field name="arch" type="xml">
+                <graph string="Company Forecast Reports" type="bar">
+                    <field name="report_date" type="row"/>
+                    <field name="company_name" type="row"/>
+                    <field name="room_type_name" type="row"/>
+                    <field name="customer_name" type="row"/>
+                    <field name="expected_arrivals_count" type="measure"/>
+                    <field name="expected_arrivals_adults" type="measure"/>
+                    <field name="expected_arrivals_children" type="measure"/>
+                    <field name="expected_arrivals_infants" type="measure"/>
+                    <field name="expected_departures_count" type="measure"/>
+                    <field name="expected_departures_adults" type="measure"/>
+                    <field name="expected_departures_children" type="measure"/>
+                    <field name="expected_departures_infants" type="measure"/>
+                    <field name="in_house_count" type="measure"/>
+                    <field name="in_house_adults" type="measure"/>
+                    <field name="in_house_children" type="measure"/>
+                    <field name="in_house_infants" type="measure"/>
+                    <field name="expected_in_house_count" type="measure"/>
+                    <field name="expected_in_house_adults" type="measure"/>
+                    <field name="expected_in_house_children" type="measure"/>
+                    <field name="expected_in_house_infants" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_company_forecast_report_pivot" model="ir.ui.view">
+            <field name="name">company.forecast.report.pivot</field>
+            <field name="model">company.forecast.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Company Forecast Reports">
+                    <field name="report_date" type="row"/>
+                    <field name="company_name" type="row"/>
+                    <field name="room_type_name" type="row"/>
+                    <field name="customer_name" type="row"/>
+                    <field name="expected_arrivals_count" type="measure"/>
+                    <field name="expected_arrivals_adults" type="measure"/>
+                    <field name="expected_arrivals_children" type="measure"/>
+                    <field name="expected_arrivals_infants" type="measure"/>
+                    <field name="expected_departures_count" type="measure"/>
+                    <field name="expected_departures_adults" type="measure"/>
+                    <field name="expected_departures_children" type="measure"/>
+                    <field name="expected_departures_infants" type="measure"/>
+                    <field name="expected_departures_total" type="measure"/>
+                    <field name="in_house_count" type="measure"/>
+                    <field name="in_house_adults" type="measure"/>
+                    <field name="in_house_children" type="measure"/>
+                    <field name="in_house_infants" type="measure"/>
+                    <field name="expected_in_house_count" type="measure"/>
+                    <field name="expected_in_house_adults" type="measure"/>
+                    <field name="expected_in_house_children" type="measure"/>
+                    <field name="expected_in_house_infants" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="action_run_process_by_company_forecast_report" model="ir.actions.server">
+            <field name="name">Run Process by Company Forecast Report</field>
+            <field name="model_id" ref="model_company_forecast_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["company.forecast.report"].action_run_process_by_company_forecast_report()
+        ]]>
+            </field>
+        </record>
+        <!-- Action -->
+    <!-- <record id="action_run_process_by_company_forecast_report" model="ir.actions.server">
+    <field name="name">Run process by company forecast report</field>
+    <field name="model_id" ref="model_company_forecast_report"/>
+    <field name="state">code</field>
+    <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_company_forecast_report()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field> -->
+    <!-- <field name="code">
+        <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_company_forecast_report()
+
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'target': 'current',
+    }
+else:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Company Forecast Report',
+        'res_model': 'company.forecast.report',
+        'view_mode': 'tree,graph,pivot',
+        'views': [
+            (env.ref('hotel_management_odoo.view_company_forecast_report_tree').id, 'tree'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_graph').id, 'graph'),
+            (env.ref('hotel_management_odoo.view_company_forecast_report_pivot').id, 'pivot'),
+        ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+    </field> -->
+<!-- </record> -->
+
+
+        <menuitem id="menu_company_forecast_report"
+              name="Company Forecast Report"
+              action="action_run_process_by_company_forecast_report"
+              parent="menu_forecast"
+              sequence="50"/>
+    </data>
+</odoo>

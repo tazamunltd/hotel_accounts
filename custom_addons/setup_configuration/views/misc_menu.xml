@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_reservation_profile" model="ir.actions.act_window">
+        <field name="name">Reservation Profiles</field>
+        <field name="res_model">reservation.profile</field>
+        <field name="view_mode">form</field>
+    </record>
+
+     <!-- Action to open Housekeeping -->
+    <record id="action_housekeeping_management" model="ir.actions.act_window">
+        <field name="name">Housekeeping Management</field>
+        <field name="res_model">housekeeping.management</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action to open Out of Order Management -->
+    <record id="action_out_of_order_management" model="ir.actions.act_window">
+        <field name="name">Out of Order Management</field>
+        <field name="res_model">out.of.order.management</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Action to open Rooms On Hold Management -->
+    <record id="action_rooms_on_hold_management" model="ir.actions.act_window">
+        <field name="name">Rooms On Hold Management</field>
+        <field name="res_model">rooms.on.hold.management</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+     <!-- Action for Housekeeping Traces -->
+    <record id="action_housekeeping_traces" model="ir.actions.act_window">
+        <field name="name">Housekeeping Traces </field>
+        <field name="res_model">housekeeping.traces</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+     <record id="action_concierge_traces" model="ir.actions.act_window">
+        <field name="name">Concierge traces</field>
+        <field name="res_model">concierge.traces</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_maintenance_traces" model="ir.actions.act_window">
+        <field name="name">Maintenance traces</field>
+        <field name="res_model">maintenance.traces</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_fnb_traces" model="ir.actions.act_window">
+        <field name="name">F&amp;B traces</field>
+        <field name="res_model">fnb.traces</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_it_traces" model="ir.actions.act_window">
+        <field name="name">IT traces</field>
+        <field name="res_model">it.traces</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    
+
+    <menuitem id="menu_setup_and_configuration"
+              name="Setup and Configuration"
+              sequence="1"/>
+
+    <!-- Child Menu: Hotel Details -->
+    <menuitem id="menu_misc"
+              name="Misc"
+              parent="menu_setup_and_configuration"
+              sequence="4"/>
+
+
+    <menuitem id="sub_menu_house_keeping"
+              name="House Keeping"
+              parent="menu_misc"
+              action="action_housekeeping_management"
+              sequence="1"/>
+
+    <!-- <menuitem id="sub_menu_out_of_order"
+              name="Out of Order"
+              parent="menu_misc"
+              action="action_out_of_order_management"
+              sequence="2"/>
+
+    <menuitem id="sub_menu_room_on_hold"
+              name="Room On Hold"
+              parent="menu_misc"
+              action="action_rooms_on_hold_management"
+              sequence="3"/> -->
+
+    <menuitem id="sub_menu_housekeeping_traces"
+              name="Housekeeping Traces"
+              parent="menu_misc"
+              action="action_housekeeping_traces"
+              sequence="4"/>
+
+    <menuitem id="sub_menu_concierge_traces"
+              name="Concierge Traces"
+              parent="menu_misc"
+              action="action_concierge_traces"
+              sequence="5"/>
+
+    <menuitem id="sub_menu_f_and_b_traces"
+              name="F&amp;B Traces"
+              parent="menu_misc"
+              action="action_fnb_traces"
+              sequence="6"/>
+
+    <menuitem id="sub_menu_maintenance_traces"
+              name="Maintenance Traces"
+              parent="menu_misc"
+              action="action_maintenance_traces"
+              sequence="7"/>
+
+    <menuitem id="sub_menu_it_traces"
+              name="IT Traces"
+              parent="menu_misc"
+              action="action_it_traces"
+              sequence="8"/>
+
+
+
+
+</odoo>

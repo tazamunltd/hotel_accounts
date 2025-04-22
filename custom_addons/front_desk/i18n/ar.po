@@ -1,0 +1,2044 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* front_desk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-09 06:12+0000\n"
+"PO-Revision-Date: 2025-02-09 11:13+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && "
+"n%100<=99 ? 4 : 5);\n"
+"X-Generator: Poedit 3.5\n"
+
+#. module: front_desk
+#: model:mail.template,body_html:front_desk.package_received_email_template
+msgid ""
+"\n"
+"            \n"
+"                <p>Dear Customer,</p>\n"
+"                <p>Your package has been received.</p>\n"
+"                <p>Details: ${object.package_details}</p>\n"
+"                <p>Received Date: ${object.received_date}</p>\n"
+"                \n"
+"            \n"
+"        "
+msgstr ""
+"\n"
+"            \n"
+"                <p>عزيزي العميل،</p>\n"
+"                <p>تم استلام حزمتك.</p>\n"
+"                <p>التفاصيل: ${object.package_details}</p>\n"
+"                <p>تاريخ الاستلام: ${object.received_date}</p>\n"
+"                \n"
+"            \n"
+"        "
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__duration_visible
+msgid "A dummy field for Duration"
+msgstr "حقل وهمي لمدة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_needaction
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_needaction
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_needaction
+msgid "Action Needed"
+msgstr "مطلوب اتخاذ إجراء"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__active
+msgid "Active"
+msgstr "تفعيل"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_ids
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_ids
+msgid "Activities"
+msgstr "أنشطة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_exception_decoration
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_exception_decoration
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "استثناءات تزيين الأنشطة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_state
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_state
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_type_icon
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_type_icon
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "رمز نوع النشاط"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_package_handling_form
+msgid "Additional Information"
+msgstr "معلومات إضافية"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__address_id
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__user_id
+msgid "Address"
+msgstr "العنوان"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__adult_count
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__adult_ids
+msgid "Adults"
+msgstr "البالغون"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__agent
+msgid "Agent"
+msgstr "الوكيل"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__agent
+msgid "Agent associated with this booking"
+msgstr "الوكيل المرتبط بهذا الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__all_rooms_assigned
+msgid "All Rooms Assigned"
+msgstr "تم تخصيص جميع الغرف"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__allow_profile_change
+msgid "Allow changing profile data in the reservation form?"
+msgstr "السماح بتغيير بيانات الملف الشخصي في نموذج الحجز؟"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_untaxed_fleet
+msgid "Amount Untaxed"
+msgstr "المبلغ غير الخاضع للضريبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_attachment_count
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_attachment_count
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__authorization_code
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__authorization_code
+#, python-format
+msgid "Authorization Code"
+msgstr "رمز التفويض"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__availability_results
+msgid "Availability Results"
+msgstr "نتائج التوافر"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__block
+msgid "Block"
+msgstr "تم الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__name
+msgid "Booking ID"
+msgstr "معرف الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__booking_posting_item_ids
+msgid "Booking Posting Items"
+msgstr "بنود تحميل الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__booking_id
+msgid "Booking Reference"
+msgstr "مرجع الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__show_cancel_button
+msgid "Cancel Button"
+msgstr "زر الإلغاء"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__cancelled
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__cancel
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__payment_type__cash
+msgid "Cash Payment"
+msgstr "الدفع نقدًا"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__checkin_date
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__check_in
+msgid "Check In"
+msgstr "وصول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__checkout_date
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__check_out
+msgid "Check Out"
+msgstr "تسجيل المغادرة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__need_event
+msgid "Check if an Event to be added with the Booking"
+msgstr "تحقق مما إذا كان يجب إضافة حدث مع الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__need_fleet
+msgid "Check if a Fleet to be added with the Booking"
+msgstr "تحقق مما إذا كان يجب إضافة أسطول مع الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__need_food
+msgid "Check if Food to be added with the Booking"
+msgstr "تحقق مما إذا كان يجب إضافة طعام مع الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__need_service
+msgid "Check if a Service to be added with the Booking"
+msgstr "تحقق مما إذا كان يجب إضافة خدمة مع الحجز"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#, python-format
+msgid "Check-In Date is required and cannot be empty."
+msgstr "تاريخ الوصول مطلوب ولا يمكن أن يكون فارغًا."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__child_bookings
+msgid "Child Bookings"
+msgstr "حجوزات الأطفال"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__child_count
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__child_ids
+msgid "Children"
+msgstr "الأطفال"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__child_ages
+msgid "Children Ages"
+msgstr "أعمار الأطفال"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__company_id
+msgid "Choose the Hotel"
+msgstr "اختر الفندق"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__comments
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__comments
+msgid "Comments"
+msgstr "تعليقات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__company_id
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__complementary
+msgid "Complementary"
+msgstr "مكمل"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__complementary_codes
+msgid "Complementary Code"
+msgstr "رمز المكمل"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__show_confirm_button
+msgid "Confirm Button"
+msgstr "زر التأكيد"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__confirmed
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__confirmed
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__confirmed
+msgid "Confirmed"
+msgstr "مؤكد"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__partner_id
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__reference_contact_
+#, python-format
+msgid "Contact Reference"
+msgstr "مرجع جهة الاتصال"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_graph
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_graph
+msgid "Count"
+msgstr "العدد"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__payment_type__credit_card
+msgid "Credit Card"
+msgstr "بطاقة ائتمان"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__payment_type__credit_limit
+msgid "Credit Limit (C/L)"
+msgstr "حد الائتمان (C/L)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__daily_meals_rate
+msgid "Daily Meals Rate"
+msgstr "سعر الوجبات اليومي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__daily_room_rate
+msgid "Daily Room Rate"
+msgstr "سعر الغرفة اليومي"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__checkin_date
+msgid "Date of Checkin"
+msgstr "تاريخ الوصول"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__checkout_date
+msgid "Date of Checkout"
+msgstr "تاريخ المغادرة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__pax_1_rb
+msgid "Default (1 Pax)"
+msgstr "افتراضي (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__pax_2_rb
+msgid "Default (2 Pax)"
+msgstr "افتراضي (2 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__pax_3_rb
+msgid "Default (3 Pax)"
+msgstr "افتراضي (3 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__pax_4_rb
+msgid "Default (4 Pax)"
+msgstr "افتراضي (4 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__pax_5_rb
+msgid "Default (5 Pax)"
+msgstr "افتراضي (5 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__pax_6_rb
+msgid "Default (6 Pax)"
+msgstr "افتراضي (6 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__hotel_package_handling__status__delivered
+msgid "Delivered"
+msgstr "تم التسليم"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__done
+msgid "Done"
+msgstr "تم"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__duration_visible
+msgid "Duration"
+msgstr "المدة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__duration
+msgid "Duration in Days"
+msgstr "المدة بالأيام"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__end_line
+msgid "End Record"
+msgstr "نهاية السجل"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__event_line_ids
+msgid "Event"
+msgstr "حدث"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_taxed_event
+msgid "Event Tax"
+msgstr "ضريبة الحدث"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_untaxed_event
+msgid "Event Untaxed"
+msgstr "حدث غير خاضع للضريبة"
+
+#. module: front_desk
+#: model:ir.model,name:front_desk.model_fsm_location
+msgid "Field Service Location"
+msgstr "موقع الخدمة الميدانية"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_customer_company
+msgid "Filter Company Customers"
+msgstr "تصفية عملاء الشركة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_taxed_fleet
+msgid "Fleet Tax"
+msgstr "ضريبة الأسطول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_follower_ids
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_follower_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_partner_ids
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_partner_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_type_icon
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__activity_type_icon
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة الخط رائعة مثل fa-tasks"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__food_order_line_ids
+msgid "Food"
+msgstr "الطعام"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_taxed_food
+msgid "Food Tax"
+msgstr "ضريبة الطعام"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_untaxed_food
+msgid "Food Untaxed"
+msgstr "الطعام غير الخاضع للضريبة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__food_order_line_ids
+msgid "Food details provided to Customer and it will included in the main invoice."
+msgstr "تفاصيل الطعام المقدمة للعميل والتي سيتم تضمينها في الفاتورة الرئيسية."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__friday_pax_1_rb
+msgid "Friday (1 Pax)"
+msgstr "الجمعة (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__friday_pax_2_rb
+msgid "Friday (2 Pax)"
+msgstr "الجمعة (2 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__friday_pax_3_rb
+msgid "Friday (3 Pax)"
+msgstr "الجمعة (3 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__friday_pax_4_rb
+msgid "Friday (4 Pax)"
+msgstr "الجمعة (4 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__friday_pax_5_rb
+msgid "Friday (5 Pax)"
+msgstr "الجمعة (5 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__friday_pax_6_rb
+msgid "Friday (6 Pax)"
+msgstr "الجمعة (6 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__from_date
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__from_date
+msgid "From Date"
+msgstr "من تاريخ"
+
+#. module: front_desk
+#: model:ir.ui.menu,name:front_desk.menu_front_desk
+msgid "Front Desk"
+msgstr "مكتب الاستقبال"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__adult_id
+msgid "Full Name"
+msgstr "الاسم الكامل"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__total_total_forecast
+msgid "Grand Total"
+msgstr "الإجمالي الكلي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__total_before_discount_forecast
+msgid "Grand Total Before Discount"
+msgstr "الإجمالي الكلي قبل الخصم"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__gregorian_date
+msgid "Gregorian Date"
+msgstr "التاريخ الميلادي"
+
+#. module: front_desk
+#: model:ir.actions.act_window,name:front_desk.action_fd_grp_booking
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__group_booking
+#: model:ir.ui.menu,name:front_desk.menu_fd_grp_booking
+msgid "Group Booking"
+msgstr "حجز جماعي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__group_booking_id
+msgid "Group Booking ID"
+msgstr "معرف الحجز الجماعي"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__group_booking
+msgid "Group associated with this booking"
+msgstr "المجموعة المرتبطة بهذا الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__has_message
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__has_message
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__has_message
+msgid "Has Message"
+msgstr "لديه رسالة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hide_admin_buttons
+msgid "Hide Admin Buttons"
+msgstr "إخفاء أزرار المسؤول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hide_buttons_front_desk
+msgid "Hide Buttons for Front Desk"
+msgstr "إخفاء الأزرار لمكتب الاستقبال"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hide_fields
+msgid "Hide Fields"
+msgstr "إخفاء الحقول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hide_unconfirm_button
+msgid "Hide Unconfirm Button"
+msgstr "إخفاء زر إلغاء التأكيد"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hide_confirm_button
+msgid "Hide Confirm Button"
+msgstr "إخفاء زر التأكيد"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hijri_checkin_date
+msgid "Hijri Check-In Date"
+msgstr "تاريخ الوصول الهجري"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hijri_checkout_date
+msgid "Hijri Check-Out Date"
+msgstr "تاريخ المغادرة الهجري"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hijri_date
+msgid "Hijri Date"
+msgstr "التاريخ الهجري"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__company_id
+msgid "Hotel"
+msgstr "الفندق"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hotel_id
+msgid "Hotel ID"
+msgstr "معرف الفندق"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hotel_policy
+msgid "Hotel Policy"
+msgstr "سياسة الفندق"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_type
+msgid "Hotel Room Type"
+msgstr "نوع غرفة الفندق"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__event_line_ids
+msgid "Hotel event reservation detail."
+msgstr "تفاصيل حجز فعاليات الفندق."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__vehicle_line_ids
+msgid "Hotel fleet reservation detail."
+msgstr "تفاصيل حجز أسطول الفندق."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__hotel_policy
+msgid "Hotel policy for payment that either the guest has to pay at booking time, check-in or check-out time."
+msgstr "سياسة الدفع في الفندق التي تتطلب الدفع عند الحجز أو الوصول أو المغادرة."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_vip
+msgid "IS VIP"
+msgstr "عضو VIP"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_exception_icon
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_exception_icon
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_icon
+msgid "Icon"
+msgstr "رمز"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_exception_icon
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__activity_exception_icon
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثناء."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__account_move
+msgid "Id of the invoice created"
+msgstr "معرّف الفاتورة التي تم إنشاؤها"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__pricelist_id
+msgid "If you change the pricelist, only newly added lines will be affected."
+msgstr "إذا قمت بتغيير قائمة الأسعار، فستتأثر فقط البنود المضافة حديثًا."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__hotel_invoice_id
+msgid "Indicates the invoice"
+msgstr "يشير إلى الفاتورة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__rooms_searched
+msgid "Indicates whether rooms have been searched for this booking."
+msgstr "يشير إلى ما إذا تم البحث عن الغرف لهذا الحجز."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__infant_count
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__infant_ids
+msgid "Infant"
+msgstr "رضيع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hotel_invoice_id
+msgid "Invoice"
+msgstr "فاتورة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__invoice_button_visible
+msgid "Invoice Button Display"
+msgstr "عرض زر الفاتورة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__invoice_count
+msgid "Invoice Count"
+msgstr "عدد الفواتير"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__account_move
+msgid "Invoice Id"
+msgstr "معرّف الفاتورة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__invoice_status
+msgid "Invoice Status"
+msgstr "حالة الفاتورة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__invoice_button_visible
+msgid "Invoice button will be visible if this button is True"
+msgstr "سيكون زر الفاتورة مرئيًا إذا كان هذا الخيار مفعّلًا"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__invoice_status__invoiced
+msgid "Invoiced"
+msgstr "مفوتر"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_button_clicked
+msgid "Is Button Clicked"
+msgstr "هل تم النقر على الزر"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_checkin_in_past
+msgid "Is Check-in in Past"
+msgstr "هل الوصول في الماضي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_checkin
+msgid "Is Checkin"
+msgstr "هل تم الوصول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_checkout_in_past
+msgid "Is Checkout in Past"
+msgstr "هل المغادرة في الماضي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_agent
+msgid "Is Company"
+msgstr "هل هو فندق"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_readonly_group_booking
+msgid "Is Readonly"
+msgstr "للقراءة فقط"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__write_uid
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__write_uid
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__write_uid
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__write_date
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__write_date
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__write_date
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__meal_amount_selection__line_wise
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__room_amount_selection__line_wise
+msgid "Line Wise"
+msgstr "حسب السطر"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__room_fsm_location
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__room_fsm_location
+msgid "Location"
+msgstr "الموقع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__maintenance_request_sent
+msgid "Maintenance Request sent or Not"
+msgstr "تم إرسال طلب الصيانة أم لا"
+
+#. module: front_desk
+#: model_terms:ir.actions.act_window,help:front_desk.action_package_handling
+msgid "Manage packages and mail for your guests."
+msgstr "إدارة الطرود والبريد لضيوفك."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__no_show_
+msgid "Mark booking as No Show"
+msgstr "تمييز الحجز على أنه لم يحضر"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__is_vip
+msgid "Mark this contact as a VIP"
+msgstr "تمييز هذا الاتصال كضيف VIP"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__market_segment
+msgid "Market Segment"
+msgstr "قطاع التسويق"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_amount_selection
+msgid "Meal Amount Selection"
+msgstr "اختيار قيمة الوجبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_child_price
+msgid "Meal Child Price"
+msgstr "سعر وجبة الطفل"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_discount
+msgid "Meal Discount"
+msgstr "خصم الوجبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_is_amount
+msgid "Meal Discount as Amount"
+msgstr "خصم الوجبة كمبلغ"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_is_percentage
+msgid "Meal Discount as Percentage"
+msgstr "خصم الوجبة كنسبة مئوية"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_infant_price
+msgid "Meal Infant Price"
+msgstr "سعر وجبة الرضيع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_pattern
+msgid "Meal Pattern"
+msgstr "نظام الوجبات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__meal_price
+msgid "Meal Price"
+msgstr "سعر الوجبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_has_error
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_has_error
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_ids
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_ids
+msgid "Messages"
+msgstr "رسائل"
+
+#. module: front_desk
+#: model:ir.ui.menu,name:front_desk.menu_misc_fron_desk
+msgid "Misc"
+msgstr "متفرقات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__monday_pax_1
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__monday_pax_1_rb
+msgid "Monday (1 Pax)"
+msgstr "الاثنين (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__monday_pax_2_rb
+msgid "Monday (2 Pax)"
+msgstr "الاثنين (2 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__monday_pax_3_rb
+msgid "Monday (3 Pax)"
+msgstr "الاثنين (3 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__monday_pax_4_rb
+msgid "Monday (4 Pax)"
+msgstr "الاثنين (4 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__monday_pax_5_rb
+msgid "Monday (5 Pax)"
+msgstr "الاثنين (5 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__monday_pax_6_rb
+msgid "Monday (6 Pax)"
+msgstr "الاثنين (6 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__municipality
+msgid "Municipality (%)"
+msgstr "البلدية (%)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__my_activity_date_deadline
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__my_activity_date_deadline
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__name
+msgid "Name of Folio"
+msgstr "اسم الفوليو"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__nationality
+msgid "Nationality"
+msgstr "الجنسية"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__need_event
+msgid "Need Event"
+msgstr "بحاجة إلى فعالية"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__need_food
+msgid "Need Food"
+msgstr "بحاجة إلى طعام"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__need_service
+msgid "Need Service"
+msgstr "بحاجة إلى خدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__need_fleet
+msgid "Need Vehicle"
+msgstr "بحاجة إلى مركبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_calendar_event_id
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_calendar_event_id
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "الحدث التالي في تقويم النشاط"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_date_deadline
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_date_deadline
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط القادم"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_summary
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_summary
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط القادم"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_type_id
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_type_id
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__no_show_
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__no_show
+msgid "No Show"
+msgstr "عدم الحضور"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#, python-format
+msgid "No bookings were confirmed. Please ensure the state is 'not_confirmed' before confirming."
+msgstr "لم يتم تأكيد أي حجوزات. يرجى التأكد من أن الحالة هي 'غير مؤكد' قبل التأكيد."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__no_of_nights
+msgid "No of Nights"
+msgstr "عدد الليالي"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__not_confirmed
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__not_confirmed
+msgid "Not Confirmed"
+msgstr "غير مؤكد"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__notes
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__invoice_status__no_invoice
+msgid "Nothing To Invoice"
+msgstr "لا شيء للفوترة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__notification_sent
+msgid "Notification Sent"
+msgstr "تم إرسال الإشعار"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_needaction_counter
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_needaction_counter
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__number_of_children
+msgid "Number of Children"
+msgstr "عدد الأطفال"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__number_of_infants
+msgid "Number of Infants"
+msgstr "عدد الرضع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__number_of_pax
+msgid "Number of Pax"
+msgstr "عدد الأشخاص"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__duration
+msgid "Number of days which will automatically count from the check-in and check-out date."
+msgstr "عدد الأيام الذي سيتم حسابه تلقائيًا من تاريخ الوصول والمغادرة."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_has_error_counter
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_has_error_counter
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__message_needaction_counter
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__message_needaction_counter
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب اتخاذ إجراء"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__message_has_error_counter
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__message_has_error_counter
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__hotel_policy__prepaid
+msgid "On Booking"
+msgstr "عند الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__hotel_policy__manual
+msgid "On Check In"
+msgstr "عند الوصول"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__hotel_policy__picking
+msgid "On Checkout"
+msgstr "عند تسجيل المغادرة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__date_order
+msgid "Order Date"
+msgstr "تاريخ الطلب"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__other
+msgid "Other"
+msgstr "أخرى"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__payment_type__other
+msgid "Other Payment"
+msgstr "دفع آخر"
+
+#. module: front_desk
+#: model:ir.ui.menu,name:front_desk.sub_menu_out_of_order_fron_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_form
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_form
+msgid "Out of Order"
+msgstr "خارج الخدمة"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_calendar
+msgid "Out of Order Calendar"
+msgstr "تقويم الأعطال"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__out_of_order_code
+#, python-format
+msgid "Out of Order Code"
+msgstr "رمز خارج الخدمة"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_graph
+msgid "Out of Order Graph"
+msgstr "مخطط خارج الخدمة"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_kanban
+msgid "Out of Order Kanban"
+msgstr "كانبان خارج الخدمة"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_tree
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_tree
+msgid "Out of Order List"
+msgstr "قائمة خارج الخدمة"
+
+#. module: front_desk
+#: model:ir.actions.act_window,name:front_desk.action_out_of_order_management
+#: model:ir.model,name:front_desk.model_out_of_order_management_fron_desk
+msgid "Out of Order Management"
+msgstr "إدارة خارج الخدمة"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_pivot
+msgid "Out of Order Pivot"
+msgstr "محور خارج الخدمة"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_out_of_order_management_search
+msgid "Out of Order Search"
+msgstr "بحث خارج الخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__package_details
+msgid "Package Details"
+msgstr "تفاصيل الحزمة"
+
+#. module: front_desk
+#: model:ir.actions.act_window,name:front_desk.action_package_handling
+#: model:ir.ui.menu,name:front_desk.menu_package_handling
+#: model_terms:ir.ui.view,arch_db:front_desk.view_package_handling_form
+#: model_terms:ir.ui.view,arch_db:front_desk.view_package_handling_tree
+msgid "Package Handling"
+msgstr "إدارة الحزم"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__name
+#, python-format
+msgid "Package Name"
+msgstr "اسم الحزمة"
+
+#. module: front_desk
+#: model:mail.template,name:front_desk.package_received_email_template
+#: model:mail.template,subject:front_desk.package_received_email_template
+msgid "Package Received"
+msgstr "تم استلام الحزمة"
+
+#. module: front_desk
+#: model:ir.model,name:front_desk.model_hotel_package_handling
+msgid "Package and Mail Handling"
+msgstr "إدارة الحزم والبريد"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__parent_booking_id
+msgid "Parent Booking"
+msgstr "الحجز الرئيسي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__parent_booking_name
+msgid "Parent Booking Name"
+msgstr "اسم الحجز الرئيسي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__passport
+msgid "Passport"
+msgstr "جواز السفر"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__payment_type
+msgid "Payment Type"
+msgstr "نوع الدفع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__payments
+msgid "Payments"
+msgstr "السداد"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__hotel_package_handling__status__pending
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__phone
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__phone_number
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__posting_item_ids
+msgid "Posting Items"
+msgstr "بنود النشر"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__payment_type__prepaid_credit
+msgid "Pre-Paid / Credit Limit"
+msgstr "مدفوع مسبقًا / حد الائتمان"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__previous_state
+#, python-format
+msgid "Previous State"
+msgstr "الحالة السابقة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__pricelist_id
+msgid "Pricelist"
+msgstr "قائمة الأسعار"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__roh_code
+#, python-format
+msgid "ROH Code"
+msgstr "رمز ROH"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__rate_code
+msgid "Rate Code"
+msgstr "كود التعاقد"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__rate_details
+msgid "Rate Details"
+msgstr "تفاصيل السعر"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__rate_forecast_ids
+msgid "Rate Forecast"
+msgstr "توقعات السعر"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__rating_ids
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__rating_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__hotel_package_handling__status__ready_for_pickup
+msgid "Ready for Pickup"
+msgstr "جاهز للاستلام"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__received_date
+msgid "Received Date"
+msgstr "تاريخ الاستلام"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__ref_id_bk
+msgid "Ref. ID(booking.com)"
+msgstr "الرقم المرجعي (booking.com)"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__room_booking_id
+msgid "Reference to the consolidated report model"
+msgstr "مرجع لنموذج التقرير الموحد"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__parent_booking_id
+msgid "Reference to the parent booking if this is a child booking."
+msgstr "مرجع للحجز الرئيسي إذا كان هذا حجزًا فرعيًا."
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__release
+msgid "Release"
+msgstr "إطلاق"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__remaining
+msgid "Remaining"
+msgstr "المتبقي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_count_tree_
+msgid "Remaining Room Count"
+msgstr "عدد الغرف المتبقية"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_booking_id
+msgid "Report Model"
+msgstr "نموذج التقرير"
+
+#. module: front_desk
+#: model:ir.ui.menu,name:front_desk.menu_reservation
+msgid "Reservation"
+msgstr "الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__reservation_status_count_as
+msgid "Reservation Count As"
+msgstr "احتساب الحجز كـ"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__reservation_status_id
+msgid "Reservation Status"
+msgstr "حالة الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__web_cancel
+msgid "Reservation cancelled by website"
+msgstr "تم إلغاء الحجز عبر الموقع الإلكتروني"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__reserved
+msgid "Reserved"
+msgstr "محجوز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__activity_user_id
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__activity_user_id
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_taxed_room
+msgid "Rom Tax"
+msgstr "ضريبة الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_line_ids
+msgid "Room"
+msgstr "الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_amount_selection
+msgid "Room Amount Selection"
+msgstr "اختيار مبلغ الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_child_price
+msgid "Room Child Price"
+msgstr "سعر الطفل في الغرفة"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__room_contact_email
+#, python-format
+msgid "Room Contact Email"
+msgstr "البريد الإلكتروني لجهة اتصال الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_count_tree
+msgid "Room Count"
+msgstr "عدد الغرف"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_discount
+msgid "Room Discount"
+msgstr "خصم الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_discount_display
+msgid "Room Discount Display"
+msgstr "عرض خصم الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_is_percentage
+msgid "Room Discount(%)"
+msgstr "خصم الغرفة (%)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_is_amount
+msgid "Room Discount(Amount)"
+msgstr "خصم الغرفة (المبلغ)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_infant_price
+msgid "Room Infant Price"
+msgstr "سعر الرضيع في الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_id
+msgid "Room Line"
+msgstr "بند الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__is_room_line_readonly
+msgid "Room Line Readonly"
+msgstr "بند الغرفة للقراءة فقط"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_ids_display
+msgid "Room Names"
+msgstr "أسماء الغرف"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__room_number
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__room_number
+msgid "Room Number"
+msgstr "رقم الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_price
+msgid "Room Price"
+msgstr "سعر الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__room_type
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__hotel_room_type
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__room_type
+msgid "Room Type"
+msgstr "نوع الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_type_name
+msgid "Room Type Name"
+msgstr "اسم نوع الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_type_display
+msgid "Room Types"
+msgstr "أنواع الغرف"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_untaxed_room
+msgid "Room Untaxed"
+msgstr "الغرفة غير الخاضعة للضريبة"
+
+#. module: front_desk
+#: model:ir.actions.act_window,name:front_desk.action_room_on_hold
+#: model:ir.ui.menu,name:front_desk.sub_menu_room_on_hold_fron_desk
+msgid "Room on Hold"
+msgstr "غرفة قيد الانتظار"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__room_count
+msgid "Rooms"
+msgstr "الغرف"
+
+#. module: front_desk
+#: model:ir.model,name:front_desk.model_rooms_on_hold_management_front_desk
+msgid "Rooms On Hold Management"
+msgstr "إدارة الغرف قيد الانتظار"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__rooms_searched
+msgid "Rooms Searched"
+msgstr "الغرف التي تم البحث عنها"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_calendar
+msgid "Rooms on Hold Calendar"
+msgstr "تقويم الغرف قيد الانتظار"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_graph
+msgid "Rooms on Hold Graph"
+msgstr "رسم بياني للغرف قيد الانتظار"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_kanban
+msgid "Rooms on Hold Kanban"
+msgstr "كانبان الغرف قيد الانتظار"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_pivot
+msgid "Rooms on Hold Pivot"
+msgstr "محور الغرف قيد الانتظار"
+
+#. module: front_desk
+#: model_terms:ir.ui.view,arch_db:front_desk.view_room_on_hold_search
+msgid "Rooms on Hold Search"
+msgstr "بحث الغرف قيد الانتظار"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__rooms_to_add
+msgid "Rooms to Add"
+msgstr "الغرف المطلوب إضافتها"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__message_has_sms_error
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__message_has_sms_error
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل القصيرة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__saturday_pax_1_rb
+msgid "Saturday (1 Pax)"
+msgstr "السبت (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__saturday_pax_2_rb
+msgid "Saturday (2 Pax)"
+msgstr "السبت (2 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__saturday_pax_3_rb
+msgid "Saturday (3 Pax)"
+msgstr "السبت (3 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__saturday_pax_4_rb
+msgid "Saturday (4 Pax)"
+msgstr "السبت (4 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__saturday_pax_5_rb
+msgid "Saturday (5 Pax)"
+msgstr "السبت (5 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__saturday_pax_6_rb
+msgid "Saturday (6 Pax)"
+msgstr "السبت (6 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__posting_item_ids
+msgid "Select posting items for this booking uniquely."
+msgstr "اختر عناصر النشر لهذا الحجز بشكل فريد."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__reservation_status_id
+msgid "Select the reservation status for this booking."
+msgstr "اختر حالة الحجز لهذا الحجز."
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__service_line_ids
+msgid "Service"
+msgstr "الخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_taxed_service
+msgid "Service Tax"
+msgstr "ضريبة الخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_untaxed_service
+msgid "Service Untaxed"
+msgstr "خدمة غير خاضعة للضريبة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__user_id
+msgid "Sets the User automatically"
+msgstr "يتم تعيين المستخدم تلقائيًا"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__show_complementary_code
+msgid "Show Complementary Code"
+msgstr "عرض الرمز التكميلي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__show_group_booking
+msgid "Show Group Booking"
+msgstr "عرض الحجز الجماعي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__show_house_use_code
+msgid "Show House Code"
+msgstr "عرض رمز الاستخدام المنزلي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__show_in_tree
+msgid "Show In Tree"
+msgstr "عرض في الشجرة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__show_vip_code
+msgid "Show VIP Code"
+msgstr "عرض رمز VIP"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__signature
+msgid "Signature"
+msgstr "التوقيع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__source_of_business
+msgid "Source of Business"
+msgstr "مصدر المبيعات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__start_line
+msgid "Start Record"
+msgstr "بدء السجل"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__state
+msgid "State"
+msgstr "الحالة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__state
+msgid "State of the Booking"
+msgstr "حالة الحجز"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_hotel_package_handling__status
+#: model_terms:ir.ui.view,arch_db:front_desk.view_package_handling_form
+msgid "Status"
+msgstr "الحالة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_state
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__activity_state
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تاريخ الاستحقاق قد انقضى بالفعل\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"المخطط له: الأنشطة المستقبلية."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__invoice_status
+msgid "Status of the Invoice"
+msgstr "حالة الفاتورة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__sunday_pax_1_rb
+msgid "Sunday (1 Pax)"
+msgstr "الأحد (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__sunday_pax_2_rb
+msgid "Sunday (2 Pax)"
+msgstr "الأحد (2 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__sunday_pax_3_rb
+msgid "Sunday (3 Pax)"
+msgstr "الأحد (3 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__sunday_pax_4_rb
+msgid "Sunday (4 Pax)"
+msgstr "الأحد (4 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__sunday_pax_5_rb
+msgid "Sunday (5 Pax)"
+msgstr "الأحد (5 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__sunday_pax_6_rb
+msgid "Sunday (6 Pax)"
+msgstr "الأحد (6 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_taxed_event
+msgid "Tax for Event"
+msgstr "الضريبة على الحدث"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_taxed_fleet
+msgid "Tax for Fleet"
+msgstr "الضريبة على الأسطول"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_taxed_food
+msgid "Tax for Food"
+msgstr "الضريبة على الطعام"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_taxed_room
+msgid "Tax for Room"
+msgstr "الضريبة على الغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_taxed_service
+msgid "Tax for Service"
+msgstr "الضريبة على الخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_tax
+msgid "Taxes"
+msgstr "الضرائب"
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#, python-format
+msgid "The field 'Market Segment' is required for record '%s'. Please fill it before confirming."
+msgstr "حقل قطاع التسويق مطلوب للسجل '%s'. يرجى تعبئته قبل التأكيد."
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#, python-format
+msgid "The field 'Meal Pattern' is required for record '%s'. Please fill it before confirming."
+msgstr "حقل 'نظام الوجبات' مطلوب للسجل '%s'. يرجى تعبئته قبل التأكيد."
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#, python-format
+msgid "The field 'Nationality' is required for record '%s'. Please fill it before confirming."
+msgstr "حقل 'الجنسية' مطلوب للسجل '%s'. يرجى تعبئته قبل التأكيد."
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#, python-format
+msgid "The field 'Rate Code' is required for record '%s'. Please fill it before confirming."
+msgstr "حقل 'كود التعاقد' مطلوب للسجل '%s'. يرجى تعبئته قبل التأكيد."
+
+#. module: front_desk
+#. odoo-python
+#: code:addons/front_desk/models/models.py:0
+#, python-format
+msgid "The field 'Source of Business' is required for record '%s'. Please fill it before confirming."
+msgstr "حقل 'مصدر العمل' مطلوب للسجل '%s'. يرجى تعبئته قبل التأكيد."
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__invoice_count
+msgid "The number of invoices created"
+msgstr "عدد الفواتير التي تم إنشاؤها"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_total
+msgid "The total Amount including Tax"
+msgstr "المبلغ الإجمالي بما في ذلك الضريبة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_untaxed
+msgid "This indicates the total untaxed amount"
+msgstr "يشير هذا إلى المبلغ الإجمالي غير المشمول بالضريبة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__currency_id
+msgid "This is the Currency used"
+msgstr "هذه هي العملة المستخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_total_event
+msgid "This is the Total Amount for Event"
+msgstr "هذا هو المبلغ الإجمالي للحدث"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_total_fleet
+msgid "This is the Total Amount for Fleet"
+msgstr "هذا هو المبلغ الإجمالي للأسطول"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_total_food
+msgid "This is the Total Amount for Food"
+msgstr "هذا هو المبلغ الإجمالي للطعام"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_total_room
+msgid "This is the Total Amount for Room"
+msgstr "هذا هو المبلغ الإجمالي للغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_total_service
+msgid "This is the Total Amount for Service"
+msgstr "هذا هو المبلغ الإجمالي للخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__thursday_pax_1_rb
+msgid "Thursday (1 Pax)"
+msgstr "الخميس (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__thursday_pax_2_rb
+msgid "Thursday (2 Pax)"
+msgstr "الخميس (2 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__thursday_pax_3_rb
+msgid "Thursday (3 Pax)"
+msgstr "الخميس (3 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__thursday_pax_4_rb
+msgid "Thursday (4 Pax)"
+msgstr "الخميس (4 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__thursday_pax_5_rb
+msgid "Thursday (5 Pax)"
+msgstr "الخميس (5 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__thursday_pax_6_rb
+msgid "Thursday (6 Pax)"
+msgstr "الخميس (6 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__to_date
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__to_date
+msgid "To Date"
+msgstr "الى تاريخ"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__invoice_status__to_invoice
+msgid "To Invoice"
+msgstr "إلى الفاتورة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_total
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__meal_amount_selection__total
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__room_amount_selection__total
+msgid "Total"
+msgstr "إجمالي"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_total_event
+msgid "Total Amount for Event"
+msgstr "المبلغ الإجمالي للحدث"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_total_fleet
+msgid "Total Amount for Fleet"
+msgstr "المبلغ الإجمالي للأسطول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_total_food
+msgid "Total Amount for Food"
+msgstr "المبلغ الإجمالي للطعام"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_total_room
+msgid "Total Amount for Room"
+msgstr "المبلغ الإجمالي للغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_total_service
+msgid "Total Amount for Service"
+msgstr "المبلغ الإجمالي للخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__total_fixed_post_forecast
+msgid "Total Fixed Pst."
+msgstr "إجمالي الثابت"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__total_meal_forecast
+msgid "Total Meals"
+msgstr "إجمالي الوجبات"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__total_package_forecast
+msgid "Total Packages"
+msgstr "إجمالي الحزم"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__total_people
+msgid "Total People"
+msgstr "إجمالي الأشخاص"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__total_rate_forecast
+msgid "Total Rate"
+msgstr "إجمالي السعر"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_tax
+msgid "Total Tax Amount"
+msgstr "إجمالي مبلغ الضريبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__amount_untaxed
+msgid "Total Untaxed Amount"
+msgstr "إجمالي المبلغ غير المشمول بالضريبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__tuesday_pax_1_rb
+msgid "Tuesday (1 Pax)"
+msgstr "الثلاثاء (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__tuesday_pax_2_rb
+msgid "Tuesday (2 Pax)"
+msgstr "الثلاثاء (2 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__tuesday_pax_3_rb
+msgid "Tuesday (3 Pax)"
+msgstr "الثلاثاء (3 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__tuesday_pax_4_rb
+msgid "Tuesday (4 Pax)"
+msgstr "الثلاثاء (4 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__tuesday_pax_5_rb
+msgid "Tuesday (5 Pax)"
+msgstr "الثلاثاء (5 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__tuesday_pax_6_rb
+msgid "Tuesday (6 Pax)"
+msgstr "الثلاثاء (6 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__activity_exception_decoration
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__activity_exception_decoration
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي المسجل."
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__hotel_package_handling__status__unclaimed
+msgid "Unclaimed"
+msgstr "غير مُطالَب"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_untaxed_event
+msgid "Untaxed Amount for Event"
+msgstr "المبلغ غير الضريبي للفعالية"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_untaxed_food
+msgid "Untaxed Amount for Food"
+msgstr "المبلغ غير الضريبي للطعام"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_untaxed_room
+msgid "Untaxed Amount for Room"
+msgstr "المبلغ غير الضريبي للغرفة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_untaxed_service
+msgid "Untaxed Amount for Service"
+msgstr "المبلغ غير الضريبي للخدمة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__amount_untaxed_fleet
+msgid "Untaxed amount for Fleet"
+msgstr "المبلغ غير الضريبي للأسطول"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__use_meal_price
+msgid "Use Meal Price"
+msgstr "استخدام سعر الوجبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__use_price
+msgid "Use Price"
+msgstr "استخدام السعر"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__vat
+msgid "VAT (%)"
+msgstr "ضريبة القيمة المضافة (%)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__vat_id
+msgid "VAT ID"
+msgstr "معرف ضريبة القيمة المضافة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__vip
+msgid "VIP"
+msgstr "VIP"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__vip_code
+msgid "VIP Code"
+msgstr "رمز VIP"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__vehicle_line_ids
+msgid "Vehicle"
+msgstr "المركبة"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__visible_states
+msgid "Visible States"
+msgstr "الحالات المرئية"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__reservation_status_count_as__wait_list
+msgid "Wait List"
+msgstr "إنتظار"
+
+#. module: front_desk
+#: model:ir.model.fields.selection,name:front_desk.selection__room_booking_front_desk__state__waiting
+msgid "Waiting List"
+msgstr "إنتظار"
+
+#. module: front_desk
+#: model:ir.model,name:front_desk.model_room_booking_front_desk
+msgid "Waiting List Room Availability"
+msgstr "توافر الغرف في قائمة الانتظار"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__web_cancel_time
+msgid "Web Cancel Time"
+msgstr "وقت الإلغاء عبر الإنترنت"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__web_cancel
+msgid "Web cancel"
+msgstr "إلغاء عبر الإنترنت"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_out_of_order_management_fron_desk__website_message_ids
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__website_message_ids
+#: model:ir.model.fields,field_description:front_desk.field_rooms_on_hold_management_front_desk__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_out_of_order_management_fron_desk__website_message_ids
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__website_message_ids
+#: model:ir.model.fields,help:front_desk.field_rooms_on_hold_management_front_desk__website_message_ids
+msgid "Website communication history"
+msgstr "سجل الاتصال بالموقع"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__wednesday_pax_1_rb
+msgid "Wednesday (1 Pax)"
+msgstr "الأربعاء (1 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__wednesday_pax_2_rb
+msgid "Wednesday (2 Pax)"
+msgstr "الأربعاء (2 شخص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__wednesday_pax_3_rb
+msgid "Wednesday (3 Pax)"
+msgstr "الأربعاء (3 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__wednesday_pax_4_rb
+msgid "Wednesday (4 Pax)"
+msgstr "الأربعاء (4 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__wednesday_pax_5_rb
+msgid "Wednesday (5 Pax)"
+msgstr "الأربعاء (5 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,field_description:front_desk.field_room_booking_front_desk__wednesday_pax_6_rb
+msgid "Wednesday (6 Pax)"
+msgstr "الأربعاء (6 أشخاص)"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__maintenance_request_sent
+msgid "sets to True if the maintenance request send once"
+msgstr "يتم تعيينه إلى صحيح إذا تم إرسال طلب الصيانة مرة واحدة"
+
+#. module: front_desk
+#: model:ir.model.fields,help:front_desk.field_room_booking_front_desk__is_checkin
+msgid "sets to True if the room is occupied"
+msgstr "يتم تعيينه إلى صحيح إذا كانت الغرفة مشغولة"
