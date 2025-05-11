@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View for Master Folio -->
+    <record id="view_master_folio_tree" model="ir.ui.view">
+        <field name="name">tz.master.folio.tree</field>
+        <field name="model">tz.master.folio</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="room_id"/>
+                <field name="group_id"/>
+                <field name="guest_id"/>
+                <field name="check_in"/>
+                <field name="check_out"/>
+                <field name="grand_total"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Master Folio -->
+    <record id="view_master_folio_form" model="ir.ui.view">
+        <field name="name">tz.master.folio.form</field>
+        <field name="model">tz.master.folio</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_generate_and_show_report"
+                            type="object"
+                            string="Generate Folio Report"
+                            class="btn-primary"/>
+                    <!--<button name="action_generate_pdf_report"
+                        type="object"
+                        string="Generate PDF Report"
+                        class="btn-primary"/>-->
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="room_id"/>
+                            <field name="room_type_id"/>
+                            <field name="guest_id"/>
+                            <field name="check_in"/>
+                            <field name="check_out"/>
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="company_vat"/>
+                            <field name="group_id"/>
+                            <field name="rooming_info"/>
+                            <field name="bill_number"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Transactions">
+                            <field name="manual_posting_ids">
+                                <tree editable="bottom">
+                                    <field name="date"/>
+                                    <field name="time"/>
+                                    <field name="room_list"/>
+                                    <field name="unavailable_room_ids" column_invisible="1"/>
+                                    <field name="description"/>
+                                    <field name="voucher_number"/>
+                                    <field name="debit_amount" sum="Total Debit"/>
+                                    <field name="credit_amount" sum="Total Credit"/>
+                                    <field name="balance" sum="Balance"/>
+                                </tree>
+                            </field>
+
+                            <!-- Totals section aligned to the right -->
+                            <div class="oe_subtotal_footer oe_right"
+                                 style="width: 300px; margin-left: auto; margin-top: 16px;">
+                                <div class="row">
+                                    <div class="col-12 text-end">
+                                        <label for="total_debit" string="Total Debit:"/>
+                                        <field name="total_debit" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 text-end">
+                                        <label for="total_credit" string="Total Credit:"/>
+                                        <field name="total_credit" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 text-end">
+                                        <label for="balance" string="Balance:"/>
+                                        <field name="balance" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-2">
+                                    <div class="col-12 text-end">
+                                        <label for="value_added_tax" string="Value Added Tax:"/>
+                                        <field name="value_added_tax" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 text-end">
+                                        <label for="municipality_tax" string="Municipality Tax:"/>
+                                        <field name="municipality_tax" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-2 oe_subtotal_footer_separator">
+                                    <div class="col-12 text-end">
+                                        <label for="grand_total" string="Grand Total:" class="fw-bold"/>
+                                        <field name="grand_total" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}" class="fw-bold oe_inline"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="tz_master_folio_view_search" model="ir.ui.view">
+        <field name="name">master.folio.search</field>
+        <field name="model">tz.master.folio</field>
+        <field name="arch" type="xml">
+            <search string="Master Folio Search">
+                <!-- Basic search fields -->
+                <field name="room_id" string="Room"/>
+                <field name="group_id" string="Group"/>
+                <field name="check_in" string="Check-in"/>
+                <field name="check_out" string="Check-out"/>
+                <field name="bill_number" string="Bill Number"/>
+                <field name="total_debit" string="Total Debit"/>
+                <field name="total_credit" string="Total Credit"/>
+                <field name="grand_total" string="Grand Total"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action and Menu Items -->
+    <record id="action_master_folio" model="ir.actions.act_window">
+        <field name="name">Master Folios</field>
+        <field name="res_model">tz.master.folio</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_master_folio" name="Master Folios" parent="menu_fd_root" action="action_master_folio"
+              sequence="4"/>
+</odoo>
