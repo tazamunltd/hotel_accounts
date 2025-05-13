@@ -1,7 +1,7 @@
 from odoo import models, fields, api, _
 import logging
-
-from odoo.exceptions import ValidationError
+from datetime import timedelta
+from odoo.exceptions import ValidationError, UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -43,7 +43,8 @@ class RoomBooking(models.Model):
     no_of_nights = fields.Integer(default=1)
     room_count = fields.Integer(default=1)
 
-    nationality = fields.Many2one('res.country', string='Nationality', related='partner_id.nationality', readonly=False, store=True)
+    nationality = fields.Many2one('res.country', string='Nationality', related='partner_id.nationality', readonly=False,
+                                  store=True)
 
     room_type_name = fields.Many2one('room.type', related='room_list.room_type_name', string='Room Type', store=True)
     suite = fields.Boolean(string="Suite", related='room_list.suite')
@@ -53,6 +54,20 @@ class RoomBooking(models.Model):
 
     price_pax = fields.Float(string="Price/Pax", compute="_compute_price", store=False)
     price_child = fields.Float(string="Price/Child", compute="_compute_price", store=False)
+
+    def _default_checkout_date(self):
+        """Calculate default checkout date (system date + 1 day)"""
+        system_date = self.env.user.company_id.system_date.date()
+        next_day = system_date + timedelta(days=1)
+        return fields.Datetime.to_datetime(next_day)
+
+    checkout_date = fields.Datetime(
+        string="Check Out",
+        help="Date of Checkout",
+        required=True,
+        tracking=True,
+        default=lambda self: self._default_checkout_date()
+    )
 
     @api.depends('meal_pattern.meals_list_ids.meal_code.price_pax',
                  'meal_pattern.meals_list_ids.meal_code.price_child')
@@ -99,22 +114,23 @@ class RoomBooking(models.Model):
 
             # Proceed only if front_desk and room_list were used
             if vals.get('room_list') and booking.hotel_room_type:
-                # Set market_segment and source_business from company if not provided
-                # Get default values from config settings
-                # config = self.env['res.config.settings'].sudo().get_values()
+                # Handle market segment
+                if not vals.get('market_segment'):
+                    if self.env.company.market_segment:
+                        vals['market_segment'] = self.env.company.market_segment.id
+                        booking.market_segment = self.env.company.market_segment.id
+                    else:
+                        raise UserError(
+                            _("Market Segment is required. Please configure a default Market Segment in Company Settings."))
 
-                # if 'source_of_business' not in vals and config.get('source_of_business'):
-                #     vals['source_of_business'] = config['source_of_business']
-                #
-                # if 'market_segment' not in vals and config.get('market_segment'):
-                #     vals['market_segment'] = config['market_segment']
-                # raise ValidationError(company.source_of_business.id)
-                if not vals.get('market_segment') and self.env.company.market_segment:
-                    vals['market_segment'] = self.env.company.market_segment.id
-                    booking.market_segment = self.env.company.market_segment.id
-                if not vals.get('source_of_business') and self.env.company.source_business:
-                    vals['source_of_business'] = self.env.company.source_business.id
-                    booking.source_of_business = self.env.company.source_business.id
+                # Handle source of business
+                if not vals.get('source_of_business'):
+                    if self.env.company.source_business:
+                        vals['source_of_business'] = self.env.company.source_business.id
+                        booking.source_of_business = self.env.company.source_business.id
+                    else:
+                        raise UserError(
+                            _("Source of Business is required. Please configure a default Source of Business in Company Settings."))
 
                 if not vals.get('partner_id'):
                     raise ValidationError(_("Guest Name is required and cannot be empty."))
@@ -136,6 +152,7 @@ class RoomBooking(models.Model):
                     'split_flag': True
                 })
 
+                booking._create_master_folio(booking)
                 booking.create_booking_lines()
                 booking.state = "block"
                 booking.action_checkin()
@@ -144,6 +161,17 @@ class RoomBooking(models.Model):
 
         # Default creation if not front_desk context
         return super().create(vals)
+
+    def write(self, vals):
+        # Call super() first to perform the write operation
+        res = super().write(vals)
+
+        # Only update folio rooms if write was successful (res is True)
+        if res and any(field in vals for field in ['room_line_ids', 'group_booking', 'state']):
+            for booking in self:
+                self._update_folio_room(booking)
+
+        return res
 
     def action_block_wk(self):
         self.create_booking_lines()
@@ -204,65 +232,128 @@ class RoomBooking(models.Model):
             booking_lines.unlink()
         return True
 
-    def save_to_master_folio(self):
-        """
-        Save manual posting to master folio with the following logic:
-        1. Search for existing folio matching company, guest, room/group and system date
-        2. If found: create only folio line
-        3. If not found: create both folio header and line
-        """
-        self.ensure_one()
+    def _update_folio_room(self, booking):
+        """Update room_id in folio based on booking type"""
+        folio = self.env['tz.master.folio'].sudo().search(
+            domain=[
+                ('company_id', '=', booking.company_id.id),
+                ('booking_ids', 'in', booking.id),
+                ('state', '=', 'draft'),
+            ]
+            , limit=1)
+        if not booking.group_booking:
+            # Individual booking - take first room
+            if booking.room_line_ids:
+                folio.sudo().write({'room_id': booking.room_line_ids[0].room_id.id})
+        else:
+            non_parent_booking = self.env['room.booking'].sudo().search([
+                ('group_booking', '=', booking.group_booking.id),
+                ('parent_booking_name', '=', False)
+            ], limit=1)
+            if non_parent_booking and non_parent_booking.room_line_ids:
+                folio.sudo().write({'room_id': non_parent_booking.room_line_ids[0].room_id.id})
 
-        # Prepare search domain
+    def _create_master_folio(self, booking):
+        """
+        Create or get existing master folio for the booking
+        Rules:
+        - Group bookings: One folio per group (uses group_id as identifier)
+        - Individual bookings: One folio per booking
+        Returns: master folio record
+        """
+        MasterFolio = self.env['tz.master.folio']
+        company = booking.company_id or self.env.company
+
+        # Base domain
         domain = [
-            ('company_id', '=', self.company_id.id),
-            ('system_date', '=', self.checkin_date)
+            ('company_id', '=', company.id),
+            ('state', '=', 'draft'),
         ]
 
-        # Add room or group to domain based on posting type
-        if self.room_list:
-            domain.append(('room_id', '=', self.room_id.room_id.id))
-        elif self.type == 'group' and self.group_list:
-            domain.append(('group_id', '=', self.group_booking.id))
+        # Group booking logic
+        if booking.group_booking:
+            domain.append(('group_id', '=', booking.group_booking.id))
+            folio = MasterFolio.sudo().search(domain, limit=1)
 
-        # Add guest to domain if available
-        if self.partner_id:
-            domain.append(('guest_id', '=', self.partner_id.id))
+            if not folio:
+                # Create new group folio
+                folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
+                folio = MasterFolio.sudo().create({
+                    'name': folio_name,
+                    'group_id': booking.group_booking.id,
+                    'guest_id': booking.group_booking.contact_person_id.id or booking.partner_id.id,
+                    'rooming_info': booking.group_booking.group_name,
+                    'check_in': booking.checkin_date,
+                    'check_out': booking.checkout_date,
+                    'company_id': company.id,
+                    'currency_id': company.currency_id.id,
+                })
 
-        # Search for existing folio
-        folio = self.env['tz.master.folio'].sudo().search(domain, limit=1)
+            # Always link the current booking to the folio
+            folio.write({'booking_ids': [(4, booking.id)]})
+            return folio
 
-        # Create folio if not found
-        if not folio:
-            folio_vals = {
-                'name': self.env['ir.sequence'].next_by_code('tz.master.folio') or 'New',
-                'company_id': self.company_id.id,
-                'system_date': self.date_shift,
-                'room_id': self.room_list.id if self.type == 'room' else False,
-                'group_id': self.group_list.id if self.type == 'group' else False,
-                'guest_id': self.partner_id.id if self.partner_id else False,
-                'check_in': self.date_shift
-            }
-            folio = self.env['tz.master.folio'].sudo().create(folio_vals)
+        # Individual booking logic
+        else:
+            domain.append(('booking_ids', 'in', booking.id))
+            folio = MasterFolio.sudo().search(domain, limit=1)
 
-        # Prepare folio line values
-        line_vals = {
-            'folio_id': folio.id,
-            'date': fields.Date.context_today(self),
-            'time': fields.Datetime.now().strftime('%H:%M %p'),
-            'description': self.description or self.item_id.name,
-            'voucher_number': self.voucher,
-            'debit_amount': self.total if self.sign == 'debit' else 0.0,
-            'credit_amount': self.total if self.sign == 'credit' else 0.0,
-        }
+            if not folio:
+                folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
+                folio = MasterFolio.sudo().create({
+                    'name': folio_name,
+                    'guest_id': booking.partner_id.id,
+                    'rooming_info': booking.name,
+                    'check_in': booking.checkin_date,
+                    'check_out': booking.checkout_date,
+                    'company_id': company.id,
+                    'currency_id': company.currency_id.id,
+                    'booking_ids': [(4, booking.id)],
+                })
+            return folio
 
-        # Create folio line
-        folio_line = self.env['tz.master.folio.line'].sudo().create(line_vals)
+    def _notify_booking_confirmation(self, original_result=None):
+        """Helper function to show booking confirmation notification"""
+        if original_result and isinstance(original_result, dict) and original_result.get(
+                'res_model') == 'booking.checkin.wizard':
+            return original_result
 
-        # Return results
         return {
-            'folio_id': folio.id,
-            'folio_line_id': folio_line.id,
-            'message': _("Posted to %s") % folio.name
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'success',
+                'message': _("Booking checked in and master folio created successfully!"),
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
         }
 
+    def action_confirm(self):
+        result = super(RoomBooking, self).action_confirm()
+        checked_in_bookings = self.filtered(lambda b: b.state == 'confirmed')
+
+        for booking in checked_in_bookings:
+            self._create_master_folio(booking)
+
+        return self._notify_booking_confirmation(result)
+
+    def action_confirm_booking(self):
+        result = super(RoomBooking, self).action_confirm_booking()
+        checked_in_bookings = self.filtered(lambda b: b.state == 'confirmed')
+
+        for booking in checked_in_bookings:
+            self._create_master_folio(booking)
+
+        return self._notify_booking_confirmation(result)
+
+
+class RoomRateForecast(models.Model):
+    _inherit = 'room.rate.forecast'
+
+    state = fields.Selection(
+        [('draft', 'Draft'),
+         ('posted', 'Posted')],
+        string='Status',
+        default='draft',
+        tracking=True
+    )

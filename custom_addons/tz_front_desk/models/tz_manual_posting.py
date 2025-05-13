@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError, UserError
+from datetime import datetime, timedelta
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -16,13 +17,24 @@ class TzHotelManualPosting(models.Model):
     _description = 'Hotel Manual Posting'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(string="Transaction ID", readonly=True, index=True,
-                                 default="New", help="Name or Reference of Manual Posting", tracking=True)
+    name = fields.Char(
+        string="Transaction ID",
+        readonly=True,
+        index=True,
+        default='New',
+        tracking=True
+    )
 
-    date_shift = fields.Datetime(
+    date = fields.Date(
         string="Date / Shift #",
         default=lambda self: self.env.user.company_id.system_date.replace(hour=0, minute=0, second=0, microsecond=0),
         readonly=True
+    )
+    time = fields.Char(
+        string="Time",
+        compute='_compute_current_time',
+        store=True,
+        default=lambda self: datetime.now().strftime('%H:%M %p')
     )
 
     company_id = fields.Many2one('res.company', string="Hotel",
@@ -35,14 +47,13 @@ class TzHotelManualPosting(models.Model):
     item_id = fields.Many2one('posting.item', string="Item", index=True, required=True, tracking=True)
     item_description = fields.Char(related='item_id.description', string='Item Description')
 
-    description = fields.Char(string=_("Description"), required=True,
-                              translate=True)
+    description = fields.Char(string=_("Description"), required=True, readonly=False)
 
-    voucher = fields.Char(string="Voucher #", index=True, tracking=True)
+    voucher_number = fields.Char(string="Voucher #", index=True, tracking=True)
 
     room_list = fields.Many2one(
         'hotel.room',
-        string="Select Room",
+        string="Room",
         domain="[('id', 'in', unavailable_room_ids)]"
     )
 
@@ -54,7 +65,7 @@ class TzHotelManualPosting(models.Model):
 
     group_list = fields.Many2one(
         'group.booking',
-        string="Select Group",
+        string="Group",
         domain="[('status_code', '=', 'confirmed')]"
     )
 
@@ -68,27 +79,46 @@ class TzHotelManualPosting(models.Model):
         tracking=True
     )
 
-    price = fields.Float(string="Price", tracking=True, index=True)
+    debit_amount = fields.Float(
+        string="Debit",
+        tracking=True,
+        index=True,
+        # compute='_compute_debit_credit_amounts',
+        # store=True,
+        # readonly=False
+    )
+    credit_amount = fields.Float(
+        string="Credit",
+        tracking=True,
+        index=True,
+        # compute='_compute_debit_credit_amounts',
+        # store=True,
+        # readonly=False
+    )
     quantity = fields.Integer(string="Quantity", default=1, tracking=True, index=True)
     total = fields.Float(string="Total", tracking=True, index=True, compute='_compute_total', store=True)
+    balance = fields.Float(string="Balance", compute='_compute_balance', store=True)
 
     currency_id = fields.Many2one(
         'res.currency',
         string='Currency',
-        tracking=True,
+        readonly=True,
         default=lambda self: self.env.company.currency_id
     )
 
     sign = fields.Selection(
-        related='item_id.sign',
+        related='item_id.default_sign',
         string="Sign",
         store=True,
-        tracking=True
+        tracking=True,
+        required = True,
+        readonly=False
     )
 
     taxes = fields.Many2one(
-        related='item_id.taxes',
+        'account.tax',
         string="Taxes",
+        related='item_id.taxes',
         store=True,
         tracking=True
     )
@@ -105,56 +135,32 @@ class TzHotelManualPosting(models.Model):
         compute='_compute_booking_info',
         store=True
     )
+    folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True)
 
-    # @api.model
-    @api.model_create_multi
-    def create(self, vals_list):
-        if not vals_list:
-            return super(TzHotelManualPosting, self).create(vals_list)
+    source_type = fields.Selection(
+        [('auto', 'Auto'), ('manual', 'Manual')],
+        string="Source",
+        default='manual',
+        tracking=True
+    )
 
-        # Get or create the sequence
-        sequence = self.env['ir.sequence'].sudo().search([
-            ('code', '=', 'tz.manual.posting'),
-            ('company_id', '=', self.env.company.id)
-        ], limit=1)
+    price = fields.Float(
+        string="Price",
+        compute='_compute_price',
+        help="Shows either debit or credit amount, whichever is non-zero"
+    )
 
-        if not sequence:
-            # Create the sequence if it doesn't exist
-            sequence = self.env['ir.sequence'].sudo().create({
-                'name': f'Manual Posting Reference - {self.env.company.name}',
-                'code': 'tz.manual.posting',
-                'prefix': f'{self.env.company.name}/',
-                'padding': 5,
-                'company_id': self.env.company.id,
-                'currency_id': self.currency_id.id,
-            })
+    state = fields.Selection(
+        [('draft', 'Draft'), ('posted', 'Posted')],
+        string="State",
+        default='draft',
+        tracking=True
+    )
 
-        # Process each record
-        records = self.env['tz.manual.posting']
-        for vals in vals_list:
-            try:
-                # Generate sequence if needed
-                if vals.get('name', 'New') == 'New':
-                    vals['name'] = sequence.next_by_id()
-
-                # Create the record
-                record = super(TzHotelManualPosting, self).create([vals])
-                records += record
-                record.save_to_master_folio()
-
-            except Exception as e:
-                _logger.error("Failed to create manual posting: %s", str(e))
-                continue  # Skip problematic records but continue with others
-
-        return records
-
-    # @api.depends('room_id.state_', 'room_id.room_id')
-    def _compute_unavailable_rooms(self):
-        for rec in self:
-            unavailable_rooms = self.env['room.booking.line'].search([
-                ('state_', 'in', ['confirmed', 'block', 'check_in']),
-            ]).mapped('room_id.id')
-            rec.unavailable_room_ids = unavailable_rooms
+    booking_id = fields.Many2one(
+        'room.booking',
+        string="Room Booking"
+    )
 
     @api.model
     def default_get(self, fields_list):
@@ -165,11 +171,213 @@ class TzHotelManualPosting(models.Model):
         res['unavailable_room_ids'] = [(6, 0, unavailable_rooms)]
         return res
 
-    @api.depends('price', 'quantity')
+    def _find_or_create_folio_for_manual_posting(self, vals=None):
+        """Find or create folio for manual posting based on room/guest/group"""
+        folio_obj = self.env['tz.master.folio'].sudo()
+
+        # Get values either from self (existing record) or from vals (new record)
+        record_vals = vals if vals else {}
+        type_ = record_vals.get('type') or self.type
+
+        room_id = record_vals.get('room_list') or (self.room_list.id if self.room_list else False)
+        group_id = record_vals.get('group_list') or (self.group_list.id if self.group_list else False)
+        partner_id = record_vals.get('partner_id') or (
+            self.partner_id.id if hasattr(self, 'partner_id') and self.partner_id else False)
+        company_id = record_vals.get('company_id') or (
+            self.company_id.id if hasattr(self, 'company_id') and self.company_id else self.env.company.id)
+
+        domain = [
+            ('company_id', '=', company_id),
+            ('check_in', '=', record_vals.get('date')),
+            ('guest_id', '=', partner_id),
+        ]
+
+        # For room type, require room_id
+        if type_ == 'room':
+            if not room_id:
+                raise UserError(_("Cannot create folio - Room is required when type is Room"))
+            domain.append(('room_id', '=', room_id))
+
+        # For group type, require group_id
+        elif type_ == 'group':
+            if not group_id:
+                raise UserError(_("Cannot create folio - Group is required when type is Group"))
+            domain.append(('group_id', '=', group_id))
+
+        else:
+            raise UserError(_("Invalid posting type"))
+
+        # Try to find existing folio
+        folio = folio_obj.search(domain, order='create_date desc', limit=1)
+        if folio:
+            return folio
+
+        # Generate the folio name with company prefix
+        company = self.env.company
+        prefix = company.name + '/' if company else ''
+        folio_name = prefix + (self.env['ir.sequence'].with_company(company).next_by_code('tz.master.folio') or 'New')
+
+        master_room_id = self._get_master_room_id(group_id)
+
+        folio_vals = {
+            'name': folio_name,
+            'guest_id': partner_id,
+            'company_id': company_id,
+            'currency_id': self.env.company.currency_id.id,
+            'check_in': self.date,
+            'group_id': group_id,
+            'room_id': master_room_id if group_id else room_id,
+        }
+
+        # Add room/group specific fields
+        if type_ == 'room':
+            folio_vals['room_id'] = room_id
+        elif type_ == 'group':
+            folio_vals['group_id'] = group_id
+
+        return folio_obj.sudo().create(folio_vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = self.env['tz.manual.posting']
+        for vals in vals_list:
+            # Generate sequence if needed
+            if vals.get('name', 'New') == 'New':
+                company = self.env['res.company'].browse(self.env.company.id)
+                prefix = company.name + '/' if company else ''
+                next_seq = self.env['ir.sequence'].with_company(company).next_by_code(
+                    'tz.manual.posting') or '00001'
+                vals['name'] = prefix + next_seq
+
+            # Handle folio creation for manual postings
+            if self._context.get('manual_creation'):
+                # Create new folio if needed
+                if not vals.get('folio_id'):
+                    vals['folio_id'] = self._create_master_folio(vals)
+
+                if vals.get('group_list', False):
+                    vals['room_list'] = self._get_master_room_id(vals['group_list'])
+
+                # Check for duplicates before creation
+                domain = [
+                    ('company_id', '=', vals.get('company_id', self.env.company.id)),
+                    ('date', '=', vals.get('date')),
+                    ('room_list', '=', vals.get('room_list')),
+                    ('partner_id', '=', vals.get('partner_id')),
+                    ('item_id', '=', vals.get('item_id')),
+                    ('description', '=', vals.get('description')),
+                ]
+
+                # Add amount checks if amounts are provided
+                if vals.get('debit_amount', 0) > 0:
+                    domain.extend([
+                        ('debit_amount', '=', vals['debit_amount']),
+                        ('credit_amount', '=', 0)
+                    ])
+                elif vals.get('credit_amount', 0) > 0:
+                    domain.extend([
+                        ('credit_amount', '=', vals['credit_amount']),
+                        ('debit_amount', '=', 0)
+                    ])
+
+                # Skip if duplicate exists
+                if self.search(domain, limit=1):
+                    continue
+                vals['source_type'] = 'manual'
+
+            records |= super(TzHotelManualPosting, self).create([vals])
+        return records
+
+    @api.model
+    def _get_default_sequence(self):
+        """Get or create the sequence for manual postings"""
+        sequence = self.env['ir.sequence'].sudo().search([
+            ('code', '=', 'tz.manual.posting'),
+            ('company_id', '=', self.env.company.id)
+        ], limit=1)
+
+        if not sequence:
+            sequence = self.env['ir.sequence'].sudo().create({
+                'name': f'Manual Posting Reference - {self.env.company.name}',
+                'code': 'tz.manual.posting',
+                'prefix': 'MP/',
+                'padding': 5,
+                'company_id': self.env.company.id,
+            })
+        return sequence
+
+    def _get_or_create_folio_for_posting(self, posting):
+        """Helper method to find or create a folio for a posting"""
+        Folio = self.env['tz.master.folio']
+
+        # Try to find existing folio based on criteria
+        domain = [
+            ('company_id', '=', posting.company_id.id),
+            ('guest_id', '=', posting.partner_id.id),
+            ('check_out', '=', False),  # Only open folios
+        ]
+
+        if posting.room_list:
+            domain.append(('room_id', '=', posting.room_list.id))
+
+        folio = Folio.search(domain, limit=1)
+
+        if not folio:
+            # Create new folio if none found
+            folio_vals = {
+                'name': self.env['ir.sequence'].next_by_code('tz.master.folio') or 'New',
+                'company_id': posting.company_id.id,
+                'room_id': posting.room_list.id if posting.room_list else False,
+                'guest_id': posting.partner_id.id if posting.partner_id else False,
+                'check_in': self.date,
+                'currency_id': posting.currency_id.id,
+            }
+            folio = Folio.create(folio_vals)
+
+        return folio
+
+    def _compute_unavailable_rooms(self):
+        for rec in self:
+            unavailable_rooms = self.env['room.booking.line'].search([
+                ('state_', 'in', ['confirmed', 'block', 'check_in']),
+            ]).mapped('room_id.id')
+            rec.unavailable_room_ids = unavailable_rooms
+
+    @api.depends('debit_amount', 'credit_amount', 'quantity')
     def _compute_total(self):
         for record in self:
-            record.total = record.price * record.quantity
-            # record.list_price = record.price * record.quantity
+            if record.sign == 'debit' and record.debit_amount > 0:
+                record.total = record.debit_amount * record.quantity
+            elif record.sign == 'credit' and record.credit_amount > 0:
+                record.total = record.credit_amount * record.quantity
+
+    @api.depends('item_id.default_value', 'sign')
+    def _compute_debit_credit_amounts(self):
+        for record in self:
+            if record.sign == 'debit':
+                record.debit_amount = record.item_id.default_value
+                record.credit_amount = 0.0
+            else:  # credit
+                record.credit_amount = record.item_id.default_value
+                record.debit_amount = 0.0
+
+    # You might want to add constraints to ensure proper accounting
+    @api.constrains('debit_amount', 'credit_amount')
+    def _check_debit_credit(self):
+        for record in self:
+            if record.debit_amount and record.credit_amount:
+                raise ValidationError(_("A transaction cannot have both debit and credit amounts set."))
+            if not record.debit_amount and not record.credit_amount:
+                raise ValidationError(_("A transaction must have either debit or credit amount set."))
+
+    @api.depends('folio_id', 'debit_amount', 'credit_amount')
+    def _compute_balance(self):
+        for folio in self.mapped('folio_id'):
+            lines = folio.manual_posting_ids.sorted(key=lambda r: (r.date, r.id))
+            running_balance = 0
+            for line in lines:
+                running_balance += line.debit_amount - line.credit_amount
+                line.balance = running_balance
 
     def save_to_master_folio(self):
         """
@@ -183,7 +391,7 @@ class TzHotelManualPosting(models.Model):
         # Prepare search domain
         domain = [
             ('company_id', '=', self.company_id.id),
-            ('system_date', '=', self.date_shift)
+            ('check_in', '=', self.date_shift)
         ]
 
         # Add room or group to domain based on posting type
@@ -192,11 +400,6 @@ class TzHotelManualPosting(models.Model):
         elif self.type == 'group' and self.group_list:
             domain.append(('group_id', '=', self.group_list.id))
 
-        # Add guest to domain if available
-        # if self.guest_id:
-        #     domain.append(('guest_id', '=', self.guest_id.id))
-
-        # Search for existing folio
         folio = self.env['tz.master.folio'].sudo().search(domain, limit=1)
 
         # Create folio if not found
@@ -204,7 +407,6 @@ class TzHotelManualPosting(models.Model):
             folio_vals = {
                 'name': self.env['ir.sequence'].next_by_code('tz.master.folio') or 'New',
                 'company_id': self.company_id.id,
-                'system_date': self.date_shift,
                 'room_id': self.room_list.id if self.type == 'room' else False,
                 'group_id': self.group_list.id if self.type == 'group' else False,
                 'guest_id': self.partner_id.id if self.partner_id else False,
@@ -218,7 +420,7 @@ class TzHotelManualPosting(models.Model):
             'date': fields.Date.context_today(self),
             'time': fields.Datetime.now().strftime('%H:%M %p'),
             'description': self.description or self.item_id.name,
-            'voucher_number': self.voucher,
+            'voucher_number': self.voucher_number,
             'debit_amount': self.total if self.sign == 'debit' else 0.0,
             'credit_amount': self.total if self.sign == 'credit' else 0.0,
         }
@@ -253,17 +455,139 @@ class TzHotelManualPosting(models.Model):
         if not self.room_list:
             self.partner_id = False
             self.reference_contact_ = False
+        for record in self:
+            if record.room_list:
+                # Get the most recent active booking for this room
+                booking_line = self.env['room.booking.line'].search([
+                    ('room_id', '=', record.room_list.id),
+                    ('state_', 'in', ['confirmed', 'check_in'])
+                ], order='checkin_date desc', limit=1)
+
+                if booking_line:
+                    record.booking_id = booking_line.booking_id
+
+                    # Find folio for this booking
+                    folio = self.env['tz.master.folio'].search([
+                        ('room_id', '=', record.room_list.id),
+                        ('booking_ids', 'in', booking_line.booking_id.id)
+                    ], limit=1)
+                    record.folio_id = folio
+                else:
+                    record.booking_id = False
+                    record.folio_id = False
+
+    @api.depends()
+    def _compute_current_time(self):
+        """Compute current time in '%H:%M %p' format (e.g., '02:30 PM')"""
+        current_time = datetime.now().strftime('%H:%M %p')
+        for record in self:
+            record.time = current_time
+
+    def _get_master_room_id(self, group_id):
+        if group_id:
+            # Get all bookings for this group
+            bookings = self.env['room.booking'].search([
+                ('group_booking', '=', group_id)
+            ])
+
+            # Find master booking (where parent_booking_name is null)
+            master_booking = bookings.filtered(lambda b: not b.parent_booking_name)
+
+            return master_booking.room_line_ids.room_id.id
+
+    @api.depends('debit_amount', 'credit_amount')
+    def _compute_price(self):
+        for record in self:
+            record.price = record.debit_amount or record.credit_amount
+
+    @api.onchange('room_list', 'group_list')
+    def _onchange_room_or_group(self):
+        """Automatically find and suggest folio when room or group changes"""
+        if self.room_list or self.group_list:
+            domain = []
+            if self.room_list:
+                domain.append(('room_id', '=', self.room_list.id))
+            if self.group_list:
+                domain.append(('group_id', '=', self.group_list.id))
+
+            if self.room_list and self.group_list:
+                folio = self.env['tz.master.folio'].search([
+                    '|',
+                    ('room_id', '=', self.room_list.id),
+                    ('group_id', '=', self.group_list.id)
+                ], limit=1, order='create_date DESC')
+            elif domain:
+                folio = self.env['tz.master.folio'].search(domain, limit=1, order='create_date DESC')
+            else:
+                folio = False
+
+    @api.onchange('item_id')
+    def _onchange_item_id(self):
+        if self.item_id:
+            if self.sign == 'debit':
+                self.debit_amount = self.item_id.default_value
+            elif self.sign == 'credit':
+                self.credit_amount = self.item_id.default_value
+            self.description = self.item_id.description
+
+    @api.onchange('type')
+    def _onchange_type(self):
+        self.room_list = False
+        self.group_list = False
+
+    def _create_master_folio(self, vals):
+        """
+        Create master folio for manual posting when none exists
+        Returns folio ID or False
+        """
+        folio = self.env['tz.master.folio']
+        company = self.env.company
+
+        # Generate folio name
+        prefix = f"{company.name}/" if company.name else ""
+        folio_name = prefix + (self.env['ir.sequence'].sudo().with_company(company)
+                               .next_by_code('tz.master.folio') or 'New')
+
+        # Prepare folio values
+        folio_vals = {
+            'name': folio_name,
+            'company_id': company.id,
+            'currency_id': company.currency_id.id,
+            'check_in': fields.Datetime.now(),
+        }
+
+        # Handle room-based folios
+        if vals.get('room_list'):
+            room = self.env['hotel.room'].browse(vals['room_list'])
+            folio_vals.update({
+                'room_id': room.id,
+                'guest_id': vals.get('partner_id'),
+                'rooming_info': room.name,
+            })
+
+        # Handle group-based folios
+        elif vals.get('group_list'):
+            group = self.env['group.booking'].browse(vals['group_list'])
+            folio_vals.update({
+                'group_id': group.id,
+                'guest_id': group.contact_person_id.id or vals.get('partner_id'),
+                'rooming_info': group.group_name,
+            })
+
+        # Create and return folio
+        try:
+            return folio.sudo().create(folio_vals).id
+        except Exception as e:
+            _logger.error(f"Failed to create master folio: {str(e)}")
+            return False
 
 
 class PostingItemInherit(models.Model):
     _inherit = 'posting.item'
 
-    sign = fields.Selection(
-        [
-            ('debit', 'Debit'),
-            ('credit', 'Credit'),
-        ],
-        string="Sign",
-        help="Denotes whether the transaction is a charge (Debit) or a payment/credit (Credit)",
-        tracking=True
+    tax_ids = fields.Many2many(
+        'account.tax',
+        string='Taxes',
+        domain=[('type_tax_use', '=', 'sale')],  # optional filter
+        help="Select taxes that apply to this posting item"
     )

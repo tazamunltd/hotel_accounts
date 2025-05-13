@@ -7,11 +7,17 @@
             <tree string="Manual Postings">
                 <field name="name"/>
                 <field name="item_id"/>
+                <field name="date"/>
                 <field name="description"/>
-                <field name="voucher"/>
+                <field name="voucher_number"/>
                 <field name="room_list"/>
+                <field name="group_list"/>
+                <field name="type"/>
+                <field name="price" widget="monetary"/>
                 <field name="quantity"/>
-                <field name="price"/>
+                <field name="total"/>
+                <field name="source_type" widget="badge" decoration-danger="source_type == 'auto'"
+                       decoration-info="source_type == 'manual'"/>
             </tree>
         </field>
     </record>
@@ -31,12 +37,12 @@
                                 </div>
                                 <div class="card-body py-1 px-2">
                                     <div class="row g-2">
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="name" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="name"/>
+                                                <field name="name" readonly="source_type == 'auto'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -49,10 +55,10 @@
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
-                                                <label for="date_shift" class="form-label small"/>
+                                                <label for="date" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="date_shift"/>
+                                                <field name="date"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -60,10 +66,11 @@
                                                 <label for="item_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="item_id" options="{'no_create': True}"/>
+                                                <field name="item_id" options="{'no_create': True}"
+                                                       readonly="source_type == 'auto'"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="item_description" class="form-label small"
                                                        invisible="item_id == False"/>
@@ -73,18 +80,12 @@
                                             </div>
                                         </div>
                                         <hr/>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="description" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="description"/>
-                                            </div>
-                                        </div>
+
                                         <div class="col-md-2">
                                             <label for="type" class="form-label small mb-2">Type</label>
                                             <div class="d-flex flex-row gap-3">  <!-- Makes radio buttons inline -->
-                                                <field name="type" widget="radio" options="{'horizontal': True}"/>
+                                                <field name="type" widget="radio" options="{'horizontal': True}"
+                                                       readonly="source_type == 'auto'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2" invisible="type != 'room'">
@@ -92,33 +93,43 @@
                                                 <label for="room_list" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="room_list" options="{'no_create': True}"/>
+                                                <field name="room_list" options="{'no_create': True}"
+                                                       readonly="source_type == 'auto'"/>
                                                 <field name="unavailable_room_ids" invisible="1"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-2" invisible="type != 'group'">
+                                        <div class="col-md-3" invisible="type != 'group'">
                                             <div class="form-group">
                                                 <label for="group_list" class="form-label small">Group</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="group_list" options="{'no_create': True}"/>
+                                                <field name="group_list" options="{'no_create': True}"
+                                                       readonly="source_type == 'auto'"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-3" invisible="not folio_id">
                                             <div class="form-group">
-                                                <label for="voucher" class="form-label small"/>
+                                                <label for="folio_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="voucher"/>
+                                                <field name="folio_id" readonly="1"/>
                                             </div>
                                         </div>
-                                        <hr/>
+                                        <div class="col-md-3" invisible="not room_list">
+                                            <div class="form-group">
+                                                <label for="booking_id" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="booking_id" readonly="1"/>
+                                            </div>
+                                        </div>
+                                        <hr invisible="not room_list"/>
                                         <div class="col-md-4" invisible="not room_list">
                                             <div class="form-group" invisible="not room_list">
                                                 <label for="partner_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="partner_id"/>
+                                                <field name="partner_id" force_save="1"/>
                                             </div>
                                         </div>
                                         <div class="col-md-4" invisible="not room_list">
@@ -129,6 +140,27 @@
                                                 <field name="reference_contact_"/>
                                             </div>
                                         </div>
+                                        <hr/>
+
+
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="description" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="description" force_save="1"
+                                                       readonly="source_type == 'auto'"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="voucher_number" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="voucher_number" readonly="source_type == 'auto'"/>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -140,12 +172,18 @@
                                 </div>
                                 <div class="card-body py-1 px-2">
                                     <div class="row g-2">
-                                        <div class="col-md-2">
+                                        <div class="col-md-2" invisible="not item_id">
                                             <div class="form-group">
-                                                <label for="price" class="form-label small"/>
+                                                <label for="debit_amount" invisible="sign != 'debit'"
+                                                       class="form-label small"/>
+                                                <label for="credit_amount" invisible="sign != 'credit'"
+                                                       class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="price"/>
+                                                <field name="debit_amount" invisible="sign != 'debit'" string="Price"
+                                                       force_save="1" readonly="source_type == 'auto'"/>
+                                                <field name="credit_amount" invisible="sign != 'credit'" string="Price"
+                                                       force_save="1" readonly="source_type == 'auto'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -153,7 +191,8 @@
                                                 <label for="quantity" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="quantity"/>
+                                                <field name="quantity" readonly="source_type == 'auto'"/>
+                                                <field name="source_type" invisible="1"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -172,12 +211,15 @@
                                                 <field name="currency_id" options="{'no_create': True}"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="sign" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="sign" widget='radio' options="{'horizontal': True}"/>
+                                                <field name="sign"
+                                                       widget="radio"
+                                                       options="{'horizontal': True}"
+                                                       readonly="not item_id.allow_change_sign"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -185,8 +227,7 @@
                                                 <label for="taxes" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="taxes"
-                                                       placeholder="Enter Taxes"/>
+                                                <field name="taxes"/>
                                             </div>
                                         </div>
                                     </div>
@@ -203,33 +244,35 @@
         </field>
     </record>
 
+    <record id="tz_manual_posting_view_search" model="ir.ui.view">
+        <field name="name">manual.posting.search</field>
+        <field name="model">tz.manual.posting</field>
+        <field name="arch" type="xml">
+            <search string="Manual Posting Search">
+                <field name="room_list" string="Room"/>
+                <field name="group_list" string="Group"/>
+                <field name="item_id" string="Item"/>
+                <field name="voucher_number" string="Voucher #"/>
+                <field name="debit_amount" string="Debit Amount"/>
+                <field name="credit_amount" string="Credit Amount"/>
+                <separator/>
+            </search>
+        </field>
+    </record>
+
     <record id="tz_action_manual_posting" model="ir.actions.act_window">
         <field name="name">Manual Postings</field>
         <field name="res_model">tz.manual.posting</field>
         <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Create a new manual posting</p>
+        <field name="context">
+            {
+            'manual_creation': True
+            }
         </field>
     </record>
 
-    <record id="view_posting_item_form_inherit" model="ir.ui.view">
-        <field name="name">posting.item.form.inherit</field>
-        <field name="model">posting.item</field>
-        <field name="inherit_id" ref="setup_configuration.view_posting_item_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='taxes']/parent::div" position="before">
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="sign" class="form-label small"/>
-                    </div>
-                    <div class="form-control form-control-sm">
-                        <field name="sign" widget='radio' options="{'horizontal': True}"/>
-                    </div>
-                </div>
-            </xpath>
-        </field>
-    </record>
+    <menuitem id="menu_cashier_parent" parent="menu_fd_root" name="Cashier"/>
 
-    <menuitem id="menu_manual_posting" name="Manual Postings" parent="menu_fd_root"
+    <menuitem id="menu_manual_posting" name="Manual Postings" parent="menu_cashier_parent"
               action="tz_action_manual_posting" sequence="3"/>
 </odoo>

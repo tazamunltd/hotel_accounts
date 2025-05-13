@@ -48,10 +48,11 @@
     'data': [
         'security/ir.model.access.csv',
         'data/ir_data_sequence.xml',
-        # 'views/hotel_room_booking_views.xml',
         'views/front_desk_room_booking_views.xml',
         'views/tz_manual_posting_views.xml',
         'views/tz_master_folio_views.xml',
+        'wizard/tz_auto_posting_views.xml',
+        'report/report_master_folio.xml',
         # 'wizard/tz_room_search_views.xml',
     ],
 }

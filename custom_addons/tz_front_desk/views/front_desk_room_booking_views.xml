@@ -37,7 +37,7 @@
                                                     <label for="date_order" class="form-label small"/>
                                                 </div>
                                                 <div class="form-control form-control-sm">
-                                                    <field name="date_order"/>
+                                                    <field name="date_order" readonly="1"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -550,7 +550,7 @@
             <field name="name">tz.room.booking.tree.frontdesk</field>
             <field name="model">room.booking</field>
             <field name="arch" type="xml">
-                <tree string="Room Bookings">
+                <tree string="Walking">
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="date_order"/>
@@ -581,46 +581,30 @@
         </record>
 
         <record id="room_booking_action_tree" model="ir.actions.act_window">
-            <field name="name">Room Booking</field>
+            <field name="name">In-House Guests</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">room.booking</field>
             <field name="view_mode">tree,kanban,pivot,graph,calendar,form</field>
             <field name="domain">[('show_in_tree', '=', True)]</field>
             <field name="context">{'search_default_in_house': 1}</field>
-<!--            <field name="context">{'search_default_in_house': 1, 'create': False}</field>-->
-            <!-- Force the tree view to use the original view from hotel_management_odoo -->
             <field name="view_id" ref="hotel_management_odoo.room_booking_view_tree"/>
         </record>
 
         <!-- Menu Item -->
         <!-- Menu 1: Under Front Desk -->
         <menuitem id="menu_fd_root" name="New Front Desk"/>
-        <menuitem id="menu_fd_room_booking" name="Room Bookings"
-                  parent="menu_fd_root"
+
+        <menuitem id="menu_front_desk_parent" parent="menu_fd_root" name="Front Desk"/>
+
+        <menuitem id="menu_fd_room_booking" name="Walking"
+                  parent="menu_front_desk_parent"
                   action="fd_action_room_booking"
                   sequence="1"/>
 
-        <menuitem id="menu_admin_room_booking" name="Room Booking List"
-                  parent="menu_fd_root"
+        <menuitem id="menu_admin_room_booking" name="In-House Guests"
+                  parent="menu_front_desk_parent"
                   action="room_booking_action_tree"
                   sequence="2"/>
-        <!--                  action="fd_action_room_booking_list"-->
-
-
-        <!--<record id="view_partner_form_inherit" model="ir.ui.view">
-            <field name="name">res.partner.form.inherit.hotel.management</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//h1" position="inside">
-                    <field id="is_company" options="{'line_breaks': False}" widget="text"
-                           class="text-break" name="name"
-                           default_focus="1" placeholder="e.g. Lumber Inc"
-                           groups="hotel_management_odoo.hotel_group_admin"
-                           required="type == 'contact'"/>
-                </xpath>
-            </field>
-        </record>-->
 
     </data>
 </odoo>
