@@ -75,6 +75,7 @@ class AutoPostingWizard(models.TransientModel):
                     continue
 
             folio = self._find_existing_folio(booking_line, system_date)
+
             if not folio:
                 continue
 
@@ -126,10 +127,10 @@ class AutoPostingWizard(models.TransientModel):
         return folio_map
 
     def _find_existing_folio(self, booking_line, system_date):
-        """Find existing folio for a booking line"""
+        """Find existing folio that is active during the system_date"""
         domain = [
-            ('check_in', '>=', fields.Datetime.to_datetime(system_date)),  # Day start
-            ('check_in', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),  # Next day start
+            ('check_in', '<=', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
+            ('check_out', '>', fields.Datetime.to_datetime(system_date)),
             ('company_id', '=', self.env.company.id)
         ]
 
