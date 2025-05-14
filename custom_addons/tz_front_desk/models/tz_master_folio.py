@@ -29,15 +29,13 @@ class TzMasterFolio(models.Model):
     manual_posting_ids = fields.One2many('tz.manual.posting', 'folio_id', string="Posting Lines")
     currency_id = fields.Many2one(
         'res.currency',
-        string='Currency',
-        tracking=True
+        string='Currency'
     )
 
     state = fields.Selection(
         [('draft', 'Draft'), ('posted', 'Posted')],
         string="State",
-        default='draft',
-        tracking=True
+        default='draft'
     )
 
     booking_ids = fields.Many2many(

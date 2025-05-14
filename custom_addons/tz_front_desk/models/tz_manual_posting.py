@@ -83,17 +83,11 @@ class TzHotelManualPosting(models.Model):
         string="Debit",
         tracking=True,
         index=True,
-        # compute='_compute_debit_credit_amounts',
-        # store=True,
-        # readonly=False
     )
     credit_amount = fields.Float(
         string="Credit",
         tracking=True,
         index=True,
-        # compute='_compute_debit_credit_amounts',
-        # store=True,
-        # readonly=False
     )
     quantity = fields.Integer(string="Quantity", default=1, tracking=True, index=True)
     total = fields.Float(string="Total", tracking=True, index=True, compute='_compute_total', store=True)
@@ -111,7 +105,6 @@ class TzHotelManualPosting(models.Model):
         string="Sign",
         store=True,
         tracking=True,
-        required = True,
         readonly=False
     )
 
@@ -241,6 +234,8 @@ class TzHotelManualPosting(models.Model):
     def create(self, vals_list):
         records = self.env['tz.manual.posting']
         for vals in vals_list:
+            if not vals.get('sign'):
+                raise ValidationError("You must select a Sign before creating a manual posting.")
             # Generate sequence if needed
             if vals.get('name', 'New') == 'New':
                 company = self.env['res.company'].browse(self.env.company.id)
@@ -361,7 +356,6 @@ class TzHotelManualPosting(models.Model):
                 record.credit_amount = record.item_id.default_value
                 record.debit_amount = 0.0
 
-    # You might want to add constraints to ensure proper accounting
     @api.constrains('debit_amount', 'credit_amount')
     def _check_debit_credit(self):
         for record in self:
@@ -580,6 +574,12 @@ class TzHotelManualPosting(models.Model):
         except Exception as e:
             _logger.error(f"Failed to create master folio: {str(e)}")
             return False
+
+    def unlink(self):
+        for record in self:
+            if record.state == 'posted':
+                raise UserError(_("You cannot delete a record that is posted."))
+        return super().unlink()
 
 
 class PostingItemInherit(models.Model):

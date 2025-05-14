@@ -69,6 +69,12 @@ class RoomBooking(models.Model):
         default=lambda self: self._default_checkout_date()
     )
 
+    group_booking = fields.Many2one(
+        'group.booking',
+        string="Group Booking",
+        index=True  # Important for performance
+    )
+
     @api.depends('meal_pattern.meals_list_ids.meal_code.price_pax',
                  'meal_pattern.meals_list_ids.meal_code.price_child')
     def _compute_price(self):

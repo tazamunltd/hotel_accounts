@@ -40,6 +40,7 @@
     'auto_install': False,
     'application': True,
     'version': '0.1',
+    'license': 'OEEL-1',
 
     # any module necessary for this one to work correctly
     'depends': ['hotel_management_odoo'],

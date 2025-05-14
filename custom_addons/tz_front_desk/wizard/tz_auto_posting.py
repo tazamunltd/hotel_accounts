@@ -472,6 +472,6 @@ class RoomRateForecast(models.Model):
     state = fields.Selection(selection=[
         ('draft', 'Draft'),
         ('post', 'Post'),
-    ], string='State', default='draft', tracking=True)
+    ], string='State', default='draft')
 
 
