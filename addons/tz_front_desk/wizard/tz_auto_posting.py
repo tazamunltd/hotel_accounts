@@ -39,69 +39,60 @@ class AutoPostingWizard(models.TransientModel):
     def action_auto_posting(self):
         self.ensure_one()
         system_date = self.env.user.company_id.system_date.date()
+        created_count = 0  # Track actual created records
 
-        # 1. Build domain for booking lines
-        booking_line_domain = [
-            ('checkin_date', '>=', fields.Datetime.to_datetime(system_date)),
-            ('checkin_date', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
-            ('state_', '=', 'check_in')
-        ]
-
-        # Apply room/group filters
-        if not self.all_rooms:
-            if not self.room_from or not self.room_to:
-                raise UserError(_("Please select both From and To rooms"))
-            booking_line_domain.extend([
-                ('room_id', '>=', self.room_from.id),
-                ('room_id', '<=', self.room_to.id)
-            ])
-
-        if not self.all_groups:
-            if not self.group_from or not self.group_to:
-                raise UserError(_("Please select both From and To groups"))
-            booking_line_domain.extend([
-                ('booking_id.group_booking', '>=', self.group_from.id),
-                ('booking_id.group_booking', '<=', self.group_to.id)
-            ])
-
-        # 2. Get booking lines and prepare forecasts
-        booking_lines = self.env['room.booking.line'].search(booking_line_domain)
-        if not booking_lines:
-            return self._show_notification("No checked-in rooms found", "warning")
-
-        # Get ALL forecasts for these booking lines
-        all_forecasts = self.env['room.rate.forecast'].search([
-            ('date', '=', system_date),
-            ('booking_line_ids', 'in', booking_lines.ids)
+        # 1. Get all forecasts for system_date
+        forecasts = self.env['room.rate.forecast'].search([
+            ('date', '=', system_date)
         ])
 
-        # Create mapping {booking_line_id: forecast}
-        forecast_map = {}
-        for forecast in all_forecasts:
-            for booking_line in forecast.booking_line_ids:
-                if booking_line.id not in forecast_map:
-                    forecast_map[booking_line.id] = forecast
+        if not forecasts:
+            return self._show_notification("No forecast data found for selected date", "warning")
 
-        # 3. Process each booking line with its specific forecast
-        processed_rooms = set()
-        for booking_line in booking_lines:
-            if booking_line.room_id.id in processed_rooms:
+        # 2. Process each forecast
+        for forecast in forecasts:
+            # Get linked booking lines for this forecast
+            booking_line = self.env['room.booking.line'].search([
+                ('booking_id', '=', forecast.room_booking_id.id),
+                ('state_', '=', 'check_in')
+            ], limit=1)
+
+            if not booking_line:
                 continue
 
+            # Apply room/group filters
+            if not self.all_rooms:
+                if not self.room_from or not self.room_to:
+                    raise UserError(_("Please select both From and To rooms"))
+                if not (self.room_from.id <= booking_line.room_id.id <= self.room_to.id):
+                    continue
+
+            if not self.all_groups:
+                if not self.group_from or not self.group_to:
+                    raise UserError(_("Please select both From and To groups"))
+                if not (booking_line.booking_id.group_booking and
+                        self.group_from.id <= booking_line.booking_id.group_booking.id <= self.group_to.id):
+                    continue
+
             folio = self._find_existing_folio(booking_line, system_date)
+
             if not folio:
                 continue
 
-            forecast = forecast_map.get(booking_line.id)
-            # raise UserError(forecast.rate)
-            if not forecast:
-                _logger.warning(f"No forecast found for booking line {booking_line.id}")
-                continue
+            # Only increment count if records were actually created
+            records_created = self._create_folio_lines(booking_line, folio, forecast)
+            created_count += records_created
 
-            self._create_folio_lines(booking_line, folio, forecast)
-            processed_rooms.add(booking_line.room_id.id)
-
-        return self._show_notification(f"Posted charges for {len(processed_rooms)} rooms", "success")
+        if created_count > 0:
+            return self._show_notification(
+                f"Successfully posted charges for {created_count} rooms",
+                "success"
+            )
+        else:
+            return self._show_notification(
+                "No charges were posted - no valid booking lines found matching criteria",
+                "warning"
+            )
 
     def _get_filtered_booking_lines(self, system_date):
         """Get filtered booking lines based on wizard criteria"""
@@ -136,10 +127,10 @@ class AutoPostingWizard(models.TransientModel):
         return folio_map
 
     def _find_existing_folio(self, booking_line, system_date):
-        """Find existing folio for a booking line"""
+        """Find existing folio that is active during the system_date"""
         domain = [
-            ('check_in', '>=', fields.Datetime.to_datetime(system_date)),  # Day start
-            ('check_in', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),  # Next day start
+            ('check_in', '<=', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
+            ('check_out', '>', fields.Datetime.to_datetime(system_date)),
             ('company_id', '=', self.env.company.id)
         ]
 
@@ -151,10 +142,11 @@ class AutoPostingWizard(models.TransientModel):
         return self.env['tz.master.folio'].search(domain, limit=1)
 
     def _create_folio_lines(self, booking_line, folio, forecast):
-        """Create posting lines for a single forecast"""
+        """Create posting lines and return count of actually created records"""
         booking = booking_line.booking_id
+        created_count = 0
 
-        # Get posting items
+        # Get all posting items
         rate_item = booking.rate_code.rate_posting_item if booking.rate_code else None
         meal_item = booking.meal_pattern.meal_posting_item if booking.meal_pattern else None
         package_items = booking.posting_item_ids.filtered(lambda x: x.type == 'package')
@@ -162,91 +154,67 @@ class AutoPostingWizard(models.TransientModel):
 
         # Room Rate
         if self.include_rates and forecast.rate > 0 and rate_item:
-            self._create_posting_line(
-                folio=folio,
-                booking_line=booking_line,  # Added missing argument
-                item_id=rate_item.id,
-                description=rate_item.description,
-                amount=forecast.rate
-            )
+            if self._create_posting_line(folio, booking_line, rate_item.id, rate_item.description, forecast.rate):
+                created_count += 1
 
         # Meals
         if self.include_meals and forecast.meals > 0 and meal_item:
-            self._create_posting_line(
-                folio=folio,
-                booking_line=booking_line,  # Added missing argument
-                item_id=meal_item.id,
-                description=meal_item.description,
-                amount=forecast.meals
-            )
+            if self._create_posting_line(folio, booking_line, meal_item.id, meal_item.description, forecast.meals):
+                created_count += 1
 
         # Packages
         if self.include_packages and forecast.packages > 0 and package_items:
             for item in package_items:
-                self._create_posting_line(
-                    folio=folio,
-                    booking_line=booking_line,  # Added missing argument
-                    item_id=item.item_id.id,
-                    description=item.item_id.name,
-                    amount=item.amount if item.amount > 0 else forecast.packages
-                )
+                amount = item.amount if item.amount > 0 else forecast.packages
+                if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.name, amount):
+                    created_count += 1
 
         # Fixed Charges
         if self.include_fixed and forecast.fixed_post > 0 and fixed_items:
             for item in fixed_items:
-                self._create_posting_line(
-                    folio=folio,
-                    booking_line=booking_line,  # Added missing argument
-                    item_id=item.item_id.id,
-                    description=item.item_id.description,
-                    amount=item.amount if item.amount > 0 else forecast.fixed_post
-                )
+                amount = item.amount if item.amount > 0 else forecast.fixed_post
+                if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.description, amount):
+                    created_count += 1
+
+        return created_count
 
     def _create_posting_line(self, folio, booking_line, item_id, description, amount):
-        """Create individual posting line with duplicate check"""
+        """Create posting line and return True if created, False if skipped"""
         system_date = self.env.user.company_id.system_date.date()
-
-        existing_posting = self.env['tz.manual.posting'].search([
+        # Check for existing postings first
+        existing = self.env['tz.manual.posting'].search([
             ('folio_id', '=', folio.id),
             ('item_id', '=', item_id),
             ('room_list', '=', booking_line.room_id.id),
             ('date', '>=', fields.Datetime.to_datetime(system_date)),
-            # ('date', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1)))
+            ('date', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
         ], limit=1)
 
-        # raise UserError(existing_posting)
+        if existing:
+            return False  # Skip if already exists
 
-        if existing_posting:
-            _logger.info(f"Duplicate posting prevented for item {item_id} in folio {folio.id}")
-            return existing_posting
-
-        # Create sequence if not exists
-        sequence = self.env['ir.sequence'].sudo().search([
-            ('code', '=', 'tz.manual.posting'),
-            ('company_id', '=', self.env.company.id)
-        ], limit=1) or self.env['ir.sequence'].sudo().create({
-            'name': f'Manual Posting Reference - {self.env.company.name}',
-            'code': 'tz.manual.posting',
-            'prefix': 'MP/',
-            'padding': 5,
-            'company_id': self.env.company.id,
-        })
-
-        # Create new posting
-        return self.env['tz.manual.posting'].create({
-            'name': f"{self.env.company.name}/{sequence.next_by_id()}",
-            'date': fields.Datetime.now(),
+        item = self.env['posting.item'].browse(item_id)
+        # Initialize values dictionary
+        manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
+        vals = {
+            'name': manual_posting,
+            'date': system_date,
             'folio_id': folio.id,
             'item_id': item_id,
             'description': description,
             'type': 'group' if folio.group_id else 'room',
             'room_list': booking_line.room_id.id,
             'group_list': folio.group_id.id if folio.group_id else False,
-            'sign': 'debit',
-            'total': amount,
+            'sign': item.default_sign,
             'quantity': 1,
             'source_type': 'auto',
-        })
+            'total': amount,
+            'debit_amount': amount if item.default_sign == 'debit' else 0.0,
+            'credit_amount': amount if item.default_sign == 'credit' else 0.0,
+            'booking_id': booking_line.booking_id.id,
+        }
+        self.env['tz.manual.posting'].create(vals)
+        return True
 
     def _show_notification(self, message, type_):
         """Helper for showing notifications"""
@@ -275,98 +243,6 @@ class AutoPostingWizard(models.TransientModel):
             ('booking_line_ids.room_id', '=', room_id)
         ], limit=1)
     # =============================================================================
-
-    def action_auto_postingX(self):
-        self.ensure_one()
-        system_date = self.env.user.company_id.system_date.date()
-
-        # Domain setup
-        booking_line_domain = [('state_', '=', 'check_in')]
-
-        # Room filters
-        if not self.all_rooms:
-            if not self.room_from or not self.room_to:
-                raise UserError(_("Please select both From and To rooms"))
-            booking_line_domain.extend([
-                ('room_id', '>=', self.room_from.id),
-                ('room_id', '<=', self.room_to.id)
-            ])
-
-        # Group filters
-        if not self.all_groups:
-            if not self.group_from or not self.group_to:
-                raise UserError(_("Please select both From and To groups"))
-            booking_line_domain.extend([
-                ('group_id', '>=', self.group_from.id),
-                ('group_id', '<=', self.group_to.id)
-            ])
-
-        # Get booking lines
-        booking_lines = self.env['room.booking.line'].search(booking_line_domain)
-        if not booking_lines:
-            raise UserError(_("No rooms in Check-In state matching your criteria"))
-
-        posted_count = 0
-        master_folios_count = 0
-        manual_postings_count = 0
-
-        # Process GROUP bookings - ALL rooms in each group
-        grouped_bookings = booking_lines.mapped('booking_id').filtered('group_booking')
-
-        for group in grouped_bookings.mapped('group_booking'):
-            group_booking_lines = booking_lines.filtered(
-                lambda bl: bl.booking_id.group_booking == group)
-
-            if group_booking_lines:
-                # Create ONE master folio for the entire group
-                folio = self._get_or_create_folio(group_booking_lines[0])
-                master_folios_count += 1
-
-                # Process EVERY room in the group
-                for booking_line in group_booking_lines:
-                    existing_posting = self.env['tz.manual.posting'].search([
-                        ('date', '=', system_date),
-                        ('room_list', '=', booking_line.room_id.id),
-                        ('folio_id', '=', folio.id)
-                    ], limit=1)
-                    if existing_posting:
-                        self.env.user.notify_warning(
-                            _("Posting already exists for room %s on %s") %
-                            (booking_line.room_id.name, system_date))
-                        continue  # Skip this room but continue with others
-
-                    count = self._create_folio_lines(booking_line, folio)
-                    posted_count += count
-
-        # Process INDIVIDUAL bookings (non-group)
-        individual_bookings = booking_lines.filtered(
-            lambda bl: bl.booking_id not in grouped_bookings)
-
-        for booking_line in individual_bookings:
-            # Create individual folio for this booking
-            folio = self._get_or_create_folio(booking_line)
-            manual_postings_count += 1
-
-            existing_posting = self.env['tz.manual.posting'].search([
-                ('date', '=', system_date),
-                ('room_list', '=', booking_line.room_id.id),
-                ('folio_id', '=', folio.id)
-            ], limit=1)
-
-            if existing_posting:
-                self.env.user.notify_warning(
-                    _("Posting already exists for room %s on %s") %
-                    (booking_line.room_id.name, system_date))
-                continue  # Skip this room but continue with others
-
-            count = self._create_folio_lines(booking_line, folio)
-            posted_count += count
-
-        return self._show_success_message(
-            posted_count=posted_count,
-            master_folios_count=master_folios_count,
-            manual_postings_count=manual_postings_count
-        )
 
     def _get_or_create_folio(self, booking_line):
         """Find or create folio for this booking line with proper validation"""
@@ -596,7 +472,6 @@ class RoomRateForecast(models.Model):
     state = fields.Selection(selection=[
         ('draft', 'Draft'),
         ('post', 'Post'),
-    ], string='State', default='draft', tracking=True)
+    ], string='State', default='draft')
 
 
-# self._show_success_message(0, is_info=True, custom_message="Your info message here")

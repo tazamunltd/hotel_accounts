@@ -8,25 +8,6 @@
                 <sheet>
                     <div class="row g-2">
                         <div class="col-lg-12 col-md-12 col-sm-12">
-                            <!-- Date Selection Card -->
-                            <!--<div class="card mb-2 shadow-sm">
-                                <div class="card-header py-1 px-2">
-                                    <i class="fa fa-calendar m-1"/>
-                                    <span class="fw-bold">Date Selection</span>
-                                </div>
-                                <div class="card-body py-1 px-2">
-                                    <div class="row g-2">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="date" class="form-label small">Posting Date</label>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="date"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>-->
 
                             <!-- Room Selection Card -->
                             <div class="card mb-2 shadow-sm">
@@ -164,7 +145,7 @@
 
     <menuitem id="menu_auto_posting"
               name="Auto Posting"
-              parent="menu_fd_root"
+              parent="menu_cashier_parent"
               action="action_auto_posting_wizard"
               sequence="5"/>
 </odoo>

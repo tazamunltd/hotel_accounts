@@ -37,7 +37,7 @@
                                                     <label for="date_order" class="form-label small"/>
                                                 </div>
                                                 <div class="form-control form-control-sm">
-                                                    <field name="date_order"/>
+                                                    <field name="date_order" readonly="1"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -594,13 +594,15 @@
         <!-- Menu 1: Under Front Desk -->
         <menuitem id="menu_fd_root" name="New Front Desk"/>
 
+        <menuitem id="menu_front_desk_parent" parent="menu_fd_root" name="Front Desk"/>
+
         <menuitem id="menu_fd_room_booking" name="Walking"
-                  parent="menu_fd_root"
+                  parent="menu_front_desk_parent"
                   action="fd_action_room_booking"
                   sequence="1"/>
 
         <menuitem id="menu_admin_room_booking" name="In-House Guests"
-                  parent="menu_fd_root"
+                  parent="menu_front_desk_parent"
                   action="room_booking_action_tree"
                   sequence="2"/>
 
