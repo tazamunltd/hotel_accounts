@@ -592,7 +592,7 @@
 
         <!-- Menu Item -->
         <!-- Menu 1: Under Front Desk -->
-        <menuitem id="menu_fd_root" name="New Front Desk"/>
+        <!-- <menuitem id="menu_fd_root" name="New Front Desk" sequence="3"/> -->
 
         <menuitem id="menu_front_desk_parent" parent="menu_fd_root" name="Front Desk"/>
 

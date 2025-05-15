@@ -273,6 +273,7 @@
         </field>
     </record>
 
+    <menuitem id="menu_fd_root" name="Front Desk" sequence="1"/>
     <menuitem id="menu_cashier_parent" parent="menu_fd_root" name="Cashier"/>
 
     <menuitem id="menu_manual_posting" name="Manual Postings" parent="menu_cashier_parent"
