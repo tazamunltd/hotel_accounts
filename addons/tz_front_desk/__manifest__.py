@@ -40,6 +40,7 @@
     'auto_install': False,
     'application': True,
     'version': '0.1',
+    'license': 'OEEL-1',
 
     # any module necessary for this one to work correctly
     'depends': ['hotel_management_odoo'],
@@ -48,7 +49,6 @@
     'data': [
         'security/ir.model.access.csv',
         'data/ir_data_sequence.xml',
-        # 'views/hotel_room_booking_views.xml',
         'views/front_desk_room_booking_views.xml',
         'views/tz_manual_posting_views.xml',
         'views/tz_master_folio_views.xml',

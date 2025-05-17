@@ -10,7 +10,7 @@ class TzMasterFolio(models.Model):
 
     name = fields.Char(string="Folio Number", required=True, index=True, default="New")
 
-    room_id = fields.Many2one('hotel.room', string="Room", required=True)
+    room_id = fields.Many2one('hotel.room', string="Room")
     room_type_id = fields.Many2one('room.type', string="Room Type", related='room_id.room_type_name', store=True)
     guest_id = fields.Many2one('res.partner', string="Guest")
     company_id = fields.Many2one('res.company', string="Hotel", index=True)
@@ -26,17 +26,26 @@ class TzMasterFolio(models.Model):
     value_added_tax = fields.Float(string="Value Added Tax")
     municipality_tax = fields.Float(string="Municipality Tax")
     grand_total = fields.Float(string="Grand Total", compute='_compute_totals', store=True)
-    # folio_line_ids = fields.One2many('tz.master.folio.line', 'folio_id', string="Folio Lines")
     manual_posting_ids = fields.One2many('tz.manual.posting', 'folio_id', string="Posting Lines")
     currency_id = fields.Many2one(
         'res.currency',
-        string='Currency',
-        tracking=True
+        string='Currency'
+    )
+
+    state = fields.Selection(
+        [('draft', 'Draft'), ('posted', 'Posted')],
+        string="State",
+        default='draft'
+    )
+
+    booking_ids = fields.Many2many(
+        'room.booking',
+        string="Linked Bookings",
+        help="All bookings associated with this Master Folio"
     )
 
     @api.depends('manual_posting_ids.debit_amount', 'manual_posting_ids.credit_amount', 'value_added_tax',
                  'municipality_tax')
-    # @api.depends('folio_line_ids.debit_amount', 'folio_line_ids.credit_amount', 'value_added_tax', 'municipality_tax')
     def _compute_totals(self):
         for folio in self:
             total_debit = sum(line.debit_amount for line in folio.manual_posting_ids)
@@ -49,14 +58,11 @@ class TzMasterFolio(models.Model):
     @api.model
     def create(self, vals):
         if vals.get('name', 'New') == 'New':
-            if not vals.get('company_id'):
-                vals['company_id'] = self.env.company.id
+            company = self.env['res.company'].browse(vals['company_id'])
+            prefix = company.name + '/' if company else ''
+            next_seq = self.env['ir.sequence'].with_company(company).next_by_code('tz.master.folio') or '00001'
+            vals['name'] = prefix + next_seq
 
-            if vals.get('name', 'New') == 'New':
-                company = self.env['res.company'].browse(vals['company_id'])
-                prefix = company.name + '/' if company else ''
-                next_seq = self.env['ir.sequence'].with_company(company).next_by_code('tz.master.folio') or '00001'
-                vals['name'] = prefix + next_seq
         # Handle group booking folio creation
         if vals.get('is_group_booking'):
             # Find the master booking for this group
@@ -124,26 +130,3 @@ class TzMasterFolio(models.Model):
         report_action = self.env.ref('tz_front_desk.action_report_tz_master_folio')
         return report_action.report_action(self)
 
-
-class TzMasterFolioLine(models.Model):
-    _name = 'tz.master.folio.line'
-    _description = 'Master Folio Line'
-    _order = 'date, id'
-
-    folio_id = fields.Many2one('tz.master.folio', string="Folio", required=True, ondelete='cascade')
-    date = fields.Date(string="Date", required=True)
-    time = fields.Char(string="Time")
-    description = fields.Char(string="Description", required=True)
-    voucher_number = fields.Char(string="Voucher #")
-    debit_amount = fields.Float(string="Debit", default=0)
-    credit_amount = fields.Float(string="Credit", default=0)
-    balance = fields.Float(string="Balance", compute='_compute_balance', store=True)
-
-    @api.depends('folio_id', 'debit_amount', 'credit_amount', 'date')
-    def _compute_balance(self):
-        for folio in self.mapped('folio_id'):
-            lines = folio.folio_id.sorted(key=lambda r: (r.date, r.id))
-            running_balance = 0
-            for line in lines:
-                running_balance += line.debit_amount - line.credit_amount
-                line.balance = running_balance

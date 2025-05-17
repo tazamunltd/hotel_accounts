@@ -21,6 +21,7 @@ class TzMasterFolioReport(models.Model):
     check_in = fields.Datetime(string='Check-in')
     check_out = fields.Datetime(string='Check-out')
     bill_number = fields.Char(string='Bill Number')
+    rooming_info = fields.Char(string="Rooming Info")
     currency_id = fields.Many2one('res.currency', string='Currency')
 
     # Fields from posting items
@@ -75,6 +76,7 @@ class TzMasterFolioReport(models.Model):
                 mf.check_in AS check_in,
                 mf.check_out AS check_out,
                 mf.bill_number AS bill_number,
+                mf.rooming_info AS rooming_info,
                 mf.value_added_tax AS value_added_tax,
                 mf.municipality_tax AS municipality_tax,
                 mf.grand_total AS grand_total,
@@ -143,3 +145,49 @@ class TzMasterFolioReport(models.Model):
                                                                               currency_obj=currency) or formatLang(
                 self.env, amount),
         }
+
+
+# SELECT
+#                 pi.id AS item_id,
+#                 COALESCE(pi.item_code ->> 'ar', pi.item_code ->> 'en_US') AS item_name,
+#                 COALESCE(pi.description ->>'ar', pi.description ->> 'en_US') AS item_description,
+#                 MIN(mp.date) AS first_date,
+#                 MIN(mp.time) AS first_time,
+#                 SUM(mp.debit_amount) AS total_debit,
+#                 SUM(mp.credit_amount) AS total_credit,
+#                 SUM(mp.balance) AS total_balance,
+#                 mf.id AS folio_id,
+#                 mf.name AS folio_number,
+#                 mf.room_id AS room_id,
+#                 mf.group_id AS group_id,
+#                 mf.room_type_id AS room_type_id,
+#                 mf.guest_id AS guest_id,
+#                 mf.company_id AS company_id,
+#                 mf.company_vat AS company_vat,
+#                 mf.check_in AS check_in,
+#                 mf.check_out AS check_out,
+#                 mf.bill_number AS bill_number,
+# 				mf.rooming_info AS rooming_info,
+#                 mf.value_added_tax AS value_added_tax,
+#                 mf.municipality_tax AS municipality_tax,
+#                 mf.grand_total AS grand_total,
+#                 mf.currency_id AS currency_id,
+#                 mf.total_debit AS folio_total_debit,
+#                 mf.total_credit AS folio_total_credit,
+#                 mf.balance AS folio_balance
+#             FROM
+#                 tz_manual_posting mp
+#             JOIN
+#                 posting_item pi ON mp.item_id = pi.id
+#             JOIN
+#                 tz_master_folio mf ON mp.folio_id = mf.id
+#             WHERE
+#                 mp.folio_id = 1
+#             GROUP BY
+#                 pi.id, pi.item_code, pi.description, mf.id, mf.name,
+#                 mf.room_id, mf.room_type_id, mf.guest_id, mf.company_id,
+#                 mf.company_vat, mf.check_in, mf.check_out, mf.bill_number,
+#                 mf.value_added_tax, mf.municipality_tax, mf.grand_total,
+#                 mf.currency_id, mf.total_debit, mf.total_credit, mf.balance
+#             ORDER BY
+#                 pi.item_code

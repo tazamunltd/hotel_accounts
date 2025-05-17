@@ -9,7 +9,6 @@
                 <field name="item_id"/>
                 <field name="date"/>
                 <field name="description"/>
-<!--                <field name="voucher_number"/>-->
                 <field name="room_list"/>
                 <field name="group_list"/>
                 <field name="type"/>
@@ -46,7 +45,7 @@
                                                 <label for="name" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="name" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="name"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
