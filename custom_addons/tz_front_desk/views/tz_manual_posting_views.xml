@@ -9,6 +9,7 @@
                 <field name="item_id"/>
                 <field name="date"/>
                 <field name="description"/>
+<!--                <field name="voucher_number"/>-->
                 <field name="room_list"/>
                 <field name="group_list"/>
                 <field name="type"/>
@@ -53,7 +54,7 @@
                                                 <label for="company_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="company_id" readonly="state == 'posted'"/>
+                                                <field name="company_id" readonly="1"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -118,7 +119,7 @@
                                                 <field name="folio_id" readonly="1"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-3" invisible="not room_list">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="booking_id" class="form-label small"/>
                                             </div>
@@ -132,7 +133,7 @@
                                                 <label for="partner_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="partner_id" force_save="1" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="partner_id" force_save="1"/>
                                             </div>
                                         </div>
                                         <div class="col-md-4" invisible="not room_list">
@@ -140,7 +141,7 @@
                                                 <label for="reference_contact_" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="reference_contact_" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="reference_contact_"/>
                                             </div>
                                         </div>
                                         <hr/>
