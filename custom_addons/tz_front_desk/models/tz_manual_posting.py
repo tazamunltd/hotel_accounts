@@ -68,6 +68,12 @@ class TzHotelManualPosting(models.Model):
         domain="[('status_code', '=', 'confirmed')]"
     )
 
+    # valid_group_ids = fields.Many2many(
+    #     'group.booking',
+    #     compute='_compute_valid_groups',
+    #     string='Valid Groups'
+    # )
+
     type = fields.Selection(
         [
             ('room', 'Room'),
@@ -110,13 +116,12 @@ class TzHotelManualPosting(models.Model):
         compute='_compute_sign',
     )
 
-    taxes = fields.Many2one(
-        'account.tax',
-        string="Taxes",
-        related='item_id.taxes',
-        store=True,
-        tracking=True
-    )
+    taxes = fields.Many2many('account.tax', string="Taxes", compute='_compute_taxes', store=True)
+
+    @api.depends('item_id.taxes')
+    def _compute_taxes(self):
+        for rec in self:
+            rec.taxes = rec.item_id.taxes
 
     partner_id = fields.Many2one(
         'res.partner',
@@ -420,13 +425,24 @@ class TzHotelManualPosting(models.Model):
         for rec in self:
             rec.sign = rec.item_id.default_sign
 
+    @api.onchange('folio_id')
+    def _onchange_folio_id(self):
+        for rec in self:
+            if rec.folio_id and rec.folio_id.group_id:
+                rec.group_list = rec.folio_id.group_id
+            else:
+                rec.group_list = False
 
-# class PostingItemInherit(models.Model):
-#     _inherit = 'posting.item'
-#
-#     tax_ids = fields.Many2many(
-#         'account.tax',
-#         string='Taxes',
-#         domain=[('type_tax_use', '=', 'sale')],  # optional filter
-#         help="Select taxes that apply to this posting item"
-#     )
+    @api.depends('folio_id')
+    def _compute_group_list(self):
+        self._onchange_folio_id()
+
+    @api.constrains('item_id')
+    def _check_item_default_sign(self):
+        for record in self:
+            if record.item_id and record.item_id.default_sign:
+                raise UserError(
+                    "This operation is not allowed because the selected item "
+                    "has default_sign set to Debit or Credit. Please choose another item."
+                )
+
