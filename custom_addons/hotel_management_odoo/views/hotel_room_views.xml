@@ -236,10 +236,10 @@
                                                     <div class="form-group mb-1">
                                                         <field name="uom_id" invisible="1" />
                                                     </div>
-                                                    <div class="form-group mb-1">
+                                                    <!-- <div class="form-group mb-1">
                                                         <label for="taxes_ids" class="form-label small">Customer Taxes</label>
                                                         <field name="taxes_ids" widget="many2many_tags" class="form-control form-control-sm" />
-                                                    </div>
+                                                    </div> -->
                                                     <!-- <div class="form-group mb-1">
                                                         <label for="floor_id" class="form-label small">Floor</label>
                                                         <field name="floor_id" class="form-control form-control-sm" />
@@ -519,11 +519,11 @@
 
     <menuitem id="sub_menu_meal_codes" name="Meal Codes" parent="hotel_codes" action="setup_configuration.action_meal_code" sequence="5" />
 
-    <!-- <menuitem id="sub_menu_meal_code_sub_type" name="Meal Code Sub Type" action="setup_configuration.action_meal_code_sub_type" parent="hotel_codes" sequence="6" /> -->
+    <!-- <menuitem id="sub_menu_meal_code_sub_type" name="Main Meal Code" action="setup_configuration.action_meal_code_sub_type" parent="hotel_codes" sequence="6" /> -->
 
 
     <menuitem id="sub_menu_meal_pattern" name="Meal Pattern" parent="hotel_codes" action="setup_configuration.action_meal_pattern" sequence="7" />
-    <menuitem id="sub_menu_meal_pattern_sub_type" name="Meal Pattern Sub Type" parent="hotel_codes" action="setup_configuration.action_meal_pattern_sub_type" sequence="8" />
+    <!-- <menuitem id="sub_menu_meal_pattern_sub_type" name="Main Meal Pattern" parent="hotel_codes" action="setup_configuration.action_meal_pattern_sub_type" sequence="8" /> -->
 
 
     <menuitem id="sub_menu_telephone_extension" name="Telephone Extension" parent="hotel_codes" action="setup_configuration.action_telephone_extension" sequence="9" />

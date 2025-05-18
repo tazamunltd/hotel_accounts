@@ -135,7 +135,6 @@ class RoomBookingDashboard(models.Model):
                 metrics['waiting']
             )
             
-            print("Metrics", metrics)
             # Generate date range for occupancy data
             date_range = []
             current_date = start_date

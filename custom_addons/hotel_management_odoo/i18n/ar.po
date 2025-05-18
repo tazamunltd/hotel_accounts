@@ -860,6 +860,11 @@ msgid "Are you sure you want to check out early?"
 msgstr "هل أنت متأكد من أنك تريد تسجيل المغادرة مبكرًا؟"
 
 #. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_confirm_booking_wizard_form
+msgid "Room number will be released. Do you want to proceed?"
+msgstr "سيتم تحرير رقم الغرفة. هل ترغب في المتابعة؟"
+
+#. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Are you sure you want to check-in this booking?"
 msgstr "هل أنت متأكد من أنك تريد تسجيل دخول هذا الحجز؟"
@@ -1086,19 +1091,19 @@ msgstr "تاريخ الميلاد"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #, python-format
 msgid "Block"
-msgstr "تخصيص"
+msgstr "مخصص"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__reservation_status_report__original_state__block
 msgid "Blocked"
-msgstr "مخـصصة"
+msgstr "مخصص"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Blocked ("
-msgstr "مخـصصة ("
+msgstr "مخصص ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_update_wizard__blocked_room_action
@@ -1129,6 +1134,13 @@ msgstr "الغرف المخصصة"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_service_booking_line__booking_id
 msgid "Booking"
 msgstr "الحجز"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/offline_search_widget.js:0
+#, python-format
+msgid "Booking created successfully."
+msgstr "!تم إنشاء الحجز بنجاح"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -1276,7 +1288,7 @@ msgstr "زر الإلغاء"
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__group_booking__status_code__canceled
 msgid "Canceled"
-msgstr "تم الإلغاء"
+msgstr "مُلْغى"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__all_reservation_status_report__state__cancelled
@@ -1287,14 +1299,14 @@ msgstr "تم الإلغاء"
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__state__cancel
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__cancel
 msgid "Cancelled"
-msgstr "تم الإلغاء"
+msgstr "مُلْغى"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
 msgid "Cancelled ("
-msgstr "تم إلغاؤه ("
+msgstr "مُلْغى ("
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_type__card
@@ -1346,7 +1358,7 @@ msgstr "قناة"
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line__state___check_in
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__check_in
 msgid "Check In"
-msgstr "الوصول"
+msgstr "وصول"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__checkout_date
@@ -1357,7 +1369,7 @@ msgstr "الوصول"
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line__state___check_out
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line_status__status__check_out
 msgid "Check Out"
-msgstr "المغادرة"
+msgstr "مغادرة"
 
 #. module: hotel_management_odoo
 #: model:ir.actions.server,name:hotel_management_odoo.cron_check_waiting_list_ir_actions_server
@@ -1841,6 +1853,7 @@ msgstr "مؤكد"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_confirm_booking_wizard_form
 msgid "Confirm Booking"
 msgstr "تأكيد الحجز"
+
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_confirm_booking_wizard
@@ -3037,6 +3050,23 @@ msgstr "إجمالي مغادرة متوقعة"
 msgid "Expected In House"
 msgstr "مقيمون متوقعون"
 
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__expected_in_house
+msgid "Expected In House"
+msgstr "إقامة متوقعة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__expected_in_house_adults
+msgid "Expected In House Adults"
+msgstr "إقامة متوقعة بالغون"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__expected_in_house_children
+msgid "Expected In House Children"
+msgstr "إقامة متوقعة أطفال"
+
+
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/xml/dashboard_templates.xml:0
@@ -3485,7 +3515,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__group_booking
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Group Booking"
-msgstr "مجموعات الحجوزات"
+msgstr "مجموعة الحجز"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_pivot
@@ -5116,7 +5146,7 @@ msgstr "سعر وجبة الرضيع"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_person__meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__group_meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_by_nationality_forecast__meal_pattern
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__meal_pattern
+
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_partner_details__meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_partner__meal_pattern
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_res_users__meal_pattern
@@ -5127,6 +5157,11 @@ msgstr "سعر وجبة الرضيع"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
 msgid "Meal Pattern"
 msgstr "أنظمة الوجبات"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__meal_pattern
+msgid "Meal Pattern"
+msgstr "الوجبة الرئيسية"
 
 #. module: hotel_management_odoo
 #: model:ir.ui.menu,name:hotel_management_odoo.sub_menu_meal_pattern_sub_type
@@ -5975,8 +6010,8 @@ msgstr "متصل"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
-msgid "Open Form"
-msgstr "شكل مفتوح"
+msgid "Edit Data"
+msgstr "تحديث البيانات"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
@@ -7301,7 +7336,7 @@ msgstr "حالة الغرفة حسب النوع"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
 #, python-format
 msgid "Room Type"
-msgstr "أنواع الغرف"
+msgstr "نوع الغرفة"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -8112,7 +8147,7 @@ msgstr "حالة الفاتورة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__total_stays
 msgid "Stays"
-msgstr "يبقى"
+msgstr "زيارة"
 
 #. module: hotel_management_odoo
 #. odoo-python
@@ -9140,7 +9175,7 @@ msgstr "زائر"
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__reservation_status_count_as__wait_list
 msgid "Wait List"
-msgstr "قائمة الانتظار"
+msgstr "إنتظار"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -9165,7 +9200,7 @@ msgstr "في انتظار الدعم"
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 #, python-format
 msgid "Waiting List"
-msgstr "قائمة الانتظار"
+msgstr "إنتظار"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -9191,8 +9226,13 @@ msgstr "إلغاء المغادرة"
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
-msgid "Waiting List ("
-msgstr "قائمة الانتظار ("
+msgid "Waiting ("
+msgstr "إنتظار ("
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_company_form_inherit_date_field
+msgid "Terms and Conditions"
+msgstr "الشروط والأحكام"
 
 #. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_room_booking
@@ -9466,7 +9506,7 @@ msgstr "مؤكد ("
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/views/reservation_dashboard.xml:0
 #, python-format
-msgid "Exp.Departure  ("
+msgid "Exp.Departure ("
 msgstr "مغادرة متوقعة ("
 
 #. module: hotel_management_odoo

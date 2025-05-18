@@ -1,0 +1,61 @@
+<odoo>
+  <data>
+    <!-- List (tree) View -->
+    <record model="ir.ui.view" id="additional_attributes_list">
+      <field name="name">additional_attributes.list</field>
+      <field name="model">additional_attributes.additional_attributes</field>
+      <field name="arch" type="xml">
+        <tree string="Additional Attributes">
+          <field name="attribute_id" string="Attribute ID"/>
+          <field name="description"/>
+          <field name="abbreviation"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Form View -->
+    <record model="ir.ui.view" id="additional_attributes_form">
+      <field name="name">additional_attributes.form</field>
+      <field name="model">additional_attributes.additional_attributes</field>
+      <field name="arch" type="xml">
+        <form string="Additional Attributes">
+          <sheet>
+            <group colspan="2">
+              <group>
+                <field name="description"/>
+                <field name="abbreviation"/>
+                <field name="length"/>
+              </group>
+              <group>
+                <field name="arb_description"/>
+                <field name="arb_abbreviation"/>
+                <field name="mandatory" widget="radio"/>
+              </group>
+            </group>
+            <group colspan="2">
+              <group>
+              <field name="type" widget="radio"/>
+              </group>
+              <group>
+                <field name="entry_target_profile"/>
+                <field name="entry_target_reservation"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Action to open form/tree views -->
+    <record model="ir.actions.act_window" id="action_additional_attributes_window">
+      <field name="name">Additional Attributes</field>
+      <field name="res_model">additional_attributes.additional_attributes</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Top menu item -->
+    <menuitem id="menu_additional_attributes_root" name="Additional Attributes" sequence="10"/>
+    <!-- Add action to the menu -->
+    <menuitem id="menu_additional_attributes_list" name="Manage Additional Attributes" parent="menu_additional_attributes_root" action="action_additional_attributes_window"/>
+  </data>
+</odoo>

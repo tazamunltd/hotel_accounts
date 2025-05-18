@@ -105,7 +105,7 @@
         <field name="view_mode">form</field>
     </record>
     <record id="action_meal_code_sub_type" model="ir.actions.act_window">
-        <field name="name">Meal Code Sub Types</field>
+        <field name="name">Main Meal Code</field>
         <field name="res_model">meal.code.sub.type</field>
         <field name="view_mode">tree,form</field>
     </record>
@@ -113,6 +113,12 @@
     <record id="action_application_room_type" model="ir.actions.act_window">
         <field name="name">Application Room Types</field>
         <field name="res_model">application.room.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_meal_pattern_sub_type" model="ir.actions.act_window">
+        <field name="name">Main Meal Pattern</field>
+        <field name="res_model">meal.pattern.sub.type</field>
         <field name="view_mode">tree,form</field>
     </record>
 
@@ -136,7 +142,7 @@
               groups="base.group_system"
               /> -->
     <menuitem id="sub_menu_meal_code_sub_type" 
-              name="Meal Code Sub Type" 
+              name="Main Meal Code" 
               action="action_meal_code_sub_type"
               parent="menu_hotel_configuration"
               sequence="11"
@@ -149,6 +155,15 @@
               sequence="16"
               groups="base.group_system"
               />
+
+    <menuitem id="sub_menu_meal_pattern_sub_type" 
+            name="Main Meal Pattern"
+            parent="menu_hotel_configuration" 
+            action="action_meal_pattern_sub_type" 
+            sequence="17"
+            groups="base.group_system"
+             />
+
 
     <!-- <menuitem id="sub_menu_meal_pattern"
               name="Meal Pattern"

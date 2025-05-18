@@ -24,6 +24,7 @@ class DeleteWithNotification extends Component {
         }
 
         try {
+            
             await this.rpc('/delete_reservations', {
                 record_ids: recordIds,
             });
@@ -35,13 +36,37 @@ class DeleteWithNotification extends Component {
 
             this.action.doAction("hotel_management_odoo.room_booking_action", { clearBreadcrumbs: true });
 
-        } catch (error) {
+        }
+        catch (error) {
             console.error("❌ Delete failed:", error);
-            this.notification.add("Failed to delete reservation(s).", {
+
+            // ✅ Extract exact validation message
+            let message = "An unexpected error occurred.";
+
+            if (error?.data?.message) {
+                message = error.data.message;
+            } else if (error?.message) {
+                message = error.message;
+            }
+
+            // ✅ Show your custom message instead of generic "Failed"
+            this.notification.add(message, {
                 type: "danger",
                 sticky: true,
             });
         }
+            this.action.doAction("hotel_management_odoo.room_booking_action", {
+                    clearBreadcrumbs: true,
+                });
+
+
+        // catch (error) {
+        //     console.error("❌ Delete failed:", error);
+        //     this.notification.add("Failed to delete reservation(s).", {
+        //         type: "danger",
+        //         sticky: true,
+        //     });
+        // }
     }
 }
 

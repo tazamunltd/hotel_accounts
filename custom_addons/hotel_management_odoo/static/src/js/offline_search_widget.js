@@ -1743,9 +1743,10 @@ export class OfflineSearchWidget extends Component {
                 await this.actionSearchRoomTypes(recordId);
                 await this.env.services.action.doAction(action);
 
-                this.notification.add('Booking created successfully!', {
-                    type: 'success',
-                });
+                this.notification.add(
+                  _t("Booking created successfully."), // ← wrapped in _t()
+                  { type: "success" }
+                );
             } else {
                 const action = {
                     type: 'ir.actions.act_window',

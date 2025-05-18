@@ -825,6 +825,7 @@
                                             <div class="form-group mb-1">
                                                 <label for="taxes" class="form-label small">Taxes</label>
                                                 <field name="taxes"
+                                                    widget="many2many_tags"
                                                     class="form-control form-control-sm"
                                                     placeholder="Enter Taxes" />
                                             </div>

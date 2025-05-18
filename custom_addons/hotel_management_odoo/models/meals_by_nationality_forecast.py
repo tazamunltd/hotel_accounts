@@ -5,6 +5,7 @@ from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
+
 class MealsByNationalityForecast(models.Model):
     _name = 'meals.by.nationality.forecast'
     _description = 'Meals By Nationality Forecast'
@@ -17,14 +18,21 @@ class MealsByNationalityForecast(models.Model):
     expected_arrivals = fields.Integer(string='Expected Arrivals')
     expected_departures = fields.Integer(string='Expected Departures')
     in_house = fields.Integer(string='In House')
-    expected_arrivals_adults = fields.Integer(string='Expected Arrivals Adults')
-    expected_arrivals_children = fields.Integer(string='Expected Arrivals Children')
-    expected_arrivals_infants = fields.Integer(string='Expected Arrivals Infants')
+    expected_arrivals_adults = fields.Integer(
+        string='Expected Arrivals Adults')
+    expected_arrivals_children = fields.Integer(
+        string='Expected Arrivals Children')
+    expected_arrivals_infants = fields.Integer(
+        string='Expected Arrivals Infants')
     expected_arrivals_total = fields.Integer(string='Expected Arrivals Total')
-    expected_departures_adults = fields.Integer(string='Expected Departures Adults')
-    expected_departures_children = fields.Integer(string='Expected Departures Children')
-    expected_departures_infants = fields.Integer(string='Expected Departures Infants')
-    expected_departures_total = fields.Integer(string='Expected Departures Total')
+    expected_departures_adults = fields.Integer(
+        string='Expected Departures Adults')
+    expected_departures_children = fields.Integer(
+        string='Expected Departures Children')
+    expected_departures_infants = fields.Integer(
+        string='Expected Departures Infants')
+    expected_departures_total = fields.Integer(
+        string='Expected Departures Total')
     in_house_adults = fields.Integer(string='In House Adults')
     in_house_children = fields.Integer(string='In House Children')
     in_house_infants = fields.Integer(string='In House Infants')
@@ -51,9 +59,12 @@ class MealsByNationalityForecast(models.Model):
                 'res_model': 'meals.by.nationality.forecast',
                 'view_mode': 'tree,graph,pivot',
                 'views': [
-                    (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_tree').id, 'tree'),
-                    (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_graph').id, 'graph'),
-                    (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_meals_by_nationality_forecast_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_meals_by_nationality_forecast_graph').id, 'graph'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
                 ],
                 'target': 'current',
             }
@@ -74,9 +85,12 @@ class MealsByNationalityForecast(models.Model):
                 'res_model': 'meals.by.nationality.forecast',
                 'view_mode': 'tree,graph,pivot',
                 'views': [
-                    (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_tree').id, 'tree'),
-                    (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_graph').id, 'graph'),
-                    (self.env.ref('hotel_management_odoo.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_meals_by_nationality_forecast_tree').id, 'tree'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_meals_by_nationality_forecast_graph').id, 'graph'),
+                    (self.env.ref(
+                        'hotel_management_odoo.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
                 ],
                 'domain': domain,  # Ensures no data is displayed
                 'target': 'current',
@@ -134,21 +148,21 @@ class MealsByNationalityForecast(models.Model):
         except Exception as e:
             _logger.error(f"Error generating booking results: {str(e)}")
             raise ValueError(f"Error generating booking results: {str(e)}")
-        
+
 #             query = """
 #         WITH parameters AS (
 #     SELECT
 #         COALESCE(
-#             (SELECT MIN(rb.checkin_date::date) FROM room_booking rb), 
+#             (SELECT MIN(rb.checkin_date::date) FROM room_booking rb),
 #             CURRENT_DATE
 #         ) AS from_date,
 #         COALESCE(
-#             (SELECT MAX(rb.checkout_date::date) FROM room_booking rb), 
+#             (SELECT MAX(rb.checkout_date::date) FROM room_booking rb),
 #             CURRENT_DATE
 #         ) AS to_date
 # ),
 
-    def run_process_by_meals_by_nationality_forecast(self,from_date = None, to_date = None):
+    def run_process_by_meals_by_nationality_forecast(self, from_date=None, to_date=None):
         """Execute the SQL query and process the results."""
         _logger.info("Started run_process_by_meals_by_nationality_forecast")
 
@@ -161,7 +175,7 @@ class MealsByNationalityForecast(models.Model):
             from_date = system_date
             to_date = system_date + timedelta(days=30)
         _logger.info("Existing records for the current company deleted")
-        
+
         # system_date = self.env.company.system_date.date()
         # from_date = system_date - datetime.timedelta(days=7)
         # to_date = system_date + datetime.timedelta(days=7)
@@ -628,7 +642,8 @@ ORDER BY fr.report_date, fr.company_id, fr.room_type_name, fr.meal_pattern_name,
         self.env.cr.execute(query)
         # self.env.cr.execute(query, (get_company, get_company, get_company))
         results = self.env.cr.fetchall()
-        _logger.info(f"Query executed successfully. {len(results)} results fetched")
+        _logger.info(
+            f"Query executed successfully. {len(results)} results fetched")
 
         records_to_create = []
 
@@ -669,7 +684,8 @@ ORDER BY fr.report_date, fr.company_id, fr.room_type_name, fr.meal_pattern_name,
                 # else:
                 #     continue
 
-                total_adults = expected_arrivals_adults + expected_departures_adults + in_house_adults
+                total_adults = expected_arrivals_adults + \
+                    expected_departures_adults + in_house_adults
 
                 records_to_create.append({
                     'report_date': report_date,
@@ -700,7 +716,8 @@ ORDER BY fr.report_date, fr.company_id, fr.room_type_name, fr.meal_pattern_name,
                 })
 
             except Exception as e:
-                _logger.error(f"Error processing record {result}: {e}", exc_info=True)
+                _logger.error(
+                    f"Error processing record {result}: {e}", exc_info=True)
                 continue
 
         if records_to_create:

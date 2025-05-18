@@ -19,6 +19,20 @@ msgstr ""
 "X-Generator: Poedit 3.5\n"
 
 #. module: setup_configuration
+#: model:ir.model.fields,field_description:setup_configuration.field_application_room_type__name
+#: model:ir.model.fields,field_description:setup_configuration.field_room_type__application_room_type
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_application_room_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_application_room_type_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_type_form
+msgid "Application Room Type"
+msgstr "أنواع الغرف في نموذج الحجز"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_meal_code_sub_type
+msgid "Main Meal Codes"
+msgstr "الأنواع الفرعية لرمز الوجبة"
+
+#. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_room_number_specific_rate__child_pax_1
 #: model:ir.model.fields,field_description:setup_configuration.field_room_type_specific_rate__child_pax_1
 msgid "1 Child"
@@ -9025,14 +9039,14 @@ msgstr "رتبة"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_category_kanban
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_category_pivot
 msgid "Rate Categories"
-msgstr "تصنيف الفئات"
+msgstr "فئـات السعر"
 
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_rate_category
 #: model:ir.model,name:setup_configuration.model_rate_category
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_category_form
 msgid "Rate Category"
-msgstr "تصنيف التقييم"
+msgstr "فئـة السعر"
 
 #. module: setup_configuration
 #. odoo-python

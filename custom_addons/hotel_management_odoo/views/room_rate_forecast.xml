@@ -32,30 +32,91 @@
                         <!--                        </form>-->
                     </field>
                     <group>
-                        <div style="display: flex; align-items: center; gap: 100px; width: max-content;">
+                        <div style="display: flex; align-items: center; gap: 30px; width: max-content;">
                             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
                                 <label for="total_rate_forecast" string="Total Room Rate"/>
                                 <field name="total_rate_forecast" readonly="1"/>
+
+                                <label for="total_rate_after_discount" string="Total Room Rate After Discount"/>
+                                <field name="total_rate_after_discount" readonly="1"/>
+                                
+                                <label for="room_rate_municiplaity_tax" string="Room Rate Municipality Tax"/>
+                                <field name="room_rate_municiplaity_tax" readonly="1"/>
+                                
+                                <label for="room_rate_vat" string="Room Rate VAT"/>
+                                <field name="room_rate_vat" readonly="1"/>
+                                
+                                <label for="room_rate_untaxed" string="Room Rate Untaxed"/>
+                                <field name="room_rate_untaxed" readonly="1"/>
+
                             </div>
+                            <!-- Meal Rate Column -->
                             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
-                                <label for="total_meal_forecast" string="Total Meals"/>
+                                <label for="total_meal_forecast">Total Meals</label>
                                 <field name="total_meal_forecast" readonly="1"/>
+
+                                <label for="total_meal_after_discount">Total Meals After Discount</label>
+                                <field name="total_meal_after_discount" readonly="1"/>
+
+                                <label for="meal_rate_municiplaity_tax">Meal Rate Municipality Tax</label>
+                                <field name="meal_rate_municiplaity_tax" readonly="1"/>
+
+                                <label for="meal_rate_vat">Meal Rate VAT</label>
+                                <field name="meal_rate_vat" readonly="1"/>
+
+                                <label for="meal_rate_untaxed">Meal Rate Untaxed</label>
+                                <field name="meal_rate_untaxed" readonly="1"/>
                             </div>
-                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
-                                <label for="total_package_forecast" string="Total Packages"/>
+                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 180px;">
+                                <label for="total_package_forecast">Total Packages</label>
                                 <field name="total_package_forecast" readonly="1"/>
+
+                                <label for="total_package_after_discount">Total Packages After Discount</label>
+                                <field name="total_package_after_discount" readonly="1"/>
+
+                                <label for="packages_municiplaity_tax">Packages Municipality Tax</label>
+                                <field name="packages_municiplaity_tax" readonly="1"/>
+
+                                <label for="packages_vat">Packages VAT</label>
+                                <field name="packages_vat" readonly="1"/>
+
+                                <label for="packages_untaxed">Packages Untaxed</label>
+                                <field name="packages_untaxed" readonly="1"/>
                             </div>
+
                             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
                                 <label for="total_fixed_post_forecast" string="Total Fixed Pst."/>
                                 <field name="total_fixed_post_forecast" readonly="1"/>
+
+                                <label for="total_fixed_post_after_discount" string="Total Fixed Pst After Discount"/>
+                                <field name="total_fixed_post_after_discount" readonly="1"/>
+
+                                <label for="fixed_post_municiplaity_tax" string="Fixed Post Municipality Tax"/>
+                                <field name="fixed_post_municiplaity_tax" readonly="1"/>
+
+                                <label for="fixed_post_vat" string="Fixed Post VAT"/>
+                                <field name="fixed_post_vat" readonly="1"/>
+
+                                <label for="fixed_post_untaxed" string="Fixed Post Untaxed"/>
+                                <field name="fixed_post_untaxed" readonly="1"/>
                             </div>
+
                             <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
+                                <label for="total_before_discount_forecast"
+                                    string="Grand Total Before Discount" />
+                                <field name="total_before_discount_forecast" readonly="1" />
+
                                 <label for="total_total_forecast" string="Grand Total"/>
                                 <field name="total_total_forecast" readonly="1"/>
-                            </div>
-                            <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: max-content;">
-                                <label for="total_before_discount_forecast" string="Grand Total Before Discount"/>
-                                <field name="total_before_discount_forecast" readonly="1"/>
+
+                                <label for="total_municipality_tax" string="Total Municipality Tax"/>
+                                <field name="total_municipality_tax" readonly="1"/>
+
+                                <label for="total_vat" string="Total VAT"/>
+                                <field name="total_vat" readonly="1"/>
+
+                                <label for="total_untaxed" string="Total Untaxed"/>
+                                <field name="total_untaxed" readonly="1"/>
                             </div>
                         </div>
                     </group>

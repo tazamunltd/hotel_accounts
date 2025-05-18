@@ -13,7 +13,7 @@
                 <field name="in_house" type="row"/>
                 <field name="pax_adults" type="row"/>
                 <field name="pax_children" type="row"/>
-                <field name="pax_infants" type="row"/>
+                <!-- <field name="pax_infants" type="row"/> -->
                 <field name="pax_totals" type="row"/>
                 <field name="expected_occupied_rate" type="row"/>
                 <field name="rate_revenue" type="row"/>
@@ -40,7 +40,7 @@
                 <field name="in_house" type="row"/>
                 <field name="pax_adults" optional="show"/>
                 <field name="pax_children" optional="show"/>
-                <field name="pax_infants" optional="show"/>
+                <!-- <field name="pax_infants" optional="show"/> -->
                 <field name="pax_totals" optional="show"/>
                 <field name="expected_occupied_rate" type="row"/>
                 <field name="rate_revenue" type="row"/>
@@ -67,7 +67,7 @@
                 <field name="in_house" optional="show"/>
                 <field name="pax_adults" optional="show"/>
                 <field name="pax_children" optional="show"/>
-                <field name="pax_infants" optional="show"/>
+                <!-- <field name="pax_infants" optional="show"/> -->
                 <field name="pax_totals" optional="show"/>
                 <field name="expected_occupied_rate" optional="show"/>
                 <field name="rate_revenue" optional="show"/>

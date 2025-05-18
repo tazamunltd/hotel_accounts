@@ -14,21 +14,21 @@
                     <field name="expected_arrivals" optional="show"/>
                     <field name="expected_arrivals_adults" optional="show"/>
                     <field name="expected_arrivals_children" optional="show"/>
-                    <field name="expected_arrivals_infants" optional="show"/>
+                    <!-- <field name="expected_arrivals_infants" optional="show"/> -->
                     <field name="expected_arrivals_total" optional="show"/>
                     <field name="expected_departures" optional="show"/>
                     <field name="expected_departures_adults" optional="show"/>
                     <field name="expected_departures_children" optional="show"/>
-                    <field name="expected_departures_infants" optional="show"/>
+                    <!-- <field name="expected_departures_infants" optional="show"/> -->
                     <field name="expected_departures_total" optional="show"/>
                     <field name="in_house" optional="show"/>
                     <field name="in_house_adults" optional="show"/>
                     <field name="in_house_children" optional="show"/>
-                    <field name="in_house_infants" optional="show"/>
+                    <!-- <field name="in_house_infants" optional="show"/> -->
                     <field name="in_house_total" optional="show"/>
                     <field name="total_adults" optional="show"/>
                     <field name="total_children" optional="show"/>
-                    <field name="total_infants" optional="show"/>
+                    <!-- <field name="total_infants" optional="show"/> -->
                     <field name="total_of_all" optional="show"/>
                 </tree>
             </field>
@@ -48,21 +48,21 @@
                     <field name="expected_arrivals" type="measure"/>
                     <field name="expected_arrivals_adults" type="measure"/>
                     <field name="expected_arrivals_children" type="measure"/>
-                    <field name="expected_arrivals_infants" type="measure"/>
+                    <!-- <field name="expected_arrivals_infants" type="measure"/> -->
                     <field name="expected_arrivals_total" type="measure"/>
                     <field name="expected_departures" type="measure"/>
                     <field name="expected_departures_adults" type="measure"/>
                     <field name="expected_departures_children" type="measure"/>
-                    <field name="expected_departures_infants" type="measure"/>
+                    <!-- <field name="expected_departures_infants" type="measure"/> -->
                     <field name="expected_departures_total" type="measure"/>
                     <field name="in_house" type="measure"/>
                     <field name="in_house_adults" type="measure"/>
                     <field name="in_house_children" type="measure"/>
-                    <field name="in_house_infants" type="measure"/>
+                    <!-- <field name="in_house_infants" type="measure"/> -->
                     <field name="in_house_total" type="measure"/>
                     <field name="total_adults" type="measure"/>
                     <field name="total_children" type="measure"/>
-                    <field name="total_infants" type="measure"/>
+                    <!-- <field name="total_infants" type="measure"/> -->
                     <field name="total_of_all" type="measure"/>
                 </graph>
             </field>
@@ -82,21 +82,21 @@
                     <field name="expected_arrivals" type="measure"/>
                     <field name="expected_arrivals_adults" type="measure"/>
                     <field name="expected_arrivals_children" type="measure"/>
-                    <field name="expected_arrivals_infants" type="measure"/>
+                    <!-- <field name="expected_arrivals_infants" type="measure"/> -->
                     <field name="expected_arrivals_total" type="measure"/>
                     <field name="expected_departures" type="measure"/>
                     <field name="expected_departures_adults" type="measure"/>
                     <field name="expected_departures_children" type="measure"/>
-                    <field name="expected_departures_infants" type="measure"/>
+                    <!-- <field name="expected_departures_infants" type="measure"/> -->
                     <field name="expected_departures_total" type="measure"/>
                     <field name="in_house" type="measure"/>
                     <field name="in_house_adults" type="measure"/>
                     <field name="in_house_children" type="measure"/>
-                    <field name="in_house_infants" type="measure"/>
+                    <!-- <field name="in_house_infants" type="measure"/> -->
                     <field name="in_house_total" type="measure"/>
                     <field name="total_adults" type="measure"/>
                     <field name="total_children" type="measure"/>
-                    <field name="total_infants" type="measure"/>
+                    <!-- <field name="total_infants" type="measure"/> -->
                     <field name="total_of_all" type="measure"/>
                 </pivot>
             </field>

@@ -94,6 +94,8 @@
         # 'views/header_datetime.xml',
         'views/new_dashboard_views.xml',
         'views/new_dashboard_action.xml',  # Added new dashboard action - 2025-01-20T00:16:16
+        # 'views/assets.xml',  
+        
         # 'views/templates.xml',
     ],
     'assets': {
@@ -125,6 +127,8 @@
             'hotel_management_odoo/static/src/js/generate_rc_guest_pdf_report.js',
             'hotel_management_odoo/static/src/js/generate_rc_pdf_report.js',
             'hotel_management_odoo/static/src/js/timer.js',
+            # 'hotel_management_odoo/static/src/js/save_validation.js',
+            # 'hotel_management_odoo/static/src/js/search_button_tracker.js',
             
             # XML templates
             'hotel_management_odoo/static/src/xml/offline_search_widget.xml',
@@ -140,6 +144,7 @@
             'hotel_management_odoo/static/src/js/plotly_min.js',
             'hotel_management_odoo/static/src/xml/delete_with_notification.xml',
             'hotel_management_odoo/static/src/js/delete_with_notification.js',
+            'hotel_management_odoo/static/src/js/room_booking_validation.js',
 
 
         ],

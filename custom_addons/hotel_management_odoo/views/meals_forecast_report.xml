@@ -5,30 +5,34 @@
             <field name="name">meals.forecast.report.tree</field>
             <field name="model">meals.forecast.report</field>
             <field name="arch" type="xml">
-                <tree string="Meals Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
-                    <field name="report_date" optional="show"/>
-                    <field name="company_id" optional="show"/>
-                    <field name="room_type_name" optional="show"/>
-                    <field name="meal_pattern" optional="show"/>
-                    <field name="expected_arrivals" optional="show"/>
-                    <field name="expected_arrivals_adults" optional="show"/>
-                    <field name="expected_arrivals_children" optional="show"/>
-                    <field name="expected_arrivals_infants" optional="show"/>
-                    <field name="expected_arrivals_total" optional="show"/>
-                    <field name="expected_departures" optional="show"/>
-                    <field name="expected_departures_adults" optional="show"/>
-                    <field name="expected_departures_children" optional="show"/>
-                    <field name="expected_departures_infants" optional="show"/>
-                    <field name="expected_departures_total" optional="show"/>
-                    <field name="in_house" optional="show"/>
-                    <field name="in_house_adults" optional="show"/>
-                    <field name="in_house_children" optional="show"/>
-                    <field name="in_house_infants" optional="show"/>
-                    <field name="in_house_total" optional="show"/>
-                    <field name="total_adults" optional="show"/>
-                    <field name="total_children" optional="show"/>
-                    <field name="total_infants" optional="show"/>
-                    <field name="total_of_all" optional="show"/>
+                <tree string="Meals Forecast Reports" js_class="hotel_room_result_filter"
+                    create="false" edit="false" delete="false">
+                    <field name="report_date" optional="show" />
+                    <field name="company_id" optional="show" />
+                    <field name="room_type_name" optional="show" />
+                    <field name="meal_pattern" optional="show" />
+                    <field name="expected_arrivals" optional="show" />
+                    <field name="expected_arrivals_adults" optional="show" />
+                    <field name="expected_arrivals_children" optional="show" />
+                    <!-- <field name="expected_arrivals_infants" optional="show"/> -->
+                    <field name="expected_arrivals_total" optional="show" />
+                    <field name="expected_departures" optional="show" />
+                    <field name="expected_departures_adults" optional="show" />
+                    <field name="expected_departures_children" optional="show" />
+                    <!-- <field name="expected_departures_infants" optional="show"/> -->
+                    <field name="expected_departures_total" optional="show" />
+                    <field name="expected_in_house" optional="show" />
+                    <field name="expected_in_house_adults" optional="show" />
+                    <field name="expected_in_house_children" optional="show" />
+                    <field name="in_house" optional="show" />
+                    <field name="in_house_adults" optional="show" />
+                    <field name="in_house_children" optional="show" />
+                    <!-- <field name="in_house_infants" optional="show"/> -->
+                    <field name="in_house_total" optional="show" />
+                    <field name="total_adults" optional="show" />
+                    <field name="total_children" optional="show" />
+                    <!-- <field name="total_infants" optional="show"/> -->
+                    <field name="total_of_all" optional="show" />
                 </tree>
             </field>
         </record>
@@ -40,29 +44,29 @@
             <field name="model">meals.forecast.report</field>
             <field name="arch" type="xml">
                 <graph string="Meals Forecast Reports" type="bar">
-                    <field name="report_date" type="row"/>
-                    <field name="company_id" type="row"/>
-                    <field name="room_type_name" type="row"/>
-                    <field name="meal_pattern" type="row"/>
-                    <field name="expected_arrivals" type="measure"/>
-                    <field name="expected_arrivals_adults" type="measure"/>
-                    <field name="expected_arrivals_children" type="measure"/>
-                    <field name="expected_arrivals_infants" type="measure"/>
-                    <field name="expected_arrivals_total" type="measure"/>
-                    <field name="expected_departures" type="measure"/>
-                    <field name="expected_departures_adults" type="measure"/>
-                    <field name="expected_departures_children" type="measure"/>
-                    <field name="expected_departures_infants" type="measure"/>
-                    <field name="expected_departures_total" type="measure"/>
-                    <field name="in_house" type="measure"/>
-                    <field name="in_house_adults" type="measure"/>
-                    <field name="in_house_children" type="measure"/>
-                    <field name="in_house_infants" type="measure"/>
-                    <field name="in_house_total" type="measure"/>
-                    <field name="total_adults" type="measure"/>
-                    <field name="total_children" type="measure"/>
-                    <field name="total_infants" type="measure"/>
-                    <field name="total_of_all" type="measure"/>
+                    <field name="report_date" type="row" />
+                    <field name="company_id" type="row" />
+                    <field name="room_type_name" type="row" />
+                    <field name="meal_pattern" type="row" />
+                    <field name="expected_arrivals" type="measure" />
+                    <field name="expected_arrivals_adults" type="measure" />
+                    <field name="expected_arrivals_children" type="measure" />
+                    <field name="expected_arrivals_infants" type="measure" />
+                    <field name="expected_arrivals_total" type="measure" />
+                    <field name="expected_departures" type="measure" />
+                    <field name="expected_departures_adults" type="measure" />
+                    <field name="expected_departures_children" type="measure" />
+                    <field name="expected_departures_infants" type="measure" />
+                    <field name="expected_departures_total" type="measure" />
+                    <field name="in_house" type="measure" />
+                    <field name="in_house_adults" type="measure" />
+                    <field name="in_house_children" type="measure" />
+                    <field name="in_house_infants" type="measure" />
+                    <field name="in_house_total" type="measure" />
+                    <field name="total_adults" type="measure" />
+                    <field name="total_children" type="measure" />
+                    <field name="total_infants" type="measure" />
+                    <field name="total_of_all" type="measure" />
                 </graph>
             </field>
         </record>
@@ -73,36 +77,36 @@
             <field name="model">meals.forecast.report</field>
             <field name="arch" type="xml">
                 <pivot string="Meals Forecast Reports">
-                    <field name="report_date" type="row"/>
-                    <field name="company_id" type="row"/>
-                    <field name="room_type_name" type="row"/>
-                    <field name="meal_pattern" type="row"/>
-                    <field name="expected_arrivals" type="measure"/>
-                    <field name="expected_arrivals_adults" type="measure"/>
-                    <field name="expected_arrivals_children" type="measure"/>
-                    <field name="expected_arrivals_infants" type="measure"/>
-                    <field name="expected_arrivals_total" type="measure"/>
-                    <field name="expected_departures" type="measure"/>
-                    <field name="expected_departures_adults" type="measure"/>
-                    <field name="expected_departures_children" type="measure"/>
-                    <field name="expected_departures_infants" type="measure"/>
-                    <field name="expected_departures_total" type="measure"/>
-                    <field name="in_house" type="measure"/>
-                    <field name="in_house_adults" type="measure"/>
-                    <field name="in_house_children" type="measure"/>
-                    <field name="in_house_infants" type="measure"/>
-                    <field name="in_house_total" type="measure"/>
-                    <field name="total_adults" type="measure"/>
-                    <field name="total_children" type="measure"/>
-                    <field name="total_infants" type="measure"/>
-                    <field name="total_of_all" type="measure"/>
+                    <field name="report_date" type="row" />
+                    <field name="company_id" type="row" />
+                    <field name="room_type_name" type="row" />
+                    <field name="meal_pattern" type="row" />
+                    <field name="expected_arrivals" type="measure" />
+                    <field name="expected_arrivals_adults" type="measure" />
+                    <field name="expected_arrivals_children" type="measure" />
+                    <field name="expected_arrivals_infants" type="measure" />
+                    <field name="expected_arrivals_total" type="measure" />
+                    <field name="expected_departures" type="measure" />
+                    <field name="expected_departures_adults" type="measure" />
+                    <field name="expected_departures_children" type="measure" />
+                    <field name="expected_departures_infants" type="measure" />
+                    <field name="expected_departures_total" type="measure" />
+                    <field name="in_house" type="measure" />
+                    <field name="in_house_adults" type="measure" />
+                    <field name="in_house_children" type="measure" />
+                    <field name="in_house_infants" type="measure" />
+                    <field name="in_house_total" type="measure" />
+                    <field name="total_adults" type="measure" />
+                    <field name="total_children" type="measure" />
+                    <field name="total_infants" type="measure" />
+                    <field name="total_of_all" type="measure" />
                 </pivot>
             </field>
         </record>
 
         <record id="action_run_process_by_meals_forecast" model="ir.actions.server">
             <field name="name">Run Process by Meals Forecast Report</field>
-            <field name="model_id" ref="model_meals_forecast_report"/>
+            <field name="model_id" ref="model_meals_forecast_report" />
             <field name="state">code</field>
             <field name="code">
                 <![CDATA[
@@ -111,7 +115,7 @@ action = env["meals.forecast.report"].action_run_process_by_meals_forecast()
             </field>
         </record>
         <!-- Action -->
-    <!-- <record id="action_run_process_by_meals_forecast" model="ir.actions.server">
+        <!-- <record id="action_run_process_by_meals_forecast" model="ir.actions.server">
         <field name="name">Run process by meals forecast report</field>
         <field name="model_id" ref="model_meals_forecast_report"/>
         <field name="state">code</field>
@@ -167,17 +171,17 @@ action = {
 }
             ]]>
         </field> -->
-    <!-- </record> -->
+        <!-- </record> -->
 
-    <menuitem id="menu_forecast"
-              name="Forecast"
-              parent="menu_reporting"
-              sequence="20"/>
+        <menuitem id="menu_forecast"
+            name="Forecast"
+            parent="menu_reporting"
+            sequence="20" />
 
         <menuitem id="menu_meals_forecast_report"
-              name="Meals Forecast Report"
-              action="action_run_process_by_meals_forecast"
-              parent="menu_forecast"
-              sequence="10"/>
+            name="Meals Forecast Report"
+            action="action_run_process_by_meals_forecast"
+            parent="menu_forecast"
+            sequence="10" />
     </data>
 </odoo>

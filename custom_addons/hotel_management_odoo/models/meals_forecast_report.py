@@ -13,7 +13,7 @@ class MealsForecastReport(models.Model):
     company_id = fields.Many2one('res.company', string='Hotel', required=True)
     report_date = fields.Date(string='Report Date', required=True)
     room_type_name = fields.Char(string='Room Type')
-    meal_pattern = fields.Char(string='Meal Pattern')
+    meal_pattern = fields.Char(string='Main Meal Code')
     expected_arrivals = fields.Integer(string='Exp.Arrivals')
     expected_departures = fields.Integer(string='Exp.Departures')
     in_house = fields.Integer(string='In House')
@@ -35,6 +35,9 @@ class MealsForecastReport(models.Model):
     total_children = fields.Integer(string='Total Children')
     total_infants = fields.Integer(string='Total Infants')
     total_of_all = fields.Integer(string='Total of All')
+    expected_in_house = fields.Integer(string='Expected In House')
+    expected_in_house_adults = fields.Integer(string='Expected In House Adults')
+    expected_in_house_children = fields.Integer(string='Expected In House Children')
 
     @api.model
     def action_run_process_by_meals_forecast(self):
@@ -66,7 +69,7 @@ class MealsForecastReport(models.Model):
                 to_date=default_to_date
             )
 
-            # 3) Show only records for that 30-day window by specifying a domain
+            
             domain = [
                 ('report_date', '>=', default_from_date),
                 ('report_date', '<=', default_to_date),
@@ -399,6 +402,17 @@ master_keys AS (
 		room_type_name, room_type_id,  meal_pattern_id, meal_pattern_name
 	FROM yesterday_in_house
 ),
+meal_pattern_names AS (
+    SELECT 
+        mp.id AS meal_pattern_id,
+        COALESCE(mcst.name, '') AS meal_code_subtype_name
+    --    STRING_AGG(mcst.name, ', ' ORDER BY mcst.name) AS meal_code_subtype_name
+    FROM meal_pattern mp
+    LEFT JOIN meal_list ml ON ml.meal_pattern_id = mp.id
+    LEFT JOIN meal_code mc ON mc.id = ml.meal_code
+    LEFT JOIN meal_code_sub_type mcst ON mcst.id = mc.meal_code_sub_type
+    -- GROUP BY mp.id
+),
 final_report AS (
     SELECT
         mk.report_date,
@@ -408,6 +422,7 @@ final_report AS (
         mk.room_type_name,
         mk.meal_pattern_id,
         mk.meal_pattern_name,
+        COALESCE(mpn.meal_code_subtype_name, '') AS meal_code_subtype_name,
         COALESCE(inv.total_room_count, 0) AS total_rooms,
         COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
         COALESCE(ea.ea_adults_count, 0) AS expected_arrivals_adults,
@@ -484,7 +499,21 @@ final_report AS (
             + COALESCE(ea.expected_arrivals_count, 0)
             - COALESCE(ed.expected_departures_count, 0),
             0
-        ) AS expected_in_house
+        ) AS expected_in_house,
+
+        GREATEST(
+            COALESCE(yh.yin_house_adults, 0)
+            + COALESCE(ea.ea_adults_count, 0)
+            - COALESCE(ed.ed_adults_count, 0),
+            0
+        ) AS expected_in_house_adults,
+
+        GREATEST(
+            COALESCE(yh.yin_house_children, 0)
+            + COALESCE(ea.ea_children_count, 0)
+            - COALESCE(ed.ed_children_count, 0),
+            0
+        ) AS expected_in_house_children
 	
 	FROM master_keys mk
     LEFT JOIN in_house ih
@@ -517,6 +546,8 @@ final_report AS (
 		AND mk.meal_pattern_id   = ed.meal_pattern_id
         AND mk.meal_pattern_name = ed.meal_pattern_name
 	LEFT JOIN inventory inv ON inv.company_id = mk.company_id AND inv.room_type_id = mk.room_type_id
+    LEFT JOIN meal_pattern_names mpn ON mpn.meal_pattern_id = mk.meal_pattern_id
+
 --     FROM date_series ds
 --     CROSS JOIN res_company rc
 --     CROSS JOIN room_type rt
@@ -534,7 +565,9 @@ SELECT
     fr.report_date,
     fr.company_id,
     fr.room_type_name,
-    fr.meal_pattern_name AS meal_pattern,
+--    fr.meal_pattern_name AS meal_pattern,
+    fr.meal_code_subtype_name AS meal_pattern,
+
 
     SUM(fr.expected_arrivals) AS expected_arrivals,
     SUM(fr.expected_arrivals_adults) AS expected_arrivals_adults,
@@ -547,6 +580,10 @@ SELECT
     SUM(fr.expected_departures_children) AS expected_departures_children,
     SUM(fr.expected_departures_infants) AS expected_departures_infants,
     SUM(fr.expected_departures_total) AS expected_departures_total,
+
+    SUM(fr.expected_in_house) AS expected_in_house,
+    SUM(fr.expected_in_house_adults) AS expected_in_house_adults,
+    SUM(fr.expected_in_house_children) AS expected_in_house_children,
 	
     SUM(fr.in_house_count) AS in_house,
     SUM(fr.in_house_adults) AS in_house_adults,
@@ -570,14 +607,14 @@ FROM final_report fr
 WHERE fr.company_id IN (SELECT company_id FROM company_ids)  -- ✅ Fix: Apply WHERE condition here
   AND (COALESCE(fr.expected_arrivals, 0) + COALESCE(fr.expected_departures, 0) + COALESCE(fr.in_house_count, 0)) > 0
   AND (fr.meal_pattern_id IS NOT NULL AND fr.meal_pattern_name IS NOT NULL)
-GROUP BY fr.report_date, fr.company_name, fr.company_id, fr.room_type_name, fr.meal_pattern_name
+GROUP BY fr.report_date, fr.company_name, fr.company_id, fr.room_type_name, fr.meal_pattern_name,  fr.meal_code_subtype_name
 ORDER BY fr.report_date, fr.company_id, fr.room_type_name, fr.meal_pattern_name;
 """
 
-        
         self.env.cr.execute(query)
         results = self.env.cr.fetchall()
-        _logger.info(f"Query executed successfully. {len(results)} results fetched")
+        _logger.info(
+            f"Query executed successfully. {len(results)} results fetched")
 
         records_to_create = []
 
@@ -606,7 +643,10 @@ ORDER BY fr.report_date, fr.company_id, fr.room_type_name, fr.meal_pattern_name;
                     total_adults,
                     total_children,
                     total_infants,
-                    total_of_all
+                    total_of_all,
+                    expected_in_house,
+                    expected_in_house_adults,
+                    expected_in_house_children
                 ) = result
 
                 records_to_create.append({
@@ -632,7 +672,10 @@ ORDER BY fr.report_date, fr.company_id, fr.room_type_name, fr.meal_pattern_name;
                     'total_adults': total_adults,
                     'total_children': total_children,
                     'total_infants': total_infants,
-                    'total_of_all': total_of_all
+                    'total_of_all': total_of_all,
+                    'expected_in_house': expected_in_house,
+                    'expected_in_house_adults': expected_in_house_adults,
+                    'expected_in_house_children': expected_in_house_children,
                 })
 
             except Exception as e:

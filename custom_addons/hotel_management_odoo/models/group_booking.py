@@ -38,9 +38,9 @@ class GroupBooking(models.Model):
     @api.model
     def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None, order=None):
         args = args or []
-        domain = ['|', ('group_name', operator, name), ('name', operator, name)]
+        domain = ['|', ('group_name', operator, name),
+                  ('name', operator, name)]
         return self._search(domain + args, limit=limit, order=order, access_rights_uid=name_get_uid)
-
 
     _logger = logging.getLogger(__name__)
 
@@ -50,7 +50,8 @@ class GroupBooking(models.Model):
         string='Reservations'
     )
 
-    room_booking_ids = fields.One2many('room.booking', 'group_booking', string='Room Bookings', compute='_compute_room_booking_ids', store=False)
+    room_booking_ids = fields.One2many(
+        'room.booking', 'group_booking', string='Room Bookings', compute='_compute_room_booking_ids', store=False)
 
     @api.depends('reservation_ids')
     def _compute_room_booking_ids(self):
@@ -61,28 +62,45 @@ class GroupBooking(models.Model):
             ])
             record.room_booking_ids = all_bookings
 
+    total_no_shows = fields.Integer(
+        string='No Shows', compute='_compute_no_show_count', tracking=True, store=True)
+    total_confirmed = fields.Integer(
+        string='Confirmed', compute='_compute_no_show_count', tracking=True, store=True)
+    total_not_confirmed = fields.Integer(
+        string='Not Confirmed', compute='_compute_no_show_count', tracking=True, store=True)
+    total_block = fields.Integer(
+        string='Blocks', compute='_compute_no_show_count', tracking=True, store=True)
+    total_checkin = fields.Integer(
+        string='Check-Ins', compute='_compute_no_show_count', tracking=True, store=True)
+    total_checkout = fields.Integer(
+        string='Check-Outs', compute='_compute_no_show_count', tracking=True, store=True)
+    total_cancellations = fields.Integer(
+        string=' Cancellations', compute='_compute_cancel_count', tracking=True, store=True)
 
-    total_no_shows = fields.Integer(string='No Shows', compute='_compute_no_show_count', tracking=True, store=True)
-    total_confirmed = fields.Integer(string='Confirmed', compute='_compute_no_show_count', tracking=True, store=True)
-    total_not_confirmed = fields.Integer(string='Not Confirmed', compute='_compute_no_show_count', tracking=True, store=True)
-    total_block = fields.Integer(string='Blocks', compute='_compute_no_show_count', tracking=True, store=True)
-    total_checkin = fields.Integer(string='Check-Ins', compute='_compute_no_show_count', tracking=True, store=True)
-    total_checkout = fields.Integer(string='Check-Outs', compute='_compute_no_show_count', tracking=True, store=True)
-    total_cancellations = fields.Integer(string=' Cancellations', compute='_compute_cancel_count', tracking=True, store=True)
-
-    
-    @api.depends('room_booking_ids', 'room_booking_ids.state')
+    @api.depends('room_booking_ids', 'room_booking_ids.state', 'room_booking_ids.active')
     def _compute_no_show_count(self):
         for record in self:
-            # Filter bookings with state 'no_show'
-            no_show_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'no_show')
-            confirmed_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'confirmed')
-            not_confirmed_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'not_confirmed')
-            block_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'block')
-            checkin_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'check_in')
-            checkout_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'check_out')
-            cancelled_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'cancel')
+            # Filter only active bookings once
+            active_bookings = record.room_booking_ids.filtered(
+                lambda b: b.active)
 
+            # Now filter by state from active bookings
+            no_show_bookings = active_bookings.filtered(
+                lambda b: b.state == 'no_show')
+            confirmed_bookings = active_bookings.filtered(
+                lambda b: b.state == 'confirmed')
+            not_confirmed_bookings = active_bookings.filtered(
+                lambda b: b.state == 'not_confirmed')
+            block_bookings = active_bookings.filtered(
+                lambda b: b.state == 'block')
+            checkin_bookings = active_bookings.filtered(
+                lambda b: b.state == 'check_in')
+            checkout_bookings = active_bookings.filtered(
+                lambda b: b.state == 'check_out')
+            cancelled_bookings = active_bookings.filtered(
+                lambda b: b.state == 'cancel')
+
+            # Set counts on the record
             record.total_cancellations = len(cancelled_bookings)
             record.total_no_shows = len(no_show_bookings)
             record.total_confirmed = len(confirmed_bookings)
@@ -90,43 +108,90 @@ class GroupBooking(models.Model):
             record.total_block = len(block_bookings)
             record.total_checkin = len(checkin_bookings)
             record.total_checkout = len(checkout_bookings)
-            record.total_stays = len(record.room_booking_ids)
+            # Only count active bookings for total stays
+            record.total_stays = len(active_bookings)
 
+    # @api.depends('room_booking_ids', 'room_booking_ids.state')
+    # def _compute_no_show_count(self):
+    #     for record in self:
+    #         # Filter bookings with state 'no_show'
+    #         no_show_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'no_show' and b.active)
+    #         confirmed_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'confirmed')
+    #         not_confirmed_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'not_confirmed' and b.active)
+    #         block_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'block')
+    #         checkin_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'check_in')
+    #         checkout_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'check_out')
+    #         cancelled_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'cancel' and b.active)
 
-    total_adult_count = fields.Integer(string='Adults', compute='_compute_pax_and_room_count', tracking=True, store=True)
-    total_child_count = fields.Integer(string='Children', compute='_compute_pax_and_room_count', tracking=True, store=True)
-    total_infant_count = fields.Integer(string='Infants', compute='_compute_pax_and_room_count', tracking=True, store=True)
-    total_room_count = fields.Integer(string='Rooms', compute='_compute_pax_and_room_count', tracking=True, store=True)
+    #         record.total_cancellations = len(cancelled_bookings)
+    #         record.total_no_shows = len(no_show_bookings)
+    #         record.total_confirmed = len(confirmed_bookings)
+    #         record.total_not_confirmed = len(not_confirmed_bookings)
+    #         record.total_block = len(block_bookings)
+    #         record.total_checkin = len(checkin_bookings)
+    #         record.total_checkout = len(checkout_bookings)
+    #         record.total_stays = len(record.room_booking_ids)
+
+    total_adult_count = fields.Integer(
+        string='Adults', compute='_compute_pax_and_room_count', tracking=True, store=True)
+    total_child_count = fields.Integer(
+        string='Children', compute='_compute_pax_and_room_count', tracking=True, store=True)
+    total_infant_count = fields.Integer(
+        string='Infants', compute='_compute_pax_and_room_count', tracking=True, store=True)
+    total_room_count = fields.Integer(
+        string='Rooms', compute='_compute_pax_and_room_count', tracking=True, store=True)
 
     @api.depends(
         'room_booking_ids',
         'room_booking_ids.adult_count',
         'room_booking_ids.child_count',
         'room_booking_ids.infant_count',
-        'room_booking_ids.room_count'
+        'room_booking_ids.room_count',
+        'room_booking_ids.active'  # Make sure this is also included
     )
     def _compute_pax_and_room_count(self):
         for record in self:
-            adult_counts = record.room_booking_ids.mapped('adult_count')
-            record.total_adult_count = sum(adult_counts or [0])
-            # record.total_adult_count = sum(record.room_booking_ids.mapped('adult_count') or [0])
-            child_counts = record.room_booking_ids.mapped('child_count')
-            record.total_child_count = sum(child_counts or [0])
-            
-            # Get and log infant counts
-            infant_counts = record.room_booking_ids.mapped('infant_count')
-            record.total_infant_count = sum(infant_counts or [0])
-            
-            record.total_room_count = sum(record.room_booking_ids.mapped('room_count') or [0])
+            # Filter only active bookings
+            active_bookings = record.room_booking_ids.filtered(
+                lambda b: b.active)
 
+            # Sum values only from active bookings
+            record.total_adult_count = sum(
+                active_bookings.mapped('adult_count') or [0])
+            record.total_child_count = sum(
+                active_bookings.mapped('child_count') or [0])
+            record.total_infant_count = sum(
+                active_bookings.mapped('infant_count') or [0])
+            record.total_room_count = sum(
+                active_bookings.mapped('room_count') or [0])
 
+    # @api.depends(
+    #     'room_booking_ids',
+    #     'room_booking_ids.adult_count',
+    #     'room_booking_ids.child_count',
+    #     'room_booking_ids.infant_count',
+    #     'room_booking_ids.room_count'
+    # )
+    # def _compute_pax_and_room_count(self):
+    #     for record in self:
+    #         adult_counts = record.room_booking_ids.mapped('adult_count')
+    #         record.total_adult_count = sum(adult_counts or [0])
+    #         # record.total_adult_count = sum(record.room_booking_ids.mapped('adult_count') or [0])
+    #         child_counts = record.room_booking_ids.mapped('child_count')
+    #         record.total_child_count = sum(child_counts or [0])
+
+    #         # Get and log infant counts
+    #         infant_counts = record.room_booking_ids.mapped('infant_count')
+    #         record.total_infant_count = sum(infant_counts or [0])
+
+    #         record.total_room_count = sum(record.room_booking_ids.mapped('room_count') or [0])
 
     @api.depends('room_booking_ids.state')
     def _compute_cancel_count(self):
         for record in self:
             # Filter bookings with state 'no_show'
             cancelled_bookings = record.room_booking_ids.filtered(
-                lambda b: b.state == 'cancel')
+                lambda b: b.state == 'cancel' and b.active)
             record.total_cancellations = len(cancelled_bookings)
 
             # record.total_nights = sum(
@@ -135,18 +200,26 @@ class GroupBooking(models.Model):
     total_stays = fields.Integer(
         string='Stays',
         compute='_compute_total_stays',
-        store=True,
+        store=False,
         tracking=True
     )
 
-    @api.depends('room_booking_ids', 'room_booking_ids.state', 'room_booking_ids.create_date')
+    @api.depends('room_booking_ids')
     def _compute_total_stays(self):
         for record in self:
-            # Filter bookings with state 'check_in'
-            checked_in_bookings = record.room_booking_ids.filtered(
-                lambda b: b.state == 'check_in')
-            record.total_stays = len(checked_in_bookings)
+            bookings = self.env['room.booking'].search([
+                ('group_booking', '=', record.id),
+                ('parent_booking_id', '=', False)  # this is the key
+            ])
+            record.total_stays = len(bookings)
 
+    # @api.depends('room_booking_ids', 'room_booking_ids.state', 'room_booking_ids.create_date')
+    # def _compute_total_stays(self):
+    #     for record in self:
+    #         # Filter bookings with state 'check_in'
+    #         checked_in_bookings = record.room_booking_ids.filtered(
+    #             lambda b: b.state == 'check_in')
+    #         record.total_stays = len(checked_in_bookings)
 
     total_nights = fields.Integer(
         string='Total Nights',
@@ -154,6 +227,26 @@ class GroupBooking(models.Model):
         compute='_compute_total_nights',
         tracking=True
     )
+
+    # @api.depends('first_visit', 'last_visit', 'room_booking_ids.no_of_nights', 'room_booking_ids.active')
+    # def _compute_total_nights(self):
+    #     for record in self:
+    #         total_nights = 0  # initialize to avoid unbound error
+
+    #         # Check for valid dates
+    #         if record.first_visit and record.last_visit:
+    #             first_visit = fields.Date.from_string(record.first_visit)
+    #             last_visit = fields.Date.from_string(record.last_visit)
+
+    #             # Calculate the total number of nights
+    #             total_nights = (last_visit - first_visit).days
+
+    #         # Subtract nights from archived bookings (if any)
+    #         archived_bookings = record.room_booking_ids.filtered(lambda b: not b.active)
+    #         archived_nights = sum(archived_bookings.mapped('no_of_nights') or [0])
+
+    #         # Set final result
+    #         record.total_nights = total_nights - archived_nights
 
     @api.depends('first_visit', 'last_visit')
     def _compute_total_nights(self):
@@ -202,14 +295,13 @@ class GroupBooking(models.Model):
                 record.first_visit = False
 
             # For last_visit, consider only bookings that have state = 'check_out'.
-            checked_out_bookings = record.room_booking_ids.filtered(lambda b: b.state == 'check_out' and b.checkout_date)
+            checked_out_bookings = record.room_booking_ids.filtered(
+                lambda b: b.state == 'check_out' and b.checkout_date)
             if checked_out_bookings:
                 checkout_dates = checked_out_bookings.mapped('checkout_date')
                 record.last_visit = max(checkout_dates)
             else:
                 record.last_visit = False
-
-
 
     # @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date')
     # def _compute_first_and_last_visit(self):
@@ -236,8 +328,7 @@ class GroupBooking(models.Model):
     #             # No bookings
     #             record.first_visit = False
     #             record.last_visit = False
-    
-    
+
     total_revenue = fields.Float(
         string='Total Revenue',
         compute='_compute_total_revenue',
@@ -245,21 +336,18 @@ class GroupBooking(models.Model):
         tracking=True
     )
 
-    @api.depends('room_booking_ids.total_total_forecast')
+    @api.depends('room_booking_ids.total_total_forecast', 'room_booking_ids.active')
     def _compute_total_revenue(self):
         for record in self:
-            # Calculate total revenue as the sum of `total_total_forecast` for all linked reservations
+            # Filter only active bookings
+            active_bookings = record.room_booking_ids.filtered(
+                lambda b: b.active)
+
+            # Total revenue is the sum of forecasts from only active bookings
             record.total_revenue = sum(
-                record.room_booking_ids.mapped('total_total_forecast'))
+                active_bookings.mapped('total_total_forecast') or [0])
 
-            # Debugging output
-            # print(f"Group Booking {record.id}: Total Revenue: {record.total_revenue}")
-
-    # @api.depends()
-    # def _compute_room_bookings(self):
-    #     for record in self:
-    #         record.room_booking_ids = self.env['room.booking'].search([('state', '=', 'reserved')])
-
+    
     @api.model
     def default_get(self, fields_list):
         defaults = super(GroupBooking, self).default_get(fields_list)
@@ -269,23 +357,21 @@ class GroupBooking(models.Model):
         defaults['room_booking_ids'] = [(6, 0, reserved_bookings.ids)]
         return defaults
 
-    # partner_id = fields.Many2one('res.partner', string='Contact', tracking=True)
-
-    # name = fields.Char(string='Booking Reference',
-    #                    required=True, tracking=True)
-    # address = fields.Char(
-    #     string="Address", help="Address of the Agent", tracking=True)
     
-    address = fields.Text(string="Address", help="Address of the Agent", tracking=True)
+    address = fields.Text(
+        string="Address", help="Address of the Agent", tracking=True)
 
     image = fields.Binary(string="Document", help="Document of the Person")
-    document_name = fields.Char(string=_("Document Name"), tracking=True, translate=True)
+    document_name = fields.Char(
+        string=_("Document Name"), tracking=True, translate=True)
     person_ids = fields.One2many(
         'group.booking.person', 'group_booking_id', string="Persons", tracking=True)
 
     # Main fields
-    profile_id = fields.Char(string=_('Profile ID'), tracking=True, translate=True)
-    group_name = fields.Char(string=_('Group Name'), tracking=True, required=True, translate=True)
+    profile_id = fields.Char(string=_('Profile ID'),
+                             tracking=True, translate=True)
+    group_name = fields.Char(string=_('Group Name'),
+                             tracking=True, required=True, translate=True)
     is_grp_company = fields.Boolean(string='Is Company', tracking=True)
 
     company = fields.Many2one(
@@ -294,6 +380,54 @@ class GroupBooking(models.Model):
         required=True,
         tracking=True
     )
+
+    company_ids_grp = fields.Many2many(
+        'res.partner',
+        compute='_compute_company_ids_grp',
+        store=False,
+        string='System company partners'
+    )
+
+    @api.depends('is_grp_company')
+    def _compute_company_ids_grp(self):
+        all_used = self.env['res.company'].search([]).mapped('partner_id')
+        for rec in self:
+            rec.company_ids_grp = all_used.ids
+
+    # @api.depends_context('uid')
+    # def _compute_company_ids_grp(self):
+    #     print("Line 393", self.id)
+    #     company_partner_ids = self.env['res.company'].search(
+    #         []).mapped('partner_id').ids
+    #     company_partners = self.env['res.partner'].browse(company_partner_ids)
+    #     print("DEBUG company_partner_ids", company_partner_ids)
+    #     print("DEBUG company_partners", company_partners)
+    #     for rec in self:
+    #         rec.company_ids_grp = company_partners
+
+    @api.onchange('is_grp_company')
+    def _onchange_is_grp_company(self):
+        self.company = False
+
+        company_partner_ids = self.env['res.company'].search([]).mapped('partner_id').ids
+        if self.is_grp_company:
+        # Only show partners that are companies (is_company=True) AND not already used in res.company
+            return {
+                'domain': {
+                    'company': [
+                        ('is_company', '=', True),
+                        ('id', 'not in', company_partner_ids),
+                    ]
+                }
+            }
+        else:
+            # Optional: allow all partners or add a fallback domain
+            return {
+                'domain': {
+                    'company': []
+                }
+            }
+
 
     @api.onchange('company')
     def _onchange_customer(self):
@@ -306,25 +440,14 @@ class GroupBooking(models.Model):
             # self.house_use = self.company.house_use.id
             # self.complementary = self.company.meal_pattern.id
 
-    # company = fields.Char(string='Contact')
-
-    @api.onchange('is_grp_company')
-    def _onchange_is_agent(self):
-        # self.partner_id = False
-        self.company = False
-        return {
-            'domain': {
-                'company': [('is_company', '=', self.is_grp_company)]
-            }
-        }
-
+    
     nationality = fields.Many2one(
         'res.country', string='Nationality', tracking=True, required=True)
     source_of_business = fields.Many2one(
         'source.business', string='Source of Business', domain=lambda self: [
-        # ('company_id', '=', self.env.company.id),
-        ('obsolete', '=', False)
-    ], required = True, tracking=True)
+            # ('company_id', '=', self.env.company.id),
+            ('obsolete', '=', False)
+        ], required=True, tracking=True)
     status_code = fields.Selection([
         ('confirmed', 'Confirmed'),
         ('pending', 'Pending'),
@@ -332,12 +455,14 @@ class GroupBooking(models.Model):
     ], string='Status Code', tracking=True)
 
     complimentary = fields.Boolean(string='Complimentary', tracking=True)
-    complimentary_codes = fields.Many2one('complimentary.code', string='Complimentary Codes', tracking=True)
+    complimentary_codes = fields.Many2one(
+        'complimentary.code', string='Complimentary Codes', tracking=True)
     show_complementary_code = fields.Boolean(
         string="Show Complementary Code", compute="_compute_show_codes", store=True, tracking=True)
 
     house_use = fields.Boolean(string='House Use', tracking=True)
-    house_use_codes_ = fields.Many2one('house.code', string='House Use Code', tracking=True)
+    house_use_codes_ = fields.Many2one(
+        'house.code', string='House Use Code', tracking=True)
     show_house_use_code = fields.Boolean(
         string="Show House Code", compute="_compute_show_house_codes", store=True, tracking=True)
 
@@ -374,11 +499,11 @@ class GroupBooking(models.Model):
         string='Master Folio C. Limit', tracking=True)
 
     # Rate and Market details
-    rate_code = fields.Many2one('rate.code', string='Rate Code', 
-    domain=lambda self: [
-        ('company_id', '=', self.env.company.id),
-        ('obsolete', '=', False)
-    ], tracking=True, required=True)
+    rate_code = fields.Many2one('rate.code', string='Rate Code',
+                                domain=lambda self: [
+                                    ('company_id', '=', self.env.company.id),
+                                    ('obsolete', '=', False)
+                                ], tracking=True, required=True)
     # meal_pattern = fields.Selection([
     #     ('ro', 'Room Only'),
     #     ('bb', 'Bed & Breakfast'),
@@ -387,19 +512,28 @@ class GroupBooking(models.Model):
     # ], string='Meal Pattern', tracking=True)
 
     group_meal_pattern = fields.Many2one(
-        'meal.pattern', string='Meal Pattern',  
+        'meal.pattern', string='Meal Pattern',
         domain=lambda self: [
-        ('company_id', '=', self.env.company.id),
-    ], tracking=True, required=True)
+            ('company_id', '=', self.env.company.id),
+        ], tracking=True)
+
+    main_meal_code = fields.Many2one(
+        'meal.code.sub.type', string='Main Meal Code',
+        domain=lambda self: [
+            ('company_id', '=', self.env.company.id),
+        ], tracking=True)
+
     market_segment = fields.Many2one(
         'market.segment', string='Market Segment',  domain=lambda self: [
-        # ('company_id', '=', self.env.company.id),
-        ('obsolete', '=', False)
-    ], tracking=True, required=True)
+            # ('company_id', '=', self.env.company.id),
+            ('obsolete', '=', False)
+        ], tracking=True, required=True)
 
     # Reference details
-    reference = fields.Char(string=_('Reference'), tracking=True, translate=True)
-    allotment = fields.Char(string=_('Allotment'), tracking=True, translate=True)
+    reference = fields.Char(string=_('Reference'),
+                            tracking=True, translate=True)
+    allotment = fields.Char(string=_('Allotment'),
+                            tracking=True, translate=True)
 
     # Additional fields
     allow_profile_change = fields.Boolean(
@@ -419,7 +553,8 @@ class GroupBooking(models.Model):
     email_address = fields.Char(string=('E-Mail Address'), tracking=True)
 
     expected_rooms = fields.Integer(string='Expected Rooms', tracking=True)
-    user_sort = fields.Char(string=_('User Sort'), tracking=True, translate=True)
+    user_sort = fields.Char(string=_('User Sort'),
+                            tracking=True, translate=True)
     comments = fields.Text(string='Comments', tracking=True)
 
     # Statistics fields
@@ -428,34 +563,42 @@ class GroupBooking(models.Model):
 
     last_rate = fields.Float(string='Last Rate', tracking=True)
 
-    name = fields.Char(string=_("Group ID"), required=True,copy=False, readonly=True, default='New', translate=True)
-    company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, required=True)
+    name = fields.Char(string=_("Group ID"), required=True,
+                       copy=False, readonly=True, default='New', translate=True)
+    company_id = fields.Many2one(
+        'res.company', string="Hotel", default=lambda self: self.env.company, required=True)
 
-    group_booking_id = fields.Many2one('group.booking', string='Parent Booking', tracking=True)
+    group_booking_id = fields.Many2one(
+        'group.booking', string='Parent Booking', tracking=True)
 
     @api.model
     def create(self, vals):
         # Fetch the company_id from vals or use the current user's company
         # company_id = vals.get('company_id', self.env.user.company_id.id)
         company_id = vals.get('company_id', self.env.company.id)
-        print(f"Company ID: {company_id}")
         company = self.env['res.company'].browse(company_id)
-        print(f"Company: {company}")
         company_name = company.name
-        print(f"Company Name: {company_name}")
+
+        company_name = company.name.strip()
+
+        # Create dynamic code from company name
+        name_parts = company_name.split()
+        if len(name_parts) == 1:
+            company_code = name_parts[0]
+        else:
+            company_code = ''.join([word[0] for word in name_parts if word])
 
         # Ensure sequence exists for the company
         sequence = self.env['ir.sequence'].search(
             [('code', '=', 'group.booking'), ('company_id', '=', company_id)],
             limit=1
         )
-        print(f"Sequence: {sequence}")
         if not sequence:
             # Automatically create the sequence if not found
             sequence = self.env['ir.sequence'].create({
                 'name': f"Group Booking Sequence ({company_name})",
                 'code': 'group.booking',
-                'prefix': f"GRP_",
+                'prefix': f"GRP",
                 'padding': 4,  # Padding for sequence number (e.g., 0002)
                 'company_id': company_id,
             })
@@ -463,20 +606,26 @@ class GroupBooking(models.Model):
         # Generate the name based on the sequence
         if vals.get('name', 'New') == 'New':
             sequence_number = sequence.next_by_id()
-            vals['name'] = f"{company_name}/{sequence_number}"
+            vals['name'] = f"{company_code}{sequence_number}"
 
-        return super(GroupBooking, self).create(vals)
+        record =  super(GroupBooking, self).create(vals)
+        
+        record._compute_company_ids_grp()
 
+        return record
 
 class GroupBookingPerson(models.Model):
     _name = 'group.booking.person'
     _description = 'Group Booking Person'
 
-    name = fields.Char(string=_('Name'), required=True, tracking=True, translate=True)
+    name = fields.Char(string=_('Name'), required=True,
+                       tracking=True, translate=True)
     age = fields.Integer(string=_('Age'), required=True)
-    address = fields.Char(string=_('Address'), required=True, tracking=True, translate=True)
+    address = fields.Char(string=_('Address'), required=True,
+                          tracking=True, translate=True)
     image = fields.Binary(
         string="Document", help="Document of the Person", tracking=True)
-    document_name = fields.Char(string=_("Document Name"), tracking=True, translate=True)
+    document_name = fields.Char(
+        string=_("Document Name"), tracking=True, translate=True)
     group_booking_id = fields.Many2one(
         'group.booking', string='Group Booking', required=True, ondelete='cascade', tracking=True)

@@ -360,6 +360,12 @@ class RateDetail(models.Model):
         ('line_wise', 'Line Wise')
     ], string="Amount Selection", tracking=True)
 
+    percentage_selection = fields.Selection([
+        ('total', 'Total'),
+        ('line_wise', 'Line Wise')
+    ], string="Percentage Selection", tracking=True)
+
+
     posting_item = fields.Many2one(
         'posting.item', string="Posting Item", tracking=True)
     rate_code_id = fields.Many2one(

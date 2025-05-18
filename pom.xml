@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.reljicd</groupId>
-    <artifactId>Hotel-Management</artifactId>
+    <artifactId>shopping-cart</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Hotel-Management</name>
-    <description>Hotel Management system</description>
+    <name>shopping-cart</name>
+    <description>Demo project for Spring Boot Shopping Cart</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -156,12 +156,12 @@
     <repository>
       <id>maven-releases</id>
       <name>maven-releases</name>
-      <url>http://172.16.110.10:30508/repository/maven-releases/</url>
+      <url>http://172.16.102.130:8081/repository/maven-releases/</url>
     </repository>
     <snapshotRepository>
       <id>maven-snapshots</id>
       <name>maven-snapshots</name>
-      <url>http://172.16.110.10:30508/repository/maven-snapshots/</url>
+      <url>http://172.16.102.130:8081/repository/maven-snapshots/</url>
     </snapshotRepository>
 </distributionManagement>
 

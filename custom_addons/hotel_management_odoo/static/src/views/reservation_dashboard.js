@@ -440,7 +440,6 @@ export class ReservationDashBoard extends Component {
         ["state", "=", "check_in"],
         //                ['parent_booking_name', '!=', false]
       ];
-      console.log("Domain :", domain);
       actionName = "Today Check-Outs";
     } else if (filter_name === "actual_checkin") {
       domain = [

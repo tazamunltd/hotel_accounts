@@ -93,24 +93,24 @@ class RoomSearch(models.Model):
             results = self.execute_room_search(query, params)
             
             # Log detailed results
-            _logger.info("Room search completed - Parameters: %s, Found: %d results", params, len(results))
-            _logger.info("=== Detailed Room Search Results ===")
-            for idx, room in enumerate(results, 1):
-                _logger.info(
-                    "Room %d:\n"
-                    "  - Room Type: %s\n"
-                    "  - Company: %s\n"
-                    "  - Free to Sell: %s\n"
-                    "  - Total Rooms: %s\n"
-                    "  - Total Overbooking: %s",
-                    idx,
-                    room.get('room_type_name', 'N/A'),
-                    room.get('company_name', 'N/A'),
-                    room.get('min_free_to_sell', 0),
-                    room.get('total_rooms', 0),
-                    room.get('total_overbooking_rooms', 0)
-                )
-            _logger.info("=== End of Room Search Results ===")
+            # _logger.info("Room search completed - Parameters: %s, Found: %d results", params, len(results))
+            # _logger.info("=== Detailed Room Search Results ===")
+            # for idx, room in enumerate(results, 1):
+            #     _logger.info(
+            #         "Room %d:\n"
+            #         "  - Room Type: %s\n"
+            #         "  - Company: %s\n"
+            #         "  - Free to Sell: %s\n"
+            #         "  - Total Rooms: %s\n"
+            #         "  - Total Overbooking: %s",
+            #         idx,
+            #         room.get('room_type_name', 'N/A'),
+            #         room.get('company_name', 'N/A'),
+            #         room.get('min_free_to_sell', 0),
+            #         room.get('total_rooms', 0),
+            #         room.get('total_overbooking_rooms', 0)
+            #     )
+            # _logger.info("=== End of Room Search Results ===")
             
             return results
             
@@ -144,15 +144,15 @@ class RoomSearch(models.Model):
             results = self.env.cr.dictfetchall()
             
             # Log each result row with detailed information
-            _logger.info("Room search results (%d rooms found):", len(results))
-            for idx, room in enumerate(results, 1):
-                _logger.info("Room %d: Type: %s, Company: %s, Free to Sell: %s, Total Rooms: %s, Overbooking: %s",
-                            idx,
-                            room.get('room_type_name', 'N/A'),
-                            room.get('company_name', 'N/A'),
-                            room.get('min_free_to_sell', 0),
-                            room.get('total_rooms', 0),
-                            room.get('total_overbooking_rooms', 0))
+            # _logger.info("Room search results (%d rooms found):", len(results))
+            # for idx, room in enumerate(results, 1):
+            #     _logger.info("Room %d: Type: %s, Company: %s, Free to Sell: %s, Total Rooms: %s, Overbooking: %s",
+            #                 idx,
+            #                 room.get('room_type_name', 'N/A'),
+            #                 room.get('company_name', 'N/A'),
+            #                 room.get('min_free_to_sell', 0),
+            #                 room.get('total_rooms', 0),
+            #                 room.get('total_overbooking_rooms', 0))
             
             return results
             

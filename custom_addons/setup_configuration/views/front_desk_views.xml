@@ -703,7 +703,7 @@
                         <div class="card mb-2 shadow-sm">
                             <div class="card-header py-1 px-2">
                                 <i class="fa fa-list-alt"></i>
-                                <span class="fw-bold">Meal Code Sub Type</span>
+                                <span class="fw-bold">Main Meal Code</span>
                             </div>
                             <div class="card-body py-1 px-2">
                                 <!-- <div class="form-group mb-1">
@@ -745,13 +745,13 @@
         <field name="name">meal.code.sub.type.form</field>
         <field name="model">meal.code.sub.type</field>
         <field name="arch" type="xml">
-            <form string="Meal Code Sub Type">
+            <form string="Main Meal Code">
                 <div class="row g-2">
                     <div class="col-lg-6 col-md-6 col-sm-12">
                         <div class="card mb-2 shadow-sm">
                             <div class="card-header py-1 px-2">
                                 <i class="fa fa-cutlery"></i>
-                                <span class="fw-bold"> Meal Code Sub Type Details</span>
+                                <span class="fw-bold"> Main Meal Code Details</span>
                             </div>
                             <div class="card-body py-1 px-2">
                                 <div class="form-group mb-1">
@@ -781,15 +781,15 @@
         <field name="name">meal.code.sub.type.form</field>
         <field name="model">meal.code.sub.type</field>
         <field name="arch" type="xml">
-            <form string="Meal Code Sub Type">
+            <form string="Main Meal Code">
                 <sheet>
                     <div class="row g-2">
-                        <!-- Meal Code Sub Type Details -->
+                        <!-- Main Meal Code Details -->
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="card mb-2 shadow-sm">
                                 <div class="card-header py-1 px-2">
                                     <i class="fa fa-cutlery"></i>
-                                    <span class="fw-bold">Meal Code Sub Type Details</span>
+                                    <span class="fw-bold">Main Meal Code Details</span>
                                 </div>
                                 <div class="card-body py-2 px-3">
                                     <div class="form-group mb-1">
@@ -823,7 +823,7 @@
         <field name="name">meal.code.sub.type.tree</field>
         <field name="model">meal.code.sub.type</field>
         <field name="arch" type="xml">
-            <tree string="Meal Code Sub Type">
+            <tree string="Main Meal Code">
                 <field name="name"/>
                 <!-- <field name="company_id"/> -->
             </tree>
@@ -1048,13 +1048,10 @@
                         <div class="card mb-2 shadow-sm">
                             <div class="card-header py-1 px-2">
                                 <i class="fa fa-list-alt"></i>
-                                <span class="fw-bold">Meal Pattern Sub Type</span>
+                                <span class="fw-bold">Main Meal Pattern </span>
                             </div>
                             <div class="card-body py-1 px-2">
-                                <!-- <div class="form-group mb-1">
-                                    <field name="type" widget="radio"
-                                        class="o_field_widget" />
-                                </div> -->
+                               
                                 <div class="form-group mb-1">
                                     <field name="meal_pattern_sub_type"
                                            class="o_field_widget"/>
@@ -1181,37 +1178,20 @@
             </search>
         </field>
     </record>
-    <!-- <record id="view_meal_pattern_sub_type_form" model="ir.ui.view">
-        <field name="name">meal.pattern.sub.type.form</field>
-        <field name="model">meal.pattern.sub.type</field>
-        <field name="arch" type="xml">
-            <form string="Meal Pattern Sub Type">
-                <sheet>
-                    <group>
-                        <field name="name" />
-                        <field name="company_id" readonly="1" />
-                    </group>
-                </sheet>
-                  <div class="oe_chatter">
-                    <field name="message_follower_ids" />
-                    <field name="message_ids" />
-                </div>
-            </form>
-        </field>
-    </record> -->
+    
     <record id="view_meal_pattern_sub_type_form" model="ir.ui.view">
         <field name="name">meal.pattern.sub.type.form</field>
         <field name="model">meal.pattern.sub.type</field>
         <field name="arch" type="xml">
-            <form string="Meal Pattern Sub Type">
+            <form string="Main Meal Pattern ">
                 <sheet>
                     <div class="row g-2">
-                        <!-- Meal Pattern Sub Type Details -->
+                        <!-- Main Meal Pattern  Details -->
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="card mb-2 shadow-sm">
                                 <div class="card-header py-1 px-2">
                                     <i class="fa fa-utensils"></i>
-                                    <span class="fw-bold">Meal Pattern Sub Type Details</span>
+                                    <span class="fw-bold">Main Meal Pattern  Details</span>
                                 </div>
                                 <div class="card-body py-2 px-3">
                                     <div class="form-group mb-1">
@@ -1221,11 +1201,11 @@
                                         <field name="name"
                                                placeholder="Enter Name"/>
                                     </div>
-                                    <div class="form-group mb-1">
+                                    <!-- <div class="form-group mb-1">
                                         <label for="company_id" class="form-label small">Company</label>
                                         <field name="company_id"
                                                class="form-control form-control-sm" readonly="1"/>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -1245,17 +1225,17 @@
         <field name="name">meal.pattern.sub.type.tree</field>
         <field name="model">meal.pattern.sub.type</field>
         <field name="arch" type="xml">
-            <tree string="Meal Pattern Sub Type">
+            <tree string="Main Meal Pattern ">
                 <field name="name"/>
-                <field name="company_id"/>
+                <!-- <field name="company_id"/> -->
             </tree>
         </field>
     </record>
-    <record id="action_meal_pattern_sub_type" model="ir.actions.act_window">
-        <field name="name">Meal Pattern Sub Types</field>
+    <!-- <record id="action_meal_pattern_sub_type" model="ir.actions.act_window">
+        <field name="name">Main Meal Pattern</field>
         <field name="res_model">meal.pattern.sub.type</field>
         <field name="view_mode">tree,form</field>
-    </record>
+    </record> -->
 
 
     <!-- Form View for Authorized Code -->

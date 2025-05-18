@@ -52,6 +52,29 @@ class HotelRoom(models.Model):
 
     name = fields.Char(string="Name", index='trigram', required=True, translate=True)
 
+    @api.onchange('name', 'room_type_name')
+    def _onchange_name_check_duplicate(self):
+        if self.name and self.company_id and self.room_type_name:
+            domain = [
+                ('name', '=', self.name),
+                ('company_id', '=', self.company_id.id),
+                ('room_type_name', '=', self.room_type_name.id),
+            ]
+            if self.id:
+                domain.append(('id', '!=', self.id))
+
+            existing = self.env['hotel.room'].search(domain, limit=1)
+            if existing:
+                return {
+                    'warning': {
+                        'title': "Duplicate Room",
+                        'message': (
+                            f"The Room '{self.name}' with Room Type '{self.room_type_name.room_type}' "
+                            f"already exists for this Hotel."
+                        )
+                    }
+                }
+
     # @api.onchange('name')
     # def _check_name_validity(self):
     #     for record in self:
@@ -68,7 +91,7 @@ class HotelRoom(models.Model):
     #             if int(record.name) < 1:
     #                 raise ValidationError(_("Room name cannot be a negative number. Please enter a valid name."))
 
-    room_type_name = fields.Many2one('room.type', string='Room Type')
+    room_type_name = fields.Many2one('room.type', string='Room Type', required=True)
 
     @api.depends('room_type_name')
     def _compute_user_sort(self):
@@ -135,13 +158,26 @@ class HotelRoom(models.Model):
                                  default=lambda self: self.env.company, required=True, tracking=True)
 
     fsm_location = fields.Many2one(
-        'fsm.location', string='Location', tracking=True)
+        'fsm.location', string='Location', required=True, tracking=True)
     # @api.onchange('fsm_location')
     # def _onchange_fsm_location(self):
     #     if self.fsm_location:
     #         print(f"Selected Location: {self.fsm_location.complete_name}")
     #     else:
     #         print("No location selected.")
+    def check_unique_room(self):
+        for record in self:
+            domain = [
+                ('name', '=', record.name),
+                ('room_type_name', '=', record.room_type_name.id),
+                ('fsm_location', '=', record.fsm_location.id)
+            ]
+            duplicate = self.env['hotel.room'].search(domain, limit=1)
+            if duplicate:
+                raise ValidationError(
+                    f"A room with Name '{record.name}', Room Type '{record.room_type_name.room_type}', "
+                    f"and Location '{record.fsm_location.name}' already exists."
+                )
 
     is_room_avail = fields.Boolean(
         string='Is Available', default=True, tracking=True)
@@ -151,6 +187,8 @@ class HotelRoom(models.Model):
         # Automatically set the company of the logged-in user if not provided
         if not vals.get('company_id'):
             vals['company_id'] = self.env.company.id
+        temp_record = self.new(vals)
+        temp_record.check_unique_room()
         return super(HotelRoom, self).create(vals)
 
     @api.constrains("num_person")

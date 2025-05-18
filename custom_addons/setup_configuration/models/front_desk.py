@@ -93,7 +93,7 @@ class RoomSpecification(models.Model):
 class MealSubType(models.Model):
     _name = 'meal.code.sub.type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    name = fields.Char(string="Meal Code Sub Type", required=True, tracking=True)
+    name = fields.Char(string="Main Meal Code", required=True, tracking=True)
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
 
 class MealCode(models.Model):
@@ -137,7 +137,8 @@ class MealCode(models.Model):
         ('sohor', 'Sohor'),
     ], string="Type", default="unspecified",tracking=True)
 
-    meal_code_sub_type = fields.Many2one('meal.code.sub.type', string="Meal Code Sub Type")
+    meal_code_sub_type = fields.Many2one(
+        'meal.code.sub.type', string="Main Meal Code", required=True,)
     # domain=lambda self: [
     #     ('company_id', '=', self.env.company.id)],)
     
@@ -145,7 +146,7 @@ class MealCode(models.Model):
 class MealPatternSubType(models.Model):
     _name = 'meal.pattern.sub.type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    name = fields.Char(string="Meal Pattern Sub Type", required=True, tracking=True)
+    name = fields.Char(string="Main Meal Pattern", required=True, tracking=True)
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
 
 class MealPattern(models.Model):
@@ -165,9 +166,9 @@ class MealPattern(models.Model):
     user_sort = fields.Integer(string="User Sort",tracking=True)
     meals_list_ids = fields.One2many('meal.list', 'meal_pattern_id', string="Meals List") #
     taxes = fields.Many2one('account.tax', string="Taxes",tracking=True)
-    meal_pattern_sub_type = fields.Many2one('meal.pattern.sub.type', string="Meal Pattern Sub Type",
-    domain=lambda self: [
-        ('company_id', '=', self.env.company.id)],)
+    meal_pattern_sub_type = fields.Many2one('meal.pattern.sub.type', string="Main Meal Pattern ", required=True )
+    # domain=lambda self: [
+    #     ('company_id', '=', self.env.company.id)],)
 
 class MealList(models.Model):
     _name = 'meal.list'
@@ -182,8 +183,8 @@ class MealList(models.Model):
     apply_on_departure = fields.Boolean(string="Apply on Departure", default=False,tracking=True)
     apply_during_stay = fields.Boolean(string="Apply During Stay", default=False,tracking=True)
     meal_pattern_id = fields.Many2one('meal.pattern', string="Meal Pattern", ondelete='cascade',tracking=True)
-    price = fields.Float(string="Price/Pax", tracking=True)  # Add a field to store the price of the meal_code
-    price_child = fields.Float(string="Price/Child", tracking=True)
+    price = fields.Float(string="Price/Pax", related='meal_code.price_pax', store=True,  tracking=True)  # Add a field to store the price of the meal_code
+    price_child = fields.Float(string="Price/Child",  related='meal_code.price_child', store=True,tracking=True)
 
     @api.model
     def create(self, vals):

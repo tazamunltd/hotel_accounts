@@ -214,7 +214,7 @@ class PostingItem(models.Model):
         help="Select whether the posting applies to the first night or every night."
     ,tracking=True)
 
-    taxes = fields.Many2one('account.tax', string="Taxes",tracking=True)
+    taxes = fields.Many2many('account.tax', string="Taxes",tracking=True)
 
 class PostingItemAddition(models.Model):
     _name = 'posting.item.addition'

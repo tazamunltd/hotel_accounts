@@ -6,22 +6,29 @@ _build/
 !.gitignore
 !.github
 !.mailmap
-# compiled python files
-*.py[co]
-__pycache__/
+
+# compiled python files (including cache files and .pyc files)
+*.py[cod]         # Ignores .pyc, .pyo, and .pyd files
+__pycache__/      # Ignores the __pycache__ directory
+
 # setup.py egg_info
 *.egg-info
+
 # emacs backup files
 *~
+
 # hg stuff
 *.orig
 status
+
 # odoo filestore
 odoo/filestore
+
 # maintenance migration scripts
 odoo/addons/base/maintenance
+
 # window installation config file
-#/odoo.conf
+/odoo.conf
 
 # generated for windows installer?
 install/win32/*.bat
@@ -49,3 +56,41 @@ package.json
 /man/
 /share/
 /src/
+
+# Ignore logfile.log
+logfile.log
+odoo.log
+nodemon.json
+templates/
+taz_db_new_2025-01-08_13-45-52.zip
+pyodoo310/
+taz_db_backup.sql
+hms_odoo.conf
+
+# Ignore cache files and pyc files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+Dockerfile
+docker-compose.yml
+data/*
+
+
+Read_me_zhr.txt
+Suhail Sir  shared templates/
+
+# removed fonts added by Akram
+custom_addons/hotel_management_odoo/static/fonts/
+
+tazamun_env/
+<<<<<<< Updated upstream
+hms_env/
+=======
+
+custom_addons - Copy (2)/
+custom_addons - Copy/
+custom_addons/setup_configuration/models/models copy.py
+>>>>>>> Stashed changes

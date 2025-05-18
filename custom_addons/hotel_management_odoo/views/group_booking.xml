@@ -1,5 +1,5 @@
 <odoo>
-    
+
 
     <!-- Form View for Group Booking -->
     <record id="view_group_booking_form" model="ir.ui.view">
@@ -9,91 +9,6 @@
             <form string="Group Booking">
                 <sheet>
                     <notebook>
-                        <!-- <page string="Main">
-                            <group>
-                                <field name="name" />
-                                <field name="address" />
-                                <field name="image" filename="document_name" />
-                                <field name="document_name" invisible="1" />
-                                <field name="name" />
-                                <field name="address" />
-                                <field name="image" filename="document_name" />
-                                <field name="document_name" invisible="1" />
-                            </group>
-                            <group>
-                                <group>
-                                    <field name="group_name" />
-                                    <field name="is_grp_company" />
-                                    <field name="company" domain="[('is_company', '=', is_grp_company)]" />
-                                    <field name="nationality" />
-                                    <field name="group_name" />
-                                    <field name="is_grp_company" />
-                                    <field name="company" domain="[('is_company', '=', is_grp_company)]" />
-                                    <field name="nationality" />
-                                </group>
-                                <group>
-                                    <field name="source_of_business" />
-                                    <field name="status_code" />
-                                    <field name="house_use" />
-                                    <field name="house_use_codes_" invisible="house_use == False" />
-                                    <field name="complimentary" />
-                                    <field name="complimentary_codes" invisible="complimentary == False" />
-                                    <field name="source_of_business" />
-                                    <field name="status_code" />
-                                    <field name="house_use" />
-                                    <field name="house_use_codes_" invisible="house_use == False" />
-                                    <field name="complimentary" />
-                                    <field name="complimentary_codes" invisible="complimentary == False" />
-                                </group>
-                            </group>
-
-                            <group string="Payment Details">
-                                <group>
-                                    <field name="payment_type" widget="radio" />
-                                    <field name="master_folio_limit" />
-                                </group>
-                            </group>
-
-                            <group string="Rate and Market Details">
-                                <group>
-                                    <field name="rate_code" />
-                                    <field name="group_meal_pattern" />
-                                    <field name="market_segment" />
-                                    <field name="rate_code" />
-                                    <field name="group_meal_pattern" />
-                                    <field name="market_segment" />
-                                </group>
-                                <group>
-                                    <field name="reference" />
-                                    <field name="allotment" />
-                                    <field name="reference" />
-                                    <field name="allotment" />
-                                </group>
-                            </group>
-
-                            <group>
-                                <field name="allow_profile_change" />
-                                <field name="allow_profile_change" />
-                            </group>
-                            <group>
-                                <field name="person_ids">
-                                    <tree editable="bottom">
-                                        <field name="name" />
-                                        <field name="age" />
-                                        <field name="address" />
-                                        <field name="image" widget="document_upload_widget" filename="document_name" />
-                                        <field name="document_name" optional='show' />
-                                        <field name="name" />
-                                        <field name="age" />
-                                        <field name="address" />
-                                        <field name="image" widget="document_upload_widget" filename="document_name" />
-                                        <field name="document_name" optional='show' />
-
-                                    </tree>
-                                </field>
-                            </group>
-                        </page> -->
-
                         <!-- ################ -->
                         <page string="Main">
                             <div class="row g-2">
@@ -127,7 +42,17 @@
                                                     Company</label>
                                             </div>
                                             <div class="form-group mb-1">
-                                                <field name="company" domain="[('is_company', '=', is_grp_company)]" class="form-control form-control-sm" placeholder=" Select Contact" />
+                                                <field name='company_ids_grp' invisible="1" />
+                                                <label for="company" class="form-label small">
+                                                    Contact</label>
+                                                <field name="company"
+                                                    domain="[('is_company', '=', is_grp_company), ('user_ids', '=', False), ('id', 'not in', company_ids_grp)]"
+                                                    context="{
+                                                            'default_company_type': is_grp_company and 'company' or 'person',
+                                                            'default_is_company'  : is_grp_company             
+                                                        }"
+                                                    class="form-control form-control-sm"
+                                                    placeholder=" Select Contact" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="nationality" class="form-label small">
@@ -188,9 +113,9 @@
                                                 <label for="group_name" class="form-label small">Group
                                                     Name</label>
                                             </div>
-                                            <div class="form-control form-control-sm" >
+                                            <div class="form-control form-control-sm">
                                                 <field name="group_name"
-                                                    />
+                                                />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="source_of_business" class="form-label">Source
@@ -240,34 +165,35 @@
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="complimentary" force_save="1" />
-                                                <label for="complimentary_codes" class="form-label small">Complementary</label>
+                                                <label for="complimentary_codes"
+                                                    class="form-label small">Complementary</label>
                                             </div>
                                             <div class="form-group mb-1"
                                                 invisible="complimentary == False">
                                                 <field name="complimentary_codes"
                                                     class="form-control form-control-sm"
                                                     force_save="1"
-                                                    required = "complimentary == True"
+                                                    required="complimentary == True"
                                                     placeholder="Select Complementary" />
                                             </div>
 
                                             <div class="form-group mb-1">
                                                 <field name="house_use" force_save="1" />
-                                                <label for="house_use_codes_" class="form-label small">House Use</label>
+                                                <label for="house_use_codes_"
+                                                    class="form-label small">House Use</label>
                                             </div>
                                             <div class="form-group mb-1"
                                                 invisible="house_use == False">
                                                 <field name="house_use_codes_"
                                                     class="form-control form-control-sm"
                                                     force_save="1"
-                                                    required = "house_use == True"
+                                                    required="house_use == True"
                                                     placeholder="Select House Use Code" />
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-group mb-1">
-                                        <field name="allow_profile_change" />
- Allow changing profile
+                                        <field name="allow_profile_change" /> Allow changing profile
                                         data in the reservation form? </div>
                                 </div>
 
@@ -314,11 +240,14 @@
                                             <div class="form-group mb-1">
                                                 <label for="payment_type" class="form-label small">Payment
                                                     Type</label>
-                                                <field name="payment_type" widget="radio" class="form-control form-control-sm" />
+                                                <field name="payment_type" widget="radio"
+                                                    class="form-control form-control-sm" />
                                             </div>
                                             <div class="form-group mb-1">
-                                                <label for="master_folio_limit" class="form-label small">Master Folio Limit</label>
-                                                <field name="master_folio_limit" class="form-control form-control-sm" />
+                                                <label for="master_folio_limit"
+                                                    class="form-label small">Master Folio Limit</label>
+                                                <field name="master_folio_limit"
+                                                    class="form-control form-control-sm" />
                                             </div>
                                         </div>
                                     </div>
@@ -339,7 +268,9 @@
                                                     <field name="name" />
                                                     <field name="age" />
                                                     <field name="address" />
-                                                    <field name="image" widget="document_upload_widget" filename="document_name" />
+                                                    <field name="image"
+                                                        widget="document_upload_widget"
+                                                        filename="document_name" />
                                                     <field name="document_name" optional='show' />
                                                 </tree>
                                             </field>
@@ -365,13 +296,16 @@
                                                             Street</label>
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <field name="street" class="form-control form-control-sm" />
+                                                        <field name="street"
+                                                            class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="country_id" class="form-label small">Country</label>
-                                                        <field name="country_id" class="form-control form-control-sm" />
+                                                        <label for="country_id"
+                                                            class="form-label small">Country</label>
+                                                        <field name="country_id"
+                                                            class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -382,22 +316,26 @@
                                                             City</label>
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <field name="city" class="form-control form-control-sm" />
+                                                        <field name="city"
+                                                            class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="zip_code" class="form-label small">ZIP Code</label>
+                                                        <label for="zip_code"
+                                                            class="form-label small">ZIP Code</label>
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <field name="zip_code" class="form-control form-control-sm" />
+                                                        <field name="zip_code"
+                                                            class="form-control form-control-sm" />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-12">
                                                     <div class="form-group mb-1">
-                                                        <label for="billing_address" class="form-label small">Billing Address</label>
+                                                        <label for="billing_address"
+                                                            class="form-label small">Billing Address</label>
                                                     </div>
                                                     <div class="form-group mb-1">
                                                         <field name="billing_address"
@@ -420,7 +358,8 @@
                                             <div class="row">
                                                 <div class="col-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="contact_leader" class="form-label small">Contact/Leader</label>
+                                                        <label for="contact_leader"
+                                                            class="form-label small">Contact/Leader</label>
                                                     </div>
                                                     <div class="form-group mb-1">
                                                         <field name="contact_leader"
@@ -444,7 +383,8 @@
                                             <div class="row">
                                                 <div class="col-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="phone_1" class="form-label small">Phone 1</label>
+                                                        <label for="phone_1"
+                                                            class="form-label small">Phone 1</label>
                                                     </div>
                                                     <div class="form-group mb-1">
                                                         <field name="phone_1"
@@ -454,7 +394,8 @@
                                                 </div>
                                                 <div class="col-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="phone_2" class="form-label small">Phone 2
+                                                        <label for="phone_2"
+                                                            class="form-label small">Phone 2
                                                             2</label>
                                                     </div>
                                                     <div class="form-group mb-1">
@@ -468,7 +409,8 @@
                                             <div class="row">
                                                 <div class="col-6">
                                                     <div class="form-group mb-1">
-                                                        <label for="email_address" class="form-label small">Email
+                                                        <label for="email_address"
+                                                            class="form-label small">Email
                                                             Address</label>
                                                     </div>
                                                     <div class="form-group mb-1">
@@ -560,28 +502,46 @@
                                             <div class="row">
                                                 <div class="col-4">
                                                     <div class="form-group mb-1">
-                                                        <label for="first_visit" class="form-label small">First Visit</label>
-                                                        <field name="first_visit" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="first_visit"
+                                                            class="form-label small">First Visit</label>
+                                                        <field name="first_visit"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="last_visit" class="form-label small">Last Visit</label>
-                                                        <field name="last_visit" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="last_visit"
+                                                            class="form-label small">Last Visit</label>
+                                                        <field name="last_visit"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="last_rate" class="form-label small">Last Rate</label>
-                                                        <field name="last_rate" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="last_rate"
+                                                            class="form-label small">Last Rate</label>
+                                                        <field name="last_rate"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_stays" class="form-label small">Total Stays</label>
-                                                        <field name="total_stays" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_stays"
+                                                            class="form-label small">Total Stays</label>
+                                                        <field name="total_stays"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_room_count" class="form-label small">Total Rooms</label>
-                                                        <field name="total_room_count" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_room_count"
+                                                            class="form-label small">Total Rooms</label>
+                                                        <field name="total_room_count"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_adult_count" class="form-label small">Total Adult</label>
-                                                        <field name="total_adult_count" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_adult_count"
+                                                            class="form-label small">Total Adult</label>
+                                                        <field name="total_adult_count"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
 
                                                 </div>
@@ -594,21 +554,33 @@
                                                             readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_infant_count" class="form-label small">Total Infant</label>
-                                                        <field name="total_infant_count" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_infant_count"
+                                                            class="form-label small">Total Infant</label>
+                                                        <field name="total_infant_count"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_nights" class="form-label small">Total Nights</label>
-                                                        <field name="total_nights" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_nights"
+                                                            class="form-label small">Total Nights</label>
+                                                        <field name="total_nights"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_cancellations" class="form-label small">Total
+                                                        <label for="total_cancellations"
+                                                            class="form-label small">Total
                                                             Cancellations</label>
-                                                        <field name="total_cancellations" class="form-control form-control-sm" readonly="1" />
+                                                        <field name="total_cancellations"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_no_shows" class="form-label small">Total No Shows</label>
-                                                        <field name="total_no_shows" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_no_shows"
+                                                            class="form-label small">Total No Shows</label>
+                                                        <field name="total_no_shows"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
 
 
@@ -630,20 +602,32 @@
                                                             readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_block" class="form-label small">Total Block</label>
-                                                        <field name="total_block" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_block"
+                                                            class="form-label small">Total Block</label>
+                                                        <field name="total_block"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_checkin" class="form-label small">Total Check-In</label>
-                                                        <field name="total_checkin" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_checkin"
+                                                            class="form-label small">Total Check-In</label>
+                                                        <field name="total_checkin"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_checkout" class="form-label small">Total Check-Out</label>
-                                                        <field name="total_checkout" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_checkout"
+                                                            class="form-label small">Total Check-Out</label>
+                                                        <field name="total_checkout"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                     <div class="form-group mb-1">
-                                                        <label for="total_revenue" class="form-label small">Total Revenue</label>
-                                                        <field name="total_revenue" class="form-control form-control-sm" readonly="1" />
+                                                        <label for="total_revenue"
+                                                            class="form-label small">Total Revenue</label>
+                                                        <field name="total_revenue"
+                                                            class="form-control form-control-sm"
+                                                            readonly="1" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -660,15 +644,15 @@
                             <field name="room_booking_ids" widget="one2many_list"
                                 context="{'default_model': 'room.booking'}">
                                 <tree string="Room Bookings" editable="bottom">
-                                    <field name="name" optional="show"/>
-                                    <field name="room_ids_display" optional="show"/>
-                                    <field name="room_type_display" optional="show"/>
-                                    <field name="room_count_tree" optional="show"/>
-                                    <field name="checkin_date" optional="show"/>
-                                    <field name="checkout_date" optional="show"/>
-                                    <field name="partner_id" optional="show"/>
-                                    <field name="date_order" optional="show"/>
-                                    <field name="state" optional="show"/>
+                                    <field name="name" optional="show" />
+                                    <field name="room_ids_display" optional="show" />
+                                    <field name="room_type_display" optional="show" />
+                                    <field name="room_count_tree" optional="show" />
+                                    <field name="checkin_date" optional="show" />
+                                    <field name="checkout_date" optional="show" />
+                                    <field name="partner_id" optional="show" />
+                                    <field name="date_order" optional="show" />
+                                    <field name="state" optional="show" />
                                 </tree>
                             </field>
                         </page>
@@ -817,11 +801,12 @@
         <field name="model_id" ref="model_group_booking" />
         <field name="state">code</field>
         <field name="code">
-        action = {
+            action = {
             'type': 'ir.actions.act_url',
-            'url': '/generate_rc/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)) + '&amp;company_id=' + str(env.company.id),
+            'url': '/generate_rc/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)) +
+            '&amp;company_id=' + str(env.company.id),
             'target': 'self',
-        }
+            }
         </field>
         <field name="binding_model_id" ref="model_group_booking" />
         <field name="binding_type">action</field>

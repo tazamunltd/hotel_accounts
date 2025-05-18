@@ -31,6 +31,10 @@ import base64
 from reportlab.lib.utils import ImageReader
 from PIL import Image as PILImage
 import os
+from odoo.exceptions import ValidationError
+from textwrap import wrap
+from bs4 import BeautifulSoup  # Make sure you install beautifulsoup4
+import re
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -122,7 +126,7 @@ def draw_table_with_page_break(
     # each row may occupy its own page. That may be intentional, but be aware.
     usable_height = page_height - top_margin - bottom_margin - header_height
     if row_height > usable_height:
-        print("Warning: row_height is larger than the usable page space.")
+        print("Warning:: row_height is larger than the usable page space.")
         # It will still work but each row might trigger a new page.
 
     c.setFont(font_name, font_size)
@@ -2002,7 +2006,6 @@ class WebAppController(http.Controller):
         # Get the current company from the request, default to the user's active company
         current_company_id = int(
             company_id) if company_id else request.env.company.id
-        print("Current Company ID:", current_company_id)
 
         # Ensure the request environment respects the selected company
         env_booking = request.env['room.booking'].with_company(
@@ -2043,7 +2046,6 @@ class WebAppController(http.Controller):
 
     def get_arabic_text(self, text):
         user_lang = request.env.user.lang
-        print("Current Language:", user_lang)
 
         # Define N/A translation dynamically
         # not_available_text = "N/A"
@@ -2051,7 +2053,7 @@ class WebAppController(http.Controller):
             text = "غير مترفر"  # Arabic for "N/A"
 
         return text
-
+    
     
     def get_country_translation(self, country_name):
         """Returns the Arabic translation of a country if the user language is Arabic."""
@@ -2098,17 +2100,40 @@ class WebAppController(http.Controller):
         c = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
 
-        left_margin = 40
+        CENTER_X    = width / 2        # exact middle of the page
+        TOP_Y       = height - 50      # first header line baseline
+        line_height = 15               # space between header lines
+
+        y_position  = TOP_Y - line_height  # Starting Y position for the first header line
+
+        left_margin = 20
         right_margin = 20
         top_margin = 50
         bottom_margin = 50
         arabic_val = 0
+
+        logo_max_width  = 60
+        logo_max_height = 60
+
+        # horizontal centre
+        logo_x = CENTER_X - (logo_max_width / 2)
+
+        # vertical centre between first and second header rows
+        logo_mid_y = TOP_Y - (line_height / 2)
+        logo_y     = logo_mid_y - (logo_max_height / 2)
+
+        _ = self.draw_company_logo_(
+                c, logo_x, logo_y,
+                logo_max_width, logo_max_height,
+                booking.company_id.logo
+            )
 
 
         # Register a font that supports Arabic
         if platform.system() == "Windows":
             # font_path = "C:/Windows/Fonts/arial.ttf"
             font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+            # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
             arabic_val = 19
@@ -2189,182 +2214,81 @@ class WebAppController(http.Controller):
         y_position = height - 50  # Starting Y position
         line_height = 15  # Line height for vertical spacing
 
+        def draw_arabic_text_(c, x, y, text, font="CustomFont", font_size=8):
+            """
+            Draws Arabic text on the canvas 'c' so that the RIGHT edge of the text is at (x, y).
+            """
+            if text:
+                # 1) Reshape Arabic letters
+                reshaped_text = arabic_reshaper.reshape(text)
 
-        def draw_company_logo(c, x, y, max_width, max_height, logo_data):
-            if not logo_data:
-                print("No logo data found, drawing empty box in its place.")
-                # Draw an empty rectangle at (x, y)
-                c.rect(x, y, max_width, max_height)
-                return max_height
-            
-            try:
-                logger.debug("Attempting to draw company logo from binary data")
+                # 2) Convert to right-to-left using 'get_display'
+                bidi_text = get_display(reshaped_text)
 
-                # Check if logo data exists
-                if not logo_data:
-                    logger.warning("No logo data found in company record")
-                    return 0
+                # 3) Make sure the same font is used for measurement & drawing
+                c.setFont(font, font_size)
 
-                # Decode base64 logo data
-                try:
-                    logo_binary = base64.b64decode(logo_data)
-                    logo_stream = io.BytesIO(logo_binary)
-                    logger.debug("Successfully decoded logo binary data")
-
-                    # Use PIL to open and identify the image
-                    with PILImage.open(logo_stream) as img:
-                        img_format = img.format.lower()
-                        logger.debug(f"Detected image format: {img_format}")
-
-                        # Create a new BytesIO for the image with proper format
-                        final_image = io.BytesIO()
-                        if img_format != 'png':  # Convert to PNG if it's not already
-                            img = img.convert('RGBA')
-                        img.save(final_image, format='PNG')
-                        final_image.seek(0)
-
-                        # Get image dimensions
-                        img_width, img_height = img.size
-                        logger.debug(f"Original image dimensions - Width: {img_width}, Height: {img_height}")
-
-                except Exception as e:
-                    logger.error(f"Error processing logo data: {str(e)}")
-                    return 0
-
-                # Calculate aspect ratio
-                aspect = img_width / float(img_height)
-                logger.debug(f"Image aspect ratio: {aspect}")
-
-                # Calculate new dimensions
-                if img_width > max_width:
-                    new_width = max_width
-                    new_height = new_width / aspect
-                    if new_height > max_height:
-                        new_height = max_height
-                        new_width = new_height * aspect
-                elif img_height > max_height:
-                    new_height = max_height
-                    new_width = new_height * aspect
-                else:
-                    new_width = img_width
-                    new_height = img_height
-
-                logger.debug(f"Final image dimensions - Width: {new_width}, Height: {new_height}")
-
-                # Create temp file path based on OS
-                if os.name == 'nt':  # Windows
-                    temp_image_path = os.path.join(os.environ['TEMP'], 'temp_logo.png')
-                else:  # Linux/Unix
-                    temp_image_path = '/tmp/temp_logo.png'
-
-                try:
-                    with open(temp_image_path, 'wb') as temp_file:
-                        temp_file.write(final_image.getvalue())
-
-                    # Draw the image using the temporary file
-                    c.drawImage(temp_image_path, x, y, width=new_width, height=new_height)
-                    logger.info(
-                        f"Successfully drew logo at position ({x}, {y}) with dimensions {new_width}x{new_height}")
-
-                    # Clean up the temporary file
-                    if os.path.exists(temp_image_path):
-                        os.remove(temp_image_path)
-                        logger.debug("Temporary logo file removed")
-
-                except Exception as e:
-                    logger.error(f"Error drawing image: {str(e)}")
-                    if os.path.exists(temp_image_path):
-                        try:
-                            os.remove(temp_image_path)
-                            logger.debug("Cleaned up temporary file after error")
-                        except:
-                            pass
-                    return 0
-
-                return new_height
-
-            except Exception as e:
-                logger.error(f"Error drawing logo: {str(e)}", exc_info=True)
-                return 0
-
-        # Main PDF generation code
-        try:
-            y_position = height - 10
-            line_height = 15
-
-            # Get logo directly from company_id.logo field
-            logo_data = booking.company_id.logo
-            logger.info(f"Company ID: {booking.company_id.id}")
-            logger.info(f"Company Name: {booking.company_id.name}")
-            logger.debug("Retrieved logo data from company record")
-
-            # Adjusted smaller logo dimensions for icon-like appearance
-            logo_max_width = 40  # Reduced from 150 to 60
-            logo_max_height = 40  # Made square for icon-like appearance
-
-            # Center the logo horizontally and place it at the top with some padding
-            logo_x = 20  # Center horizontally
-            logo_y = height - 35  # Place near top with 70px padding
-
-            # Draw logo
-            logger.debug("Starting logo drawing process")
-            logo_height = draw_company_logo(c, logo_x, logo_y, logo_max_width, logo_max_height, logo_data)
-            logger.debug(f"Returned logo height: {logo_height}")
-
-            # Adjust position for text with smaller offset since logo is smaller
-            if logo_height > 0:
-                logger.debug(f"Adjusting y_position for smaller logo")
-                y_position = logo_y - logo_height - 5  # Reduced padding after logo from 20 to 10
+                # 4) Measure how wide the text is, then shift left accordingly
+                text_width = stringWidth(bidi_text, font, font_size)
+                c.drawString(x - text_width, y, bidi_text)
             else:
-                logger.warning("No logo was drawn, continuing with original y_position")
+                # Draw an empty string if there's no text
+                c.drawString(x, y, "")
 
-        except Exception as e:
-            logger.error("Error in main PDF generation:", exc_info=True)
-            raise
-
+        
+        
+        # Main PDF generation code
+        
         # Line 1: Hijri Date and Hotel Name
         # Hijri Date
-        c.drawString(50, y_position, "Hijri Date:")
-        c.drawString(150, y_position, f"{hijri_date}")  # Replace with the actual Hijri date variable
-        draw_arabic_text(width - 350, y_position, "التاريخ الهجري:")
+        c.drawString(10, y_position, "Hijri Date:")
+        c.drawString(100, y_position, f"{hijri_date}")  # Replace with the actual Hijri date variable
+        draw_arabic_text(width - 400, y_position, "التاريخ الهجري:")
         # Hotel Name
-        c.drawString(width / 2 + 50, y_position, "Hotel Name:")
-        c.drawString(width / 2 + 150, y_position, f"{booking.company_id.name}")  # Replace with the actual booking field
+        # draw_arabic_text(width / 2 + 50, y_position, "Hotel Name:")
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Hotel Name:")
+
+        # c.drawString(width / 2 + 150, y_position, f"{booking.company_id.name}")  # Replace with the actual booking field
+        draw_arabic_text_left(c, width / 2 + 125, y_position, f"{booking.company_id.name}")
         draw_arabic_text(width - 50, y_position, "اسم الفندق:")
         y_position -= line_height
 
         # Line 2: Gregorian Date and Address
         # Gregorian Date
-        c.drawString(50, y_position, "Gregorian Date:")
-        c.drawString(150, y_position, f"{gregorian_date}")  # Replace with the actual Gregorian date variable
-        draw_arabic_text(width - 350, y_position, "التاريخ الميلادي:")
+        c.drawString(10, y_position, "Gregorian Date:")
+        c.drawString(100, y_position, f"{gregorian_date}")  # Replace with the actual Gregorian date variable
+        draw_arabic_text(width - 400, y_position, "التاريخ الميلادي:")
 
-        c.drawString(width / 2 + 50, y_position, "Address:")
-        address = f"{booking.company_id.street}"  # Replace with the actual address field from booking
-        wrapped_address = wrap(address, max_address_width)  # Wrap the address text into lines
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Address:")
 
-        # Draw each wrapped line of the address
-        line_offset = 0  # To handle multiple lines
+        address = f"{booking.company_id.street}"
+        wrapped_address = wrap(address, max_address_width)
+
+        line_offset = 0
         for line in wrapped_address:
-            c.drawString(width / 2 + 150, y_position - line_offset, line)  # Adjusted for each line
-            line_offset += line_height  # Move down for the next line
+            # Use draw_arabic_text_left instead of c.drawString for each line:
+            draw_arabic_text_left(c, width / 2 + 125, y_position - line_offset, line)
+            line_offset += line_height
 
-        draw_arabic_text(width - 50, y_position, "العنوان:")
-        y_position -= (line_offset + (line_height * 0.5))  # Move Y-position based on wrapped lines
+        # Render Arabic label also via draw_arabic_text_left:
+        draw_arabic_text_left(c, width - 50, y_position, "العنوان:      ")
+
+        y_position -= (line_offset + (line_height * 0.5))
+
 
         # y_position -= line_height
         # Line 3: User and Tel
         # User
-        c.drawString(50, y_position, "User:")
+        c.drawString(10, y_position, "User:")
         # c.drawString(150, y_position, f"{booking.partner_id.name}")  # Replace with the actual user field if needed
-        draw_arabic_text_left(c, 150, y_position, f"{booking.partner_id.name}")
+        draw_arabic_text_left(c, 100, y_position, f"{request.env.user.name}")
 
-        draw_arabic_text(width - 350, y_position, "اسم المستخدم:")
+        draw_arabic_text(width - 400, y_position, "اسم المستخدم:")
         # Tel
         c.drawString(width / 2 + 50, y_position, "Tel:")
         c.drawString(width / 2 + 150, y_position,
                      f"{booking.company_id.phone}")  # Replace with the actual booking field
-        draw_arabic_text(width - 50, y_position, "تليفون:")
+        draw_arabic_text(width - 50, y_position, "تليفون:       ")
         y_position -= line_height  # Extra spacing after this section
         y_position -= line_height
         # Registration Card Title
@@ -2385,16 +2309,15 @@ class WebAppController(http.Controller):
         guest_payment_border_top = y_position + 30
 
         LEFT_LABEL_X = left_margin
-        LEFT_VALUE_X = LEFT_LABEL_X + 80
-        LEFT_ARABIC_X = LEFT_VALUE_X + 85
+        LEFT_VALUE_X = LEFT_LABEL_X + 90
+        LEFT_ARABIC_X = LEFT_VALUE_X + 90
 
         # Right column starts sooner
         RIGHT_LABEL_X = LEFT_ARABIC_X + 90
         RIGHT_VALUE_X = RIGHT_LABEL_X + 100
         # Keep Arabic close to the value
         RIGHT_ARABIC_X = RIGHT_VALUE_X + 100 
-        logger.info("RC report values:{RIGHT_ARABIC_X}")
-        logger.info(RIGHT_ARABIC_X)
+        
 
         str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
         str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
@@ -2464,14 +2387,13 @@ class WebAppController(http.Controller):
 
 
 
-        # Guest Details: Add all fields dynamically
-        
+               
         guest_details = [
             ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:           ", 
-            "Full Name:", f"{booking.partner_id.name}", "الاسم الكامل:               "),
+             "Full Name:", f"{booking.partner_id.name}", "اسم النزيل:                  "),
 
             ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:           ", 
-            "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                        "),
+            "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                         "),
 
             ("Arrival (Hijri):", checkin_hijri_str, "تاريخ الوصول (هجري):", 
             "Nationality:", nationality, "الجنسية:                      "),  # Nationality translated correctly
@@ -2485,13 +2407,13 @@ class WebAppController(http.Controller):
             ("Room Number:", f"{booking.room_ids_display}", "رقم الغرفة:               ", 
             "ID No:", "", "رقم الهوية:                   "),
 
-            ("Room Type:", f"{booking.room_type_display}", "نوع الغرفة:              ", 
-            "No. of pax:", f"{booking.adult_count}", "عدد الأشخاص:               "),
+            ("Room Type:", f"{booking.room_type_display}", "نوع الغرفة:               ", 
+            "No. of pax:", f"{booking.adult_count}", "عدد الأفراد:                  "),
 
             ("Rate Code:", f"{display_rate_code}", "رمز السعر:               ", 
             "No. of child:", f"{booking.child_count}", "عدد الأطفال:                 "),
 
-            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:            ", 
+            ("Meal Pattern:", f"{display_meal_code}", "نظام الوجبات:            ", 
             "No. of infants:", f"{booking.infant_count}", "عدد الرضع:                   "),
 
             ("Room Disc:", f"{room_discount}", "خصم الغرفة:              ", 
@@ -2528,37 +2450,87 @@ class WebAppController(http.Controller):
                 avg_rate = round(total_rate / line_count, 2)
                 avg_meals = round(total_meals / line_count, 2)
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
+        
+        get_total_vat = round(booking.total_vat, 2) if round(booking.total_vat, 2) else 0.0
+        get_total_municipality = round(booking.total_municipality_tax, 2) if round(booking.total_municipality_tax, 2) else 0.0
+        get_total_tax = get_total_vat + get_total_municipality
+
         # Payment Details
+
         payment_details = [
-            ("Payment Method:", f"{pay_type}", "نظام الدفع:                ", "Room Rate(Avg):", f"{avg_rate}",
-             "السعر اليومي للغرفة:      "),
-            ("VAT:", "", "القيمة المضافة:            ", "Meals Rate(Avg):", f"{avg_meals}", "سعر الوجبات اليومي:      "),
-            ("Municipality:", "", "رسوم البلدية:              ", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
-             "إجمالي المشاركات الثابتة:"),
-            ("Total Taxes:", "", "إجمالي الضرائب:          ", "Total Packages:", f"{booking.total_package_forecast}",
-             "إجمالي الحزم:               "),
-            ("VAT ID:", "", "الرقم الضريبي:            ", "Remaining:", "", "المبلغ المتبقي:               "),
-            ("Payments:", "", "المدفوعات:                ", "Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:              ")
+            ("Payment Method:", f"{pay_type}", "نظام الدفع:                ", 
+             "Room Rate(Avg):", f"{avg_rate}", "متوسط سعر الغرفة اليومي:"),
+            ("VAT:", f"{get_total_vat}", "القيمة المضافة:            ",
+             "Meals Rate(Avg):", f"{avg_meals}", "متوسط سعر الوجبات اليومي:"),
+            ("Municipality:", f"{get_total_municipality}", "رسوم البلدية:              ",
+             "Total Fixed Post:", f"{booking.total_fixed_post_forecast}", "إجمالي المشاركات الثابتة:"),
+            ("Total Taxes:", f"{get_total_tax}", "إجمالي الضرائب:          ", 
+             "Total Packages:", f"{booking.total_package_forecast}", "إجمالي الحزم:               "),
+            ("VAT ID:", "", "الرقم الضريبي:            ",
+             "Remaining:", "", "المبلغ المتبقي:               "),
+            ("Payments:", "", "المبلغ المدفوع:            ", 
+             "Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:              ")
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
-            # Left column
-            c.drawString(LEFT_LABEL_X, y_position, l_label)
-            
-            # Use draw_arabic_text_left if the left label is "Payment Method:"
-            if l_label == "Payment Method:":
-                draw_arabic_text_left(c, LEFT_VALUE_X, y_position, l_value)
+            # Use default coordinates
+            cur_left_label_x = LEFT_LABEL_X
+            cur_left_value_x = LEFT_VALUE_X
+            cur_left_arabic_x = LEFT_ARABIC_X
+
+            cur_right_label_x = RIGHT_LABEL_X
+            cur_right_value_x = RIGHT_VALUE_X
+            cur_right_arabic_x = RIGHT_ARABIC_X
+
+            # Shift specific Arabic labels to the left
+            if r_label.strip() == "Room Rate(Avg):":
+                cur_right_arabic_x -= 9
+
+            if r_label.strip() == "Meals Rate(Avg):":
+                cur_right_arabic_x -= 13
+
+            # Draw left column
+            c.drawString(cur_left_label_x, y_position, l_label)
+
+            if l_label.strip() == "Payment Method:":
+                draw_arabic_text_left(c, cur_left_value_x, y_position, l_value)
             else:
-                c.drawString(LEFT_VALUE_X, y_position, l_value)
-            
-            draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
-            
-            # Right column
-            c.drawString(RIGHT_LABEL_X, y_position, r_label)
-            c.drawString(RIGHT_VALUE_X, y_position, r_value)
-            draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
-            
+                c.drawString(cur_left_value_x, y_position, l_value)
+
+            # draw_arabic_text_right(c, cur_left_arabic_x, y_position, l_arabic)
+            draw_arabic_text(cur_left_arabic_x, y_position, l_arabic)
+
+            # Draw right column
+            c.drawString(cur_right_label_x, y_position, r_label)
+            c.drawString(cur_right_value_x, y_position, r_value)
+            # draw_arabic_text_right(c, cur_right_arabic_x, y_position, r_arabic)
+            draw_arabic_text(cur_right_arabic_x, y_position, r_arabic)
+
             y_position -= line_height
+
+
+
+
+      
+
+        # for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
+        #     # Left column
+        #     c.drawString(LEFT_LABEL_X, y_position, l_label)
+            
+        #     # Use draw_arabic_text_left if the left label is "Payment Method:"
+        #     if l_label == "Payment Method:":
+        #         draw_arabic_text_left(c, LEFT_VALUE_X, y_position, l_value)
+        #     else:
+        #         c.drawString(LEFT_VALUE_X, y_position, l_value)
+            
+        #     draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
+            
+        #     # Right column
+        #     c.drawString(RIGHT_LABEL_X, y_position, r_label)
+        #     c.drawString(RIGHT_VALUE_X, y_position, r_value)
+        #     draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
+            
+        #     y_position -= line_height
 
         guest_payment_border_bottom = y_position - 20  # A little extra space below
         # Draw the border for Guest + Payment details
@@ -2658,15 +2630,7 @@ class WebAppController(http.Controller):
 
             x_cursor += col_width
 
-        # for eng_label, ar_label in table_headers:
-        #     # English left
-        #     c.drawString(x_cursor + 3, text_y, eng_label)
-        #     # Arabic right
-        #     reshaped_ar = arabic_reshaper.reshape(ar_label)
-        #     bidi_ar = get_display(reshaped_ar)
-        #     c.drawRightString(x_cursor + col_width - 3, text_y, bidi_ar)
-        #     x_cursor += col_width
-
+        
         # 6) Optionally, write data inside the body rows
         #    (If you have actual row data, loop over each row/column and place text)
         current_y = header_bottom
@@ -2737,7 +2701,7 @@ class WebAppController(http.Controller):
         y_position -= 60
         c, y_position = check_space_and_new_page(
             c=c,
-            needed_height=200,  # approximate space for T&C
+            needed_height=300,  # approximate space for T&C
             y_position=y_position,
             bottom_margin=bottom_margin,
             top_margin=top_margin,
@@ -2748,31 +2712,47 @@ class WebAppController(http.Controller):
         )
         terms_top = y_position
         y_position -= 20
+        company = request.env.company
+        english_terms_html = company.term_and_condition_rc_en or ''
+        arabic_terms_html = company.term_and_condition_rc_ar or ''
 
-        terms = [
-            "Terms:",
-            "Departure at 2:00 PM, in case of late checkout, full day rate will be charged.",
-            "Guests should notify front desk in case of extension or early checkout.",
-            "Refund is not applicable after 30 minutes from signing RC.",
-            "Administration is not responsible for lost valuables inside the room.",
-            "In case of damage, appropriate compensation will be charged.",
-            "In the event of absence, belongings will be moved to the warehouse.",
-            "Commitment to Islamic instructions and not to disturb others."
-        ]
-        arabic_terms = [
-            "شروط:",
-            "موعد المغادرة في تمام الساعة الثانية ظهراً، في حال تأخير المغادرة سيتم احتساب رسوم يوم كامل.",
-            "يجب على النزلاء إبلاغ مكتب الاستقبال في حال تمديد الإقامة أو المغادرة المبكرة.",
-            "لا يحق للنزيل استرداد أي مبلغ بعد 30 دقيقة من توقيع العقد.",
-            "الإدارة غير مسؤولة عن فقدان الأشياء الثمينة داخل الغرفة.",
-            "في حال حدوث أي ضرر، سيتم فرض تعويض مناسب.",
-            "في حالة الغياب، سيتم نقل المتعلقات إلى المستودع.",
-            "الالتزام بالتعليمات الإسلامية وعدم إزعاج الآخرين."
-        ]
+        # Convert HTML to Plain Text
+        def extract_plain_text(html_content):
+            soup = BeautifulSoup(html_content, 'html.parser')
+            lines = []
+            for line in soup.stripped_strings:
+                lines.append(line)
+            return lines
+
+        terms = extract_plain_text(english_terms_html)
+        arabic_terms = extract_plain_text(arabic_terms_html)
+        # terms = [
+        #     "Terms:",
+        #     "Departure at 2:00 PM, in case of late checkout, full day rate will be charged.",
+        #     "Guests should notify front desk in case of extension or early checkout.",
+        #     "Refund is not applicable after 30 minutes from signing RC.",
+        #     "Administration is not responsible for lost valuables inside the room.",
+        #     "In case of damage, appropriate compensation will be charged.",
+        #     "In the event of absence, belongings will be moved to the warehouse.",
+        #     "Commitment to Islamic instructions and not to disturb others."
+        # ]
+        # arabic_terms = [
+        #     "شروط:",
+        #     "موعد المغادرة في تمام الساعة الثانية ظهراً، في حال تأخير المغادرة سيتم احتساب رسوم يوم كامل.",
+        #     "يجب على النزلاء إبلاغ مكتب الاستقبال في حال تمديد الإقامة أو المغادرة المبكرة.",
+        #     "لا يحق للنزيل استرداد أي مبلغ بعد 30 دقيقة من توقيع العقد.",
+        #     "الإدارة غير مسؤولة عن فقدان الأشياء الثمينة داخل الغرفة.",
+        #     "في حال حدوث أي ضرر، سيتم فرض تعويض مناسب.",
+        #     "في حالة الغياب، سيتم نقل المتعلقات إلى المستودع.",
+        #     "الالتزام بالتعليمات الإسلامية وعدم إزعاج الآخرين."
+        # ]
 
         # Wrap text to fit within the defined width
         max_width = 60  # Max characters per line for English
         max_width_arabic = 60  # Adjust for Arabic wrapping
+
+        
+
 
         for eng_term, ar_term in zip(terms, arabic_terms):
             # Wrap the English and Arabic text into multiple lines
@@ -2786,9 +2766,15 @@ class WebAppController(http.Controller):
 
             # Draw each line
             for eng_line, ar_line in zip(eng_lines, ar_lines):
-                c.drawString(50, y_position, eng_line)  # English text on the left
-                draw_arabic_text(width - 250, y_position, ar_line)  # Arabic text on the right
-                y_position -= 15  # Adjust line spacing
+                c.drawString(left_margin, y_position, eng_line)
+
+                # Arabic on the right (this will RIGHT-ALIGN it at x = width - 250)
+                draw_arabic_text_(c, width - 20, y_position, ar_line)
+
+                # c.drawString(50, y_position, eng_line)  # English text on the left
+                # draw_arabic_text(width - 250, y_position, ar_line)  # Arabic text on the right
+                
+                y_position -= 12  # Adjust line spacing
 
         # Draw Border Around Terms and Conditions Section
         terms_bottom = y_position - 10
@@ -2804,6 +2790,8 @@ class WebAppController(http.Controller):
         buffer.seek(0)
         return buffer
 
+    
+    
     
     @http.route('/generate_rc_guest/bookings_pdf', type='http', auth='user')
     def generate_rc_guest_bookings_pdf(self, booking_ids=None, company_id=None):
@@ -2827,7 +2815,7 @@ class WebAppController(http.Controller):
             pdf_buffer = self._generate_rc_guest_pdf_for_booking(bookings[0])
             return request.make_response(pdf_buffer.getvalue(), headers=[
                 ('Content-Type', 'application/pdf'),
-                ('Content-Disposition', f'attachment; filename="booking_Rc_guest_{bookings[0].group_booking.name or ""}.pdf"')
+                ('Content-Disposition', f'attachment; filename="booking_Rc_guest_{bookings[0].group_booking.id or ""}.pdf"')
             ])
 
         # If multiple bookings, create a ZIP file
@@ -2849,6 +2837,9 @@ class WebAppController(http.Controller):
             ('Content-Disposition', 'attachment; filename="bookings.zip"')
         ])
 
+    
+    
+    
     def _generate_rc_guest_pdf_for_booking(self, booking, forecast_lines=None):
         if forecast_lines is None:
             # fetch them here or set them to an empty list
@@ -3048,6 +3039,29 @@ class WebAppController(http.Controller):
                 logger.error(f"Error drawing logo: {str(e)}", exc_info=True)
                 return 0
 
+        def draw_arabic_text_(c, x, y, text, font="CustomFont", font_size=8):
+            """
+            Draws Arabic text on the canvas 'c' so that the RIGHT edge of the text is at (x, y).
+            """
+            if text:
+                # 1) Reshape Arabic letters
+                reshaped_text = arabic_reshaper.reshape(text)
+
+                # 2) Convert to right-to-left using 'get_display'
+                bidi_text = get_display(reshaped_text)
+
+                # 3) Make sure the same font is used for measurement & drawing
+                c.setFont(font, font_size)
+
+                # 4) Measure how wide the text is, then shift left accordingly
+                text_width = stringWidth(bidi_text, font, font_size)
+                c.drawString(x - text_width, y, bidi_text)
+            else:
+                # Draw an empty string if there's no text
+                c.drawString(x, y, "")
+
+        
+        
         # Main PDF generation code
         try:
             y_position = height + 10
@@ -3089,8 +3103,10 @@ class WebAppController(http.Controller):
         c.drawString(150, y_position, f"{hijri_date}")  # Replace with the actual Hijri date variable
         draw_arabic_text(width - 350, y_position, "التاريخ الهجري:")
         # Hotel Name
-        c.drawString(width / 2 + 50, y_position, "Hotel Name:")
-        c.drawString(width / 2 + 150, y_position, f"{booking.company_id.name}")  # Replace with the actual booking field
+        # c.drawString(width / 2 + 50, y_position, "Hotel Name:")
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Hotel Name:")
+        # c.drawString(width / 2 + 150, y_position, f"{booking.company_id.name}")  # Replace with the actual booking field
+        draw_arabic_text_left(c, width / 2 + 125, y_position, f"{booking.company_id.name}")
         draw_arabic_text(width - 50, y_position, "اسم الفندق:")
         y_position -= line_height
 
@@ -3100,38 +3116,41 @@ class WebAppController(http.Controller):
         c.drawString(150, y_position, f"{gregorian_date}")  # Replace with the actual Gregorian date variable
         draw_arabic_text(width - 350, y_position, "التاريخ الميلادي:")
 
-        c.drawString(width / 2 + 50, y_position, "Address:")
-        address = f"{booking.company_id.street}"  # Replace with the actual address field from booking
-        wrapped_address = wrap(address, max_address_width)  # Wrap the address text into lines
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Address:")
 
-        # Draw each wrapped line of the address
-        line_offset = 0  # To handle multiple lines
+        address = f"{booking.company_id.street}"
+        wrapped_address = wrap(address, max_address_width)
+
+        line_offset = 0
         for line in wrapped_address:
-            c.drawString(width / 2 + 150, y_position - line_offset, line)  # Adjusted for each line
-            line_offset += line_height  # Move down for the next line
+            # Use draw_arabic_text_left instead of c.drawString for each line:
+            draw_arabic_text_left(c, width / 2 + 125, y_position - line_offset, line)
+            line_offset += line_height
 
-        draw_arabic_text(width - 50, y_position, "العنوان:")
-        y_position -= (line_offset + (line_height * 0.5))  # Move Y-position based on wrapped lines
+        # Render Arabic label also via draw_arabic_text_left:
+        draw_arabic_text_left(c, width - 50, y_position, "العنوان:      ")
+
+        y_position -= (line_offset + (line_height * 0.5))
+
 
         # y_position -= line_height
         # Line 3: User and Tel
         # User
         c.drawString(50, y_position, "User:")
         # c.drawString(150, y_position, f"{booking.partner_id.name}")  # Replace with the actual user field if needed
-        draw_arabic_text_left(c, 150, y_position, f"{booking.partner_id.name}")
+        draw_arabic_text_left(c, 150, y_position, f"{request.env.user.name}")
         draw_arabic_text(width - 350, y_position, "اسم المستخدم:")
         # Tel
-        c.drawString(width / 2 + 50, y_position, "Tel:")
-        c.drawString(width / 2 + 150, y_position,
-                     f"{booking.company_id.phone}")  # Replace with the actual booking field
-        draw_arabic_text(width - 50, y_position, "تليفون:")
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Tel:")
+        c.drawString(width / 2 + 150, y_position, f"{booking.company_id.phone}")  # Replace with the actual booking field
+        draw_arabic_text(width - 50, y_position, "تليفون:       ")
         y_position -= line_height  # Extra spacing after this section
         y_position -= line_height
         # Registration Card Title
 
-        c.drawString(width / 2 - 200, y_position, f"Group Booking/Registration Card -{booking.group_booking.name if booking.group_booking.name else '' }")
+        draw_arabic_text_left(c, width / 2 - 288, y_position, f"Group Booking/Registration Card -{booking.group_booking.name if booking.group_booking.name else '' }")
 
-        draw_arabic_text(width / 2 + 60, y_position, f"حجز جماعي /بطاقة التسجيل - {booking.group_booking.name if booking.group_booking.name else ''}")
+        draw_arabic_text_left(c, width / 2 + 38, y_position, f"حجز جماعي /بطاقة التسجيل - {booking.group_booking.name if booking.group_booking.name else ''}")
         y_position -= 35
 
         # if booking.reservation_adult:
@@ -3169,6 +3188,8 @@ class WebAppController(http.Controller):
         person_count = []
         booking_rows = []
 
+        print(rate_list, ' rate list')
+
         # Initialize a dictionary to group by room_type
         room_type_summary = {}
 
@@ -3200,18 +3221,43 @@ class WebAppController(http.Controller):
                 }
 
             # Convert the dictionary into a table format
-            table_row = []
-            for room_type, data in room_type_summary.items():
-                table_row.append([
-                    room_type.room_type if room_type.room_type else 'N/A',
-                    data['room_count'],
-                    data['total_count']
-                ])
+            room_type_name = (
+                booking.hotel_room_type.room_type.room_type
+                if booking.hotel_room_type and booking.hotel_room_type.room_type
+                else "N/A"
+            )
 
-            for rate_detail_line in gb.rate_forecast_ids:
-                # print('3230', rate_detail_line, rate_detail_line.rate, rate_detail_line.meals)
-                rate_list.append(rate_detail_line.rate)
-                meal_list.append(rate_detail_line.meals)
+            # Get room count and total guests
+            room_count = booking.room_count or 0
+            total_pax = (
+                (booking.adult_count or 0) +
+                (booking.child_count or 0) +
+                (booking.infant_count or 0)
+            )
+
+            table_row = [[
+                room_type_name,
+                room_count,
+                total_pax
+            ]]
+
+            # table_row = []
+            
+            # for room_type, data in room_type_summary.items():
+            #     table_row.append([
+            #         room_type.room_type if room_type.room_type else 'N/A',
+            #         data['room_count'],
+            #         data['total_count']
+            #     ])
+
+            # for rate_detail_line in gb.rate_forecast_ids:
+            #     # print('3212', rate_detail_line, rate_detail_line.rate, rate_detail_line.meals)
+            #     rate_list.append(rate_detail_line.rate)
+            #     meal_list.append(rate_detail_line.meals)
+
+            rate_list = [line.rate for line in booking.rate_forecast_ids]
+            meal_list = [line.meals for line in booking.rate_forecast_ids]
+            
             for adult_line in gb.adult_ids:
                 joiner_name = f"{adult_line.first_name or ''} {adult_line.last_name or ''}".strip()
                 booking_rows.append([
@@ -3324,13 +3370,13 @@ class WebAppController(http.Controller):
 
             ("Rate Code:", f"{display_rate_code}", "رمز السعر:               ", "No. of child:",
              f"{booking.child_count}", "عدد الأطفال:                "),
-            ("Meal Plan:", f"{display_meal_code}", "نظام الوجبات:           ", "No. of infants:",
+            ("Meal Pattern:", f"{display_meal_code}", "نظام الوجبات:           ", "No. of infants:",
              f"{booking.infant_count}", "عدد الرضع:                  ") ,
-            ("Room Rate Avg:", f"{avg_rate}", "خصم الغرفة:             ", "Meal Rate Avg:", f"{avg_meal}", "خصم الوجبة:                "),
-            ("Room Rate Min:", f"{min(rate_list) if rate_list else 0}", "خصم الغرفة الأدنى:     ", "Meal Rate Min:", f"{min(meal_list) if meal_list else 0}",
-             "خصم الوجبة الأدنى:        "),
-            ("Room Rate Max:", f"{max(rate_list) if rate_list else 0}", "خصم الغرفة الأعلى:    ", "Meal Rate Max:", f"{max(meal_list) if meal_list else 0}",
-             "خصم الوجبة الأعلى:       "),
+            ("Room Rate Avg:", f"{avg_rate}", "سعر الغرفة:             ", "Meal Rate Avg:", f"{avg_meal}", "سعر الوجبة:                "),
+            ("Room Rate Min:", f"{min(rate_list) if rate_list else 0}", "سعر الغرفة الأدنى:     ", "Meal Rate Min:", f"{min(meal_list) if meal_list else 0}",
+             "سعر الوجبة الأدنى:        "),
+            ("Room Rate Max:", f"{max(rate_list) if rate_list else 0}", "سعر الغرفة الأعلى:    ", "Meal Rate Max:", f"{max(meal_list) if meal_list else 0}",
+             "سعر الوجبة الأعلى:       "),
 
         ]
 
@@ -3373,7 +3419,8 @@ class WebAppController(http.Controller):
             ("Total Taxes:", "", "إجمالي الضرائب:        ", "Total Fixed Post:", f"{booking.total_fixed_post_forecast}",
              "إجمالي المشاركات الثابتة:"),
             ("VAT ID:", "", "الرقم الضريبي:          ", "Total Packages:", f"{booking.total_package_forecast}", "إجمالي الحزم:               "),
-            ("Remaining:", "", "المبلغ المتبقي:          ", "Payments:", "", "المدفوعات:                  "),
+            ("Remaining:", "", "المبلغ المتبقي:          ",
+             "Payments:", "", "المبلغ المدفوع:              "),
             ("Payment Method:", f"{pay_type}", "نظام الدفع:              ", "Total Amount:", f"{booking.total_total_forecast}",
              "المبلغ الإجمالي:             ")
 
@@ -3416,7 +3463,7 @@ class WebAppController(http.Controller):
         table_headers_1 = [
             ("Room Type", "نوع الغرفة"),
             ("Room Count", "عدد الغرف"),
-            ("Number of pax", "عدد باكس"),
+            ("Number of pax", "عدد الأفراد"),
         ]
 
         row_data_list_1 = table_row
@@ -3537,14 +3584,21 @@ class WebAppController(http.Controller):
 
             # Ensure both English and Arabic text have the same number of lines
             max_lines = max(len(eng_lines), len(ar_lines))
-            eng_lines += [""] * (max_lines - len(eng_lines))  # Pad English lines
+            eng_lines += [""] * (max_lines - len(eng_lines)
+                                 )  # Pad English lines
             ar_lines += [""] * (max_lines - len(ar_lines))  # Pad Arabic lines
 
             # Draw each line
             for eng_line, ar_line in zip(eng_lines, ar_lines):
-                c.drawString(50, y_position, eng_line)  # English text on the left
-                draw_arabic_text(width - 250, y_position, ar_line)  # Arabic text on the right
-                y_position -= 15  # Adjust line spacing
+                c.drawString(left_margin, y_position, eng_line)
+
+                # Arabic on the right (this will RIGHT-ALIGN it at x = width - 250)
+                draw_arabic_text_(c, width - 50, y_position, ar_line)
+
+                # c.drawString(50, y_position, eng_line)  # English text on the left
+                # draw_arabic_text(width - 250, y_position, ar_line)  # Arabic text on the right
+
+                y_position -= 12  # Adjust line spacing
 
         # Draw Border Around Terms and Conditions Section
         terms_bottom = y_position - 10
@@ -3558,7 +3612,6 @@ class WebAppController(http.Controller):
         # Save the PDF
         c.save()
         buffer.seek(0)
-        print('final buffer',buffer)
         return buffer
 
     
@@ -3586,8 +3639,7 @@ class WebAppController(http.Controller):
             request.env = request.env(user=request.env.user.id, context={
                                       'allowed_company_ids': [current_company_id]})
 
-        print("Allowed Companies in Context:",
-              request.env.context.get("allowed_company_ids"))
+        
 
         # Step 3: Enforce the correct company in the environment
         env_booking = request.env['group.booking'].with_company(
@@ -3609,27 +3661,28 @@ class WebAppController(http.Controller):
             return request.make_response(pdf_buffer.getvalue(), headers=[
                 ('Content-Type', 'application/pdf'),
                 ('Content-Disposition',
-                 f'attachment; filename="booking_Rc_{bookings[0].name or ""}.pdf"')
+                 f'attachment; filename="booking_Rc_{bookings[0].id or ""}.pdf"')
             ])
+        else:
+            print("Multiple bookings found:", bookings)
+            # Step 7: If multiple bookings, create a ZIP file
+            zip_buffer = BytesIO()
+            with ZipFile(zip_buffer, 'w') as zip_file:
+                for booking in bookings:
+                    print("Processing Booking:", booking)
 
-        # Step 7: If multiple bookings, create a ZIP file
-        zip_buffer = BytesIO()
-        with ZipFile(zip_buffer, 'w') as zip_file:
-            for booking in bookings:
-                print("Processing Booking:", booking)
+                    # Generate PDF for the booking
+                    pdf_buffer = self._generate_rc_pdf_for_booking(booking)
 
-                # Generate PDF for the booking
-                pdf_buffer = self._generate_rc_pdf_for_booking(booking)
+                    # Define a filename using group booking name
+                    pdf_filename = f'booking_Rc_{booking.name}.pdf'
+                    zip_file.writestr(pdf_filename, pdf_buffer.getvalue())
 
-                # Define a filename using group booking name
-                pdf_filename = f'booking_Rc_{booking.name}.pdf'
-                zip_file.writestr(pdf_filename, pdf_buffer.getvalue())
-
-        zip_buffer.seek(0)
-        return request.make_response(zip_buffer.getvalue(), headers=[
-            ('Content-Type', 'application/zip'),
-            ('Content-Disposition', 'attachment; filename="bookings.zip"')
-        ])
+            zip_buffer.seek(0)
+            return request.make_response(zip_buffer.getvalue(), headers=[
+                ('Content-Type', 'application/zip'),
+                ('Content-Disposition', 'attachment; filename="bookings.zip"')
+            ])
     
 
     def get_arabic_text_status(self, text):
@@ -3670,166 +3723,8 @@ class WebAppController(http.Controller):
             return status_map_ar.get(status_code, "غير متوفر")  
         else:
             return status_map_en.get(status_code, "N/A")
-
-
-    # GROUP BOOKING
-    def _generate_rc_pdf_for_booking(self, booking, forecast_lines=None): # GROUP BOOKING
-        if forecast_lines is None:
-            # fetch them here or set them to an empty list
-            forecast_lines = request.env["room.rate.forecast"].search([
-                ("room_booking_id", "=", booking.id)
-            ])
-        buffer = BytesIO()
-        c = canvas.Canvas(buffer, pagesize=A4)
-        width, height = A4
-
-        left_margin = 30
-        right_margin = 20
-        top_margin = 50
-        bottom_margin = 50
-        arabic_val = 0
-
-        # Register a font that supports Arabic
-        if platform.system() == "Windows":
-            # font_path = "C:/Windows/Fonts/arial.ttf"
-            font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
-        else:
-            font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
-            arabic_val = 19
-
-            # Register the font
-        try:
-            pdfmetrics.registerFont(TTFont('CustomFont', font_path))
-            font_name = 'CustomFont'
-        except Exception as e:
-            print(f"Font registration failed: {e}")
-            font_name = 'Helvetica'  # Fallback font
-
-        c.setFont(font_name, 8)  # Ensure this path is correct for your system
-        # pdfmetrics.registerFont(TTFont('Arial', font_path))
-        # c.setFont('Arial', 12)
-
-        current_date = datetime.now()
-        gregorian_date = current_date.strftime('%Y-%m-%d')
-        hijri_date = convert.Gregorian(current_date.year, current_date.month, current_date.day).to_hijri()
-
-        max_address_width = 18
-
-        group_bookings = request.env['room.booking'].search([('group_booking', '=', booking.id)])
-        room_types = []
-        room_data = {}
-        meal_data = {}
-        meal_patterns = []
-
-        # Collect data for each room type
-        for gb in group_bookings:
-            room_type = gb.hotel_room_type.room_type if gb.hotel_room_type else 'N/A'
-            if room_type not in room_types:
-                # print(room_type.room_type)
-                room_types.append(room_type)
-            # print('3566', room_types, room_type)
-            if room_type not in room_data:
-                room_data[room_type] = {'Rooms': 0, 'PAX': 0, 'Price': 0}
-            room_data[room_type]['Rooms'] += gb.room_count or 0
-            room_data[room_type]['PAX'] += gb.adult_count or 0
-            room_data[room_type]['Price'] += sum(line.rate for line in gb.rate_forecast_ids)
-
-            meal_pattern = gb.meal_pattern.meal_pattern if gb.meal_pattern else 'N/A'
-            if meal_pattern not in meal_patterns:
-                meal_patterns.append(meal_pattern)  # Append unique meal pattern to the list
-
-            if meal_pattern not in meal_data:
-                meal_data[meal_pattern] = {'Meals': 0, 'PAX': 0, 'Price': 0}
-            meal_data[meal_pattern]['PAX'] += gb.adult_count or 0
-            meal_data[meal_pattern]['Price'] += sum(line.meals for line in gb.rate_forecast_ids)
-
-        # Prepare headers and data
-        # Prepare headers with Arabic translations
-        table_headers = ['Room Types'] + room_types + ['غرفة']  # Add Arabic column at the end
-        meal_headers = ['Meals'] + meal_patterns + ['وجبة']  # Arabic for "Meals"
-
-        # Add data rows with Arabic translations
-        table_data = [
-            ['Rooms'] + [room_data[room_type]['Rooms'] for room_type in room_types] + ['الغرف'],  # Arabic for "Rooms"
-            ['PAX'] + [room_data[room_type]['PAX'] for room_type in room_types] + ['عدد الأفراد'],  # Arabic for "PAX"
-            ['Price'] + ["{:.2f}".format(room_data[room_type]['Price']) for room_type in room_types] + ['السعر']
-            # Arabic for "Price"
-        ]
-        meal_table_data = [
-            ['PAX'] + [meal_data[pattern]['PAX'] for pattern in meal_patterns] + ['عدد الأفراد'],  # Arabic for "PAX"
-            ['Price'] + ["{:.2f}".format(meal_data[pattern]['Price']) for pattern in meal_patterns] + ['السعر']
-            # Arabic for "Price"
-        ]
-
-        avg_rate_report = 0.0
-        avg_meals_report = 0.0
-        total_rate_report = 0.0
-        total_meals_report = 0.0
-        total_lines = 0
-
-        total_room_rate = 0.0
-        total_meal_rate = 0.0
-
-        report_data = {
-                'avg_rate': avg_rate_report,
-                'avg_meals': avg_meals_report,
-                'total_room_rate': total_room_rate,
-                'total_meal_rate': total_meal_rate
-            }
-
-        if group_bookings:
-            # Fetch all bookings with the same group_id
-            group_bookings_data = request.env['room.booking'].search([('group_booking', '=', booking.id)])
-
-            for booking_ in group_bookings_data:
-                # Collect all room rate forecast lines for the current booking
-                room_rate_forecast = request.env["room.rate.forecast"].search([
-                    ("room_booking_id", "=", booking_.id)
-                ])
-
-                if room_rate_forecast:
-                    # Calculate total rate and total meals from room rate forecast lines
-                    total_rate = sum(line.rate for line in room_rate_forecast if line.rate)
-                    total_meals = sum(line.meals for line in room_rate_forecast if line.meals)
-                    line_count = len(room_rate_forecast)
-
-                    total_rate_report += total_rate
-                    total_meals_report += total_meals
-                    total_lines += line_count
-
-                    # Add total room rate and meal rate
-                    total_room_rate += total_rate
-                    total_meal_rate += total_meals
-
-            # Ensure total_lines is greater than 0 to avoid division by zero
-            if total_lines > 0:
-                avg_rate_report = round(total_rate_report / total_lines, 2)
-                avg_meals_report = round(total_meals_report / total_lines, 2)
-
-            # Use avg_rate_report and avg_meals_report for the report output
-            report_data = {
-                'avg_rate': avg_rate_report,
-                'avg_meals': avg_meals_report,
-                'total_room_rate': total_room_rate,
-                'total_meal_rate': total_meal_rate
-            }
-            print("Report Data:", report_data)
-
-        # active_user = self.env.user
-
-        # Function to draw Arabic text
-        def draw_arabic_text(x, y, text):
-            if text:
-                reshaped_text = arabic_reshaper.reshape(text)  # Fix Arabic letter shapes
-                bidi_text = get_display(reshaped_text)  # Fix RTL direction
-                c.drawString(x, y, bidi_text)
-            else:
-                c.drawString(x, y, "")  # Draw empty string if the text is None
-
-        y_position = height - 50  # Starting Y position
-        line_height = 15  # Line height for vertical spacing
-
-        def draw_company_logo(c, x, y, max_width, max_height, logo_data):
+        
+    def draw_company_logo_(self, c, x, y, max_width, max_height, logo_data):
             if not logo_data:
                 print("No logo data found, drawing empty box in its place.")
                 # Draw an empty rectangle at (x, y)
@@ -3837,7 +3732,7 @@ class WebAppController(http.Controller):
                 return max_height
             """Draw company logo from Odoo binary field data"""
             try:
-                logger.debug("Attempting to draw company logo from binary data")
+                print("Attempting to draw company logo from binary data")
 
                 # Check if logo data exists
                 if not logo_data:
@@ -3926,6 +3821,270 @@ class WebAppController(http.Controller):
                 logger.error(f"Error drawing logo: {str(e)}", exc_info=True)
                 return 0
 
+    
+    # GROUP BOOKING
+    def _generate_rc_pdf_for_booking(self, booking, forecast_lines=None): # GROUP BOOKING
+        if forecast_lines is None:
+            # fetch them here or set them to an empty list
+            forecast_lines = request.env["room.rate.forecast"].search([
+                ("room_booking_id", "=", booking.id)
+            ])
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+
+        CENTER_X    = width / 2        # exact middle of the page
+        TOP_Y       = height - 50      # first header line baseline
+        line_height = 15               # space between header lines
+
+        y_position  = TOP_Y
+
+        left_margin = 20
+        right_margin = 20
+        top_margin = 50
+        bottom_margin = 50
+        arabic_val = 0
+
+        logo_max_width  = 60
+        logo_max_height = 60
+
+        # horizontal centre
+        logo_x = CENTER_X - (logo_max_width / 2)
+
+        # vertical centre between first and second header rows
+        logo_mid_y = TOP_Y - (line_height / 2)
+        logo_y     = logo_mid_y - (logo_max_height / 2)
+
+        _ = self.draw_company_logo_(
+                c, logo_x, logo_y,
+                logo_max_width, logo_max_height,
+                booking.company_id.logo
+            )
+
+        # Register a font that supports Arabic
+        if platform.system() == "Windows":
+            try:
+                # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+                font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+            except:
+                font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+                # font_path = "C:/Windows/Fonts/arial.ttf"
+            
+            
+        else:
+            font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
+            arabic_val = 19
+
+            # Register the font
+        try:
+            pdfmetrics.registerFont(TTFont('CustomFont', font_path))
+            font_name = 'CustomFont'
+        except Exception as e:
+            print(f"Font registration failed: {e}")
+            font_name = 'Helvetica'  # Fallback font
+
+        c.setFont(font_name, 8)  # Ensure this path is correct for your system
+        # pdfmetrics.registerFont(TTFont('Arial', font_path))
+        # c.setFont('Arial', 12)
+
+        current_date = datetime.now()
+        gregorian_date = current_date.strftime('%Y-%m-%d')
+        hijri_date = convert.Gregorian(current_date.year, current_date.month, current_date.day).to_hijri()
+
+        max_address_width = 18
+
+        group_bookings = request.env['room.booking'].search([('group_booking', '=', booking.id)])
+        room_types = []
+        room_data = {}
+        meal_data = {}
+        meal_patterns = []
+
+        room_types, room_data = [], {}
+        # meal_patterns, meal_data = [], {}
+        meal_patterns_set, meal_data = set(), {}
+
+        # ------------------------------------------------------------------
+        # 1.  Collect data from every group‑booking line
+        # ------------------------------------------------------------------
+        for gb in group_bookings:
+
+            # ---------- 1.a  Room‑type aggregation ----------
+            room_type = gb.hotel_room_type.room_type if gb.hotel_room_type else 'N/A'
+
+            if room_type not in room_types:
+                room_types.append(room_type)
+
+            room_data.setdefault(room_type, {'Rooms': 0, 'PAX': 0, 'Price': 0})
+            room_data[room_type]['Rooms'] += gb.room_count           or 0
+            room_data[room_type]['PAX']   += gb.adult_count          or 0
+            room_data[room_type]['Price'] += gb.total_rate_forecast  or 0
+
+            # ---------- 1.b  Meal‑pattern aggregation ----------
+            
+            
+            adult_count = gb.adult_count or 0
+            child_count = gb.child_count or 0
+            
+            if gb.meal_pattern:
+                for line in gb.meal_pattern.meals_list_ids:
+                    if line.meal_code and line.meal_code.meal_code_sub_type:
+                        meal_name = line.meal_code.meal_code_sub_type.name
+                        unit_price_adult = line.price or 0.0
+                        unit_price_child = line.price_child or 0.0
+
+                        total_price = (unit_price_adult * adult_count) + (unit_price_child * child_count)
+
+                        meal_patterns_set.add(meal_name)
+
+                        if meal_name not in meal_data:
+                            meal_data[meal_name] = {'PAX': 0, 'Price': 0.0}
+
+                        meal_data[meal_name]['PAX'] += adult_count 
+                        meal_data[meal_name]['Price'] += total_price
+            # if gb.meal_pattern:
+            #     for line in gb.meal_pattern.meals_list_ids:
+            #         if line.meal_code and line.meal_code.meal_code_sub_type:
+            #             meal_name = line.meal_code.meal_code_sub_type.name
+            #             meal_patterns_set.add(meal_name)
+
+            #             meal_data.setdefault(meal_name, {'PAX': 0, 'Price': 0})
+            #             meal_data[meal_name]['PAX']   += gb.adult_count or 0
+            #             meal_data[meal_name]['Price'] += gb.total_meal_forecast or 0
+        
+        meal_patterns = sorted(list(meal_patterns_set)) or ['N/A']
+
+        for mp in meal_patterns:
+            meal_data.setdefault(mp, {'PAX': 0, 'Price': 0.0})
+            # if gb.meal_pattern:
+                # Build the long name: “Iftar, Suhur, Lunch” …
+            #     meal_key = ', '.join(
+            #         line.meal_code.meal_code_sub_type.name
+            #         for line in gb.meal_pattern.meals_list_ids
+            #         if line.meal_code and line.meal_code.meal_code_sub_type
+            #     ) or 'N/A'
+            # else:
+            #     meal_key = 'N/A'
+
+            # if meal_key not in meal_patterns:
+            #     meal_patterns.append(meal_key)
+
+            # meal_data.setdefault(meal_key, {'PAX': 0, 'Price': 0})
+            # meal_data[meal_key]['PAX']   += gb.adult_count         or 0
+            # meal_data[meal_key]['Price'] += gb.total_meal_forecast or 0
+
+        # ------------------------------------------------------------------
+        # 2.  Build headers (with Arabic labels at the end)
+        # ------------------------------------------------------------------
+        table_headers = ['Room Types'] + room_types   + ['غرفة']   # Arabic: “Room”
+        meal_headers  = ['Meals']      + meal_patterns + ['وجبة']   # Arabic: “Meal”
+
+        # ------------------------------------------------------------------
+        # 3.  Build data rows (English left, Arabic right)
+        # ------------------------------------------------------------------
+        table_data = [
+            ['Rooms'] + [room_data[rt]['Rooms'] for rt in room_types]                    + ['الغرف'],
+            ['PAX']   + [room_data[rt]['PAX']   for rt in room_types]                    + ['عدد الأفراد'],
+            ['Price'] + ["{:.2f}".format(room_data[rt]['Price']) for rt in room_types]   + ['السعر'],
+        ]
+
+        # meal_table_data = [
+        #     ['PAX']   + [meal_data[key]['PAX']   for key in meal_patterns]               + ['عدد الأفراد'],
+        #     ['Price'] + ["{:.2f}".format(meal_data[key]['Price']) for key in meal_patterns] + ['السعر'],
+        # ]
+
+        meal_table_data = [
+                ['PAX']   + [meal_data.get(key, {'PAX': 0})['PAX']          for key in meal_patterns] +
+                            ['عدد الأفراد'],
+                ['Price'] + ["{:.2f}".format(meal_data.get(key, {'Price': 0})['Price'])
+                            for key in meal_patterns]                      + ['السعر'],
+            ]
+
+
+        daily_meals_sum = round(sum(info['Price'] for info in meal_data.values()), 2)
+
+        avg_rate_report = 0.0
+        avg_meals_report = 0.0
+        total_rate_report = 0.0
+        total_meals_report = 0.0
+        total_lines = 0
+
+        total_room_rate = 0.0
+        total_meal_rate = 0.0
+
+        total_vat = 0.0
+        total_total_municipality_tax = 0.0
+
+        report_data = {
+                'avg_rate': avg_rate_report,
+                'avg_meals': avg_meals_report,
+                'total_room_rate': total_room_rate,
+                'total_meal_rate': total_meal_rate
+            }
+
+        if group_bookings:
+            # Fetch all bookings with the same group_id
+            group_bookings_data = request.env['room.booking'].search([('group_booking', '=', booking.id)])
+
+            for booking_ in group_bookings_data:
+                # pull every forecast line for this booking
+                room_rate_forecast = request.env['room.rate.forecast'].search([
+                    ('room_booking_id', '=', booking_.id)
+                ])
+
+                # If you still need the TOTAL rates as well:
+                total_room_rate  += booking_.total_rate_forecast or 0
+                
+                total_meal_rate  += booking_.total_meal_forecast or 0
+                 
+                total_vat += booking_.total_vat or 0
+                total_total_municipality_tax += booking_.total_municipality_tax or 0
+                
+                get_discount_room = booking_.room_discount or 0
+                
+                # Now only sum the individual lines into your report totals
+                for line in room_rate_forecast:
+                    if line.rate is not None:
+                        total_rate_report  += line.rate
+                    if line.meals is not None:
+                        total_meals_report += line.meals
+                    total_lines        += 1
+
+            # after the loop:
+            if total_lines > 0:
+                avg_rate_report  = round(total_rate_report  / total_lines, 2)
+                avg_meals_report = round(total_meals_report / total_lines, 2)
+            else:
+                avg_rate_report = avg_meals_report = 0.0
+
+            # print("avg_rate_report",  avg_rate_report)   # → 100.0
+            # print("avg_meals_report", avg_meals_report)  # unchanged
+            # print("total_room_rate",  total_room_rate)
+            # print("total_meal_rate",  total_meal_rate)
+
+            # Use avg_rate_report and avg_meals_report for the report output
+            report_data = {
+                'avg_rate': round(avg_rate_report,2),
+                'avg_meals': round(avg_meals_report,2),
+                'total_room_rate': round(total_room_rate,2),
+                'total_meal_rate': round(total_meal_rate,2),
+                'daily_meals_sum': round(daily_meals_sum,2),
+                'total_vat': round(total_vat,2) or 0.0,
+                'total_municipality_tax': round(total_total_municipality_tax,2),
+            }
+
+        # Function to draw Arabic text
+        def draw_arabic_text(x, y, text):
+            if text:
+                reshaped_text = arabic_reshaper.reshape(text)  # Fix Arabic letter shapes
+                bidi_text = get_display(reshaped_text)  # Fix RTL direction
+                c.drawString(x, y, bidi_text)
+            else:
+                c.drawString(x, y, "")  # Draw empty string if the text is None
+
+        y_position = height - 50  # Starting Y position
+        line_height = 15  # Line height for vertical spacing
+
+
         def draw_arabic_text_left(c, x, y, text, font='CustomFont', size=8):
             """
             Draw text left-aligned at (x, y), ensuring Arabic letters are 
@@ -3944,90 +4103,83 @@ class WebAppController(http.Controller):
         y_position = height - 50  # Starting Y position
         line_height = 15  # Line height for vertical spacing
 
-        # Main PDF generation code
-        try:
-            y_position = height
-            line_height = 15
-
-            # Get logo directly from company_id.logo field
-            logo_data = booking.company_id.logo
-            logger.info(f"Company ID: {booking.company_id.id}")
-            logger.info(f"Company Name: {booking.company_id.name}")
-            logger.debug("Retrieved logo data from company record")
-
-            # Adjusted smaller logo dimensions for icon-like appearance
-            logo_max_width = 60  # Reduced from 150 to 60
-            logo_max_height = 60  # Made square for icon-like appearance
-
-            # Center the logo horizontally and place it at the top with some padding
-            logo_x = 20
-            logo_y = height - 50  # Place near top with 70px padding
-
-            # Draw logo
-            logger.debug("Starting logo drawing process")
-            logo_height = draw_company_logo(c, logo_x, logo_y, logo_max_width, logo_max_height, logo_data)
-            logger.debug(f"Returned logo height: {logo_height}")
-
-            # Adjust position for text with smaller offset since logo is smaller
-            if logo_height > 0:
-                logger.debug(f"Adjusting y_position for smaller logo")
-                y_position = logo_y - logo_height  # Reduced padding after logo from 20 to 10
-            else:
-                logger.warning("No logo was drawn, continuing with original y_position")
-
-        except Exception as e:
-            logger.error("Error in main PDF generation:", exc_info=True)
-            raise
-
+        
         # Line 1: Hijri Date and Hotel Name
         # Hijri Date
-        c.drawString(50, y_position, "Hijri Date:")
-        c.drawString(150, y_position, f"{hijri_date}")  # Replace with the actual Hijri date variable
-        draw_arabic_text(width - 350, y_position, "التاريخ الهجري:")
+        c.drawString(10, y_position, "Hijri Date:")
+        c.drawString(100, y_position, f"{hijri_date}")  # Replace with the actual Hijri date variable
+        draw_arabic_text(width - 400, y_position, "التاريخ الهجري:")
         # Hotel Name
-        c.drawString(width / 2 + 50, y_position, "Hotel Name:")
-        c.drawString(width / 2 + 150, y_position, f"{booking.company_id.name}")  # Replace with the actual booking field
+        # c.drawString(width / 2 + 50, y_position, "Hotel Name:")
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Hotel Name:")
+        # c.drawString(width / 2 + 150, y_position, f"{booking.company_id.name}")  # Replace with the actual booking field
+        draw_arabic_text_left(c, width / 2 + 125, y_position, f"{booking.company_id.name}")
         draw_arabic_text(width - 50, y_position, "اسم الفندق:")
         y_position -= line_height
 
         # Line 2: Gregorian Date and Address
         # Gregorian Date
-        c.drawString(50, y_position, "Gregorian Date:")
-        c.drawString(150, y_position, f"{gregorian_date}")  # Replace with the actual Gregorian date variable
-        draw_arabic_text(width - 350, y_position, "التاريخ الميلادي:")
+        c.drawString(10, y_position, "Gregorian Date:")
+        c.drawString(100, y_position, f"{gregorian_date}")  # Replace with the actual Gregorian date variable
+        draw_arabic_text(width - 400, y_position, "التاريخ الميلادي:")
 
-        c.drawString(width / 2 + 50, y_position, "Address:")
-        address = f"{booking.company_id.street}"  # Replace with the actual address field from booking
-        wrapped_address = wrap(address, max_address_width)  # Wrap the address text into lines
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Address:")
 
-        # Draw each wrapped line of the address
-        line_offset = 0  # To handle multiple lines
+        address = f"{booking.company_id.street}"
+        wrapped_address = wrap(address, max_address_width)
+
+        line_offset = 0
         for line in wrapped_address:
-            c.drawString(width / 2 + 150, y_position - line_offset, line)  # Adjusted for each line
-            line_offset += line_height  # Move down for the next line
+            # Use draw_arabic_text_left instead of c.drawString for each line:
+            draw_arabic_text_left(c, width / 2 + 125, y_position - line_offset, line)
+            line_offset += line_height
 
-        draw_arabic_text(width - 50, y_position, "العنوان:")
-        y_position -= (line_offset + (line_height * 0.5))  # Move Y-position based on wrapped lines
+        # Render Arabic label also via draw_arabic_text_left:
+        draw_arabic_text_left(c, width - 50, y_position, "العنوان:      ")
+
+        y_position -= (line_offset + (line_height * 0.5))
+
 
         # y_position -= line_height
         # Line 3: User and Tel
         # User
-        c.drawString(50, y_position, "User:")
-        draw_arabic_text_left(c, 150, y_position, f"{booking.contact_leader.name or 'N/A'}")
+        c.drawString(10, y_position, "User:")
+        draw_arabic_text_left(c, 100, y_position, f"{request.env.user.name or 'N/A'}")
         # c.drawString(150, y_position,f"{booking.contact_leader.name or 'N/A'}")  # Replace with the actual user field if needed
-        draw_arabic_text(width - 350, y_position, "اسم المستخدم:")
+        draw_arabic_text(width - 400, y_position, "اسم المستخدم:")
         # Tel
         c.drawString(width / 2 + 50, y_position, "Tel:")
         c.drawString(width / 2 + 150, y_position,
                      f"{booking.company_id.phone or 'N/A'}")  # Replace with the actual booking field
-        draw_arabic_text(width - 50, y_position, "تليفون:")
+        draw_arabic_text(width - 50, y_position, "تليفون:       ")
         y_position -= line_height  # Extra spacing after this section
         y_position -= line_height
         # Registration Card Title
 
-        c.drawString(width / 2 - 80, y_position, f"Group no#{booking.name}")
+        full_name = booking.name or ''
 
-        draw_arabic_text(width / 2 + 60, y_position, f"مجموعة:")
+        # 2) Split:  company-part  |  code-part
+        # try:
+        #     company_part, code_part = (p.strip() for p in full_name.split('/', 1))
+        # except ValueError:
+        #     company_part, code_part = full_name, ''
+
+        # # 3) Normalise code → “Grp_008”
+        # if code_part:
+        #     digits = ''.join(ch for ch in code_part if ch.isdigit())     # "0008"
+        #     group_code = f"Grp_{int(digits):03d}"                        # "Grp_008"
+        # else:                                                            # fallback
+        #     group_code = f"Grp_{int(booking.group_booking.id):03d}"
+
+        # # 4) Compose the desired line
+        title_text = f"Group no # {full_name}"
+
+        # 5) Draw it
+        draw_arabic_text_left(c, width / 2 - 200, y_position, title_text)
+
+        # draw_arabic_text_left(c, width / 2 - 200, y_position, f"Group no#{booking.name}")
+
+        draw_arabic_text_left(c, width / 2 + 38, y_position, f"مجموعة:")
 
         y_position -= 35
         guest_payment_border_top = y_position + 30
@@ -4037,7 +4189,7 @@ class WebAppController(http.Controller):
         LEFT_ARABIC_X = LEFT_VALUE_X + 80
 
         # Right column starts sooner
-        RIGHT_LABEL_X = LEFT_ARABIC_X + 90
+        RIGHT_LABEL_X = LEFT_ARABIC_X + 85
         RIGHT_VALUE_X = RIGHT_LABEL_X + 90
         # Keep Arabic close to the value
         RIGHT_ARABIC_X = RIGHT_VALUE_X + 155
@@ -4065,83 +4217,98 @@ class WebAppController(http.Controller):
         else:
             nationality = self.get_country_translation(nationality)  # Translate if applicable
 
-        # status_label = dict(booking._fields['status_code'].selection).get(
-        #     booking.status_code, 
-        #     not_available_text
-        # )
-
-        # # Only replace the text with 'غير مترفر' if it's truly missing or "N/A"
-        # if user_lang.startswith("ar"):
-        #     status_label = self.get_arabic_text_status(status_label)
-
+        
         status_label = self.get_status_label(booking.status_code)
         formatted_create_date = booking.create_date.strftime("%Y-%m-%d %H:%M:%S") if booking.create_date else not_available_text
+
         guest_details = [
             ("Arrival Date:",
-            f"{booking.first_visit or not_available_text}",
+             f"{booking.first_visit or self.get_arabic_text('N/A')}",
             "تاريخ الوصول:  ",
 
             "Group Name:",
-            f"{booking.name or not_available_text}",
-            "اسم المجموعة:     "),
+            f"{booking.group_name or self.get_arabic_text('N/A')}",
+            "اسم المجموعة:       "),
 
             ("Departure Date:",
-            f"{booking.last_visit or not_available_text}",
+             f"{booking.last_visit or self.get_arabic_text('N/A')}",
             "تاريخ المغادرة: ",
 
+            # "Company Name:",
+            # f"{booking.company_id.name or self.get_arabic_text('N/A')}",
+            # "اسم الشركة:        "),
+
+            # "Company Name:",
+            # f"{booking.company_id.name or self.get_arabic_text('N/A')}" + 
+            # (" (Is Company)" if booking.is_grp_company else ""),
+            # "اسم الشركة:          "),
+
             "Company Name:",
-            f"{booking.company_id.name or self.get_arabic_text('N/A')}",
-            "اسم الشركة:        "),
+            f"{booking.company.name if booking.is_grp_company else 'Individual'}" +
+            (" " if booking.is_grp_company else ""),
+            "اسم الشركة:          "),
+
 
             ("Nights:",
-            f"{booking.total_nights or not_available_text}",
+            f"{booking.total_nights or '0'}",
             "عدد الليالي:     ",
 
             "Nationality:",
             nationality,
-            "جنسية المجموعة:  "),
+            "جنسية المجموعة:    "),
 
             ("No. of Rooms:",
-            f"{booking.total_room_count or not_available_text}",
+             f"{booking.total_room_count or self.get_arabic_text('N/A')}",
             "عدد الغرف:     ",
 
+            # "Contact:", 
+            # f"{booking.company.name or self.get_arabic_text('N/A')}" + 
+            # (" (Is Company)" if booking.is_grp_company else ""),
+            # "مسؤول المجموعة:  "),
+
             "Contact:",
-            f"{booking.company.name or self.get_arabic_text('N/A')}",
-            "مسؤول المجموعة: "),
+            f"{'' if booking.is_grp_company else booking.company.name or self.get_arabic_text('N/A')}" +
+            (" " if booking.is_grp_company else ""),
+            "مسؤول المجموعة:  "),
 
             ("No. of Paxs:",
-            f"{booking.total_adult_count or not_available_text}",
+            f"{booking.total_adult_count or self.get_arabic_text('N/A')}",
             "عدد الأفراد:     ",
 
             "Mobile No.:",
             f"{booking.phone_1 or self.get_arabic_text('N/A')}",
-            "رقم الجوال:          "),
+            "رقم الجوال:           "),
 
             ("Rate Code:",
-            f"{booking.rate_code.code or not_available_text}",
+            f"{booking.rate_code.code}",
             "كود التعاقد:     ",
 
             # 3) Use the status_label from above:
             "Status:",
             status_label,
-            "حالة الحجز:          "),
+            "حالة الحجز:           "),
 
             ("Meal Pattern:",
-            f"{booking.group_meal_pattern.meal_pattern or not_available_text}",
+             f"{booking.group_meal_pattern.meal_pattern or self.get_arabic_text('N/A')}",
             "نظام الوجبات:  ",
 
             # 4) Use the booking’s create_date for “Date Created.”
             "Date Created:",
             f"{formatted_create_date}",
-            "تاريخ إنشاء الحجز: "),
+            "تاريخ إنشاء الحجز:   "),
         ]
 
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in guest_details:
             # Left column (English + Arabic)
             c.drawString(LEFT_LABEL_X, y_position, l_label)
-            c.drawString(LEFT_VALUE_X, y_position, l_value)
+            # c.drawString(LEFT_VALUE_X + 20, y_position, l_value)
             draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
+
+            if l_label in ("Arrival Date:", "Departure Date:", "No. of Rooms:", "No. of Paxs:"):
+                draw_arabic_text_left(c, LEFT_VALUE_X + 20, y_position, l_value)
+            else:
+                c.drawString(LEFT_VALUE_X + 20, y_position, l_value)
 
             # Right column (English label, Arabic/English value)
             c.drawString(RIGHT_LABEL_X, y_position, r_label)
@@ -4158,15 +4325,17 @@ class WebAppController(http.Controller):
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
         # print(pay_type, 'line 4171',dict(booking.fields_get()['payment_type']['selection']))
         payment_details = [
-            ("Total VAT:", "", "القيمة المضافة:", "Payment Method:", f"{pay_type or 'N/A'}", "نظام الدفع:          "),
-            ("Total Municipality:", "", "رسوم البلدية:   ", "Daily Room Rate:", f"{report_data['avg_rate']}",
-             "اليومي للغرف:      "),
-            ("Total Amount:", "", "المبلغ المطلوب:", "Daily Meals Rate:", f"{report_data['avg_meals']}",
-             "اليومي للوجبات:    "),
+            ("Total VAT:", f"{report_data.get('total_vat', 0.0)}", "القيمة المضافة:",
+              "Payment Method:", f"{pay_type or 'N/A'}", "نظام الدفع:            "),
+
+            ("Total Municipality:", f"{report_data.get('total_municipality_tax', 0.0)}", "رسوم البلدية:   ", 
+             "Daily Room Rate:", f"{report_data['avg_rate']}", "سعر الغرفة اليومي: "),
+            ("Total Amount:", f"{booking.total_revenue}", "المبلغ المطلوب:", 
+             "Daily Meals Rate:", f"{report_data.get('daily_meals_sum', 0.0)}", "سعرالوجبات اليومية:"),
             ("Payments:", "", "المبلغ المدفوع:  ", "Total Room Rate:", f"{report_data['total_room_rate']}",
-             "إجمالي الغرف:      "),
+             "إجمالي الغرف:       "),
             ("Remaining:", "", "المبلغ المتبقي:  ", "Total Meals Rate:", f"{report_data['total_meal_rate']}",
-             "إجمالي الوجبات:    "),
+             "إجمالي الوجبات:     "),
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
@@ -4199,26 +4368,46 @@ class WebAppController(http.Controller):
 
         y_position -= (line_height)
 
-        # y_position -= 40
+        
 
-        # y_position = height - top_margin
+        def draw_wrapped_cell(
+                canv,                          # ReportLab canvas
+                text,                          # text to draw
+                x_center, y_center,            # centre‑point of the cell
+                col_width,                     # width of the cell
+                font='CustomFont', size=8,
+                gap=2                          # vertical gap between wrapped lines
+            ):
+            
+            if not text:
+                text = ""
 
-        # def draw_arabic_text(x, y, text):
-        #     if text:
-        #         reshaped_text = arabic_reshaper.reshape(text)
-        #         bidi_text = get_display(reshaped_text)
-        #         c.drawString(x, y, bidi_text)
-
-        # Helper function to draw tables
-        def draw_in_cell(row_idx, col_idx, text):
-            center_x = table_left_x + (col_idx * col_width) + (col_width / 2)
-            center_y = table_top_y - (row_idx * row_height) - (row_height / 2)
-
+            # --- prepare Arabic / BiDi when needed
             reshaped = arabic_reshaper.reshape(text)
             bidi_txt = get_display(reshaped)
 
-            # Simply draw the text here, WITHOUT calling draw_in_cell again
-            c.drawCentredString(center_x, center_y, bidi_txt)
+            # Split on spaces & commas so we keep whole words
+            words = [w.strip() for w in re.split(r'([ ,])', bidi_txt) if w]
+
+            lines, current = [], ""
+            for w in words:
+                probe = f"{current}{w}"
+                if pdfmetrics.stringWidth(probe, font, size) <= col_width - 4:
+                    current = probe
+                else:
+                    lines.append(current.strip())
+                    current = w
+            lines.append(current.strip())
+
+            canv.setFont(font, size)
+
+            total_height = (size + gap) * (len(lines) - 1)
+            start_y = y_center + total_height / 2  # vertical centring
+
+            for i, line in enumerate(lines):
+                canv.drawCentredString(x_center, start_y - i * (size + gap), line)
+
+
 
         def draw_transposed_table(data, headers, table_top_y, left_margin, right_margin, row_height=20):
             table_left_x = left_margin - 10
@@ -4249,10 +4438,10 @@ class WebAppController(http.Controller):
                 # Convert header to string if it's not already
                 if not isinstance(header, str):
                     header = str(header.room_type)  # Convert object to string
-                print('3965', header)
                 reshaped_header = arabic_reshaper.reshape(header)
                 bidi_header = get_display(reshaped_header)
-                c.drawCentredString(center_x, center_y, bidi_header)
+                # c.drawCentredString(center_x, center_y, bidi_header)
+                draw_wrapped_cell(c, header, center_x, center_y, col_width)
 
             # Draw the data rows
             for row_idx, row_data in enumerate(data):
@@ -4264,7 +4453,8 @@ class WebAppController(http.Controller):
                         bidi_cell = get_display(reshaped_cell)
                         c.drawCentredString(center_x, center_y, bidi_cell)
                     else:
-                        c.drawCentredString(center_x, center_y, str(cell_value))
+                        # c.drawCentredString(center_x, center_y, str(cell_value))
+                        draw_wrapped_cell(c, str(cell_value), center_x, center_y, col_width)
 
             # Return how tall the table was, in case you need to adjust y_position
             return table_height
@@ -4283,15 +4473,7 @@ class WebAppController(http.Controller):
             row_height=20
         )
 
-        def draw_text_centered(c, x_center, y_center, text):
-            # Safely handle None or empty strings
-            if not text:
-                text = ""
-            # Reshape if Arabic and apply BiDi
-            reshaped_text = arabic_reshaper.reshape(text)
-            bidi_text = get_display(reshaped_text)
-            # Now simply center using ReportLab’s drawCentredString
-            c.drawCentredString(x_center, y_center, bidi_text)
+        
 
         def draw_arabic_text(x, y, text):
             reshaped_text = arabic_reshaper.reshape(text)  # Reshape Arabic text
@@ -4341,8 +4523,9 @@ class WebAppController(http.Controller):
 
             # Center-align the text in the header cell
             text_x = x_pos + (col_width / 2)
-            text_y = y_pos - (row_height / 2)  # Adjust to vertically center the text
-            draw_text_centered(c, text_x, text_y, str(header_text))
+            text_y = y_pos - (row_height / 2) - 4  # Adjust to vertically center the text
+            # draw_text_centered(c, text_x, text_y, str(header_text))
+            draw_wrapped_cell(c, str(header_text), text_x, text_y, col_width)
             # if header_text.isascii():  # English or numeric text
             #     c.drawCentredString(text_x, text_y, str(header_text))
             # else:  # Arabic text
@@ -4355,57 +4538,30 @@ class WebAppController(http.Controller):
                 y_pos = table_top_y - ((row_idx + 1) * row_height)
                 text_x = x_pos + (col_width / 2)
                 text_y = y_pos - (row_height / 2)
-                draw_text_centered(c, text_x, text_y, str(cell_value))
-        # for row_idx, row in enumerate(meal_table_data):
-        #     for col_idx, cell in enumerate(row):
-        #         # Calculate the position of the cell
-        #         x_pos = table_left_x + (col_idx * col_width)
-        #         y_pos = table_top_y - ((row_idx + 1) * row_height)  # Row index starts after header
-
-        #         # Draw the cell content (center-aligned)
-        #         text_x = x_pos + (col_width / 2)
-        #         text_y = y_pos - (row_height / 2)  # Adjust to vertically center the text
-
-        #         draw_text_centered(c, text_x, text_y, str(cell))
-
-                # if isinstance(cell, str) and not cell.isascii():  # Arabic text
-                #     draw_arabic_text(x_pos + col_width , text_y, str(cell))  # Align Arabic to the right
-                # else:  # English or numeric text
-                #     c.drawCentredString(text_x, text_y, str(cell))
-
+                # draw_text_centered(c, text_x, text_y, str(cell_value))
+                draw_wrapped_cell(c, str(cell_value),
+                                  text_x, text_y, col_width)
+        
         # Finally, move below this table
         y_position -= (table_height + 10)
         y_position -= 20
         terms_top = y_position
         y_position -= 10
+        company = request.env.company
+        english_terms_html = company.term_and_condition_rcgroup_en or ''
+        arabic_terms_html = company.term_and_condition_rcgroup_ar or ''
 
-        terms = [
-            "Terms & Conditions:",
-            "Check-in time is at 16:00 PM, checkout time is at 12:00 PM.",
-            "Reservation is tentative until the payment is transferred.",
-            "Reservation will be canceled automatically if the option date is exceeded.",
-            "After depositing the amount, kindly send a copy of the bank transfer receipt.",
-            "All payments are non-refundable."
-            "No Show Policy:",
-            "In case of no-show during the low season, one night will be charged.",
-            "In case of no-show during the high season, the total stay will be charged.",
-            "Family Policy:",
-            "A maximum of one child under 6 years old is free of charge."
-        ]
+        # Convert HTML to Plain Text
+        def extract_plain_text(html_content):
+            soup = BeautifulSoup(html_content, 'html.parser')
+            lines = []
+            for line in soup.stripped_strings:
+                lines.append(line)
+            return lines
 
-        arabic_terms = [
-            "الشروط والأحكام:",
-            "موعد الدخول الساعة الرابعة عصراً، والخروج الساعة الثانية عشرة ظهراً.",
-            "الحجز يعتبر غير مؤكد حتى يتم تحويل قيمة الدفعة.",
-            "سيتم إلغاء الحجز تلقائياً إذا انتهى تاريخ الخيار.",
-            "يرجى إرسال نسخة من إيصال التحويل البنكي بعد دفع المبلغ.",
-            "جميع المدفوعات غير قابلة للاسترداد.",
-            "سياسة عدم الحضور:",
-            "في حال عدم الحضور خلال الموسم المنخفض يتم احتساب ليلة واحدة.",
-            "في حال عدم الحضور خلال الموسم المرتفع يتم احتساب كامل الإقامة.",
-            "سياسة العائلة:",
-            "يُسمح بطفل واحد بحد أقصى أقل من 6 سنوات مجاناً."
-        ]
+        terms = extract_plain_text(english_terms_html)
+        arabic_terms = extract_plain_text(arabic_terms_html)
+        
 
         # Set maximum width for wrapping text
         max_width_english = 60  # Maximum width for wrapping English text
@@ -4425,10 +4581,10 @@ class WebAppController(http.Controller):
             # Draw each line
             for eng_line, ar_line in zip(eng_lines, ar_lines):
                 # Draw English text on the left side
-                c.drawString(50, y_position, eng_line)
+                c.drawString(20, y_position, eng_line)
 
                 # Draw Arabic text on the right side, properly reshaped and aligned
-                draw_arabic_text(width - 50, y_position, ar_line)
+                draw_arabic_text(width - 20, y_position, ar_line)
 
                 # Move to the next line
                 y_position -= 12  # Adjust line spacing
@@ -4459,7 +4615,7 @@ class WebAppController(http.Controller):
         # print('line 3991',bank_data , booking.contact_leader.id,)
         # Extracting acc_number and bank_name
 
-        y_position -= 20
+        y_position -= 40
         if bank_data:
             for detail in bank_data:
                 acc_number = detail.get('acc_number')
@@ -4542,8 +4698,924 @@ class WebAppController(http.Controller):
         records = request.env['room.booking'].sudo().browse(record_ids)
         if not records.exists():
             return {'status': 'error', 'message': 'Records not found'}
+        
+         # Only allow deletion for these states
+        allowed_states = ['cancel', 'no_show', 'not_confirmed']
+
+        deletable = records.filtered(lambda r: r.state in allowed_states)
+
+        non_deletable = records - deletable
+
+        if non_deletable:
+            raise ValidationError(
+                "You can only delete bookings in the following states: Cancel, No Show, or Not Confirmed.\n\n"
+                "The following bookings are in invalid states:\n" +
+                "\n".join(f"Booking ID: {rec.id}, State: {rec.state}" for rec in non_deletable)
+            )
+        
 
         # ✅ Soft delete instead of unlink
         records.write({'active': False})
 
         return {'status': 'success', 'message': 'Reservations archived (inactive)'}
+
+
+    @http.route('/generate_rc_guest_main/bookings_pdf', type='http', auth='user') #GUEST REPORT MAIN
+    def generate_rc_guest_bookings_pdf_main(self, booking_ids=None, company_id=None):# GUEST REPORT MAIN
+        if not booking_ids:
+            return request.not_found()
+
+        current_company_id = int(company_id) if company_id else request.env.company.id
+
+         # Ensure the request environment respects the selected company
+        env_booking = request.env['room.booking'].with_company(current_company_id)
+
+        booking_ids_list = [int(id) for id in booking_ids.split(',')]
+
+        # bookings = env_booking.browse(booking_ids_list).filtered(lambda b: b.company_id.id == current_company_id)
+        bookings = (env_booking.browse(booking_ids_list).filtered(lambda b:b.company_id.id == current_company_id and not b.parent_booking_name))
+        missing_group = bookings.filtered(lambda b: not b.group_booking)
+        if missing_group:
+            raise ValidationError(
+                "Please select a “Group Booking” for every booking before you print "
+                "the Guest-Main report.")
+        print("bookings", bookings)
+
+        if not bookings:
+            raise ValidationError(
+                "You can generate the Guest‑Main report only for PARENT bookings.")
+            # return request.not_found()
+
+        # If there's only one booking, return a single PDF
+        if len(bookings) == 1:
+            parent = bookings[0]
+            children    = env_booking.search([
+                ('parent_booking_id', '=', parent.id),
+                ('company_id',        '=', current_company_id),
+            ])
+            total_room_rate = sum((children | parent).mapped('total_rate_forecast'))
+            total_meal_rate = sum((children | parent).mapped('total_meal_forecast'))
+            total_package_rate = sum((children | parent).mapped('total_package_forecast'))
+            total_fixed_post_forecast = sum((children | parent).mapped('total_fixed_post_forecast'))
+            total_total_rate = sum((children | parent).mapped('total_total_forecast'))
+            total_room_count = sum((children | parent).mapped('room_count'))
+            total_adult_count = sum((children | parent).mapped('adult_count'))
+            total_child_count = sum((children | parent).mapped('child_count'))
+            total_infant_count = sum((children | parent).mapped('infant_count'))
+            # get_room_discount = sum((children).mapped('room_discount'))
+            get_room_discount = sum(children.filtered(lambda r: r.room_is_amount).mapped('room_discount'))
+            get_meal_discount = sum(children.filtered(lambda r: r.room_is_amount).mapped('meal_discount'))
+
+            total_municipality_tax = sum((children | parent).mapped('total_municipality_tax'))
+            total_vat = sum((children | parent).mapped('total_vat'))
+            total_untaxed = sum((children | parent).mapped('total_untaxed'))
+
+
+            
+            pdf_buffer = self._generate_rc_guest_pdf_for_booking_main(parent,total_room_rate=total_room_rate, total_meal_rate=total_meal_rate,
+                                                                          total_package_rate=total_package_rate,
+                                                                          total_fixed_post_forecast=total_fixed_post_forecast,
+                                                                       total_total_rate=total_total_rate, total_room_count=total_room_count, total_adult_count=total_adult_count,
+                                                                       total_child_count=total_child_count, total_infant_count=total_infant_count,
+                                                                       get_room_discount=get_room_discount,
+                                                                       get_meal_discount=get_meal_discount,
+                                                                       total_municipality_tax=total_municipality_tax,
+                                                                        total_vat=total_vat,
+                                                                        total_untaxed=total_untaxed)
+            return request.make_response(pdf_buffer.getvalue(), headers=[
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', f'attachment; filename="main_booking_Rc_guest_{bookings[0].group_booking.id or ""}.pdf"')
+            ])
+        else:
+            zip_buffer = BytesIO()
+            with ZipFile(zip_buffer, 'w') as zip_file:
+                for parent in bookings:
+                    # 1) fetch its children again
+                    children = env_booking.search([
+                        ('parent_booking_id', '=', parent.id),
+                        ('company_id',        '=', current_company_id),
+                    ])
+                    # 2) compute totals exactly as above
+                    total_room_rate  = sum((children | parent).mapped('total_rate_forecast'))
+                    total_meal_rate  = sum((children | parent).mapped('total_meal_forecast'))
+                    total_package_rate = sum((children | parent).mapped('total_package_forecast'))
+                    total_fixed_post_forecast = sum((children | parent).mapped('total_fixed_post_forecast'))
+                    total_total_rate = sum((children | parent).mapped('total_total_forecast'))
+                    total_room_count = sum((children | parent).mapped('room_count'))
+                    total_adult_count = sum((children | parent).mapped('adult_count'))
+                    total_child_count = sum((children | parent).mapped('child_count'))
+                    total_infant_count = sum((children | parent).mapped('infant_count'))
+
+                    total_municipality_tax = sum((children | parent).mapped('total_municipality_tax'))
+                    total_vat = sum((children | parent).mapped('total_vat'))
+                    total_untaxed = sum((children | parent).mapped('total_untaxed'))
+
+
+                    # 3) generate its PDF with the three totals
+                    pdf_buffer = self._generate_rc_guest_pdf_for_booking_main(
+                        parent,
+                        total_room_rate=total_room_rate,
+                        total_meal_rate=total_meal_rate,
+                        total_package_rate=total_package_rate,
+                        total_fixed_post_forecast=total_fixed_post_forecast,
+                        total_total_rate=total_total_rate,
+                        total_room_count=total_room_count, 
+                        total_adult_count=total_adult_count,
+                        total_child_count=total_child_count, 
+                        total_infant_count=total_infant_count,
+                        total_municipality_tax=total_municipality_tax,
+                        total_vat=total_vat,
+                        total_untaxed=total_untaxed,
+
+                    )
+
+                    # 4) pick a filename that makes sense (here we use the parent ID)
+                    pdf_filename = f'main_booking_rc_guest_{parent.id}.pdf'
+                    zip_file.writestr(pdf_filename, pdf_buffer.getvalue())
+
+            zip_buffer.seek(0)
+            return request.make_response(
+                zip_buffer.getvalue(),
+                headers=[
+                    ('Content-Type',        'application/zip'),
+                    ('Content-Disposition', 'attachment; filename="bookings.zip"'),
+                ]
+            )
+
+
+    def _generate_rc_guest_pdf_for_booking_main(self, booking, total_room_rate=None, total_meal_rate=None,
+                                                total_package_rate=None,
+                                                total_fixed_post_forecast=None,
+                                                total_total_rate=None,
+                                                total_room_count=None, 
+                        total_adult_count=None,
+                        total_child_count=None, 
+                        total_infant_count=None,
+                        get_room_discount=None,
+                        get_meal_discount=None, 
+                        forecast_lines=None,
+                                                total_municipality_tax=None, total_vat=None, total_untaxed=None):  # Guest Report main
+        if forecast_lines is None:
+            # fetch them here or set them to an empty list
+            forecast_lines = request.env["room.rate.forecast"].search([
+                ("room_booking_id", "=", booking.id)
+            ])
+        current_company_id = booking.company_id.id
+
+        # 1) Prepare the data for the report
+        
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+
+        CENTER_X    = width / 2        # exact middle of the page
+        TOP_Y       = height - 50      # first header line baseline
+        line_height = 15               # space between header lines
+
+        y_position  = TOP_Y            # ← start writing right here
+
+        left_margin   = 20
+        right_margin  = 20
+        bottom_margin = 50
+
+        logo_max_width  = 60
+        logo_max_height = 60
+
+        # horizontal centre
+        logo_x = CENTER_X - (logo_max_width / 2)
+
+        # vertical centre between first and second header rows
+        logo_mid_y = TOP_Y - (line_height / 2)
+        logo_y     = logo_mid_y - (logo_max_height / 2)
+
+        _ = self.draw_company_logo_(
+                c, logo_x, logo_y,
+                logo_max_width, logo_max_height,
+                booking.company_id.logo
+            )
+
+        left_margin = 20
+        right_margin = 20
+        top_margin = 50
+        bottom_margin = 50
+        line_height = 15
+        y_position = height - top_margin
+        arabic_val = 0
+        # Register a font that supports Arabic
+        if platform.system() == "Windows":
+            try:
+                font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+                # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+            except:
+                font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+        else:
+            font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
+            arabic_val = 19
+        logger.info(arabic_val)
+            # Register the font
+        try:
+            pdfmetrics.registerFont(TTFont('CustomFont', font_path))
+            font_name = 'CustomFont'
+        except Exception as e:
+            print(f"Font registration failed: {e}")
+            font_name = 'Helvetica'  # Fallback font
+
+        c.setFont(font_name, 8)  # Ensure this path is correct for your system
+        # pdfmetrics.registerFont(TTFont('Arial', font_path))
+        # c.setFont('Arial', 12)
+
+        current_date = datetime.now()
+        gregorian_date = current_date.strftime('%Y-%m-%d')
+        hijri_date = convert.Gregorian(current_date.year, current_date.month, current_date.day).to_hijri()
+        # Define the number of rows based on the number of pax
+        num_rows = booking.adult_count if booking.adult_count else 0  # Default to 1 row if pax is not defined
+        checkin_hijri_str = ""
+
+        if booking.checkin_date:
+            g_date_in = convert.Gregorian(
+                booking.checkin_date.year,
+                booking.checkin_date.month,
+                booking.checkin_date.day
+            )
+        # Convert to Hijri and cast to string (e.g., '1445-10-05')
+        arrival_hijri = g_date_in.to_hijri()
+        checkin_hijri_str = str(arrival_hijri)  # or arrival_hijri.isoformat() if you want a standard format
+
+        checkout_hijri_str = ""
+        if booking.checkout_date:
+            g_date_out = convert.Gregorian(
+                booking.checkout_date.year,
+                booking.checkout_date.month,
+                booking.checkout_date.day
+            )
+        departure_hijri = g_date_out.to_hijri()
+        checkout_hijri_str = str(departure_hijri)
+        # arrival_hijri = convert_to_hijri(booking.checkin_date)
+        # departure_hijri = convert_to_hijri(booking.checkout_date)
+        max_address_width = 18
+
+        # active_user = self.env.user
+
+        # Function to draw Arabic text
+        def draw_arabic_text(x, y, text):
+            if text:
+                reshaped_text = arabic_reshaper.reshape(text)  # Fix Arabic letter shapes
+                bidi_text = get_display(reshaped_text)  # Fix RTL direction
+                c.drawString(x, y, bidi_text)
+            else:
+                c.drawString(x, y, "")  # Draw empty string if the text is None
+
+        y_position = height - 50  # Starting Y position
+        line_height = 15  # Line height for vertical spacing
+
+        def draw_arabic_text_left(c, x, y, text, font='CustomFont', size=8):
+            """
+            Draw text left-aligned at (x, y), ensuring Arabic letters are 
+            reshaped and displayed right-to-left if the text is Arabic.
+            """
+            c.setFont(font, size)
+            if not text:
+                return
+            if text:
+                reshaped_text = arabic_reshaper.reshape(text)
+                bidi_text = get_display(reshaped_text)
+                c.drawString(x, y, bidi_text)
+            else:
+                c.drawString(x, y, "")  # Draw empty string if the text is None
+
+        y_position = height - 50  # Starting Y position
+        line_height = 15  # Line height for vertical spacing
+
+        
+
+        def draw_arabic_text_(c, x, y, text, font="CustomFont", font_size=8):
+            """
+            Draws Arabic text on the canvas 'c' so that the RIGHT edge of the text is at (x, y).
+            """
+            if text:
+                # 1) Reshape Arabic letters
+                reshaped_text = arabic_reshaper.reshape(text)
+
+                # 2) Convert to right-to-left using 'get_display'
+                bidi_text = get_display(reshaped_text)
+
+                # 3) Make sure the same font is used for measurement & drawing
+                c.setFont(font, font_size)
+
+                # 4) Measure how wide the text is, then shift left accordingly
+                text_width = stringWidth(bidi_text, font, font_size)
+                c.drawString(x - text_width, y, bidi_text)
+            else:
+                # Draw an empty string if there's no text
+                c.drawString(x, y, "")
+
+        
+        
+        
+
+        # Line 1: Hijri Date and Hotel Name
+        # Hijri Date
+        c.drawString(10, y_position, "Hijri Date:")
+        c.drawString(100, y_position, f"{hijri_date}")  # Replace with the actual Hijri date variable
+        draw_arabic_text(width - 400, y_position, "التاريخ الهجري:")
+        # Hotel Name
+        # c.drawString(width / 2 + 50, y_position, "Hotel Name:")
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Hotel Name:")
+        # c.drawString(width / 2 + 150, y_position, f"{booking.company_id.name}")  # Replace with the actual booking field
+        draw_arabic_text_left(c, width / 2 + 125, y_position, f"{booking.company_id.name}")
+        draw_arabic_text(width - 50, y_position, "اسم الفندق:")
+        y_position -= line_height
+
+        # Line 2: Gregorian Date and Address
+        # Gregorian Date
+        c.drawString(10, y_position, "Gregorian Date:")
+        c.drawString(100, y_position, f"{gregorian_date}")  # Replace with the actual Gregorian date variable
+        draw_arabic_text(width - 400, y_position, "التاريخ الميلادي:")
+
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Address:")
+
+        address = f"{booking.company_id.street}"
+        wrapped_address = wrap(address, max_address_width)
+
+        line_offset = 0
+        for line in wrapped_address:
+            # Use draw_arabic_text_left instead of c.drawString for each line:
+            draw_arabic_text_left(c, width / 2 + 125, y_position - line_offset, line)
+            line_offset += line_height
+
+        # Render Arabic label also via draw_arabic_text_left:
+        draw_arabic_text_left(c, width - 50, y_position, "العنوان:      ")
+
+        y_position -= (line_offset + (line_height * 0.5))
+
+
+        # y_position -= line_height
+        # Line 3: User and Tel
+        # User
+        c.drawString(10, y_position, "User:")
+        # c.drawString(150, y_position, f"{booking.partner_id.name}")  # Replace with the actual user field if needed
+        draw_arabic_text_left(c, 100, y_position, f"{request.env.user.name}")
+        draw_arabic_text(width - 400, y_position, "اسم المستخدم:")
+        # Tel
+        draw_arabic_text_left(c, width / 2 + 50, y_position, "Tel:")
+        c.drawString(width / 2 + 150, y_position, f"{booking.company_id.phone}")  # Replace with the actual booking field
+        draw_arabic_text(width - 50, y_position, "تليفون:       ")
+        y_position -= line_height  # Extra spacing after this section
+        y_position -= line_height
+        # Registration Card Title
+
+        # draw_arabic_text_left(c, width / 2 - 288, y_position, f"Group Booking/Registration Card -{booking.group_booking.name if booking.group_booking.name else '' }")
+        group_booking_id = booking.group_booking.id if booking.group_booking.id else ''
+        print("group_booking_id", group_booking_id)
+
+        # --------- 1. pull the composite name ---------
+        full_name = booking.group_booking.name or ''        # "Al Refa Al Sud - الرفاع السد/GRP_0008"
+
+        # --------- 2. split “name / code” -------------
+        try:
+            company_part, code_part = (p.strip() for p in full_name.split('/', 1))
+        except ValueError:
+            # no slash found – fall back gracefully
+            company_part, code_part = full_name, ''
+
+        # --------- 3. normalise the code to “Grp_008” ---
+        if code_part:                        # e.g. "GRP_0008", "Grp_8", "8", etc.
+            digits = ''.join(filter(str.isdigit, code_part))   # "0008"
+            group_code = f"Grp_{int(digits):03d}"              # "Grp_008"
+        else:
+            # still nothing? last-chance fallback to record-id
+            group_code = f"Grp_{int(booking.group_booking.id):03d}"
+
+        # --------- 4. compose & draw -------------------
+        title_text = f"Group Booking / Registration Card / {group_code} - {company_part}"
+        draw_arabic_text_left(c, width / 2 - 288, y_position, title_text)
+
+        draw_arabic_text_left(c, width / 2 + 38, y_position, f"حجز جماعي /بطاقة التسجيل - {booking.group_booking.name if booking.group_booking.name else ''}")
+        y_position -= 35
+
+        guest_payment_border_top = y_position + 30
+
+        LEFT_LABEL_X = left_margin
+        LEFT_VALUE_X = LEFT_LABEL_X + 100
+        LEFT_ARABIC_X = LEFT_VALUE_X + 100
+
+        # Right column starts sooner
+        RIGHT_LABEL_X = LEFT_ARABIC_X + 90
+        RIGHT_VALUE_X = RIGHT_LABEL_X + 90
+        # Keep Arabic close to the value
+        RIGHT_ARABIC_X = RIGHT_VALUE_X + 95 
+        str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
+        str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
+        # line_height = 20
+        pax_count = booking.adult_count  # + booking.child_count
+        # booking_type = "Company" if booking.is_agent else "Individual"
+        booking_type = booking.partner_id.name  if booking.is_agent else "Individual"
+        full_name = booking.group_booking.group_name if booking.is_agent else booking.partner_id.name
+        group_booking_id = booking.group_booking.id
+        group_bookings = []
+        if booking.group_booking:
+            env_booking = request.env['room.booking'].with_company(current_company_id)
+            group_bookings = env_booking.search([('group_booking', '=', group_booking_id)])
+        rate_list = []
+        meal_list = []
+        table_row = []
+        person_count = []
+        booking_rows = []
+
+        # Initialize a dictionary to group by room_type
+        room_type_summary = {}
+
+        for gb in group_bookings:
+            room_type = getattr(gb.hotel_room_type, 'room_type', 'N/A') if gb.hotel_room_type else 'N/A'
+            # Safely access 'room_count' with a default of 0
+            room_count = getattr(gb, 'room_count', 0) if gb else 0
+
+            adult_count = getattr(gb, 'adult_count', 0) if gb else 0
+            child_count = getattr(gb, 'child_count', 0) if gb else 0
+            infant_count = getattr(gb, 'infant_count', 0) if gb else 0
+
+            # Calculate total count
+            total_count = adult_count + child_count + infant_count
+
+            # Add data to room_type_summary
+            if room_type in room_type_summary:
+                room_type_summary[room_type]['total_count'] += total_count
+                room_type_summary[room_type]['room_count'] += room_count
+            else:
+                room_type_summary[room_type] = {
+                    'total_count': total_count,
+                    'room_count': room_count
+                }
+
+            # Convert the dictionary into a table format
+            room_type_name = (
+                booking.hotel_room_type.room_type.room_type
+                if booking.hotel_room_type and booking.hotel_room_type.room_type
+                else "N/A"
+            )
+
+            # Get room count and total guests
+            # room_count = booking.room_count or 0
+            total_room_count = (
+            total_room_count if total_room_count is not None
+                else booking.room_count)
+            
+            total_adult_count = (
+            total_adult_count if total_adult_count is not None
+            else booking.adult_count
+        )
+            
+            # total_pax = (
+            #     (booking.adult_count or 0) +
+            #     (booking.child_count or 0) +
+            #     (booking.infant_count or 0)
+            # )
+
+            table_row = [[
+                room_type_name,
+                total_room_count,
+                total_adult_count
+            ]]
+
+
+            rate_list = [line.rate for line in booking.rate_forecast_ids]
+            meal_list = [line.meals for line in booking.rate_forecast_ids]
+            
+            for adult_line in gb.adult_ids:
+                joiner_name = f"{adult_line.first_name or ''} {adult_line.last_name or ''}".strip()
+                booking_rows.append([
+                    adult_line.nationality.name if adult_line.nationality else "",  # Handle nationality
+                    adult_line.passport_number or "",  # Handle blank passport number
+                    adult_line.phone_number or "",  # Handle blank phone number
+                    adult_line.id_number or "",  # Handle blank ID number
+                    joiner_name  # Already handled
+                ])
+
+            for child_line in gb.child_ids:
+                joiner_name = f"{child_line.first_name or ''} {child_line.last_name or ''}".strip()
+                booking_rows.append([
+                    child_line.nationality.name if child_line.nationality else "",  # Handle nationality
+                    child_line.passport_number or "",  # Handle blank passport number
+                    child_line.phone_number or "",  # Handle blank phone number
+                    child_line.id_number or "",  # Handle blank ID number
+                    joiner_name  # Already handled
+                ])
+
+            for infant_line in gb.infant_ids:
+                joiner_name = f"{infant_line.first_name or ''} {infant_line.last_name or ''}".strip()
+                booking_rows.append([
+                    infant_line.nationality.name if infant_line.nationality else "",  # Handle nationality
+                    infant_line.passport_number or "",  # Handle blank passport number
+                    infant_line.phone_number or "",  # Handle blank phone number
+                    infant_line.id_number or "",  # Handle blank ID number
+                    joiner_name  # Already handled
+                ])
+
+        # booking_data = [adult_row, child_row, infant_row]
+        person_count.append(booking_rows)
+        
+        if len(rate_list) != 0:
+            avg_rate = sum(rate_list) / len(rate_list)
+        else:
+            avg_rate = 0
+        avg_rate = round(avg_rate, 2)
+        if  len(meal_list) != 0:
+            avg_meal = sum(meal_list) / len(meal_list)
+        else:
+            avg_meal = 0
+        avg_meal = round(avg_meal, 2)
+        # print('2185', table_row)
+        # print('2185', adult_row)
+        # print('2629', person_count)
+        if booking.use_price or booking.use_meal_price:
+            # Determine display codes based on which flags are set
+            if booking.use_price:
+                display_rate_code = "Manual"
+            else:
+                display_rate_code = booking.rate_code.description if booking.rate_code else ""
+
+            if booking.use_meal_price:
+                display_meal_code = "Manual"
+            else:
+                display_meal_code = booking.meal_pattern.description if booking.meal_pattern else ""
+
+            # Calculate Room Discount if use_price is selected
+            if booking.use_price:
+                if booking.room_is_amount:
+                    room_discount = f"{booking.room_discount} SAR"  # Adjust currency as needed
+                elif booking.room_is_percentage:
+                    room_discount = f"{booking.room_discount * 100}%"
+                else:
+                    room_discount = 'N/A'  # Or any default value you prefer
+            else:
+                room_discount = ""  # No discount to display if use_price is not selected
+
+            # Calculate Meal Discount if use_meal_price is selected
+            if booking.use_meal_price:
+                if booking.meal_is_amount:
+                    meal_discount = f"{booking.meal_discount} SAR"  # Adjust currency as needed
+                elif booking.meal_is_percentage:
+                    meal_discount = f"{booking.meal_discount * 100}%"
+                else:
+                    meal_discount = 'N/A'  # Or any default value you prefer
+            else:
+                meal_discount = ""  # No discount to display if use_meal_price is not selected
+
+        else:
+            # Neither use_price nor use_meal_price is selected
+            display_rate_code = booking.rate_code.description if booking.rate_code else ""
+            display_meal_code = booking.meal_pattern.description if booking.meal_pattern else ""
+            room_discount = ""
+            meal_discount = ""
+
+        nationality = (
+            booking.partner_id.nationality.name
+            if booking.partner_id.nationality
+            else (booking.nationality.name if booking.nationality else None)
+        )
+
+        if not nationality or nationality == "N/A":
+            # If nationality is missing or "N/A", call self.get_arabic_text("N/A")
+            nationality = self.get_arabic_text("N/A")
+        else:
+            nationality = self.get_country_translation(
+                nationality)  # Call function for translation
+            
+        total_child_count = (
+            total_child_count if total_child_count is not None
+            else booking.child_count
+        )
+
+        total_infant_count = (
+            total_infant_count if total_infant_count is not None
+            else booking.infant_count
+        )
+
+        
+        guest_details = [
+            ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:           ",
+            #  "Full Name:", f"{booking.partner_id.name}", "اسم النزيل:                 "),
+             "Full Name:", f"{full_name}", "اسم النزيل:                 "),
+            ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:          ",
+              "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                        "),
+            ("Arrival (Hijri):", checkin_hijri_str, "تاريخ الوصول (هجري):", "Nationality:",
+             nationality, "الجنسية:                     "),
+            ("Departure (Hijri):", checkout_hijri_str, "تاريخ المغادرة (هجري):", "Mobile No:",
+             f"{booking.partner_id.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:                 "),
+
+            ("Rate Code:", f"{display_rate_code}", "رمز السعر:               ", "No. of child:",
+             f"{total_child_count}", "عدد الأطفال:                "),
+            ("Meal Pattern:", f"{display_meal_code}", "نظام الوجبات:           ", "No. of infants:",
+             f"{total_infant_count}", "عدد الرضع:                  ") ,
+            ("Room Rate Avg:", f"{avg_rate}", "متوسط سعر الغرفة اليومي:             ",
+             "Meal Rate Avg:", f"{avg_meal}", "متوسط سعر الوجبات اليومي:"),
+            ("Room Rate Min:", f"{min(rate_list) if rate_list else 0}", "سعر الغرفة الأدنى:     ", "Meal Rate Min:", f"{min(meal_list) if meal_list else 0}",
+             "سعر الوجبة الأدنى:        "),
+            ("Room Rate Max:", f"{max(rate_list) if rate_list else 0}", "سعر الغرفة الأعلى:    ", "Meal Rate Max:", f"{max(meal_list) if meal_list else 0}",
+             "سعر الوجبة الأعلى:       "),
+
+        ]
+
+        for l_label, l_value, l_arabic, r_label, r_value, r_arabic in guest_details:
+            # Default values for the row
+            cur_left_label_x = LEFT_LABEL_X
+            cur_left_value_x = LEFT_VALUE_X
+            cur_left_arabic_x = LEFT_ARABIC_X
+
+            cur_right_label_x = RIGHT_LABEL_X
+            cur_right_value_x = RIGHT_VALUE_X
+            cur_right_arabic_x = RIGHT_ARABIC_X
+
+            # Adjust only if specific label needs shifting
+            if l_label.strip() == "Room Rate Avg:":
+                cur_left_arabic_x -= 50
+
+            if r_label.strip() == "Meal Rate Avg:":
+                cur_right_arabic_x -= 17  # Optional, in case that one needs shift too
+
+            # Draw left column
+            c.drawString(cur_left_label_x, y_position, l_label)
+            c.drawString(cur_left_value_x, y_position, l_value)
+            draw_arabic_text(cur_left_arabic_x, y_position, l_arabic)
+
+            # Draw right column
+            c.drawString(cur_right_label_x, y_position, r_label)
+            # c.drawString(cur_right_value_x, y_position, r_value)
+
+            if r_label in ("Full Name:", "Nationality:", "Mobile No:"):
+                draw_arabic_text_left(c, RIGHT_VALUE_X, y_position, r_value)
+            else:
+                c.drawString(cur_right_value_x, y_position, r_value)
+
+            draw_arabic_text(cur_right_arabic_x, y_position, r_arabic)
+
+            y_position -= line_height
+
+        
+
+        avg_rate = 0.0
+        avg_meals = 0.0
+        if forecast_lines:
+            total_rate = sum(line.rate for line in forecast_lines)
+            total_meals = sum(line.meals for line in forecast_lines)
+            line_count = len(forecast_lines)
+            if line_count > 0:
+                avg_rate = round(total_rate / line_count, 2)
+                avg_meals = round(total_meals / line_count, 2)
+        pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
+
+        total_room_rate = (
+            total_room_rate if total_room_rate is not None
+            else booking.total_rate_forecast
+        )
+
+        # total_room_rate = total_room_rate + get_room_discount
+
+        total_meal_rate = (
+            total_meal_rate if total_meal_rate is not None
+            else booking.total_meal_forecast
+        )
+
+        # total_meal_rate = total_meal_rate + get_meal_discount
+
+        total_amount = (
+            total_total_rate if total_total_rate is not None
+            else booking.total_total_forecast
+        )
+
+        total_fixed_post_forecast = (
+            total_fixed_post_forecast if total_fixed_post_forecast is not None
+            else booking.total_fixed_post_forecast)
+        
+        total_package_forecast = (
+            total_package_rate if total_package_rate is not None
+            else booking.total_package_forecast
+        )
+
+        total_municipality_tax = total_municipality_tax if total_municipality_tax is not None else booking.total_municipality_tax
+        total_vat = total_vat if total_vat is not None else booking.total_vat
+        # total_untaxed = total_untaxed if total_untaxed is not None else booking.total_untaxed
+
+        totat_taxes = total_municipality_tax + total_vat
+
+
+        # total_amount = total_amount + get_room_discount + get_meal_discount
+
+        # Payment Details
+        payment_details = [
+            ("VAT:", f"{round(total_vat,2)}", "القيمة المضافة:         ", "Total Meals Rate:", f"{total_meal_rate}",
+             "إجمالي سعر الوجبات:     "),
+            ("Municipality:", f"{round(total_municipality_tax,2)}", "رسوم البلدية:            ", "Total Room rate:", f"{total_room_rate}",
+             "إجمالي سعر الغرفة:       "),
+            ("Total Taxes:", f"{round(totat_taxes,2)}", "إجمالي الضرائب:        ", "Total Fixed Post:", f"{total_fixed_post_forecast}",
+             "إجمالي المشاركات الثابتة:"),
+            ("VAT ID:", "", "الرقم الضريبي:          ", "Total Packages:", f"{total_package_forecast}", "إجمالي الحزم:               "),
+            ("Remaining:", "", "المبلغ المتبقي:          ",
+             "Payments:", "", "المبلغ المدفوع:              "),
+            ("Payment Method:", f"{pay_type}", "نظام الدفع:              ", "Total Amount:", f"{total_amount}",
+             "المبلغ الإجمالي:             ")
+
+        ]
+
+        for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
+            # Left column label
+            c.drawString(LEFT_LABEL_X, y_position, f"{l_label}")
+
+            # If it's Payment Method, draw Arabic/RTL text
+            if l_label == "Payment Method:":
+                draw_arabic_text_left(c, LEFT_LABEL_X + 100, y_position, l_value)
+            else:
+                c.drawString(LEFT_LABEL_X + 100, y_position, f"{l_value}")
+
+            # Arabic text for the left column
+            draw_arabic_text(LEFT_ARABIC_X, y_position, l_arabic)
+
+            # Right column label + value
+            c.drawString(RIGHT_LABEL_X, y_position, f"{r_label}")
+            c.drawString(RIGHT_LABEL_X + 90, y_position, f"{r_value}")
+            draw_arabic_text(RIGHT_ARABIC_X, y_position, r_arabic)
+
+            y_position -= line_height
+        
+
+        guest_payment_border_bottom = y_position - 20  # A little extra space below
+        # Draw the border for Guest + Payment details
+        c.rect(
+            left_margin - 10,
+            guest_payment_border_bottom,
+            (width - left_margin - right_margin) + 20,
+            guest_payment_border_top - guest_payment_border_bottom
+        )
+        y_position -= 40
+        table_width = (width - left_margin - right_margin) + 20  # Adjust table width as needed
+        x_left = (width - table_width) / 2
+
+        table_top = y_position
+        table_headers_1 = [
+            ("Room Type", "نوع الغرفة"),
+            ("Room Count", "عدد الغرف"),
+            ("Number of pax", "عدد الأفراد"),
+        ]
+
+        row_data_list_1 = table_row
+        # Move y_position below first table
+        # y_position = table_top - table_height - 20
+        # First table drawing
+        row_height = 20
+        table_left_x = left_margin  # Adjust as needed
+        number_of_columns = 5  # Example value; set based on your table
+        col_width = (width - left_margin - right_margin) / number_of_columns
+        y_position = draw_table_with_page_break(
+            c=c,
+            x_left=x_left,
+            y_top=y_position,
+            table_width=(width - left_margin - right_margin) + 20,
+            header_height=25,
+            row_height=20,
+            table_headers=table_headers_1,
+            row_data_list=row_data_list_1,
+            line_height=line_height,
+            bottom_margin=bottom_margin,
+            top_margin=top_margin,
+            page_width=width,
+            page_height=height,
+            font_name=font_name,
+            font_size=8
+        )
+
+        c, y_position = check_space_and_new_page(
+            c=c,
+            needed_height=200,  # approximate space for T&C
+            y_position=y_position,
+            bottom_margin=bottom_margin,
+            top_margin=top_margin,
+            page_width=width,
+            page_height=height,
+            font_name=font_name,
+            font_size=8
+        )
+        # Initialize current_y
+        current_y = y_position
+
+        y_position = current_y
+        adult_child_data = booking_rows
+
+        table_headers_2 = [
+            ("Nationality", "الجنسية"),
+            ("Passport No.", "رقم جواز السفر"),
+            ("Tel No.", "رقم الهاتف"),
+            ("ID No.", "رقم الهوية"),
+            ("Guest Name", "اسم النزيل"),
+        ]
+
+        # Draw the second table
+        y_position = draw_table_with_page_break(
+            c=c,
+            x_left=x_left,
+            y_top=y_position,
+            table_width=(width - left_margin - right_margin) + 20,
+            header_height=25,
+            row_height=20,
+            table_headers=table_headers_2,
+            row_data_list=adult_child_data,  # entire list, not just one row!
+            line_height=line_height,
+            bottom_margin=bottom_margin,
+            top_margin=top_margin,
+            page_width=width,
+            page_height=height,
+            font_name=font_name,
+            font_size=8
+        )
+
+        # Adjust y_position for Terms and Conditions section
+        y_position -= 60
+        c, y_position = check_space_and_new_page(
+            c=c,
+            needed_height=200,  # approximate space for T&C
+            y_position=y_position,
+            bottom_margin=bottom_margin,
+            top_margin=top_margin,
+            page_width=width,
+            page_height=height,
+            font_name=font_name,
+            font_size=8
+        )
+        terms_top = y_position
+        y_position -= 20
+        company = request.env.company
+        english_terms_html = company.term_and_condition_rcgroup_en or ''
+        arabic_terms_html = company.term_and_condition_rcgroup_ar or ''
+
+        # Convert HTML to Plain Text
+        def extract_plain_text(html_content):
+            soup = BeautifulSoup(html_content, 'html.parser')
+            lines = []
+            for line in soup.stripped_strings:
+                lines.append(line)
+            return lines
+
+        terms = extract_plain_text(english_terms_html)
+        arabic_terms = extract_plain_text(arabic_terms_html)
+        # terms = [
+        #     "Terms:",
+        #     "Departure at 2:00 PM, in case of late checkout, full day rate will be charged.",
+        #     "Guests should notify front desk in case of extension or early checkout.",
+        #     "Refund is not applicable after 30 minutes from signing RC.",
+        #     "Administration is not responsible for lost valuables inside the room.",
+        #     "In case of damage, appropriate compensation will be charged.",
+        #     "In the event of absence, belongings will be moved to the warehouse.",
+        #     "Commitment to Islamic instructions and not to disturb others."
+        # ]
+        # arabic_terms = [
+        #     "شروط:",
+        #     "موعد المغادرة في تمام الساعة الثانية ظهراً، في حال تأخير المغادرة سيتم احتساب رسوم يوم كامل.",
+        #     "يجب على النزلاء إبلاغ مكتب الاستقبال في حال تمديد الإقامة أو المغادرة المبكرة.",
+        #     "لا يحق للنزيل استرداد أي مبلغ بعد 30 دقيقة من توقيع العقد.",
+        #     "الإدارة غير مسؤولة عن فقدان الأشياء الثمينة داخل الغرفة.",
+        #     "في حال حدوث أي ضرر، سيتم فرض تعويض مناسب.",
+        #     "في حالة الغياب، سيتم نقل المتعلقات إلى المستودع.",
+        #     "الالتزام بالتعليمات الإسلامية وعدم إزعاج الآخرين."
+        # ]
+
+        # Wrap text to fit within the defined width
+        max_width = 60  # Max characters per line for English
+        max_width_arabic = 60  # Adjust for Arabic wrapping
+
+        for eng_term, ar_term in zip(terms, arabic_terms):
+            # Wrap the English and Arabic text into multiple lines
+            eng_lines = wrap(eng_term, max_width)
+            ar_lines = wrap(ar_term, max_width_arabic)
+
+            # Ensure both English and Arabic text have the same number of lines
+            max_lines = max(len(eng_lines), len(ar_lines))
+            eng_lines += [""] * (max_lines - len(eng_lines)
+                                 )  # Pad English lines
+            ar_lines += [""] * (max_lines - len(ar_lines))  # Pad Arabic lines
+
+            # Draw each line
+            for eng_line, ar_line in zip(eng_lines, ar_lines):
+                c.drawString(left_margin, y_position, eng_line)
+
+                # Arabic on the right (this will RIGHT-ALIGN it at x = width - 250)
+                draw_arabic_text_(c, width - 20, y_position, ar_line)
+
+                # c.drawString(50, y_position, eng_line)  # English text on the left
+                # draw_arabic_text(width - 250, y_position, ar_line)  # Arabic text on the right
+
+                y_position -= 12  # Adjust line spacing
+
+        # Draw Border Around Terms and Conditions Section
+        terms_bottom = y_position - 10
+        c.rect(
+            left_margin - 10,
+            terms_bottom,
+            (width - left_margin - right_margin) + 20,
+            terms_top - terms_bottom + 20
+        )
+
+        # Save the PDF
+        c.save()
+        buffer.seek(0)
+        return buffer
+
+    
