@@ -9,7 +9,7 @@
                 <field name="item_id"/>
                 <field name="date"/>
                 <field name="description"/>
-<!--                <field name="voucher_number"/>-->
+                <!--                <field name="voucher_number"/>-->
                 <field name="room_list"/>
                 <field name="group_list"/>
                 <field name="type"/>
@@ -62,7 +62,8 @@
                                                 <label for="date" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="date" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="date"
+                                                       readonly="1"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -160,7 +161,8 @@
                                                 <label for="voucher_number" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="voucher_number" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="voucher_number"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
                                     </div>
@@ -183,9 +185,11 @@
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="debit_amount" invisible="sign != 'debit'" string="Price"
-                                                       force_save="1" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                       force_save="1"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
                                                 <field name="credit_amount" invisible="sign != 'credit'" string="Price"
-                                                       force_save="1" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                       force_save="1"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -193,7 +197,8 @@
                                                 <label for="quantity" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="quantity" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="quantity"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
                                                 <field name="source_type" invisible="1"/>
                                             </div>
                                         </div>
@@ -210,7 +215,8 @@
                                                 <label for="currency_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="currency_id" options="{'no_create': True}" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="currency_id" options="{'no_create': True}"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -221,7 +227,7 @@
                                                 <field name="sign"
                                                        widget="radio"
                                                        options="{'horizontal': True}"
-                                                       readonly="not item_id.allow_change_sign or source_type == 'auto' or state == 'posted'"/>
+                                                       readonly="not item_id or not item_id.allow_change_sign or source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -229,7 +235,8 @@
                                                 <label for="taxes" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="taxes" readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="taxes"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
                                     </div>

@@ -26,7 +26,13 @@ class TzMasterFolio(models.Model):
     value_added_tax = fields.Float(string="Value Added Tax")
     municipality_tax = fields.Float(string="Municipality Tax")
     grand_total = fields.Float(string="Grand Total", compute='_compute_totals', store=True)
-    manual_posting_ids = fields.One2many('tz.manual.posting', 'folio_id', string="Posting Lines")
+    manual_posting_ids = fields.One2many(
+        'tz.manual.posting',
+        'folio_id',
+        string="Posting Lines",
+        order='create_date asc'
+    )
+
     currency_id = fields.Many2one(
         'res.currency',
         string='Currency'

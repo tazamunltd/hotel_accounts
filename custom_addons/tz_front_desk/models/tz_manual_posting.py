@@ -100,11 +100,14 @@ class TzHotelManualPosting(models.Model):
     )
 
     sign = fields.Selection(
-        related='item_id.default_sign',
+        selection=[
+            ('debit', 'Debit'),
+            ('credit', 'Credit')
+        ],
         string="Sign",
         store=True,
         tracking=True,
-        readonly=False
+        compute='_compute_sign',
     )
 
     taxes = fields.Many2one(
@@ -238,14 +241,6 @@ class TzHotelManualPosting(models.Model):
                 record.credit_amount = record.item_id.default_value
                 record.debit_amount = 0.0
 
-    @api.constrains('debit_amount', 'credit_amount')
-    def _check_debit_credit(self):
-        for record in self:
-            if record.debit_amount and record.credit_amount:
-                raise ValidationError(_("A transaction cannot have both debit and credit amounts set."))
-            if not record.debit_amount and not record.credit_amount:
-                raise ValidationError(_("A transaction must have either debit or credit amount set."))
-
     @api.depends('folio_id', 'debit_amount', 'credit_amount')
     def _compute_balance(self):
         for folio in self.mapped('folio_id'):
@@ -313,7 +308,14 @@ class TzHotelManualPosting(models.Model):
             # Find master booking (where parent_booking_name is null)
             master_booking = bookings.filtered(lambda b: not b.parent_booking_name)
 
-            return master_booking.room_line_ids.room_id.id
+            if not master_booking:
+                return False
+
+            # Ensure we have exactly one master booking
+            master_booking.ensure_one()
+
+            # Return first room if multiple exist
+            return master_booking.room_line_ids[0].room_id.id
 
     @api.depends('debit_amount', 'credit_amount')
     def _compute_price(self):
@@ -345,8 +347,10 @@ class TzHotelManualPosting(models.Model):
     def _onchange_item_id(self):
         if self.item_id:
             if self.sign == 'debit':
+                self.credit_amount = 0.0
                 self.debit_amount = self.item_id.default_value
             elif self.sign == 'credit':
+                self.debit_amount = 0.0
                 self.credit_amount = self.item_id.default_value
             self.description = self.item_id.description
 
@@ -411,13 +415,18 @@ class TzHotelManualPosting(models.Model):
                 raise UserError(_("You cannot delete a record that is posted."))
         return super().unlink()
 
+    @api.depends('item_id.default_sign')
+    def _compute_sign(self):
+        for rec in self:
+            rec.sign = rec.item_id.default_sign
 
-class PostingItemInherit(models.Model):
-    _inherit = 'posting.item'
 
-    tax_ids = fields.Many2many(
-        'account.tax',
-        string='Taxes',
-        domain=[('type_tax_use', '=', 'sale')],  # optional filter
-        help="Select taxes that apply to this posting item"
-    )
+# class PostingItemInherit(models.Model):
+#     _inherit = 'posting.item'
+#
+#     tax_ids = fields.Many2many(
+#         'account.tax',
+#         string='Taxes',
+#         domain=[('type_tax_use', '=', 'sale')],  # optional filter
+#         help="Select taxes that apply to this posting item"
+#     )
