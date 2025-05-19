@@ -57,7 +57,7 @@ class RoomBooking(models.Model):
 
     def _default_checkout_date(self):
         """Calculate default checkout date (system date + 1 day)"""
-        system_date = self.env.user.company_id.system_date.date()
+        system_date = self.env.company.system_date.date()
         next_day = system_date + timedelta(days=1)
         return fields.Datetime.to_datetime(next_day)
 
@@ -120,6 +120,15 @@ class RoomBooking(models.Model):
 
             # Proceed only if front_desk and room_list were used
             if vals.get('room_list') and booking.hotel_room_type:
+                # Handle Rate Code
+                if not vals.get('rate_code'):
+                    if self.env.company.rate_code:
+                        vals['rate_code'] = self.env.company.rate_code.id
+                        booking.rate_code = self.env.company.rate_code.id
+                    else:
+                        raise UserError(
+                            _("Rate Code is required. Please a Rate Code or configure a default Rate Code in Company Settings"))
+
                 # Handle market segment
                 if not vals.get('market_segment'):
                     if self.env.company.market_segment:
@@ -179,37 +188,37 @@ class RoomBooking(models.Model):
 
         return res
 
-    def action_block_wk(self):
-        self.create_booking_lines()
-        for record in self:
-            record.write({'state': 'block'})
-        return True
-
-    def action_un_block_wk(self):
-        self.delete_booking_lines()
-        for record in self:
-            record.write({'state': 'not_confirmed'})
-        return True
-
-    def action_checkin_wk(self):
-        for record in self:
-            record.write({'state': 'check_in'})
-        return True
-
-    def action_un_checkin_wk(self):
-        for record in self:
-            record.write({'state': 'block'})
-        return True
-
-    def action_checkout_wk(self):
-        for record in self:
-            record.write({'state': 'check_out'})
-        return True
-
-    def action_cancel_wk(self):
-        for record in self:
-            record.write({'state': 'cancel'})
-        return True
+    # def action_block_wk(self):
+    #     self.create_booking_lines()
+    #     for record in self:
+    #         record.write({'state': 'block'})
+    #     return True
+    #
+    # def action_un_block_wk(self):
+    #     self.delete_booking_lines()
+    #     for record in self:
+    #         record.write({'state': 'not_confirmed'})
+    #     return True
+    #
+    # def action_checkin_wk(self):
+    #     for record in self:
+    #         record.write({'state': 'check_in'})
+    #     return True
+    #
+    # def action_un_checkin_wk(self):
+    #     for record in self:
+    #         record.write({'state': 'block'})
+    #     return True
+    #
+    # def action_checkout_wk(self):
+    #     for record in self:
+    #         record.write({'state': 'check_out'})
+    #     return True
+    #
+    # def action_cancel_wk(self):
+    #     for record in self:
+    #         record.write({'state': 'cancel'})
+    #     return True
 
     def create_booking_lines(self):
         for booking in self:
@@ -267,7 +276,7 @@ class RoomBooking(models.Model):
         - Individual bookings: One folio per booking
         Returns: master folio record
         """
-        MasterFolio = self.env['tz.master.folio']
+        master_folio = self.env['tz.master.folio']
         company = booking.company_id or self.env.company
 
         # Base domain
@@ -279,12 +288,12 @@ class RoomBooking(models.Model):
         # Group booking logic
         if booking.group_booking:
             domain.append(('group_id', '=', booking.group_booking.id))
-            folio = MasterFolio.sudo().search(domain, limit=1)
+            folio = master_folio.sudo().search(domain, limit=1)
 
             if not folio:
                 # Create new group folio
                 folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
-                folio = MasterFolio.sudo().create({
+                folio = master_folio.sudo().create({
                     'name': folio_name,
                     'group_id': booking.group_booking.id,
                     'guest_id': booking.partner_id.id,
@@ -295,6 +304,9 @@ class RoomBooking(models.Model):
                     'currency_id': company.currency_id.id,
                 })
 
+                # Set has_master_folio = True on the related group booking
+                booking.group_booking.sudo().write({'has_master_folio': True})
+
             # Always link the current booking to the folio
             folio.write({'booking_ids': [(4, booking.id)]})
             return folio
@@ -302,11 +314,11 @@ class RoomBooking(models.Model):
         # Individual booking logic
         else:
             domain.append(('booking_ids', 'in', booking.id))
-            folio = MasterFolio.sudo().search(domain, limit=1)
+            folio = master_folio.sudo().search(domain, limit=1)
 
             if not folio:
                 folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
-                folio = MasterFolio.sudo().create({
+                folio = master_folio.sudo().create({
                     'name': folio_name,
                     'guest_id': booking.partner_id.id,
                     'rooming_info': booking.name,

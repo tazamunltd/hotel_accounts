@@ -9,7 +9,6 @@
                 <field name="item_id"/>
                 <field name="date"/>
                 <field name="description"/>
-                <!--                <field name="voucher_number"/>-->
                 <field name="room_list"/>
                 <field name="group_list"/>
                 <field name="type"/>
@@ -110,7 +109,6 @@
                                             <div class="form-control form-control-sm">
                                                 <field name="group_list" options="{'no_create': True}"
                                                        readonly="source_type == 'auto' or state == 'posted'"/>
-<!--                                                <field name="valid_group_ids" invisible="1"/>-->
                                             </div>
                                         </div>
                                         <div class="col-md-3" invisible="not folio_id">

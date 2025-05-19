@@ -14,7 +14,7 @@ class TzRoomSearch(models.TransientModel):
 
     checkin_date = fields.Datetime(
         string="Check In Date",
-        default=lambda self: self.env.user.company_id.system_date.replace(hour=0, minute=0, second=0, microsecond=0),
+        default=lambda self: self.env.company.system_date.replace(hour=0, minute=0, second=0, microsecond=0),
         help="Date of Check-in",
         required=True
     )

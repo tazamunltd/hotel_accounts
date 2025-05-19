@@ -28,7 +28,7 @@ class TzHotelManualPosting(models.Model):
 
     date = fields.Date(
         string="Date / Shift #",
-        default=lambda self: self.env.user.company_id.system_date.replace(hour=0, minute=0, second=0, microsecond=0),
+        default=lambda self: self.env.company.system_date.replace(hour=0, minute=0, second=0, microsecond=0),
         readonly=True
     )
     time = fields.Char(
@@ -65,14 +65,8 @@ class TzHotelManualPosting(models.Model):
     group_list = fields.Many2one(
         'group.booking',
         string="Group",
-        domain="[('status_code', '=', 'confirmed')]"
+        domain="[('status_code', '=', 'confirmed'), ('has_master_folio', '=', True)]"
     )
-
-    # valid_group_ids = fields.Many2many(
-    #     'group.booking',
-    #     compute='_compute_valid_groups',
-    #     string='Valid Groups'
-    # )
 
     type = fields.Selection(
         [
@@ -166,7 +160,7 @@ class TzHotelManualPosting(models.Model):
     def default_get(self, fields_list):
         res = super(TzHotelManualPosting, self).default_get(fields_list)
         unavailable_rooms = self.env['room.booking.line'].search([
-            ('state_', 'in', ['confirmed', 'block', 'check_in']),
+            ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show']),
         ]).mapped('room_id.id')
         res['unavailable_room_ids'] = [(6, 0, unavailable_rooms)]
         return res
@@ -224,7 +218,7 @@ class TzHotelManualPosting(models.Model):
     def _compute_unavailable_rooms(self):
         for rec in self:
             unavailable_rooms = self.env['room.booking.line'].search([
-                ('state_', 'in', ['confirmed', 'block', 'check_in']),
+                ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show']),
             ]).mapped('room_id.id')
             rec.unavailable_room_ids = unavailable_rooms
 
@@ -260,7 +254,7 @@ class TzHotelManualPosting(models.Model):
         for record in self:
             booking_line = self.env['room.booking.line'].search([
                 ('room_id', '=', record.room_list.id),
-                ('state_', 'in', ['confirmed', 'check_in'])
+                ('state_', 'in', ['confirmed','block','check_in', 'no_show'])
             ], limit=1)
 
             if booking_line and booking_line.booking_id:
@@ -280,7 +274,7 @@ class TzHotelManualPosting(models.Model):
                 # Get the most recent active booking for this room
                 booking_line = self.env['room.booking.line'].search([
                     ('room_id', '=', record.room_list.id),
-                    ('state_', 'in', ['confirmed', 'check_in'])
+                    ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
                 ], order='checkin_date desc', limit=1)
 
                 if booking_line:
@@ -310,17 +304,17 @@ class TzHotelManualPosting(models.Model):
                 ('group_booking', '=', group_id)
             ])
 
-            # Find master booking (where parent_booking_name is null)
-            master_booking = bookings.filtered(lambda b: not b.parent_booking_name)
+            # Find master bookings (where parent_booking_name is null)
+            master_bookings = bookings.filtered(lambda b: not b.parent_booking_name)
 
-            if not master_booking:
+            if not master_bookings:
                 return False
 
-            # Ensure we have exactly one master booking
-            master_booking.ensure_one()
+            # Use the first master booking
+            master_booking = master_bookings[0]
 
             # Return first room if multiple exist
-            return master_booking.room_line_ids[0].room_id.id
+            return master_booking.room_line_ids[0].room_id.id if master_booking.room_line_ids else False
 
     @api.depends('debit_amount', 'credit_amount')
     def _compute_price(self):
@@ -369,14 +363,14 @@ class TzHotelManualPosting(models.Model):
         Create master folio for manual posting when none exists
         Returns folio ID or raises exception
         """
-        system_date = self.env.user.company_id.system_date.date()
+        system_date = self.env.company.system_date.date()
 
         # check room id from
         booking_line = self.env['room.booking.line'].search([
             ('room_id', '=', room_id),
             ('checkin_date', '>=', fields.Datetime.to_datetime(system_date)),
             ('checkin_date', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
-            ('state_', 'in', ['confirmed', 'check_in'])
+            ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
         ], limit=1)
 
         domain = self._get_domain_filter(room_id, system_date)
@@ -423,26 +417,8 @@ class TzHotelManualPosting(models.Model):
     @api.depends('item_id.default_sign')
     def _compute_sign(self):
         for rec in self:
-            rec.sign = rec.item_id.default_sign
+            if rec.item_id.default_sign == 'debit' or rec.item_id.default_sign == 'credit':
+                rec.sign = rec.item_id.default_sign
 
-    @api.onchange('folio_id')
-    def _onchange_folio_id(self):
-        for rec in self:
-            if rec.folio_id and rec.folio_id.group_id:
-                rec.group_list = rec.folio_id.group_id
-            else:
-                rec.group_list = False
 
-    @api.depends('folio_id')
-    def _compute_group_list(self):
-        self._onchange_folio_id()
-
-    @api.constrains('item_id')
-    def _check_item_default_sign(self):
-        for record in self:
-            if record.item_id and record.item_id.default_sign:
-                raise UserError(
-                    "This operation is not allowed because the selected item "
-                    "has default_sign set to Debit or Credit. Please choose another item."
-                )
 

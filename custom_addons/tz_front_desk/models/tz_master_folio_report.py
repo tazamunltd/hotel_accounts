@@ -3,7 +3,6 @@ from odoo.tools.misc import formatLang, format_date
 from odoo.exceptions import UserError, ValidationError
 import logging
 _logger = logging.getLogger(__name__)
-# from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 class TzMasterFolioReport(models.Model):
     _name = 'tz.master.folio.report'
@@ -47,7 +46,6 @@ class TzMasterFolioReport(models.Model):
         ('unique_item_folio', 'UNIQUE(item_id, folio_id)', 'Item per folio must be unique!'),
     ]
 
-    # @api.model
     def generate_folio_report(self, folio_id=None):
         """ Generate or refresh the report data """
         if folio_id:
@@ -56,60 +54,69 @@ class TzMasterFolioReport(models.Model):
         lang = self.env.context.get('lang') or 'en_US'
 
         query = """
-            SELECT
-                pi.id AS item_id,
-                COALESCE(pi.item_code ->> %s, pi.item_code ->> 'en_US') AS item_name,
-                COALESCE(pi.description ->> %s, pi.description ->> 'en_US') AS item_description,
-                MIN(mp.date) AS first_date,
-                MIN(mp.time) AS first_time,
-                SUM(mp.debit_amount) AS total_debit,
-                SUM(mp.credit_amount) AS total_credit,
-                SUM(mp.balance) AS total_balance,
+            WITH manual_posting_summary AS (
+                SELECT 
+                    mp.folio_id,
+                    MIN(mp.date) AS first_date,
+                    MIN(mp.time) AS first_time,
+                    SUM(mp.debit_amount) AS total_debit,
+                    SUM(mp.credit_amount) AS total_credit,
+                    SUM(mp.balance) AS total_balance
+                FROM tz_manual_posting mp
+                GROUP BY mp.folio_id
+            ),
+            first_posting_item AS (
+                SELECT DISTINCT ON (mp.folio_id)
+                    mp.folio_id,
+                    pi.id AS item_id,
+                    COALESCE(pi.item_code ->> %s, pi.item_code ->> 'en_US') AS item_name,
+                    COALESCE(pi.description ->> %s, pi.description ->> 'en_US') AS item_description
+                FROM tz_manual_posting mp
+                LEFT JOIN posting_item pi ON mp.item_id = pi.id
+                WHERE mp.item_id IS NOT NULL
+                ORDER BY mp.folio_id, mp.date, mp.time
+            )
+            SELECT	
                 mf.id AS folio_id,
                 mf.name AS folio_number,
-                mf.room_id AS room_id,
-                mf.group_id AS group_id,
-                mf.room_type_id AS room_type_id,
-                mf.guest_id AS guest_id,
-                mf.company_id AS company_id,
-                mf.company_vat AS company_vat,
-                mf.check_in AS check_in,
-                mf.check_out AS check_out,
-                mf.bill_number AS bill_number,
-                mf.rooming_info AS rooming_info,
-                mf.value_added_tax AS value_added_tax,
-                mf.municipality_tax AS municipality_tax,
-                mf.grand_total AS grand_total,
-                mf.currency_id AS currency_id,
+                mf.room_id,
+                mf.group_id,
+                mf.room_type_id,
+                mf.guest_id,
+                mf.company_id,
+                mf.company_vat,
+                mf.check_in,
+                mf.check_out,
+                mf.bill_number,
+                mf.rooming_info,
+                mf.value_added_tax,
+                mf.municipality_tax,
+                mf.grand_total,
+                mf.currency_id,
                 mf.total_debit AS folio_total_debit,
                 mf.total_credit AS folio_total_credit,
-                mf.balance AS folio_balance
-            FROM
-                tz_manual_posting mp
-            JOIN
-                posting_item pi ON mp.item_id = pi.id
-            JOIN
-                tz_master_folio mf ON mp.folio_id = mf.id
-            WHERE
-                {where_clause}
-            GROUP BY
-                pi.id, pi.item_code, pi.description, mf.id, mf.name, 
-                mf.room_id, mf.room_type_id, mf.guest_id, mf.company_id, 
-                mf.company_vat, mf.check_in, mf.check_out, mf.bill_number,
-                mf.value_added_tax, mf.municipality_tax, mf.grand_total,
-                mf.currency_id, mf.total_debit, mf.total_credit, mf.balance
-            ORDER BY
-                pi.item_code
+                mf.balance AS folio_balance,
+                mps.first_date,
+                mps.first_time,
+                mps.total_debit,
+                mps.total_credit,
+                mps.total_balance,
+                fpi.item_id,
+                fpi.item_name,
+                fpi.item_description
+            FROM tz_master_folio mf
+            LEFT JOIN manual_posting_summary mps ON mps.folio_id = mf.id
+            LEFT JOIN first_posting_item fpi ON fpi.folio_id = mf.id
+            WHERE {where_clause}
         """
 
         if folio_id:
-            where_clause = "mp.folio_id = %s"
+            where_clause = "mf.id = %s"
             params = (lang, lang, folio_id)
         else:
             where_clause = "1=1"
             params = (lang, lang)
 
-        # Final formatted query
         final_query = query.format(where_clause=where_clause)
 
         try:
@@ -147,47 +154,3 @@ class TzMasterFolioReport(models.Model):
         }
 
 
-# SELECT
-#                 pi.id AS item_id,
-#                 COALESCE(pi.item_code ->> 'ar', pi.item_code ->> 'en_US') AS item_name,
-#                 COALESCE(pi.description ->>'ar', pi.description ->> 'en_US') AS item_description,
-#                 MIN(mp.date) AS first_date,
-#                 MIN(mp.time) AS first_time,
-#                 SUM(mp.debit_amount) AS total_debit,
-#                 SUM(mp.credit_amount) AS total_credit,
-#                 SUM(mp.balance) AS total_balance,
-#                 mf.id AS folio_id,
-#                 mf.name AS folio_number,
-#                 mf.room_id AS room_id,
-#                 mf.group_id AS group_id,
-#                 mf.room_type_id AS room_type_id,
-#                 mf.guest_id AS guest_id,
-#                 mf.company_id AS company_id,
-#                 mf.company_vat AS company_vat,
-#                 mf.check_in AS check_in,
-#                 mf.check_out AS check_out,
-#                 mf.bill_number AS bill_number,
-# 				mf.rooming_info AS rooming_info,
-#                 mf.value_added_tax AS value_added_tax,
-#                 mf.municipality_tax AS municipality_tax,
-#                 mf.grand_total AS grand_total,
-#                 mf.currency_id AS currency_id,
-#                 mf.total_debit AS folio_total_debit,
-#                 mf.total_credit AS folio_total_credit,
-#                 mf.balance AS folio_balance
-#             FROM
-#                 tz_manual_posting mp
-#             JOIN
-#                 posting_item pi ON mp.item_id = pi.id
-#             JOIN
-#                 tz_master_folio mf ON mp.folio_id = mf.id
-#             WHERE
-#                 mp.folio_id = 1
-#             GROUP BY
-#                 pi.id, pi.item_code, pi.description, mf.id, mf.name,
-#                 mf.room_id, mf.room_type_id, mf.guest_id, mf.company_id,
-#                 mf.company_vat, mf.check_in, mf.check_out, mf.bill_number,
-#                 mf.value_added_tax, mf.municipality_tax, mf.grand_total,
-#                 mf.currency_id, mf.total_debit, mf.total_credit, mf.balance
-#             ORDER BY
-#                 pi.item_code

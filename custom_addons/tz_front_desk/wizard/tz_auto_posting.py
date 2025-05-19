@@ -38,7 +38,7 @@ class AutoPostingWizard(models.TransientModel):
 
     def action_auto_posting(self):
         self.ensure_one()
-        system_date = self.env.user.company_id.system_date.date()
+        system_date = self.env.company.system_date.date()
         created_count = 0  # Track actual created records
 
         # 1. Get all forecasts for system_date
@@ -144,7 +144,6 @@ class AutoPostingWizard(models.TransientModel):
         """Create posting lines and return count of actually created records"""
         booking = booking_line.booking_id
         created_count = 0
-
         # Get all posting items
         rate_item = booking.rate_code.rate_posting_item if booking.rate_code else None
         meal_item = booking.meal_pattern.meal_posting_item if booking.meal_pattern else None
@@ -152,41 +151,64 @@ class AutoPostingWizard(models.TransientModel):
         fixed_items = booking.posting_item_ids.filtered(lambda x: x.type == 'fixed')
 
         # Room Rate
-        if self.include_rates and forecast.rate > 0 and rate_item:
-            if self._create_posting_line(folio, booking_line, rate_item.id, rate_item.description, forecast.rate):
-                created_count += 1
+        if rate_item:
+            if self.include_rates and forecast.rate > 0:
+                total_amount = forecast.rate
+
+                if forecast.room_booking_id.rate_code.include_meals and forecast.meals > 0:
+                    total_amount += forecast.meals
+
+                if self._create_posting_line(folio, booking_line, rate_item.id, rate_item.description, total_amount):
+                    created_count += 1
+        else:
+            raise UserError(
+                _("No posting item configured for rate code."))
 
         # Meals
-        if self.include_meals and forecast.meals > 0 and meal_item:
-            if self._create_posting_line(folio, booking_line, meal_item.id, meal_item.description, forecast.meals):
-                created_count += 1
+        if meal_item:
+            if self.include_meals and forecast.meals > 0 and not forecast.room_booking_id.rate_code.include_meals:
+                if self._create_posting_line(folio, booking_line, meal_item.id, meal_item.description, forecast.meals):
+                    created_count += 1
+        else:
+            raise UserError(
+                _("No posting item configured for meal pattern"))
 
         # Packages
-        if self.include_packages and forecast.packages > 0 and package_items:
-            for item in package_items:
-                amount = item.amount if item.amount > 0 else forecast.packages
-                if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.name, amount):
-                    created_count += 1
+        if package_items:
+            if self.include_packages and forecast.packages > 0:
+                for item in package_items:
+                    amount = item.amount if item.amount > 0 else forecast.packages
+                    if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.name, amount):
+                        created_count += 1
+        else:
+            if self.include_packages and forecast.packages > 0:
+                raise UserError(
+                    _("No posting item configured for package"))
 
         # Fixed Charges
-        if self.include_fixed and forecast.fixed_post > 0 and fixed_items:
-            for item in fixed_items:
-                amount = item.amount if item.amount > 0 else forecast.fixed_post
-                if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.description, amount):
-                    created_count += 1
+        if fixed_items:
+            if self.include_fixed and forecast.fixed_post > 0:
+                for item in fixed_items:
+                    amount = item.amount if item.amount > 0 else forecast.fixed_post
+                    if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.description,
+                                                 amount):
+                        created_count += 1
+        else:
+            if self.include_fixed and forecast.fixed_post > 0:
+                raise UserError(
+                    _("No posting item configured for fixed post"))
 
         return created_count
 
     def _create_posting_line(self, folio, booking_line, item_id, description, amount):
         """Create posting line and return True if created, False if skipped"""
-        system_date = self.env.user.company_id.system_date.date()
+        system_date = self.env.company.system_date.date()
         # Check for existing postings first
         existing = self.env['tz.manual.posting'].search([
             ('folio_id', '=', folio.id),
             ('item_id', '=', item_id),
             ('room_list', '=', booking_line.room_id.id),
-            ('date', '>=', fields.Datetime.to_datetime(system_date)),
-            ('date', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
+            ('date', '=', system_date),
         ], limit=1)
 
         if existing:
@@ -195,6 +217,8 @@ class AutoPostingWizard(models.TransientModel):
         item = self.env['posting.item'].browse(item_id)
         # Initialize values dictionary
         manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
+        if item.default_sign == 'main':
+            raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
         vals = {
             'name': manual_posting,
             'date': system_date,
@@ -235,7 +259,7 @@ class AutoPostingWizard(models.TransientModel):
         :return: Single room.rate.forecast record or False
         """
         if not date:
-            date = self.env.user.company_id.system_date.date()
+            date = self.env.company.system_date.date()
 
         return self.env['room.rate.forecast'].search([
             ('date', '=', date),
@@ -300,7 +324,7 @@ class AutoPostingWizard(models.TransientModel):
         lines_to_create = []
         posted_count = 0
         time_now = fields.Datetime.now().strftime('%H:%M %p')
-        system_date = self.env.user.company_id.system_date.date()
+        system_date = self.env.company.system_date.date()
 
         if not booking_line:
             raise UserError(_("No booking line provided"))
@@ -409,7 +433,7 @@ class AutoPostingWizard(models.TransientModel):
 
     def _get_forecast(self, booking_line):
         """Get forecast for a booking line on system date"""
-        system_date = self.env.user.company_id.system_date.date()
+        system_date = self.env.company.system_date.date()
         return self.env['room.rate.forecast'].search([
             ('date', '=', system_date),
             ('state', '=', 'draft'),
