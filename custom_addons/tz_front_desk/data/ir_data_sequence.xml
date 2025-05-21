@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data noupdate="1">
+<!--     noupdate="1"-->
+    <data>
         <!-- Manual Posting Sequence -->
         <record id="seq_manual_posting" model="ir.sequence">
             <field name="name">Hotel Manual Posting</field>
             <field name="code">tz.manual.posting</field>
-            <field name="prefix">MP/</field>
+            <field name="prefix">MP_</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/> <!-- Will be set per company -->
         </record>
@@ -14,7 +15,15 @@
         <record id="seq_folio" model="ir.sequence">
             <field name="name">Hotel Master Folio</field>
             <field name="code">tz.master.folio</field>
-            <field name="prefix">FOL/</field>
+            <field name="prefix">FOL_</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_dummy_group" model="ir.sequence">
+            <field name="name">Dummy Group Sequence</field>
+            <field name="code">tz.dummy.group</field>
+            <field name="prefix">Dum_</field>
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>

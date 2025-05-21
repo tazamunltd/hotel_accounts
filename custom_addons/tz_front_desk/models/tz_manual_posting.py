@@ -68,6 +68,17 @@ class TzHotelManualPosting(models.Model):
         domain="[('status_code', '=', 'confirmed'), ('has_master_folio', '=', True)]"
     )
 
+    dummy_list = fields.Many2one(
+        'tz.dummy.group',
+        string="Dummy",
+        domain="[('obsolete', '=', False)]"
+    )
+
+    all_group = fields.Selection(
+        selection='_get_all_group_selection',
+        string="Group or Dummy Group"
+    )
+
     type = fields.Selection(
         [
             ('room', 'Room'),
@@ -112,11 +123,6 @@ class TzHotelManualPosting(models.Model):
 
     taxes = fields.Many2many('account.tax', string="Taxes", compute='_compute_taxes', store=True)
 
-    @api.depends('item_id.taxes')
-    def _compute_taxes(self):
-        for rec in self:
-            rec.taxes = rec.item_id.taxes
-
     partner_id = fields.Many2one(
         'res.partner',
         string="Guest",
@@ -155,6 +161,10 @@ class TzHotelManualPosting(models.Model):
         'room.booking',
         string="Room Booking"
     )
+
+    discount = fields.Float(string='Discount (%)', compute='_compute_discount', store=True)
+
+    # discounted_value = fields.Float(string="Price after Discount", compute='_compute_discounted_value', store=True)
 
     @api.model
     def default_get(self, fields_list):
@@ -211,7 +221,12 @@ class TzHotelManualPosting(models.Model):
 
         if self._context.get('manual_creation') and not record.folio_id:
             record.folio_id = record._create_master_folio(record.room_list.id)
-            # raise UserError(record.folio_id)
+            if not record.folio_id:
+                record.folio_id = record._get_master_folio_for_dummy(record.dummy_list.id)
+                # if record.sign == 'debit':
+                #     record.debit_amount = record.discounted_value
+                # elif record.sign == 'credit':
+                #     record.credit_amount = record.discounted_value
 
         return record
 
@@ -229,16 +244,27 @@ class TzHotelManualPosting(models.Model):
                 record.total = record.debit_amount * record.quantity
             elif record.sign == 'credit' and record.credit_amount > 0:
                 record.total = record.credit_amount * record.quantity
+            else:
+                record.total = 0.0
 
-    @api.depends('item_id.default_value', 'sign')
-    def _compute_debit_credit_amounts(self):
-        for record in self:
-            if record.sign == 'debit':
-                record.debit_amount = record.item_id.default_value
-                record.credit_amount = 0.0
-            else:  # credit
-                record.credit_amount = record.item_id.default_value
-                record.debit_amount = 0.0
+    # @api.depends('item_id.default_value', 'sign', 'dummy_list')
+    # def _compute_debit_credit_amounts(self):
+    #     for record in self:
+    #         default_value = record.item_id.default_value
+    #         discount = 0.0
+    #
+    #         if record.dummy_list and record.dummy_list.discount:
+    #             discount = record.dummy_list.discount
+    #
+    #         # Apply discount
+    #         discounted_value = default_value * (1 - discount / 100)
+    #
+    #         if record.sign == 'debit':
+    #             record.debit_amount = discounted_value
+    #             record.credit_amount = 0.0
+    #         else:  # credit
+    #             record.credit_amount = discounted_value
+    #             record.debit_amount = 0.0
 
     @api.depends('folio_id', 'debit_amount', 'credit_amount')
     def _compute_balance(self):
@@ -254,7 +280,7 @@ class TzHotelManualPosting(models.Model):
         for record in self:
             booking_line = self.env['room.booking.line'].search([
                 ('room_id', '=', record.room_list.id),
-                ('state_', 'in', ['confirmed','block','check_in', 'no_show'])
+                ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
             ], limit=1)
 
             if booking_line and booking_line.booking_id:
@@ -315,6 +341,11 @@ class TzHotelManualPosting(models.Model):
 
             # Return first room if multiple exist
             return master_booking.room_line_ids[0].room_id.id if master_booking.room_line_ids else False
+
+    @api.depends('item_id.taxes')
+    def _compute_taxes(self):
+        for rec in self:
+            rec.taxes = rec.item_id.taxes
 
     @api.depends('debit_amount', 'credit_amount')
     def _compute_price(self):
@@ -402,11 +433,17 @@ class TzHotelManualPosting(models.Model):
 
     def _get_domain_filter(self, room_id, system_date):
         return [
-                ('company_id', '=', self.env.company.id),
-                ('room_id', '=', room_id),
-                ('check_in', '>=', fields.Datetime.to_datetime(system_date)),
-                ('check_in', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1)))
-            ]
+            ('company_id', '=', self.env.company.id),
+            ('room_id', '=', room_id),
+            ('check_in', '>=', fields.Datetime.to_datetime(system_date)),
+            ('check_in', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1)))
+        ]
+
+    def _get_master_folio_for_dummy(self, dummy_id):
+        return self.env['tz.master.folio'].sudo().search([
+            ('company_id', '=', self.env.company.id),
+            ('dummy_id', '=', dummy_id),
+        ], limit=1)
 
     def unlink(self):
         for record in self:
@@ -419,6 +456,82 @@ class TzHotelManualPosting(models.Model):
         for rec in self:
             if rec.item_id.default_sign == 'debit' or rec.item_id.default_sign == 'credit':
                 rec.sign = rec.item_id.default_sign
+
+    @api.model
+    def _get_all_group_selection(self):
+        # Dummy Groups: all records from tz.dummy.group
+        dummy_groups = self.env['tz.dummy.group'].search([('obsolete', '=', False)])
+
+        # Group Bookings: only confirmed and having a master folio
+        group_bookings = self.env['group.booking'].search([
+            ('status_code', '=', 'confirmed'),
+            ('has_master_folio', '=', True)
+        ])
+
+        result = []
+
+        # Add dummy groups to selection
+        for dummy in dummy_groups:
+            result.append((f'dummy_{dummy.id}', f'Dummy Group: {dummy.name}'))
+
+        # Add group bookings to selection
+        for group in group_bookings:
+            result.append((f'group_{group.id}', f'Group: {group.name}'))
+
+        return result
+
+    @api.onchange('all_group')
+    def _onchange_all_group(self):
+        """Automatically populate group_list or dummy_list based on all_group selection."""
+        self.group_list = False
+        self.dummy_list = False
+
+        if self.all_group:
+            type_str, rec_id = self.all_group.split('_')
+            rec_id = int(rec_id)
+
+            if type_str == 'dummy':
+                self.dummy_list = self.env['tz.dummy.group'].browse(rec_id)
+            elif type_str == 'group':
+                self.group_list = self.env['group.booking'].browse(rec_id)
+
+    def get_selected_group_record(self):
+        """Returns the actual record selected in all_group."""
+        if self.all_group:
+            type_str, rec_id = self.all_group.split('_')
+            rec_id = int(rec_id)
+            if type_str == 'dummy':
+                return self.env['tz.dummy.group'].browse(rec_id)
+            elif type_str == 'group':
+                return self.env['group.booking'].browse(rec_id)
+        return None
+
+    @api.depends('dummy_list')
+    def _compute_discount(self):
+        for record in self:
+            record.discount = record.dummy_list.discount if record.dummy_list else 0.0
+
+
+    @api.onchange('dummy_list', 'sign')
+    def _onchange_dummy_list_discount(self):
+        for record in self:
+            # Reset values
+            record.debit_amount = 0.0
+            record.credit_amount = 0.0
+
+            # Ensure item and dummy are set
+            if record.item_id and record.sign:
+                default_value = record.item_id.default_value or 0.0
+                discount_percent = record.dummy_list.discount or 0.0
+
+                # Apply discount
+                discounted_value = default_value * discount_percent
+
+                # Assign to appropriate field
+                if record.sign == 'debit':
+                    record.debit_amount = discounted_value
+                elif record.sign == 'credit':
+                    record.credit_amount = discounted_value
 
 
 

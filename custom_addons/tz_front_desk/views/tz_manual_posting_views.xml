@@ -84,7 +84,6 @@
                                             </div>
                                         </div>
                                         <hr/>
-
                                         <div class="col-md-2">
                                             <label for="type" class="form-label small mb-2">Type</label>
                                             <div class="d-flex flex-row gap-3">
@@ -104,10 +103,10 @@
                                         </div>
                                         <div class="col-md-3" invisible="type != 'group'">
                                             <div class="form-group">
-                                                <label for="group_list" class="form-label small">Group</label>
+                                                <label for="all_group" class="form-label small">Group</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="group_list" options="{'no_create': True}"
+                                                <field name="all_group" options="{'no_create': True}"
                                                        readonly="source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
@@ -119,7 +118,7 @@
                                                 <field name="folio_id" readonly="1"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" invisible="not booking_id">
                                             <div class="form-group">
                                                 <label for="booking_id" class="form-label small"/>
                                             </div>
@@ -145,7 +144,6 @@
                                             </div>
                                         </div>
                                         <hr/>
-
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="description" class="form-label small"/>
@@ -161,6 +159,24 @@
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="voucher_number"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="group_list" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="group_list"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="dummy_list" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="dummy_list"
                                                        readonly="source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
@@ -239,6 +255,23 @@
                                                        options="{'no_create': True}"/>
                                             </div>
                                         </div>
+                                        <hr/>
+                                        <div class="col-md-2" invisible="discount == 0">
+                                            <div class="form-group">
+                                                <label for="discount" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="discount" widget="percentage"/>
+                                            </div>
+                                        </div>
+                                        <!--<div class="col-md-3" invisible="discount == 0">
+                                            <div class="form-group">
+                                                <label for="discounted_value" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="discounted_value"/>
+                                            </div>
+                                        </div>-->
                                     </div>
                                 </div>
                             </div>

@@ -81,6 +81,44 @@
                                 </div>
                             </div>
 
+                            <!-- Dummy Group Selection Card -->
+                            <!--<div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-cube m-1"/>
+                                    <span class="fw-bold">Dummy Group Selection</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="row g-2">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="all_dummys" class="form-label small">All Dummy Groups
+                                                </label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="all_dummys"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" invisible="all_dummys">
+                                            <div class="form-group">
+                                                <label for="dummy_from" class="form-label small">From Dummy</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="dummy_from"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3" invisible="all_dummys">
+                                            <div class="form-group">
+                                                <label for="dummy_to" class="form-label small">To Dummy</label>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="dummy_to"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>-->
+
+
                             <!-- Charge Selection Card -->
                             <div class="card mb-2 shadow-sm">
                                 <div class="card-header py-1 px-2">

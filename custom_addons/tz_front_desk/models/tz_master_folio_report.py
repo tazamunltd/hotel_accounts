@@ -15,7 +15,10 @@ class TzMasterFolioReport(models.Model):
     group_id = fields.Many2one('group.booking', string="Group")
     room_type_id = fields.Many2one('room.type', string='Room Type')
     guest_id = fields.Many2one('res.partner', string='Guest')
-    company_id = fields.Many2one('res.company', string='Hotel')
+    company_id = fields.Many2one('res.company', string="Hotel",
+                                 index=True,
+                                 default=lambda self: self.env.company,
+                                 readonly=True)
     company_vat = fields.Char(string='Company VAT')
     check_in = fields.Datetime(string='Check-in')
     check_out = fields.Datetime(string='Check-out')

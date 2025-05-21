@@ -7,8 +7,10 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-                <field name="room_id"/>
-                <field name="group_id"/>
+<!--                <field name="room_id"/>-->
+<!--                <field name="group_id"/>-->
+<!--                <field name="dummy_id"/>-->
+                <field name="display_info"/>
                 <field name="guest_id"/>
                 <field name="check_in"/>
                 <field name="check_out"/>
@@ -47,7 +49,8 @@
                         <group>
                             <field name="company_id"/>
                             <field name="company_vat"/>
-                            <field name="group_id"/>
+                            <field name="group_id" invisible="not group_id"/>
+                            <field name="dummy_id" invisible="not dummy_id"/>
                             <field name="rooming_info"/>
                             <field name="bill_number"/>
                         </group>

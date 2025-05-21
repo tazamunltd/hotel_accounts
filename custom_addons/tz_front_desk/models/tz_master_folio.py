@@ -13,9 +13,13 @@ class TzMasterFolio(models.Model):
     room_id = fields.Many2one('hotel.room', string="Room")
     room_type_id = fields.Many2one('room.type', string="Room Type", related='room_id.room_type_name', store=True)
     guest_id = fields.Many2one('res.partner', string="Guest")
-    company_id = fields.Many2one('res.company', string="Hotel", index=True)
+    company_id = fields.Many2one('res.company', string="Hotel",
+                                 index=True,
+                                 default=lambda self: self.env.company,
+                                 readonly=True)
     company_vat = fields.Char(string="Company VAT", related='company_id.vat', store=True)
     group_id = fields.Many2one('group.booking', string="Group")
+    dummy_id = fields.Many2one('tz.dummy.group', string="Dummy")
     rooming_info = fields.Char(string="Rooming Info")
     check_in = fields.Datetime(string="Check-in")
     check_out = fields.Datetime(string="Check-out")
@@ -49,6 +53,8 @@ class TzMasterFolio(models.Model):
         string="Linked Bookings",
         help="All bookings associated with this Master Folio"
     )
+
+    display_info = fields.Char(string="Room/Group", compute="_compute_display_info", store=True)
 
     @api.depends('manual_posting_ids.debit_amount', 'manual_posting_ids.credit_amount', 'value_added_tax',
                  'municipality_tax')
@@ -135,4 +141,16 @@ class TzMasterFolio(models.Model):
 
         report_action = self.env.ref('tz_front_desk.action_report_tz_master_folio')
         return report_action.report_action(self)
+
+    @api.depends('room_id', 'group_id', 'dummy_id')
+    def _compute_display_info(self):
+        for rec in self:
+            values = []
+            if rec.room_id:
+                values.append(f"Room: {rec.room_id.name}")
+            if rec.group_id:
+                values.append(f"Group: {rec.group_id.name}")
+            if rec.dummy_id:
+                values.append(f"Dummy: {rec.dummy_id.name}")
+            rec.display_info = " | ".join(values)
 

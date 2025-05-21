@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="tz_view_dummy_group_tree" model="ir.ui.view">
+        <field name="name">tz.dummy.group.tree</field>
+        <field name="model">tz.dummy.group</field>
+        <field name="arch" type="xml">
+            <tree string="Dummy Groups">
+                <field name="name"/>
+                <field name="abbreviation"/>
+                <field name="description"/>
+                <field name="company_id"/>
+                <field name="discount" widget="percentage"/>
+                <field name="obsolete" widget="boolean" decoration-danger="obsolete == True"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="tz_view_dummy_group_form" model="ir.ui.view">
+        <field name="name">tz.dummy.group.form</field>
+        <field name="model">tz.dummy.group</field>
+        <field name="arch" type="xml">
+            <form string="Dummy Group">
+                <sheet>
+                    <div class="row g-2">
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="card mb-2 shadow-sm">
+                                <div class="card-header py-1 px-2">
+                                    <i class="fa fa-users m-1"/>
+                                    <span class="fw-bold">Group Information</span>
+                                </div>
+                                <div class="card-body py-1 px-2">
+                                    <div class="row g-2">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="name" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="name"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="company_id" class="form-label"/>
+                                            <field name="company_id" readonly="1" class="form-control"/>
+                                        </div>
+                                        <hr/>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="abbreviation" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="abbreviation"/>
+                                            </div>
+                                        </div>
+                                       <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="description" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="description"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="discount" class="form-label"/>
+                                            <field name="discount" widget="percentage" class="form-control"/>
+                                        </div>
+                                        <hr/>
+                                        <div class="form-group mb-1">
+                                            <field name="reopen"/>
+                                            <label for="reopen" class="form-label small"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <field name="auto_payment"/>
+                                            <label for="auto_payment" class="form-label small"/>
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <field name="obsolete"/>
+                                            <label for="obsolete" class="form-label small"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="tz_dummy_group_view_search" model="ir.ui.view">
+        <field name="name">dummy.group.search</field>
+        <field name="model">tz.dummy.group</field>
+        <field name="arch" type="xml">
+            <search string="Dummy Group Search">
+                <field name="name" string="Group ID"/>
+                <field name="abbreviation" string="Abbreviation"/>
+                <field name="discount" string="Discount"/>
+                <filter string="Active" name="active" domain="[('obsolete', '=', False)]"/>
+                <filter string="Obsolete" name="obsolete" domain="[('obsolete', '=', True)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Abbreviation" name="group_by_abbreviation" context="{'group_by': 'abbreviation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="tz_action_dummy_group" model="ir.actions.act_window">
+        <field name="name">Dummy Groups</field>
+        <field name="res_model">tz.dummy.group</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_dummy_group" name="Dummy Groups" parent="menu_cashier_parent"
+              action="tz_action_dummy_group" sequence="7"/>
+</odoo>
