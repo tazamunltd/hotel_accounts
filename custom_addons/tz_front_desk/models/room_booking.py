@@ -95,7 +95,7 @@ class RoomBooking(models.Model):
     @api.model
     def create(self, vals):
         if self.env.context.get('front_desk'):
-            vals.setdefault('state', self.env.context.get('default_state', 'not_confirmed'))
+            # raise UserError(self.env.company.system_date.date())
             vals['is_offline_search'] = False
 
             if not vals.get('partner_id'):
@@ -363,6 +363,37 @@ class RoomBooking(models.Model):
             self._create_master_folio(booking)
 
         return self._notify_booking_confirmation(result)
+
+    # @api.depends('checkin_date', 'checkout_date')
+    # def _compute_no_of_nights(self):
+    #     for rec in self:
+    #         if rec.checkin_date and rec.checkout_date:
+    #             # Convert to date objects so time of day is ignored
+    #             in_date = fields.Date.to_date(rec.checkin_date)
+    #             out_date = fields.Date.to_date(rec.checkout_date)
+    #             diff_days = (out_date - in_date).days
+    #             rec.no_of_nights = diff_days if diff_days >= 0 else 0
+    #         else:
+    #             rec.no_of_nights = 0
+    #
+    # def _inverse_no_of_nights(self):
+    #     """
+    #     When a user edits no_of_nights directly, recompute checkout_date
+    #     based on checkin_date + no_of_nights days.
+    #     If no_of_nights is 0, set checkout_date to 2 hours after checkin_date.
+    #     """
+    #     for rec in self:
+    #         # raise UserError(rec.checkin_date)
+    #         # raise UserError(rec.checkout_date)
+    #
+    #         if rec.checkin_date:
+    #             if rec.no_of_nights > 0:
+    #                 # Normal case: Add no_of_nights days
+    #                 rec.checkout_date = rec.checkin_date + timedelta(days=rec.no_of_nights)
+    #
+    #             else:
+    #                 # If no_of_nights is 0, set checkout_date to 2 hours after checkin_date
+    #                 rec.checkout_date = rec.checkin_date + timedelta(hours=2)
 
 
 class RoomRateForecast(models.Model):
