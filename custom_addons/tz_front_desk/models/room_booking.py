@@ -59,6 +59,7 @@ class RoomBooking(models.Model):
         company = self.company_id or self.env.company
         system_date = company.system_date.date()
         next_day = system_date + timedelta(days=1)
+        # raise UserError(fields.Datetime.to_datetime(next_day))
         return fields.Datetime.to_datetime(next_day)
 
     checkout_date = fields.Datetime(
@@ -187,38 +188,6 @@ class RoomBooking(models.Model):
                 self._update_folio_room(booking)
 
         return res
-
-    # def action_block_wk(self):
-    #     self.create_booking_lines()
-    #     for record in self:
-    #         record.write({'state': 'block'})
-    #     return True
-    #
-    # def action_un_block_wk(self):
-    #     self.delete_booking_lines()
-    #     for record in self:
-    #         record.write({'state': 'not_confirmed'})
-    #     return True
-    #
-    # def action_checkin_wk(self):
-    #     for record in self:
-    #         record.write({'state': 'check_in'})
-    #     return True
-    #
-    # def action_un_checkin_wk(self):
-    #     for record in self:
-    #         record.write({'state': 'block'})
-    #     return True
-    #
-    # def action_checkout_wk(self):
-    #     for record in self:
-    #         record.write({'state': 'check_out'})
-    #     return True
-    #
-    # def action_cancel_wk(self):
-    #     for record in self:
-    #         record.write({'state': 'cancel'})
-    #     return True
 
     def create_booking_lines(self):
         for booking in self:
@@ -363,37 +332,6 @@ class RoomBooking(models.Model):
             self._create_master_folio(booking)
 
         return self._notify_booking_confirmation(result)
-
-    # @api.depends('checkin_date', 'checkout_date')
-    # def _compute_no_of_nights(self):
-    #     for rec in self:
-    #         if rec.checkin_date and rec.checkout_date:
-    #             # Convert to date objects so time of day is ignored
-    #             in_date = fields.Date.to_date(rec.checkin_date)
-    #             out_date = fields.Date.to_date(rec.checkout_date)
-    #             diff_days = (out_date - in_date).days
-    #             rec.no_of_nights = diff_days if diff_days >= 0 else 0
-    #         else:
-    #             rec.no_of_nights = 0
-    #
-    # def _inverse_no_of_nights(self):
-    #     """
-    #     When a user edits no_of_nights directly, recompute checkout_date
-    #     based on checkin_date + no_of_nights days.
-    #     If no_of_nights is 0, set checkout_date to 2 hours after checkin_date.
-    #     """
-    #     for rec in self:
-    #         # raise UserError(rec.checkin_date)
-    #         # raise UserError(rec.checkout_date)
-    #
-    #         if rec.checkin_date:
-    #             if rec.no_of_nights > 0:
-    #                 # Normal case: Add no_of_nights days
-    #                 rec.checkout_date = rec.checkin_date + timedelta(days=rec.no_of_nights)
-    #
-    #             else:
-    #                 # If no_of_nights is 0, set checkout_date to 2 hours after checkin_date
-    #                 rec.checkout_date = rec.checkin_date + timedelta(hours=2)
 
 
 class RoomRateForecast(models.Model):
