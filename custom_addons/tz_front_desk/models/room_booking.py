@@ -56,8 +56,8 @@ class RoomBooking(models.Model):
     price_child = fields.Float(string="Price/Child", compute="_compute_price", store=False)
 
     def _default_checkout_date(self):
-        """Calculate default checkout date (system date + 1 day)"""
-        system_date = self.env.company.system_date.date()
+        company = self.company_id or self.env.company
+        system_date = company.system_date.date()
         next_day = system_date + timedelta(days=1)
         return fields.Datetime.to_datetime(next_day)
 

@@ -126,8 +126,9 @@ class AutoPostingWizard(models.TransientModel):
         # Get all posting items
         rate_item = booking.rate_code.rate_posting_item if booking.rate_code else None
         meal_item = booking.meal_pattern.meal_posting_item if booking.meal_pattern else None
-        package_items = booking.posting_item_ids.filtered(lambda x: x.type == 'package')
-        fixed_items = booking.posting_item_ids.filtered(lambda x: x.type == 'fixed')
+        # new_rate_code =  self.env['rate.code'].sudo().browse(62) #62
+        package_items = booking.rate_code.rate_detail_ids.line_ids.packages_posting_item if booking.rate_code else None
+        fixed_items = booking.posting_item_ids.posting_item_id
 
         # Room Rate
         if rate_item:
@@ -155,9 +156,7 @@ class AutoPostingWizard(models.TransientModel):
         # Packages
         if package_items:
             if self.include_packages and forecast.packages > 0:
-                for item in package_items:
-                    amount = item.amount if item.amount > 0 else forecast.packages
-                    if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.name, amount):
+                if self._create_posting_line(folio, booking_line, package_items.id, package_items.description, forecast.packages):
                         created_count += 1
         else:
             if self.include_packages and forecast.packages > 0:
@@ -167,10 +166,8 @@ class AutoPostingWizard(models.TransientModel):
         # Fixed Charges
         if fixed_items:
             if self.include_fixed and forecast.fixed_post > 0:
-                for item in fixed_items:
-                    amount = item.amount if item.amount > 0 else forecast.fixed_post
-                    if self._create_posting_line(folio, booking_line, item.item_id.id, item.item_id.description,
-                                                 amount):
+                if self._create_posting_line(folio, booking_line, fixed_items.id, fixed_items.description,
+                                                 forecast.fixed_post):
                         created_count += 1
         else:
             if self.include_fixed and forecast.fixed_post > 0:
