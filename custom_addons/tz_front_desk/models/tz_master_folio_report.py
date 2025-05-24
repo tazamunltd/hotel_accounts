@@ -57,59 +57,51 @@ class TzMasterFolioReport(models.Model):
         lang = self.env.context.get('lang') or 'en_US'
 
         query = """
-            WITH manual_posting_summary AS (
-                SELECT 
-                    mp.folio_id,
-                    MIN(mp.date) AS first_date,
-                    MIN(mp.time) AS first_time,
-                    SUM(mp.debit_amount) AS total_debit,
-                    SUM(mp.credit_amount) AS total_credit,
-                    SUM(mp.balance) AS total_balance
-                FROM tz_manual_posting mp
-                GROUP BY mp.folio_id
-            ),
-            first_posting_item AS (
-                SELECT DISTINCT ON (mp.folio_id)
-                    mp.folio_id,
-                    pi.id AS item_id,
-                    COALESCE(pi.item_code ->> %s, pi.item_code ->> 'en_US') AS item_name,
-                    COALESCE(pi.description ->> %s, pi.description ->> 'en_US') AS item_description
-                FROM tz_manual_posting mp
-                LEFT JOIN posting_item pi ON mp.item_id = pi.id
-                WHERE mp.item_id IS NOT NULL
-                ORDER BY mp.folio_id, mp.date, mp.time
-            )
-            SELECT	
-                mf.id AS folio_id,
-                mf.name AS folio_number,
-                mf.room_id,
-                mf.group_id,
-                mf.room_type_id,
-                mf.guest_id,
-                mf.company_id,
-                mf.company_vat,
-                mf.check_in,
-                mf.check_out,
-                mf.bill_number,
-                mf.rooming_info,
-                mf.value_added_tax,
-                mf.municipality_tax,
-                mf.grand_total,
-                mf.currency_id,
-                mf.total_debit AS folio_total_debit,
-                mf.total_credit AS folio_total_credit,
-                mf.balance AS folio_balance,
-                mps.first_date,
-                mps.first_time,
-                mps.total_debit,
-                mps.total_credit,
-                mps.total_balance,
-                fpi.item_id,
-                fpi.item_name,
-                fpi.item_description
-            FROM tz_master_folio mf
-            LEFT JOIN manual_posting_summary mps ON mps.folio_id = mf.id
-            LEFT JOIN first_posting_item fpi ON fpi.folio_id = mf.id
+            WITH item_summary_per_folio AS (
+            SELECT 
+                mp.folio_id,
+                pi.id AS item_id,
+                COALESCE(pi.item_code ->> %s, pi.item_code ->> 'en_US') AS item_name,
+                COALESCE(pi.description ->> %s, pi.description ->> 'en_US') AS item_description,
+                MIN(mp.date) AS first_date,
+                MIN(mp.time) AS first_time,
+                SUM(mp.debit_amount) AS total_debit,
+                SUM(mp.credit_amount) AS total_credit,
+                SUM(mp.balance) AS total_balance
+            FROM tz_manual_posting mp
+            JOIN posting_item pi ON mp.item_id = pi.id
+            GROUP BY mp.folio_id, pi.id, pi.item_code, pi.description
+        )
+        SELECT  
+            mf.id AS folio_id,
+            mf.name AS folio_number,
+            mf.room_id,
+            mf.group_id,
+            mf.room_type_id,
+            mf.guest_id,
+            mf.company_id,
+            mf.company_vat,
+            mf.check_in,
+            mf.check_out,
+            mf.bill_number,
+            mf.rooming_info,
+            mf.value_added_tax,
+            mf.municipality_tax,
+            mf.grand_total,
+            mf.currency_id,
+            mf.total_debit AS folio_total_debit,
+            mf.total_credit AS folio_total_credit,
+            mf.balance AS folio_balance,
+            isf.first_date,
+            isf.first_time,
+            isf.total_debit,
+            isf.total_credit,
+            isf.total_balance,
+            isf.item_id,
+            isf.item_name,
+            isf.item_description
+        FROM tz_master_folio mf
+        LEFT JOIN item_summary_per_folio isf ON isf.folio_id = mf.id
             WHERE {where_clause}
         """
 

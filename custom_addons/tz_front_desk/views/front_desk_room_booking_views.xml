@@ -367,7 +367,7 @@
                                                 </div>
                                                 <div class="form-control form-control-sm">
                                                     <field name="checkout_date"/>
-                                                    <field name="checkin_date" invisible="0"/>
+                                                    <field name="checkin_date" invisible="1"/>
                                                 </div>
                                             </div>
                                             <div class="row g-2" invisible="not room_list">

@@ -247,25 +247,6 @@ class TzHotelManualPosting(models.Model):
             else:
                 record.total = 0.0
 
-    # @api.depends('item_id.default_value', 'sign', 'dummy_list')
-    # def _compute_debit_credit_amounts(self):
-    #     for record in self:
-    #         default_value = record.item_id.default_value
-    #         discount = 0.0
-    #
-    #         if record.dummy_list and record.dummy_list.discount:
-    #             discount = record.dummy_list.discount
-    #
-    #         # Apply discount
-    #         discounted_value = default_value * (1 - discount / 100)
-    #
-    #         if record.sign == 'debit':
-    #             record.debit_amount = discounted_value
-    #             record.credit_amount = 0.0
-    #         else:  # credit
-    #             record.credit_amount = discounted_value
-    #             record.debit_amount = 0.0
-
     @api.depends('folio_id', 'debit_amount', 'credit_amount')
     def _compute_balance(self):
         for folio in self.mapped('folio_id'):
@@ -376,12 +357,16 @@ class TzHotelManualPosting(models.Model):
     @api.onchange('item_id')
     def _onchange_item_id(self):
         if self.item_id:
+            # Set the sign based on item's default
+            self.sign = self.item_id.default_sign
+
+            # Set the amount based on the sign
             if self.sign == 'debit':
-                self.credit_amount = 0.0
                 self.debit_amount = self.item_id.default_value
+                self.credit_amount = 0.0
             elif self.sign == 'credit':
-                self.debit_amount = 0.0
                 self.credit_amount = self.item_id.default_value
+                self.debit_amount = 0.0
             self.description = self.item_id.description
 
     @api.onchange('type')
@@ -512,26 +497,26 @@ class TzHotelManualPosting(models.Model):
             record.discount = record.dummy_list.discount if record.dummy_list else 0.0
 
 
-    @api.onchange('dummy_list', 'sign')
-    def _onchange_dummy_list_discount(self):
-        for record in self:
-            # Reset values
-            record.debit_amount = 0.0
-            record.credit_amount = 0.0
-
-            # Ensure item and dummy are set
-            if record.item_id and record.sign:
-                default_value = record.item_id.default_value or 0.0
-                discount_percent = record.dummy_list.discount or 0.0
-
-                # Apply discount
-                discounted_value = default_value * discount_percent
-
-                # Assign to appropriate field
-                if record.sign == 'debit':
-                    record.debit_amount = discounted_value
-                elif record.sign == 'credit':
-                    record.credit_amount = discounted_value
+    # @api.onchange('dummy_list', 'sign')
+    # def _onchange_dummy_list_discount(self):
+    #     for record in self:
+    #         # Reset values
+    #         record.debit_amount = 0.0
+    #         record.credit_amount = 0.0
+    #
+    #         # Ensure item and dummy are set
+    #         if record.item_id and record.sign:
+    #             default_value = record.item_id.default_value or 0.0
+    #             discount_percent = record.dummy_list.discount or 0.0
+    #
+    #             # Apply discount
+    #             discounted_value = default_value * discount_percent
+    #
+    #             # Assign to appropriate field
+    #             if record.sign == 'debit':
+    #                 record.debit_amount = discounted_value
+    #             elif record.sign == 'credit':
+    #                 record.credit_amount = discounted_value
 
 
 
