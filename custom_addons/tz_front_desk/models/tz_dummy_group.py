@@ -19,7 +19,6 @@ class DummyGroup(models.Model):
                                  default=lambda self: self.env.company)
     abbreviation = fields.Char(string='Abbreviation')
     description = fields.Char(string='Description')
-    discount = fields.Float(string='Discount (%)', tracking=True)
     reopen = fields.Boolean(string='Open or reopen a group account automatically', default=False, tracking=True)
     auto_payment = fields.Boolean(string='Cash Room – Auto Payment Load', default=False, tracking=True)
     obsolete = fields.Boolean(string='Obsolete', default=False, tracking=True)

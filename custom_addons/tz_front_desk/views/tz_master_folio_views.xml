@@ -57,7 +57,7 @@
                     </group>
                     <notebook>
                         <page string="Transactions">
-                            <field name="manual_posting_ids">
+                            <field name="manual_posting_ids" context="{'default_order': 'create_date asc'}">
                                 <tree editable="bottom">
                                     <field name="date"/>
                                     <field name="time"/>

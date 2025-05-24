@@ -256,22 +256,6 @@
                                             </div>
                                         </div>
                                         <hr/>
-                                        <div class="col-md-2" invisible="discount == 0">
-                                            <div class="form-group">
-                                                <label for="discount" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="discount" widget="percentage"/>
-                                            </div>
-                                        </div>
-                                        <!--<div class="col-md-3" invisible="discount == 0">
-                                            <div class="form-group">
-                                                <label for="discounted_value" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="discounted_value"/>
-                                            </div>
-                                        </div>-->
                                     </div>
                                 </div>
                             </div>

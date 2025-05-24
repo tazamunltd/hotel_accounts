@@ -162,10 +162,6 @@ class TzHotelManualPosting(models.Model):
         string="Room Booking"
     )
 
-    discount = fields.Float(string='Discount (%)', compute='_compute_discount', store=True)
-
-    # discounted_value = fields.Float(string="Price after Discount", compute='_compute_discounted_value', store=True)
-
     @api.model
     def default_get(self, fields_list):
         res = super(TzHotelManualPosting, self).default_get(fields_list)
@@ -357,7 +353,6 @@ class TzHotelManualPosting(models.Model):
     @api.onchange('item_id')
     def _onchange_item_id(self):
         if self.item_id:
-            # Set the sign based on item's default
             self.sign = self.item_id.default_sign
 
             # Set the amount based on the sign
@@ -490,33 +485,5 @@ class TzHotelManualPosting(models.Model):
             elif type_str == 'group':
                 return self.env['group.booking'].browse(rec_id)
         return None
-
-    @api.depends('dummy_list')
-    def _compute_discount(self):
-        for record in self:
-            record.discount = record.dummy_list.discount if record.dummy_list else 0.0
-
-
-    # @api.onchange('dummy_list', 'sign')
-    # def _onchange_dummy_list_discount(self):
-    #     for record in self:
-    #         # Reset values
-    #         record.debit_amount = 0.0
-    #         record.credit_amount = 0.0
-    #
-    #         # Ensure item and dummy are set
-    #         if record.item_id and record.sign:
-    #             default_value = record.item_id.default_value or 0.0
-    #             discount_percent = record.dummy_list.discount or 0.0
-    #
-    #             # Apply discount
-    #             discounted_value = default_value * discount_percent
-    #
-    #             # Assign to appropriate field
-    #             if record.sign == 'debit':
-    #                 record.debit_amount = discounted_value
-    #             elif record.sign == 'credit':
-    #                 record.credit_amount = discounted_value
-
 
 

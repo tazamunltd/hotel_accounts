@@ -10,7 +10,6 @@
                 <field name="abbreviation"/>
                 <field name="description"/>
                 <field name="company_id"/>
-                <field name="discount" widget="percentage"/>
                 <field name="obsolete" widget="boolean" decoration-danger="obsolete == True"/>
             </tree>
         </field>
@@ -61,10 +60,6 @@
                                                 <field name="description"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
-                                            <label for="discount" class="form-label"/>
-                                            <field name="discount" widget="percentage" class="form-control"/>
-                                        </div>
                                         <hr/>
                                         <div class="form-group mb-1">
                                             <field name="reopen"/>
@@ -100,7 +95,6 @@
             <search string="Dummy Group Search">
                 <field name="name" string="Group ID"/>
                 <field name="abbreviation" string="Abbreviation"/>
-                <field name="discount" string="Discount"/>
                 <filter string="Active" name="active" domain="[('obsolete', '=', False)]"/>
                 <filter string="Obsolete" name="obsolete" domain="[('obsolete', '=', True)]"/>
                 <separator/>
