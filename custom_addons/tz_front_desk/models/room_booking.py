@@ -40,7 +40,14 @@ class RoomBooking(models.Model):
         res['unavailable_room_ids'] = [(6, 0, unavailable_rooms)]
         return res
 
-    no_of_nights = fields.Integer(default=1)
+    no_of_nights = fields.Integer(
+        string='Number of Nights',
+        compute='_compute_no_of_nights_custom',
+        inverse='_inverse_no_of_nights_custom',
+        store=True,
+        default=1
+    )
+
     room_count = fields.Integer(default=1)
 
     nationality = fields.Many2one('res.country', string='Nationality', related='partner_id.nationality', readonly=False,
@@ -332,6 +339,24 @@ class RoomBooking(models.Model):
             self._create_master_folio(booking)
 
         return self._notify_booking_confirmation(result)
+
+    @api.depends('checkin_date', 'checkout_date')
+    def _compute_no_of_nights_custom(self):
+        for rec in self:
+            if rec.checkin_date and rec.checkout_date:
+                in_date = fields.Date.to_date(rec.checkin_date)
+                out_date = fields.Date.to_date(rec.checkout_date)
+                diff_days = (out_date - in_date).days
+                rec.no_of_nights = max(diff_days, 1)  # Enforce at least 1 night
+            else:
+                rec.no_of_nights = 1
+
+    def _inverse_no_of_nights_custom(self):
+        for rec in self:
+            if rec.checkin_date:
+                # Enforce minimum of 1 night
+                nights = max(rec.no_of_nights, 1)
+                rec.checkout_date = rec.checkin_date + timedelta(days=nights)
 
 
 class RoomRateForecast(models.Model):
