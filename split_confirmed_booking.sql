@@ -60,6 +60,38 @@ BEGIN
        AND b.state IN ('confirmed','block','check_in')
        AND b.company_id = v_company_id;
 
+    -------------------------------------------------------------------
+    -- 2b) Single-room shortcut
+    IF parent_rec.room_count = 1 THEN
+        -- find one free room of the parent’s type
+        SELECT id
+          INTO v_room_id
+          FROM hotel_room
+         WHERE company_id     = v_company_id
+           AND room_type_name = parent_rec.hotel_room_type
+           AND id <> ALL(COALESCE(v_booked_ids, ARRAY[]::INT[]))
+         LIMIT 1;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'No available room for type %', parent_rec.hotel_room_type;
+        END IF;
+
+        -- assign it to the only line
+        UPDATE room_booking_line
+           SET room_id = v_room_id,
+               state_  = 'block'
+         WHERE booking_id = p_booking_id;
+
+        -- block the booking
+        UPDATE room_booking
+           SET state        = 'block',
+               room_count   = 1,
+               show_in_tree = TRUE
+         WHERE id = p_booking_id;
+
+        RETURN;
+    END IF;
+    -------------------------------------------------------------------
+
     -- initialize max child-num to the parent number
     v_max_child_num := v_parent_num;
 
@@ -71,7 +103,7 @@ BEGIN
        ORDER BY counter
     LOOP
         v_room_type_id := v_line.hotel_room_type;
-        
+
         -- 3a) Find an available room of that type
         SELECT id
           INTO v_room_id
@@ -205,15 +237,16 @@ BEGIN
             -- reassign that line to its child booking
             UPDATE room_booking_line
                SET booking_id = v_new_book_id,
-                   room_id    = v_room_id
+                   room_id    = v_room_id,
+				   state_     = 'block'
              WHERE id = v_line.id;
         END IF;
     END LOOP;
 
     -- 4) Close out the parent booking
     UPDATE room_booking
-       SET state       = 'block',
-           room_count  = (
+       SET state        = 'block',
+           room_count   = (
                SELECT COUNT(*) FROM room_booking_line WHERE booking_id = p_booking_id
            ),
            show_in_tree = TRUE

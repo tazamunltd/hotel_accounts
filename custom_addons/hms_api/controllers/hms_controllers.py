@@ -4032,9 +4032,11 @@ class WebAppController(http.Controller):
                 ])
 
                 # If you still need the TOTAL rates as well:
-                total_room_rate  += booking_.total_rate_forecast or 0
+                # total_room_rate  += booking_.total_rate_forecast or 0
+                total_room_rate  += booking_.total_rate_after_discount or 0
                 
-                total_meal_rate  += booking_.total_meal_forecast or 0
+                # total_meal_rate  += booking_.total_meal_forecast or 0
+                total_meal_rate  += booking_.total_meal_after_discount or 0
                  
                 total_vat += booking_.total_vat or 0
                 total_total_municipality_tax += booking_.total_municipality_tax or 0
@@ -4047,12 +4049,12 @@ class WebAppController(http.Controller):
                         total_rate_report  += line.rate
                     if line.meals is not None:
                         total_meals_report += line.meals
-                    total_lines        += 1
+                    total_lines += 1
 
             # after the loop:
             if total_lines > 0:
-                avg_rate_report  = round(total_rate_report  / total_lines, 2)
-                avg_meals_report = round(total_meals_report / total_lines, 2)
+                avg_rate_report  = round(total_room_rate  / total_lines, 2)
+                avg_meals_report = round(total_meal_rate / total_lines, 2)
             else:
                 avg_rate_report = avg_meals_report = 0.0
 
@@ -4331,7 +4333,7 @@ class WebAppController(http.Controller):
             ("Total Municipality:", f"{report_data.get('total_municipality_tax', 0.0)}", "رسوم البلدية:   ", 
              "Daily Room Rate:", f"{report_data['avg_rate']}", "سعر الغرفة اليومي: "),
             ("Total Amount:", f"{booking.total_revenue}", "المبلغ المطلوب:", 
-             "Daily Meals Rate:", f"{report_data.get('daily_meals_sum', 0.0)}", "سعرالوجبات اليومية:"),
+             "Daily Meals Rate:", f"{report_data['avg_meals']}", "سعرالوجبات اليومية:"),
             ("Payments:", "", "المبلغ المدفوع:  ", "Total Room Rate:", f"{report_data['total_room_rate']}",
              "إجمالي الغرف:       "),
             ("Remaining:", "", "المبلغ المتبقي:  ", "Total Meals Rate:", f"{report_data['total_meal_rate']}",
@@ -4753,10 +4755,14 @@ class WebAppController(http.Controller):
                 ('parent_booking_id', '=', parent.id),
                 ('company_id',        '=', current_company_id),
             ])
-            total_room_rate = sum((children | parent).mapped('total_rate_forecast'))
-            total_meal_rate = sum((children | parent).mapped('total_meal_forecast'))
-            total_package_rate = sum((children | parent).mapped('total_package_forecast'))
-            total_fixed_post_forecast = sum((children | parent).mapped('total_fixed_post_forecast'))
+            # total_room_rate = sum((children | parent).mapped('total_rate_forecast'))
+            total_room_rate = sum((children | parent).mapped('total_rate_after_discount'))
+            # total_meal_rate = sum((children | parent).mapped('total_meal_forecast'))
+            total_meal_rate = sum((children | parent).mapped('total_meal_after_discount'))
+            # total_package_rate = sum((children | parent).mapped('total_package_forecast'))
+            total_package_rate = sum((children | parent).mapped('total_package_after_discount'))
+            # total_fixed_post_forecast = sum((children | parent).mapped('total_fixed_post_forecast'))
+            total_fixed_post_forecast = sum((children | parent).mapped('total_fixed_post_after_discount'))
             total_total_rate = sum((children | parent).mapped('total_total_forecast'))
             total_room_count = sum((children | parent).mapped('room_count'))
             total_adult_count = sum((children | parent).mapped('adult_count'))

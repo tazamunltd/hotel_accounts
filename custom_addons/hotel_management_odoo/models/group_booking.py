@@ -288,10 +288,19 @@ class GroupBooking(models.Model):
         for record in self:
             # Earliest check-in (you can leave this logic as is if you still want
             # to display the earliest planned checkin_date).
-            checkin_dates = record.room_booking_ids.mapped('checkin_date')
+            # checkin_dates = record.room_booking_ids.mapped('checkin_date')
+            # if checkin_dates:
+            #     record.first_visit = min(checkin_dates)
+            # else:
+            #     record.first_visit = False
+            # valid_bookings = record.room_booking_ids.filtered(lambda b: b.state != 'cancel')
+            valid_bookings = record.room_booking_ids.filtered(lambda b: b.state not in ['cancel', 'not_confirmed'])
+
+            checkin_dates = valid_bookings.mapped('checkin_date')
             if checkin_dates:
                 record.first_visit = min(checkin_dates)
             else:
+                # No valid bookings or all are canceled
                 record.first_visit = False
 
             # For last_visit, consider only bookings that have state = 'check_out'.

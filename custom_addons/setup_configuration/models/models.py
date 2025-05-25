@@ -310,19 +310,35 @@ class RateDetail(models.Model):
                     f"The date range from '{record.from_date}' to '{record.to_date}' overlaps with the following records:\n\n{overlap_details}"
                 )
 
-    rate_detail_dicsount = fields.Float(
-        string="Discount", tracking=True, default=0)
+    rate_detail_dicsount = fields.Float(string="Discount", tracking=True)
 
-    @api.onchange('rate_detail_dicsount')
-    def _check_rate_detail_discount(self):
-        for record in self:
-            if record.rate_detail_dicsount < 0:
-                raise ValidationError(
-                    _("The Discount value cannot be negative."))
+    # @api.onchange('rate_detail_dicsount')
+    # def _check_rate_detail_discount(self):
+    #     for record in self:
+    #         if record.rate_detail_dicsount <= 0:
+    #             raise ValidationError(
+    #                 _("The Discount value cannot 0 or less then 0."))
 
     is_amount = fields.Boolean(string="Amount", default=False, tracking=True)
     is_percentage = fields.Boolean(
         string="Percentage", default=False, tracking=True)
+    
+    @api.constrains('rate_detail_dicsount', 'is_amount', 'is_percentage')
+    def _validate_discount_value(self):
+        for record in self:
+            if (record.is_amount or record.is_percentage) and record.rate_detail_dicsount <= 0:
+                raise ValidationError(
+                    _("Discount value must be greater than 0 when Amount or Percentage is selected!"))
+
+    @api.onchange('rate_detail_dicsount', 'is_amount', 'is_percentage')
+    def _check_rate_detail_discount(self):
+        for record in self:
+            if (record.is_amount or record.is_percentage) and record.rate_detail_dicsount <= 0:
+                warning = {
+                    'title': _("Invalid Discount Value"),
+                    'message': _("Discount value must be greater than 0 when Amount or Percentage is selected!")
+                }
+                return {'warning': warning}
 
     # @api.constrains('from_date', 'to_date')
     # def _check_date_overlap(self):
@@ -356,13 +372,13 @@ class RateDetail(models.Model):
 
     # Additional radio buttons for Total and Line Wise
     amount_selection = fields.Selection([
-        ('total', 'Total'),
-        ('line_wise', 'Line Wise')
+        ('total', 'All Room'),
+        ('line_wise', 'Per Room')
     ], string="Amount Selection", tracking=True)
 
     percentage_selection = fields.Selection([
-        ('total', 'Total'),
-        ('line_wise', 'Line Wise')
+        ('total', 'All Room'),
+        ('line_wise', 'Per Room')
     ], string="Percentage Selection", tracking=True)
 
 

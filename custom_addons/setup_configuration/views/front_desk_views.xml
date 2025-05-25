@@ -1035,10 +1035,10 @@
                                             />
                                         </div>
 
-                                        <div class="form-group mb-1">
+                                        <!-- <div class="form-group mb-1">
                                             <label for="taxes" class="form-label small">Taxes</label>
                                             <field name="taxes" class="form-control form-control-sm"/>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>

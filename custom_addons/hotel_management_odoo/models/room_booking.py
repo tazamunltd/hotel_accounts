@@ -960,31 +960,31 @@ class RoomBooking(models.Model):
         tracking=True
     )
 
-    room_rate_municiplaity_tax = fields.Float(string="Room Rate Municipality Tax", tracking=True)    
-    room_rate_vat = fields.Float(string="Room Rate VAT", tracking=True)
-    room_rate_untaxed = fields.Float(string="Room Rate Untaxed", tracking=True)
+    room_rate_municiplaity_tax = fields.Float(string="Room Rate Municipality Tax", store=False, tracking=True)    
+    room_rate_vat = fields.Float(string="Room Rate VAT", store=False, tracking=True)
+    room_rate_untaxed = fields.Float(string="Room Rate Untaxed", store=False, tracking=True)
 
-    meal_rate_municiplaity_tax = fields.Float(string="Meal Rate Municipality Tax", tracking=True)    
-    meal_rate_vat = fields.Float(string="Meal Rate VAT", tracking=True)
-    meal_rate_untaxed = fields.Float(string="Meal Rate Untaxed", tracking=True)
+    meal_rate_municiplaity_tax = fields.Float(string="Meal Rate Municipality Tax", store=False, tracking=True)    
+    meal_rate_vat = fields.Float(string="Meal Rate VAT", store=False, tracking=True)
+    meal_rate_untaxed = fields.Float(string="Meal Rate Untaxed", store=False, tracking=True)
 
-    packages_municiplaity_tax = fields.Float(string="Packages Municipality Tax", tracking=True)
-    packages_vat = fields.Float(string="Packages VAT", tracking=True)
-    packages_untaxed = fields.Float(string="Packages Untaxed", tracking=True)
+    packages_municiplaity_tax = fields.Float(string="Packages Municipality Tax", store=False, tracking=True)
+    packages_vat = fields.Float(string="Packages VAT", store=False, tracking=True)
+    packages_untaxed = fields.Float(string="Packages Untaxed", store=False, tracking=True)
 
-    fixed_post_vat = fields.Float(string="Fixed Post VAT", tracking=True)
-    fixed_post_municiplaity_tax = fields.Float(string="Fixed Post Municipality Tax", tracking=True)
-    fixed_post_untaxed = fields.Float(string="Fixed Post Untaxed", tracking=True)
+    fixed_post_vat = fields.Float(string="Fixed Post VAT", store=False, tracking=True)
+    fixed_post_municiplaity_tax = fields.Float(string="Fixed Post Municipality Tax", store=False, tracking=True)
+    fixed_post_untaxed = fields.Float(string="Fixed Post Untaxed", store=False, tracking=True)
 
     total_municipality_tax = fields.Float(string="Total Municipality Tax", tracking=True)
     total_vat = fields.Float(string="Total VAT", tracking=True)
-    total_untaxed = fields.Float(string="Total Untaxed", tracking=True)
+    total_untaxed = fields.Float(string="Total Untaxed", store=False, tracking=True)
 
     
     def _onchange_rate_code_taxes(self):
         for rec in self:
             total_rate_amount = rec.total_rate_after_discount
-            
+            # print("total_rate_amount", total_rate_amount)
             taxes = rec.rate_code.rate_posting_item.taxes
             if taxes:
                 vat_tax = taxes[0] if len(taxes) > 0 else None
@@ -1021,11 +1021,53 @@ class RoomBooking(models.Model):
                         rec.room_rate_municiplaity_tax = 0.0
                         rec.room_rate_untaxed = unit_price
 
-            else:
-                rec.room_rate_vat = rec.room_rate_municiplaity_tax = rec.room_rate_untaxed = 0.0
+            if rec.room_rate_vat == 0.0 and rec.room_rate_municiplaity_tax == 0.0:
+                rec.room_rate_untaxed = total_rate_amount
+
+            # else:
+            #     rec.room_rate_vat = rec.room_rate_municiplaity_tax = rec.room_rate_untaxed = 0.0
 
     
-    
+    # def _onchange_rate_code_taxes(self):
+    #     for rec in self:
+    #         total_rate_amount = rec.total_rate_after_discount
+    #         taxes = rec.rate_code.rate_posting_item.taxes if rec.rate_code and rec.rate_code.rate_posting_item else []
+            
+    #         # Initialize all tax fields
+    #         rec.room_rate_vat = 0.0
+    #         rec.room_rate_municiplaity_tax = 0.0
+    #         rec.room_rate_untaxed = total_rate_amount  # Default to total rate if no taxes
+            
+    #         if taxes:
+    #             # Calculate VAT tax if exists
+    #             vat_tax = taxes[0] if len(taxes) > 0 else None
+    #             if vat_tax:
+    #                 try:
+    #                     percentage_value = vat_tax.amount
+    #                     total_percentage_value = total_rate_amount + (total_rate_amount * (percentage_value / 100))
+    #                     if total_percentage_value != 0:
+    #                         unit_price = total_rate_amount * (total_rate_amount / total_percentage_value)
+    #                         rec.room_rate_vat = total_rate_amount - unit_price
+    #                         rec.room_rate_untaxed = unit_price
+    #                 except (ZeroDivisionError, ValueError):
+    #                     pass  # Keep default values if calculation fails
+                
+    #             # Calculate Municipality tax if exists
+    #             municipality_tax = taxes[1] if len(taxes) > 1 else None
+    #             if municipality_tax and rec.room_rate_untaxed > 0:
+    #                 try:
+    #                     percentage_value = municipality_tax.amount
+    #                     municipality_tax_amount = rec.room_rate_untaxed * (percentage_value / 100)
+    #                     rec.room_rate_municiplaity_tax = municipality_tax_amount
+    #                     rec.room_rate_untaxed = rec.room_rate_untaxed - municipality_tax_amount
+    #                 except (ZeroDivisionError, ValueError):
+    #                     pass  # Keep previous values if calculation fails
+            
+    #         # Final check - if both taxes are 0, set untaxed to total rate
+    #         if rec.room_rate_vat == 0.0 and rec.room_rate_municiplaity_tax == 0.0:
+    #             rec.room_rate_untaxed = total_rate_amount
+
+   
     def _onchange_meal_rate_taxes(self):
         for rec in self:
             meal_base_amount = rec.total_meal_after_discount or 0.0
@@ -1080,113 +1122,244 @@ class RoomBooking(models.Model):
             rec.meal_rate_municiplaity_tax = round(total_municipality, 2)
             rec.meal_rate_untaxed = round(total_untaxed, 2)
     
+    # def _onchange_packaged_taxes(self):
+    #     for rec in self:
+        
+    #         checkin_date = fields.Date.from_string(rec.checkin_date)
+    #         checkout_date = fields.Date.from_string(rec.checkout_date)
+
+    #         rate_details = self.env['rate.detail'].search([
+    #             ('rate_code_id', '=', rec.rate_code.id),
+    #             ('from_date', '<=', checkin_date),
+    #             ('to_date', '>=', checkout_date)
+    #         ], limit=1)
+
+    #         package_base_total = package_vat = package_municipality = package_untaxed = 0.0
+            
+    #         if rate_details:
+    #             for line in rate_details.line_ids:
+    #                 # base = line.packages_value or 0.0
+    #                 base = rec.total_package_after_discount or 0.0
+    #                 posting_item_taxes = line.packages_posting_item.taxes
+    #                 unit_price = 0.0
+
+    #                 if posting_item_taxes:
+    #                     vat_tax = posting_item_taxes[0] if len(posting_item_taxes) > 0 else None
+                        
+    #                     if vat_tax:
+    #                         percentage = vat_tax.amount
+    #                         total_with_vat = base + (base * percentage / 100)
+                            
+    #                         if total_with_vat != 0:
+    #                             unit_price = base * (base / total_with_vat)
+    #                         else:
+    #                             unit_price = 0.0  # fallback to prevent crash
+                                
+    #                         package_vat += base - unit_price
+    #                         rec.packages_vat = package_vat
+
+    #                     municipality_tax = posting_item_taxes[1] if len(posting_item_taxes) > 1 else None
+                        
+    #                     if municipality_tax:
+    #                         percentage = municipality_tax.amount
+    #                         total_with_municipality = unit_price + (unit_price * percentage / 100)
+                            
+    #                         if total_with_municipality != 0:
+    #                             unit_price_municipality = unit_price * (unit_price / total_with_municipality)
+    #                         else:
+    #                             unit_price_municipality = 0.0
+
+    #                         package_municipality += unit_price - unit_price_municipality
+    #                         rec.packages_municiplaity_tax = package_municipality
+    #                         package_untaxed += unit_price_municipality
+    #                         rec.packages_untaxed = package_untaxed
+    #                     else:
+    #                         package_untaxed += unit_price
+    #                         rec.packages_untaxed = package_untaxed
+
+    #                 package_base_total += base
+
     def _onchange_packaged_taxes(self):
         for rec in self:
-        
+            # Initialize all package tax fields
+            rec.packages_vat = 0.0
+            rec.packages_municiplaity_tax = 0.0
+            rec.packages_untaxed = rec.total_package_after_discount or 0.0  # Default to total package amount
+            
+            # Get date range for rate details
             checkin_date = fields.Date.from_string(rec.checkin_date)
             checkout_date = fields.Date.from_string(rec.checkout_date)
 
+            # Find applicable rate details
             rate_details = self.env['rate.detail'].search([
                 ('rate_code_id', '=', rec.rate_code.id),
                 ('from_date', '<=', checkin_date),
                 ('to_date', '>=', checkout_date)
             ], limit=1)
 
-            package_base_total = package_vat = package_municipality = package_untaxed = 0.0
-            
             if rate_details:
+                package_base_total = 0.0
+                total_package_vat = 0.0
+                total_package_municipality = 0.0
+                total_package_untaxed = 0.0
+
                 for line in rate_details.line_ids:
-                    # base = line.packages_value or 0.0
                     base = rec.total_package_after_discount or 0.0
-                    posting_item_taxes = line.packages_posting_item.taxes
-                    unit_price = 0.0
+                    package_base_total += base
+                    posting_item_taxes = line.packages_posting_item.taxes if line.packages_posting_item else []
 
                     if posting_item_taxes:
+                        # Calculate VAT if exists
                         vat_tax = posting_item_taxes[0] if len(posting_item_taxes) > 0 else None
-                        
                         if vat_tax:
-                            percentage = vat_tax.amount
-                            total_with_vat = base + (base * percentage / 100)
-                            
-                            if total_with_vat != 0:
-                                unit_price = base * (base / total_with_vat)
-                            else:
-                                unit_price = 0.0  # fallback to prevent crash
-                                
-                            package_vat += base - unit_price
-                            rec.packages_vat = package_vat
+                            try:
+                                percentage = vat_tax.amount
+                                total_with_vat = base + (base * percentage / 100)
+                                if total_with_vat != 0:
+                                    unit_price = base * (base / total_with_vat)
+                                    package_vat = base - unit_price
+                                    total_package_vat += package_vat
+                                    base = unit_price  # Update base for next tax calculation
+                            except (ZeroDivisionError, ValueError):
+                                pass
 
+                        # Calculate Municipality tax if exists
                         municipality_tax = posting_item_taxes[1] if len(posting_item_taxes) > 1 else None
-                        
                         if municipality_tax:
-                            percentage = municipality_tax.amount
-                            total_with_municipality = unit_price + (unit_price * percentage / 100)
-                            
-                            if total_with_municipality != 0:
-                                unit_price_municipality = unit_price * (unit_price / total_with_municipality)
-                            else:
-                                unit_price_municipality = 0.0
+                            try:
+                                percentage = municipality_tax.amount
+                                total_with_municipality = base + (base * percentage / 100)
+                                if total_with_municipality != 0:
+                                    unit_price_municipality = base * (base / total_with_municipality)
+                                    package_municipality = base - unit_price_municipality
+                                    total_package_municipality += package_municipality
+                                    base = unit_price_municipality  # Final untaxed amount
+                            except (ZeroDivisionError, ValueError):
+                                pass
 
-                            package_municipality += unit_price - unit_price_municipality
-                            rec.packages_municiplaity_tax = package_municipality
-                            package_untaxed += unit_price_municipality
-                            rec.packages_untaxed = package_untaxed
-                        else:
-                            package_untaxed += unit_price
-                            rec.packages_untaxed = package_untaxed
+                    total_package_untaxed += base
 
-                    package_base_total += base
+                # Update record fields
+                rec.packages_vat = total_package_vat
+                rec.packages_municiplaity_tax = total_package_municipality
+                rec.packages_untaxed = total_package_untaxed
+
+                # Final check - if both taxes are 0, set untaxed to total package amount
+                if rec.packages_vat == 0.0 and rec.packages_municiplaity_tax == 0.0:
+                    rec.packages_untaxed = rec.total_package_after_discount or 0.0
+
+    # def _onchange_fixed_post_taxes(self):
+    #     for record in self:
+    #         posting_items = record.posting_item_ids
+
+    #         # Initialize totals
+    #         # fixed_base = sum(line.default_value for line in posting_items)
+    #         fixed_base = record.total_fixed_post_after_discount or 0.0
+        
+    #         fixed_vat = 0.0
+    #         fixed_municipality = 0.0
+    #         fixed_untaxed = 0.0
+    #         base = 0.0
+
+    #         # Loop through posting items
+    #         for line in posting_items:
+    #             # base = line.default_value or 0.0
+    #             base = fixed_base
+    #             posting_item = line.posting_item_id
+    #             unit_price = 0.0
+
+    #             if posting_item and posting_item.taxes:
+    #                 vat_tax = posting_item.taxes[0] if len(posting_item.taxes) > 0 else None
+    #                 if vat_tax:
+    #                     vat_percentage = vat_tax.amount
+    #                     total_with_vat = fixed_base + (fixed_base * (vat_percentage / 100))
+    #                     if total_with_vat != 0:
+    #                         unit_price = fixed_base * (fixed_base / total_with_vat)
+    #                     else:
+    #                         unit_price = 0.0
+    #                     fixed_vat += fixed_base - unit_price
+    #                     record.fixed_post_vat = fixed_vat
+
+    #                 municipality_tax = posting_item.taxes[1] if len(posting_item.taxes) > 1 else None
+    #                 if municipality_tax:
+    #                     municipality_percentage = municipality_tax.amount
+    #                     total_with_municipality = unit_price + (unit_price * (municipality_percentage / 100))
+    #                     if total_with_municipality != 0:
+    #                         unit_price_municipality = unit_price * (unit_price / total_with_municipality)
+    #                     else:
+    #                         unit_price_municipality = 0.0
+    #                     fixed_municipality += unit_price - unit_price_municipality
+    #                     record.fixed_post_municiplaity_tax = fixed_municipality
+    #                     record.fixed_post_untaxed = fixed_base - fixed_vat - fixed_municipality
+    #                 else:
+    #                     # No municipality tax
+    #                     fixed_untaxed += unit_price
+                        
+    #             else:
+    #                 # No taxes at all
+    #                 fixed_untaxed += fixed_base
 
     def _onchange_fixed_post_taxes(self):
         for record in self:
-            posting_items = record.posting_item_ids
-
-            # Initialize totals
-            # fixed_base = sum(line.default_value for line in posting_items)
+            # Initialize all tax fields
+            record.fixed_post_vat = 0.0
+            record.fixed_post_municiplaity_tax = 0.0
+            record.fixed_post_untaxed = record.total_fixed_post_after_discount or 0.0  # Default to total fixed post amount
+            
             fixed_base = record.total_fixed_post_after_discount or 0.0
-            fixed_vat = 0.0
-            fixed_municipality = 0.0
-            fixed_untaxed = 0.0
-            base = 0.0
+            total_vat = 0.0
+            total_municipality = 0.0
+            total_untaxed = 0.0
 
-            # Loop through posting items
-            for line in posting_items:
-                # base = line.default_value or 0.0
-                base = fixed_base
+            for line in record.posting_item_ids:
                 posting_item = line.posting_item_id
-                unit_price = 0.0
-
-                if posting_item and posting_item.taxes:
-                    vat_tax = posting_item.taxes[0] if len(posting_item.taxes) > 0 else None
-                    if vat_tax:
-                        vat_percentage = vat_tax.amount
-                        total_with_vat = record.total_fixed_post_after_discount + (record.total_fixed_post_after_discount * (vat_percentage / 100))
+                if not posting_item or not posting_item.taxes:
+                    # No taxes - add full amount to untaxed
+                    total_untaxed += fixed_base
+                    continue
+                
+                base = fixed_base
+                taxes = posting_item.taxes
+                
+                # Calculate VAT if exists
+                vat_tax = taxes[0] if len(taxes) > 0 else None
+                if vat_tax:
+                    try:
+                        percentage = vat_tax.amount
+                        total_with_vat = base + (base * percentage / 100)
                         if total_with_vat != 0:
-                            unit_price = record.total_fixed_post_after_discount * (record.total_fixed_post_after_discount / total_with_vat)
-                        else:
-                            unit_price = 0.0
-                        fixed_vat += record.total_fixed_post_after_discount - unit_price
-                        record.fixed_post_vat = fixed_vat
+                            unit_price = base * (base / total_with_vat)
+                            vat_amount = base - unit_price
+                            total_vat += vat_amount
+                            base = unit_price  # Update base for next tax calculation
+                    except (ZeroDivisionError, ValueError):
+                        pass
 
-                    municipality_tax = posting_item.taxes[1] if len(posting_item.taxes) > 1 else None
-                    if municipality_tax:
-                        municipality_percentage = municipality_tax.amount
-                        total_with_municipality = unit_price + (unit_price * (municipality_percentage / 100))
+                # Calculate Municipality tax if exists
+                municipality_tax = taxes[1] if len(taxes) > 1 else None
+                if municipality_tax:
+                    try:
+                        percentage = municipality_tax.amount
+                        total_with_municipality = base + (base * percentage / 100)
                         if total_with_municipality != 0:
-                            unit_price_municipality = unit_price * (unit_price / total_with_municipality)
-                        else:
-                            unit_price_municipality = 0.0
-                        fixed_municipality += unit_price - unit_price_municipality
-                        record.fixed_post_municiplaity_tax = fixed_municipality
-                        record.fixed_post_untaxed = record.total_fixed_post_after_discount - fixed_vat - fixed_municipality
-                    else:
-                        # No municipality tax
-                        fixed_untaxed += unit_price
-                        
-                else:
-                    # No taxes at all
-                    fixed_untaxed += record.total_fixed_post_after_discount
+                            unit_price_municipality = base * (base / total_with_municipality)
+                            municipality_amount = base - unit_price_municipality
+                            total_municipality += municipality_amount
+                            base = unit_price_municipality  # Final untaxed amount
+                    except (ZeroDivisionError, ValueError):
+                        pass
 
+                total_untaxed += base
+
+            # Update record fields
+            record.fixed_post_vat = total_vat
+            record.fixed_post_municiplaity_tax = total_municipality
+            record.fixed_post_untaxed = total_untaxed
+
+            # Final check - if both taxes are 0, set untaxed to total fixed post amount
+            if record.fixed_post_vat == 0.0 and record.fixed_post_municiplaity_tax == 0.0:
+                record.fixed_post_untaxed = record.total_fixed_post_after_discount or 0.0
+    
     @api.depends('rate_forecast_ids.rate')
     def _compute_total_rate_forecast(self):
         for record in self:
@@ -1520,7 +1693,6 @@ class RoomBooking(models.Model):
 
             total_rate_forecast = record.total_rate_forecast or 0
             total_meal_forecast = record.total_meal_forecast or 0
-            print("Total Meal Forecast", total_meal_forecast)
             total_package_forecast = record.total_package_forecast or 0
             total_fixed_post_forecast = record.total_fixed_post_forecast or 0
 
@@ -1532,40 +1704,63 @@ class RoomBooking(models.Model):
             )
 
 
+            # if is_amount_value and amount_selection_value == 'total':
+            #     record.total_total_forecast = total_sum - rate_detail_discount_value
+            #     record.total_rate_after_discount = total_rate_forecast - rate_detail_discount_value  * total_days
+            #     record.total_meal_after_discount = total_meal_forecast - rate_detail_discount_value  * total_days
+            #     record.total_package_after_discount = total_package_forecast - rate_detail_discount_value  * total_days
+            #     record.total_fixed_post_after_discount = total_fixed_post_forecast 
+            #     record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
+
             if is_amount_value and amount_selection_value == 'total':
-                record.total_total_forecast = total_sum - rate_detail_discount_value
-                record.total_rate_after_discount = total_rate_forecast - rate_detail_discount_value * total_days 
-                record.total_meal_after_discount = total_meal_forecast - rate_detail_discount_value * total_days 
-                record.total_package_after_discount = total_package_forecast - rate_detail_discount_value * total_days 
+                # Calculate total discount first
+                total_discount = rate_detail_discount_value
+                
+                # Apply discounts with protection against negative values
+                rate_discount_amount = rate_detail_discount_value * total_days
+                record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
+                
+                meal_discount_amount = rate_detail_discount_value * total_days
+                record.total_meal_after_discount = max(0, total_meal_forecast - meal_discount_amount)
+                
+                package_discount_amount = rate_detail_discount_value * total_days
+                record.total_package_after_discount = max(0, total_package_forecast - package_discount_amount)
+                
+                # Fixed post doesn't get discounted
                 record.total_fixed_post_after_discount = total_fixed_post_forecast 
+                
+                # Recalculate total forecast based on protected values
+                record.total_total_forecast = (
+                    record.total_rate_after_discount + 
+                    record.total_meal_after_discount + 
+                    record.total_package_after_discount + 
+                    record.total_fixed_post_after_discount
+                )
 
             elif is_amount_value and amount_selection_value == 'line_wise':
-                # record.total_total_forecast = total_sum - (rate_detail_discount_value * total_days)
-                record.total_rate_after_discount = total_rate_forecast - (rate_detail_discount_value * total_days * record.room_count)
-                record.total_meal_after_discount = total_meal_forecast - (rate_detail_discount_value * total_days * record.room_count)
-                record.total_package_after_discount = total_package_forecast - (rate_detail_discount_value * total_days * record.room_count)
+                rate_discount_amount = rate_detail_discount_value * record.room_count * total_days
+                record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
+                record.total_meal_after_discount = max(0, total_meal_forecast - rate_discount_amount)
+                record.total_package_after_discount = max(0, total_package_forecast - rate_discount_amount) 
                 record.total_fixed_post_after_discount = total_fixed_post_forecast 
                 record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
 
             elif is_percentage_value and percentage_selection_value == 'total':
-                rate_discount_amount = (total_rate_forecast * rate_detail_discount_value / 100) * total_days
-                meal_discount_amount = (total_meal_forecast * rate_detail_discount_value / 100) * total_days
-                package_discount_amount = (total_package_forecast * rate_detail_discount_value / 100) * total_days
+                rate_discount_amount = (total_rate_forecast * rate_detail_discount_value / 100) 
+                meal_discount_amount = (total_meal_forecast * rate_detail_discount_value / 100) 
+                package_discount_amount = (total_package_forecast * rate_detail_discount_value / 100) 
 
-                record.total_rate_after_discount = total_rate_forecast - rate_discount_amount
-                record.total_meal_after_discount = total_meal_forecast - meal_discount_amount
-                record.total_package_after_discount = total_package_forecast - package_discount_amount
+                record.total_rate_after_discount = max(0, record.total_rate_forecast - rate_discount_amount)
+                record.total_meal_after_discount = max(0, record.total_meal_forecast - meal_discount_amount)
+                record.total_package_after_discount = max(0, record.total_package_forecast - package_discount_amount)
                 record.total_fixed_post_after_discount = total_fixed_post_forecast  # No discount applied here
                 record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
 
             elif is_percentage_value and percentage_selection_value == 'line_wise':
                 room_count = record.room_count or 1
-
-                # Calculate discount amounts 
-                rate_discount_amount = (total_rate_forecast * rate_detail_discount_value / 100) * total_days * room_count
-                meal_discount_amount = (total_meal_forecast * rate_detail_discount_value / 100) * total_days * room_count
-                package_discount_amount = (total_package_forecast * rate_detail_discount_value / 100) * total_days * room_count
-
+                rate_discount_amount = record.total_rate_forecast * (rate_detail_discount_value / 100)     
+                meal_discount_amount = record.total_meal_forecast * (rate_detail_discount_value / 100)
+                package_discount_amount = record.total_package_forecast * (rate_detail_discount_value / 100)
                 # Final totals after discount
                 record.total_total_forecast = total_sum - (rate_discount_amount + meal_discount_amount + package_discount_amount)
                 record.total_rate_after_discount = total_rate_forecast - rate_discount_amount
@@ -1602,6 +1797,10 @@ class RoomBooking(models.Model):
     total_fixed_post_after_discount = fields.Float(
         string='Total Fixed Post After Discount'
     )
+
+    # @api.onchange('total_fixed_post_after_discount')
+    # def _onchange_fixed_post(self):
+    #     self._onchange_fixed_post_taxes()
 
 
     total_before_discount_forecast = fields.Float(
@@ -1882,12 +2081,47 @@ class RoomBooking(models.Model):
     #     return meal_price, room_price, package_price
 
     @api.model
-    def calculate_total(self, price, discount, is_percentage, is_amount, amount_selection, condition):
+    def calculate_total(self, price, discount, is_percentage, is_amount, percentage_selection, amount_selection, condition,
+                            room_price=0.0,
+                            meal_price=0.0,   
+                            package_price=0.0):
         if condition:
-            if is_percentage:
-                total = (price * discount)
-            elif is_amount and amount_selection == 'line_wise':
-                total = discount
+            multiplier = 0
+            if room_price != 0:
+                multiplier += 1
+            if meal_price != 0:
+                multiplier += 1
+            if package_price != 0:
+                multiplier += 1
+            # if is_percentage:
+            #     total = (price * discount)
+            if is_amount and amount_selection == 'line_wise':
+                total = discount * self.room_count * multiplier
+            elif is_amount and amount_selection == 'total':
+                total = discount * multiplier
+            # elif is_percentage and percentage_selection == 'line_wise':
+            #     print("Percentage Selection Line Wise")
+            #     total = (price * discount) / 100 
+            
+            # elif is_percentage and percentage_selection == 'line_wise':
+            elif is_percentage and percentage_selection in ['line_wise', 'total']:
+                discount_ = 0.0
+                # Get first forecast line
+                if self.rate_forecast_ids:
+                    forecast_line = self.rate_forecast_ids[0]
+                    rate = forecast_line.rate or 0.0
+                    meals = forecast_line.meals or 0.0
+                    packages = forecast_line.packages or 0.0
+                    forecast_line_fixed_post = forecast_line.fixed_post or 0.0
+                    price = rate + meals + packages
+                    discount_ = price * discount 
+                else:
+                    price = 0.0
+                
+                total = round(discount_, 2)
+
+            # elif is_percentage and percentage_selection == 'total':
+            #     total = (price * discount) / 100
             else:
                 total = 0
         else:
@@ -1895,19 +2129,9 @@ class RoomBooking(models.Model):
 
         return total  # Ensure the total doesn't go below zero
 
-    # working
-    # def calculate_total_discount(self, before_discount, rate_detail_discount_value, is_percentage_value, is_amount_value, amount_selection_value):
-    #     if is_percentage_value:
-    #         total = before_discount - ((before_discount / 100) * rate_detail_discount_value)
-    #         # print(f'Condition: Percentage applied. Total: {total}')
-    #     elif is_amount_value and amount_selection_value == 'line_wise':
-    #         total = before_discount - rate_detail_discount_value
-    #         # print(f'Condition: Line Wise amount applied. Total: {total}')
-    #     else:
-    #         total = before_discount
-    #         # print(f'Condition: No discount applied. Total: {total}')
-    #     return total
-
+    
+    
+    
     @api.model
     def calculate_meal_rates(self, rate_details):
         total_default_value = 0
@@ -1916,8 +2140,7 @@ class RoomBooking(models.Model):
         rate_detail_posting_item = rate_details.posting_item if rate_details else 0
         if rate_detail_posting_item:
             # Get the default value of the posting item
-            default_value = getattr(
-                rate_detail_posting_item, 'default_value', 0)
+            default_value = getattr(rate_detail_posting_item, 'default_value', 0)
             print(f"Default Value (Posting Item): {default_value}")
 
             # Add this default value to the total
@@ -2028,12 +2251,21 @@ class RoomBooking(models.Model):
             is_amount_value = rate_details.is_amount if rate_details else None
             is_percentage_value = rate_details.is_percentage if rate_details else None
             amount_selection_value = rate_details.amount_selection if rate_details else None
+            percentage_selection_value = rate_details.percentage_selection if rate_details else None
             if is_amount_value:
                 rate_detail_discount_value = int(
                     rate_details.rate_detail_dicsount) if rate_details else 0
             else:
-                rate_detail_discount_value = int(
-                    rate_details.rate_detail_dicsount) / 100 if rate_details else 0
+                rate_detail_discount_value = int(rate_details.rate_detail_dicsount) / 100 if rate_details else 0
+
+            # if is_percentage_value:
+            #     print("Percentage Value")
+            #     rate_detail_discount_value = int(rate_details.rate_detail_dicsount) if rate_details else 0
+            #     print("Rate Detail Discount Value Percentage", rate_detail_discount_value)
+            # else:
+            #     print("ELSE Percentage Value")
+            #     rate_detail_discount_value = int(rate_details.rate_detail_dicsount) / 100 if rate_details else 0
+
 
             # Prepare forecast rates
             forecast_lines = []
@@ -2097,7 +2329,6 @@ class RoomBooking(models.Model):
                             room_booking_id = record.id
                         else:
                             room_booking_id = int(str(record.id).split('_')[-1])
-                        print("room_booking_id", room_booking_id)
 
                     # Search for existing forecast record
                     existing_forecast = self.env['room.rate.forecast'].search([
@@ -2110,12 +2341,15 @@ class RoomBooking(models.Model):
                         _room_price = room_price
                     else:
                         _room_price = record.room_price * record.room_count
+
                     room_price_after_discount = record.calculate_total(
                                                         _room_price,
                                                         record.room_discount,
                                                         record.room_is_percentage,
+                                                        percentage_selection_value,
                                                         record.room_is_amount,
-                                                        record.room_amount_selection, record.use_price)
+                                                        record.room_amount_selection,
+                                                        record.use_price, 0, 0 ,0)
 
                     if not record.use_meal_price:
                         _meal_price = meal_price
@@ -2126,22 +2360,27 @@ class RoomBooking(models.Model):
                         _meal_price,
                         record.meal_discount,
                         record.meal_is_percentage,
+                        percentage_selection_value,
                         record.meal_is_amount,
-                        record.meal_amount_selection, record.use_meal_price)
-
-
+                        record.meal_amount_selection, record.use_meal_price, 0, 0, 0)
+                    
+                    
+                    
                     before_discount = room_price + meal_price + package_price + fixed_post_value
 
+                    
+
                     get_discount = self.calculate_total(before_discount, rate_detail_discount_value,
-                                                        is_percentage_value,
-                                                        is_amount_value, amount_selection_value, True)
-                    if is_percentage_value:
-                        get_discount = 0
+                                                        is_percentage_value, is_amount_value, percentage_selection_value,
+                                                        amount_selection_value, True, room_price, meal_price, package_price)    
+
+                                                # (self, price, discount, is_percentage, is_amount, percentage_selection, amount_selection, condition)
+
+                    # if is_percentage_value:
+                    #     get_discount = 0
 
                     # total = before_discount - get_discount - room_price - meal_price
-                    total = before_discount - get_discount - \
-                            room_price_after_discount - meal_price_after_discount
-
+                    total = before_discount - get_discount - room_price_after_discount - meal_price_after_discount
                     
                     room_line_ids = record.room_line_ids.ids
                     actual_room_price = room_price - room_price_after_discount
@@ -4824,20 +5063,57 @@ class RoomBooking(models.Model):
     vip = fields.Boolean(string='VIP')
     vip_code = fields.Many2one('vip.code', string="VIP Code", domain=[('obsolete', '=', False)])
 
+    # @api.constrains('vip', 'vip_code')
+    # def _check_vip_code(self):
+    #     for record in self:
+    #         if record.vip and not record.vip_code:
+    #             raise ValidationError("VIP Code is required when VIP is selected!")
 
-    show_vip_code = fields.Boolean(
-        string="Show VIP Code", compute="_compute_show_vip_code", store=True)
+
+    show_vip_code = fields.Boolean(string="Show VIP Code", compute="_compute_show_vip_code", store=True)
 
     complementary = fields.Boolean(string='Complimentary')
-    complementary_codes = fields.Many2one(
-        'complimentary.code', string='Complimentary Code', domain=[('obsolete', '=', False)])
+    complementary_codes = fields.Many2one('complimentary.code', string='Complimentary Code', domain=[('obsolete', '=', False)])
+    
+    # @api.constrains('complementary', 'complementary_codes')
+    # def _check_complementary_code(self):
+    #     for record in self:
+    #         if record.complementary and not record.complementary_codes:
+    #             raise ValidationError(
+    #                 "Complimentary Code is required when Complimentary is selected!")
+    
+    
     show_complementary_code = fields.Boolean(string="Show Complimentary Code", compute="_compute_show_codes",
                                              store=True)
 
     house_use = fields.Boolean(string='House Use')
     house_use_codes = fields.Many2one('house.code', string='House Use Code', domain=[('obsolete', '=', False)])
-    show_house_use_code = fields.Boolean(
-        string="Show House Code", compute="_compute_show_codes", store=True)
+
+    # @api.constrains('house_use', 'house_use_codes')
+    # def _check_house_use_code(self):
+    #     for record in self:
+    #         if record.house_use and not record.house_use_codes:
+    #             raise ValidationError(
+    #                 "House Use Code is required when House Use is selected!")
+
+    
+    @api.constrains('vip', 'vip_code', 'complementary', 'complementary_codes', 'house_use', 'house_use_codes')
+    def _check_required_codes(self):
+        for record in self:
+            errors = []
+            if record.vip and not record.vip_code:
+                errors.append("VIP Code is required when VIP is selected.")
+            if record.complementary and not record.complementary_codes:
+                errors.append("Complimentary Code is required when Complimentary is selected.")
+            if record.house_use and not record.house_use_codes:
+                errors.append("House Use Code is required when House Use is selected.")
+            if errors:
+                raise ValidationError("Please correct the following:\n- " + "\n- ".join(errors))
+
+
+
+    
+    show_house_use_code = fields.Boolean(string="Show House Code", compute="_compute_show_codes", store=True)
 
     @api.depends('vip', 'complementary', 'house_use')
     def _compute_show_codes(self):
@@ -6124,6 +6400,21 @@ class RoomBooking(models.Model):
         string="Room Types", compute="_compute_room_type_display", tracking=True)
 
     room_price = fields.Float(string="Room Price", default=0, tracking=True)
+    
+    @api.constrains('use_price', 'room_price')
+    def _validate_room_price(self):
+        for record in self:
+            if record.use_price and record.room_price <= 0:
+                raise ValidationError(
+                    _("Room Price must be greater than 0 when 'Use Room Price' is selected!"))
+            
+    @api.constrains('use_meal_price', 'meal_price')
+    def _validate_meal_price(self):
+        for record in self:
+            if record.use_meal_price and record.meal_price <= 0:
+                raise ValidationError(
+                    _("Meal Price must be greater than 0 when 'Use Meal Price' is selected!"))
+
     room_child_price = fields.Float(string="Room Child Price", tracking=True)
     room_infant_price = fields.Float(string="Room Infant Price", tracking=True)
     meal_price = fields.Float(string="Meal Price", default=0, tracking=True)
@@ -6386,6 +6677,7 @@ class RoomBooking(models.Model):
     #     if self.meal_is_percentage:
     #         self.meal_is_amount = False
     #         # self.meal_discount = self.meal_discount / 100
+
     use_price = fields.Boolean(string="Use Price", store=True, tracking=True)
     use_meal_price = fields.Boolean(
         string="Use Meal Price", store=True, tracking=True)
@@ -7276,120 +7568,190 @@ class RoomBooking(models.Model):
 
 
 
+    # def action_assign_all_rooms(self):
+    #     print("START TIME", datetime.now())
+    #     for booking in self:
+    #         _logger.info("Starting assignment for booking ID: %s", booking.id)
+
+    #         if booking.state != 'confirmed':
+    #             _logger.warning("Booking %s is not confirmed", booking.name)
+    #             raise UserError("Booking must be Confirmed first.")
+    #         if not booking.room_line_ids:
+    #             _logger.warning("No room lines found for booking %s", booking.name)
+    #             raise UserError("No room lines to assign.")
+                
+    #         original_rate_forecasts = booking.rate_forecast_ids
+    #         room_count = len(booking.room_line_ids)
+    #         _logger.info("Dividing rate forecasts for %s room lines", room_count)
+            
+    #         forecast_data = []
+    #         for forecast in original_rate_forecasts:
+    #             divided_data = {
+    #                 'date': forecast.date,
+    #                 'rate': forecast.rate / room_count if room_count else forecast.rate,
+    #                 'meals': forecast.meals / room_count if room_count else forecast.meals,
+    #                 'packages': forecast.packages / room_count if room_count else forecast.packages,
+    #                 'fixed_post': forecast.fixed_post / room_count if room_count else forecast.fixed_post,
+    #                 'total': forecast.total / room_count if room_count else forecast.total,
+    #                 'before_discount': forecast.before_discount / room_count if room_count else forecast.before_discount
+    #             }
+    #             forecast_data.append(divided_data)
+
+    #             forecast.write(divided_data)
+    #             _logger.debug("Updated parent forecast on %s with %s", forecast.date, divided_data)
+
+    #         print("Calling stored procedure to split booking %s, %s", booking.id, datetime.now())
+    #         self.env.cr.execute("CALL split_confirmed_booking(%s)", (booking.id,))
+    #         print("Stored procedure executed successfully", datetime.now())
+
+    #         child_bookings = self.env['room.booking'].search([
+    #             ('parent_booking_id', '=', booking.id)
+    #         ])
+    #         _logger.info("Found %s child bookings", len(child_bookings))
+
+    #         for child_booking in child_bookings:
+    #             self.env.invalidate_all()
+    #             child_forecasts = child_booking.rate_forecast_ids
+    #             if not child_forecasts:
+    #                 _logger.info("Creating new forecasts for child booking ID: %s", child_booking.id)
+    #                 for data in forecast_data:
+    #                     self.env['room.rate.forecast'].create({
+    #                         'room_booking_id': child_booking.id,
+    #                         'date': data['date'],
+    #                         'rate': data['rate'],
+    #                         'meals': data['meals'],
+    #                         'packages': data['packages'],
+    #                         'fixed_post': data['fixed_post'],
+    #                         'total': data['total'],
+    #                         'before_discount': data['before_discount']
+    #                     })
+    #             else:
+    #                 _logger.info("Updating existing forecasts for child booking ID: %s", child_booking.id)
+    #                 for forecast in child_forecasts:
+    #                     matching_data = next((data for data in forecast_data if data['date'] == forecast.date), None)
+    #                     if matching_data:
+    #                         forecast.write(matching_data)
+    #                         _logger.debug("Updated child forecast on %s with %s", forecast.date, matching_data)
+
+    #         self.env.cr.execute("""
+    #             SELECT MAX(CAST(regexp_replace(name, '.*/', '') AS INT))
+    #             FROM room_booking
+    #             WHERE company_id = %s
+    #         """, (booking.company_id.id,))
+    #         max_booking_number = self.env.cr.fetchone()[0] or 0
+    #         _logger.info("Max booking number for company %s is %s", booking.company_id.name, max_booking_number)
+
+    #         sequence = self.env['ir.sequence'].search([
+    #             ('code', '=', 'room.booking'),
+    #             ('company_id', '=', booking.company_id.id)
+    #         ], limit=1)
+
+    #         if sequence:
+    #             increment = sequence.number_increment or 1
+    #             next_number = max_booking_number + increment
+    #             sequence.sudo().write({'number_next': next_number})
+    #             _logger.info("Updated sequence %s to next number %s", sequence.name, next_number)
+
+    #             date_ranges = self.env['ir.sequence.date_range'].search([
+    #                 ('sequence_id', '=', sequence.id)
+    #             ])
+    #             for date_range in date_ranges:
+    #                 if date_range.number_next <= max_booking_number:
+    #                     date_range.sudo().write({'number_next': next_number})
+    #                     _logger.info("Updated sequence date range %s to next number %s", date_range.name, next_number)
+
+    #     self.env.invalidate_all()
+    #     booking.room_line_ids._compute_state()
+    #     booking._compute_show_in_tree()
+    #     _logger.info("Completed room assignment for booking ID: %s", booking.id)
+    #     print("END TIME", datetime.now())
+
+    
     def action_assign_all_rooms(self):
         for booking in self:
+            start_time = datetime.now()
+            print("START TIME", start_time)
+            print("==> Begin assign_all_rooms for Booking %s at %s", booking.name, start_time)
+
+            # 1. State & room_line validations
             if booking.state != 'confirmed':
+                _logger.warning("Booking %s is not confirmed", booking.name)
                 raise UserError("Booking must be Confirmed first.")
             if not booking.room_line_ids:
+                _logger.warning("No room lines found for booking %s", booking.name)
                 raise UserError("No room lines to assign.")
-                
-            # Get the rate forecasts before splitting
-            original_rate_forecasts = booking.rate_forecast_ids
-            room_count = len(booking.room_line_ids)
-            
-            # Store the original forecast data
-            forecast_data = []
-            for forecast in original_rate_forecasts:
-                forecast_data.append({
-                    'date': forecast.date,
-                    'rate': forecast.rate / room_count if room_count else forecast.rate,
-                    'meals': forecast.meals / room_count if room_count else forecast.meals,
-                    'packages': forecast.packages / room_count if room_count else forecast.packages,
-                    'fixed_post': forecast.fixed_post / room_count if room_count else forecast.fixed_post,
-                    'total': forecast.total / room_count if room_count else forecast.total,
-                    'before_discount': forecast.before_discount / room_count if room_count else forecast.before_discount
-                })
-                
-                # Update the parent booking forecast with divided rate
-                forecast.write({
-                    'rate': forecast.rate / room_count if room_count else forecast.rate,
-                    'meals': forecast.meals / room_count if room_count else forecast.meals,
-                    'packages': forecast.packages / room_count if room_count else forecast.packages,
-                    'fixed_post': forecast.fixed_post / room_count if room_count else forecast.fixed_post,
-                    'total': forecast.total / room_count if room_count else forecast.total,
-                    'before_discount': forecast.before_discount / room_count if room_count else forecast.before_discount
-                })
 
-            # one fast round-trip to PostgreSQL
+            # 2. Divide parent forecasts evenly
+            room_count = len(booking.room_line_ids)
+            _logger.info("Dividing %s parent forecasts across %s rooms", len(booking.rate_forecast_ids), room_count)
+
+            forecast_data = []
+            for fc in booking.rate_forecast_ids:
+                divided = {
+                    'date':            fc.date,
+                    'rate':            fc.rate / room_count,
+                    'meals':           fc.meals / room_count,
+                    'packages':        fc.packages / room_count,
+                    'fixed_post':      fc.fixed_post / room_count,
+                    'total':           fc.total / room_count,
+                    'before_discount': fc.before_discount / room_count,
+                }
+                forecast_data.append(divided)
+                fc.write(divided)
+                _logger.debug("Parent forecast on %s updated to %s", fc.date, divided)
+
+            # 3. Call stored procedure to split booking rows in DB
+            print("Calling stored procedure split_confirmed_booking(%s)", booking.id)
             self.env.cr.execute("CALL split_confirmed_booking(%s)", (booking.id,))
-            
-            # Get the child bookings created by the stored procedure
-            child_bookings = self.env['room.booking'].search([
-                ('parent_booking_id', '=', booking.id)
-            ])
-            
-            # Update or create rate forecasts for each child booking
-            for child_booking in child_bookings:
-                # Clear the existing cache to ensure we get fresh data
-                self.env.invalidate_all()
-                
-                # Check if the child booking has forecasts
-                child_forecasts = child_booking.rate_forecast_ids
-                
-                if not child_forecasts:
-                    # Create new forecasts if they don't exist
-                    for data in forecast_data:
-                        self.env['room.rate.forecast'].create({
-                            'room_booking_id': child_booking.id,
-                            'date': data['date'],
-                            'rate': data['rate'],
-                            'meals': data['meals'],
-                            'packages': data['packages'],
-                            'fixed_post': data['fixed_post'],
-                            'total': data['total'],
-                            'before_discount': data['before_discount']
-                        })
-                else:
-                    # Update existing forecasts
-                    for forecast in child_forecasts:
-                        # Find matching forecast data by date
-                        matching_data = next((data for data in forecast_data if data['date'] == forecast.date), None)
-                        if matching_data:
-                            forecast.write({
-                                'rate': matching_data['rate'],
-                                'meals': matching_data['meals'],
-                                'packages': matching_data['packages'],
-                                'fixed_post': matching_data['fixed_post'],
-                                'total': matching_data['total'],
-                                'before_discount': matching_data['before_discount']
-                            })
-            
-            # Update the sequence after procedure execution
-            # Find the highest booking number currently in use
+            print("Query Executed successfully at", datetime.now())
+
+            # 4. Fetch all child bookings in one go
+            child_bookings = self.search([('parent_booking_id', '=', booking.id)])
+            _logger.info("Found %s child bookings", len(child_bookings))
+
+            # 5. Batch-create child forecasts
+            to_create = []
+            for child in child_bookings:
+                for data in forecast_data:
+                    vals = dict(data, room_booking_id=child.id)
+                    to_create.append(vals)
+
+            if to_create:
+                _logger.info("Creating %s child forecasts in batch", len(to_create))
+                self.env['room.rate.forecast'].create(to_create)
+
+            # 6. Sequence adjustment (so names stay unique & increasing)
             self.env.cr.execute("""
                 SELECT MAX(CAST(regexp_replace(name, '.*/', '') AS INT))
                 FROM room_booking
                 WHERE company_id = %s
             """, (booking.company_id.id,))
-            max_booking_number = self.env.cr.fetchone()[0] or 0
-            
-            # Get the sequence for this company
-            sequence = self.env['ir.sequence'].search([
+            max_num = self.env.cr.fetchone()[0] or 0
+            seq = self.env['ir.sequence'].search([
                 ('code', '=', 'room.booking'),
-                ('company_id', '=', booking.company_id.id)
+                ('company_id', '=', booking.company_id.id),
             ], limit=1)
-            
-            if sequence:
-                # Update the sequence to be higher than any existing booking
-                increment = sequence.number_increment or 1
-                next_number = max_booking_number + increment
-                sequence.sudo().write({'number_next': next_number})
-                
-                # Also update any date ranges if they exist
-                date_ranges = self.env['ir.sequence.date_range'].search([
-                    ('sequence_id', '=', sequence.id)
-                ])
-                for date_range in date_ranges:
-                    if date_range.number_next <= max_booking_number:
-                        date_range.sudo().write({'number_next': next_number})
+            if seq:
+                increment = seq.number_increment or 1
+                next_no = max_num + increment
+                seq.sudo().write({'number_next': next_no})
+                _logger.info("Sequence %s set to next_number=%s", seq.code, next_no)
+                for dr in self.env['ir.sequence.date_range'].search([('sequence_id', '=', seq.id)]):
+                    if dr.number_next <= max_num:
+                        dr.sudo().write({'number_next': next_no})
+                        _logger.debug("Date range %s adjusted to %s", dr, next_no)
 
-        # ─── cache / UI refresh (Odoo-17 style) ───────────────────────
-        self.env.invalidate_all()  # clear all ORM caches
+            # 7. Final cache clear & UI refresh
+            self.env.invalidate_all()
+            booking.room_line_ids._compute_state()
+            booking._compute_show_in_tree()
 
-        booking.room_line_ids._compute_state()
-        booking._compute_show_in_tree()
+            end_time = datetime.now()
+            print("END TIME", end_time)
+            duration = (end_time - start_time).total_seconds()
+            _logger.info("<== Finished assign_all_rooms for Booking %s at %s (%.2fs)",
+                         booking.name, end_time, duration)
     
-
     # def action_assign_all_rooms(self):
     #     for booking in self:
     #         if booking.state != 'confirmed':
