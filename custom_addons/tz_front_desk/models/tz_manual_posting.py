@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
+from Tools.scripts.dutree import store
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 from datetime import datetime, timedelta
+
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ class TzHotelManualPosting(models.Model):
     (e.g., daily room charges or integrated point-of-sale sales).
     """
     _name = 'tz.manual.posting'
-    _order = 'create_date desc'
+    _order = 'create_date asc'
     _description = 'Hotel Manual Posting'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
@@ -81,6 +82,7 @@ class TzHotelManualPosting(models.Model):
 
     type = fields.Selection(
         [
+            ('booking', 'Booking'),
             ('room', 'Room'),
             ('group', 'Group'),
         ],
@@ -135,7 +137,7 @@ class TzHotelManualPosting(models.Model):
         compute='_compute_booking_info',
         store=True
     )
-    folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True)
+    folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True, store=True)
 
     source_type = fields.Selection(
         [('auto', 'Auto'), ('manual', 'Manual')],
@@ -162,6 +164,11 @@ class TzHotelManualPosting(models.Model):
         string="Room Booking"
     )
 
+    tax_ids = fields.One2many('tz.manual.posting.tax', 'posting_id', string='Taxes')
+
+    debit_without_vat = fields.Float(string="Debit", index=True)
+    credit_without_vat = fields.Float(string="Credit", index=True)
+
     @api.model
     def default_get(self, fields_list):
         res = super(TzHotelManualPosting, self).default_get(fields_list)
@@ -173,58 +180,64 @@ class TzHotelManualPosting(models.Model):
 
     @api.model
     def create(self, vals):
-
         if not vals.get('sign'):
             raise ValidationError("You must select a Sign before creating a manual posting.")
 
-        # Generate sequence if needed
+        # Optimized sequence generation
         if vals.get('name', 'New') == 'New':
-            company = self.env['res.company'].browse(self.env.company.id)
-            prefix = company.name + '/' if company else ''
-            next_seq = self.env['ir.sequence'].with_company(company).next_by_code(
-                'tz.manual.posting') or '00001'
-            vals['name'] = prefix + next_seq
+            company = self.env.company  # Directly get current company
+            vals[
+                'name'] = f"{company.name}/{self.env['ir.sequence'].with_company(company).next_by_code('tz.manual.posting') or '00001'}"
 
-        # Check for duplicates before creation
         if self._context.get('manual_creation'):
             if vals.get('group_list', False):
                 vals['room_list'] = self._get_master_room_id(vals['group_list'])
 
-            domain = [
-                ('company_id', '=', vals.get('company_id', self.env.company.id)),
-                ('date', '=', vals.get('date')),
-                ('room_list', '=', vals.get('room_list')),
-                ('partner_id', '=', vals.get('partner_id')),
-                ('item_id', '=', vals.get('item_id')),
-                ('description', '=', vals.get('description')),
-            ]
-
-            if vals.get('debit_amount', 0) > 0:
-                domain.extend([
-                    ('debit_amount', '=', vals['debit_amount']),
-                    ('credit_amount', '=', 0)
-                ])
-            elif vals.get('credit_amount', 0) > 0:
-                domain.extend([
-                    ('credit_amount', '=', vals['credit_amount']),
-                    ('debit_amount', '=', 0)
-                ])
-
             vals['source_type'] = 'manual'
 
-        # Create the record
         record = super(TzHotelManualPosting, self).create(vals)
 
+        # Optimize folio linking - consider making this a separate method or async
         if self._context.get('manual_creation') and not record.folio_id:
-            record.folio_id = record._create_master_folio(record.room_list.id)
-            if not record.folio_id:
-                record.folio_id = record._get_master_folio_for_dummy(record.dummy_list.id)
-                # if record.sign == 'debit':
-                #     record.debit_amount = record.discounted_value
-                # elif record.sign == 'credit':
-                #     record.credit_amount = record.discounted_value
+            folio = False
+            if record.room_list:
+                folio = record._create_master_folio(record.room_list.id)
+            elif record.dummy_list:
+                folio = record._get_master_folio_for_dummy(record.dummy_list.id)
+            record.folio_id = folio
 
+        if record.item_id:
+            record.compute_manual_taxes()
         return record
+
+    def write(self, vals):
+        res = super().write(vals)
+
+        for rec in self:
+            needs_recompute = False
+            posting_tax = self.env['tz.manual.posting.tax']
+
+            if 'item_id' in vals:
+                # Remove old tax records before recomputing
+                posting_tax = posting_tax.search([
+                    ('company_id', '=', rec.company_id.id),
+                    ('posting_id', '=', rec.id),
+                    ('date', '=', rec.date),
+                    ('time', '=', rec.time),
+                    ('description', '!=', rec.item_id.description or 'Room Charge')
+                ])
+                needs_recompute = True
+
+            if any(key in vals for key in ['debit_amount', 'credit_amount']):
+                needs_recompute = True
+
+            if needs_recompute:
+                # Delete old taxes first if changing item_id
+                if posting_tax:
+                    posting_tax.unlink()
+                rec.compute_manual_taxes()
+
+        return res
 
     def _compute_unavailable_rooms(self):
         for rec in self:
@@ -243,13 +256,13 @@ class TzHotelManualPosting(models.Model):
             else:
                 record.total = 0.0
 
-    @api.depends('folio_id', 'debit_amount', 'credit_amount')
+    @api.depends('folio_id', 'debit_without_vat', 'credit_without_vat')
     def _compute_balance(self):
         for folio in self.mapped('folio_id'):
             lines = folio.manual_posting_ids.sorted(key=lambda r: (r.date, r.id))
             running_balance = 0
             for line in lines:
-                running_balance += line.debit_amount - line.credit_amount
+                running_balance += line.debit_without_vat - line.credit_without_vat
                 line.balance = running_balance
 
     @api.depends('room_list')
@@ -267,32 +280,6 @@ class TzHotelManualPosting(models.Model):
                 record.partner_id = False
                 record.reference_contact_ = False
 
-    @api.onchange('room_list')
-    def _onchange_room_list(self):
-        if not self.room_list:
-            self.partner_id = False
-            self.reference_contact_ = False
-        for record in self:
-            if record.room_list:
-                # Get the most recent active booking for this room
-                booking_line = self.env['room.booking.line'].search([
-                    ('room_id', '=', record.room_list.id),
-                    ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
-                ], order='checkin_date desc', limit=1)
-
-                if booking_line:
-                    record.booking_id = booking_line.booking_id
-
-                    # Find folio for this booking
-                    folio = self.env['tz.master.folio'].search([
-                        ('room_id', '=', record.room_list.id),
-                        ('booking_ids', 'in', booking_line.booking_id.id)
-                    ], limit=1)
-                    record.folio_id = folio
-                else:
-                    record.booking_id = False
-                    record.folio_id = False
-
     @api.depends()
     def _compute_current_time(self):
         """Compute current time in '%H:%M %p' format (e.g., '02:30 PM')"""
@@ -302,9 +289,13 @@ class TzHotelManualPosting(models.Model):
 
     def _get_master_room_id(self, group_id):
         if group_id:
+            system_date = self.env.company.system_date.date()
             # Get all bookings for this group
             bookings = self.env['room.booking'].search([
-                ('group_booking', '=', group_id)
+                ('company_id', '=', self.env.company.id),
+                ('group_booking', '=', group_id),
+                ('checkin_date', '>=', fields.Datetime.to_datetime(system_date)),
+                ('checkin_date', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
             ])
 
             # Find master bookings (where parent_booking_name is null)
@@ -329,11 +320,14 @@ class TzHotelManualPosting(models.Model):
         for record in self:
             record.price = record.debit_amount or record.credit_amount
 
-    @api.onchange('room_list', 'group_list')
-    def _onchange_room_or_group(self):
-        """Automatically find and suggest folio when room or group changes"""
-        if self.room_list or self.group_list:
+    @api.onchange('booking_id', 'room_list', 'group_list')
+    def _onchange_booking_room_or_group(self):
+        """Automatically find and suggest folio when booking, room or group changes"""
+        if self.booking_id or self.room_list or self.group_list:
+            self.folio_id = False
             domain = []
+            if self.booking_id:
+                domain.append(('booking_ids', 'in', self.booking_id.id))
             if self.room_list:
                 domain.append(('room_id', '=', self.room_list.id))
             if self.group_list:
@@ -347,8 +341,10 @@ class TzHotelManualPosting(models.Model):
                 ], limit=1, order='create_date DESC')
             elif domain:
                 folio = self.env['tz.master.folio'].search(domain, limit=1, order='create_date DESC')
+                # raise UserError(folio)
             else:
                 folio = False
+            self.folio_id = folio
 
     @api.onchange('item_id')
     def _onchange_item_id(self):
@@ -368,6 +364,8 @@ class TzHotelManualPosting(models.Model):
     def _onchange_type(self):
         self.room_list = False
         self.group_list = False
+        self.booking_id = False
+        self.folio_id = False
 
     def _create_master_folio(self, room_id):
         """
@@ -425,12 +423,6 @@ class TzHotelManualPosting(models.Model):
             ('dummy_id', '=', dummy_id),
         ], limit=1)
 
-    def unlink(self):
-        for record in self:
-            if record.state == 'posted':
-                raise UserError(_("You cannot delete a record that is posted."))
-        return super().unlink()
-
     @api.depends('item_id.default_sign')
     def _compute_sign(self):
         for rec in self:
@@ -485,5 +477,290 @@ class TzHotelManualPosting(models.Model):
             elif type_str == 'group':
                 return self.env['group.booking'].browse(rec_id)
         return None
+
+    def compute_and_create_taxes(self):
+        self.ensure_one()
+        self.tax_ids.unlink()  # Always clear existing tax lines before recompute
+
+        if not self.item_id or not self.item_id.taxes:
+            return
+
+        # Total amount input by user
+        total_amount = self.debit_amount or self.credit_amount
+        if not total_amount:
+            return
+
+        # Calculate taxes from included price
+        taxes = self.item_id.taxes.with_context(price_include=True).compute_all(
+            total_amount,
+            currency=self.currency_id,
+            quantity=1.0,
+            product=self.item_id,
+            partner=self.partner_id,
+        )
+
+        for tax in taxes['taxes']:
+            self.env['tz.manual.posting.tax'].create({
+                'posting_id': self.id,
+                'tax_type': tax['name'],
+                'item_description': tax['name'],
+                'debit_amount': tax['amount'] if self.debit_amount else 0.0,
+                'credit_amount': tax['amount'] if self.credit_amount else 0.0,
+                'balance': tax['amount'],
+            })
+
+    def compute_manual_taxes(self):
+        tax_model = self.env['tz.manual.posting.tax']
+        for rec in self:
+            taxes = rec.item_id.taxes
+            total = rec.debit_amount if rec.sign == 'debit' else rec.credit_amount
+            if not total or total <= 0:
+                continue
+
+            tax_lines = []
+
+            if taxes:
+                # Initialize variables for tax rates
+                vat_rate = 0.0
+                municipality_rate = 0.0
+
+                for tax in taxes:
+                    if 'vat' in tax.description.lower():
+                        vat_rate = tax.amount / 100.0
+                    else:
+                        municipality_rate = tax.amount / 100.0
+
+                vat_divisor = 1 + vat_rate
+                municipality_divisor = 1 + municipality_rate
+
+                vat_amount = total - (total / vat_divisor)
+                amount_after_vat = total - vat_amount
+                municipality_amount = amount_after_vat - (amount_after_vat / municipality_divisor)
+                room_charge = total - vat_amount - municipality_amount
+            else:
+                # No taxes, so room_charge is the total amount
+                vat_amount = 0.0
+                municipality_amount = 0.0
+                room_charge = total
+
+            # Always add Room Charge or item description
+            tax_lines.append({
+                'date': rec.date,
+                'time': rec.time,
+                'description': rec.item_id.description or 'Room Charge',
+                'debit_amount': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
+                'credit_amount': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
+                'balance': round(room_charge, 2) if rec.sign == 'debit' else -round(room_charge, 2),
+                'posting_id': rec.id,
+                'type': 'amount',
+            })
+
+            # Add tax lines only if taxes exist
+            if taxes:
+                for tax in taxes:
+                    if 'vat' in tax.description.lower():
+                        tax_lines.append({
+                            'date': rec.date,
+                            'time': rec.time,
+                            'description': tax.description,
+                            'debit_amount': round(vat_amount, 2) if rec.sign == 'debit' else 0.0,
+                            'credit_amount': round(vat_amount, 2) if rec.sign == 'credit' else 0.0,
+                            'balance': round(vat_amount, 2) if rec.sign == 'debit' else -round(vat_amount, 2),
+                            'posting_id': rec.id,
+                            'type': 'vat',
+                        })
+                    else:
+                        tax_lines.append({
+                            'date': rec.date,
+                            'time': rec.time,
+                            'description': tax.description,
+                            'debit_amount': round(municipality_amount, 2) if rec.sign == 'debit' else 0.0,
+                            'credit_amount': round(municipality_amount, 2) if rec.sign == 'credit' else 0.0,
+                            'balance': round(municipality_amount, 2) if rec.sign == 'debit' else -round(
+                                municipality_amount, 2),
+                            'posting_id': rec.id,
+                            'type': 'municipality',
+                        })
+
+            # Create tax lines with non-zero values
+            for line in tax_lines:
+                if line['debit_amount'] > 0 or line['credit_amount'] > 0:
+                    tax_model.create(line)
+
+            # Save net amounts
+            rec.write({
+                'debit_without_vat': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
+                'credit_without_vat': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
+            })
+
+            rec.update_folio_debit_credit_and_taxes()
+
+    # def compute_manual_taxes(self):
+    #     tax_model = self.env['tz.manual.posting.tax']
+    #     for rec in self:
+    #         taxes = rec.item_id.taxes
+    #         if not taxes:
+    #             continue  # Skip if item has no taxes
+    #
+    #         # Determine the total amount based on the sign
+    #         total = rec.debit_amount if rec.sign == 'debit' else rec.credit_amount
+    #         if not total or total <= 0:
+    #             continue
+    #
+    #         # Initialize variables for tax rates
+    #         vat_rate = 0.0
+    #         municipality_rate = 0.0
+    #
+    #         # Get rates from taxes field
+    #         for tax in taxes:
+    #             if 'vat' in tax.description.lower():
+    #                 vat_rate = tax.amount / 100.0  # Convert percentage to decimal
+    #             else:
+    #                 municipality_rate = tax.amount / 100.0  # Convert percentage to decimal
+    #
+    #         # Calculate amounts using dynamic rates
+    #         vat_divisor = 1 + vat_rate
+    #         municipality_divisor = 1 + municipality_rate
+    #
+    #         # Calculate VAT
+    #         vat_amount = total - (total / vat_divisor)
+    #
+    #         # Calculate amount after VAT
+    #         amount_after_vat = total - vat_amount
+    #
+    #         # Calculate Municipality (from amount after VAT)
+    #         municipality_amount = amount_after_vat - (amount_after_vat / municipality_divisor)
+    #
+    #         # Calculate Room Charge (net amount)
+    #         room_charge = total - vat_amount - municipality_amount
+    #
+    #         tax_lines = []
+    #
+    #         # Create tax lines in the correct order
+    #         for tax in taxes:
+    #             if 'vat' in tax.description.lower():
+    #                 # VAT line
+    #                 tax_lines.append({
+    #                     'date': rec.date,
+    #                     'time': rec.time,
+    #                     'description': tax.description,
+    #                     'debit_amount': round(vat_amount, 2) if rec.sign == 'debit' else 0.0,
+    #                     'credit_amount': round(vat_amount, 2) if rec.sign == 'credit' else 0.0,
+    #                     'balance': round(vat_amount, 2) if rec.sign == 'debit' else -round(vat_amount, 2),
+    #                     'posting_id': rec.id,
+    #                     'type': 'vat',
+    #                 })
+    #             else:
+    #                 # Municipality line
+    #                 tax_lines.append({
+    #                     'date': rec.date,
+    #                     'time': rec.time,
+    #                     'description': tax.description,
+    #                     'debit_amount': round(municipality_amount, 2) if rec.sign == 'debit' else 0.0,
+    #                     'credit_amount': round(municipality_amount, 2) if rec.sign == 'credit' else 0.0,
+    #                     'balance': round(municipality_amount, 2) if rec.sign == 'debit' else -round(municipality_amount,
+    #                                                                                                 2),
+    #                     'posting_id': rec.id,
+    #                     'type': 'municipality',
+    #                 })
+    #
+    #         # Add Room Charge as the first record
+    #         tax_lines.insert(0, {
+    #             'date': rec.date,
+    #             'time': rec.time,
+    #             'description': rec.item_id.description or 'Room Charge',
+    #             'debit_amount': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
+    #             'credit_amount': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
+    #             'balance': round(room_charge, 2) if rec.sign == 'debit' else -round(room_charge, 2),
+    #             'posting_id': rec.id,
+    #             'type': 'amount',
+    #         })
+    #
+    #         # Create records with non-zero values
+    #         for line in tax_lines:
+    #             if line['debit_amount'] > 0 or line['credit_amount'] > 0:
+    #                 tax_model.create(line)
+    #
+    #         rec.write({
+    #             'debit_without_vat': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
+    #             'credit_without_vat': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
+    #         })
+    #         rec.update_folio_debit_credit_and_taxes()
+    #         raise UserError(rec.item_id.taxes)
+
+    def update_folio_debit_credit_and_taxes(self):
+        for rec in self:
+            # Filter postings for the same folio and context
+            domain = [
+                ('company_id', '=', rec.company_id.id),
+                ('folio_id', '=', rec.folio_id.id),
+                ('date', '=', rec.date),
+            ]
+
+            postings = self.search(domain)
+            total_debit = sum(post.debit_without_vat for post in postings)
+            total_credit = sum(post.credit_without_vat for post in postings)
+
+            # Tax aggregation from tax model
+            tax_domain = [
+                ('company_id', '=', rec.company_id.id),
+                ('posting_id.folio_id', '=', rec.folio_id.id),
+                ('date', '=', rec.date),
+            ]
+
+            taxes = self.env['tz.manual.posting.tax'].search(tax_domain)
+            total_vat = sum(t.balance for t in taxes if t.type == 'vat')
+            total_municipality = sum(t.balance for t in taxes if t.type == 'municipality')
+
+            rec.folio_id.sudo().write({
+                'total_debit': round(total_debit, 2),
+                'total_credit': round(total_credit, 2),
+                'value_added_tax': round(total_vat, 2),
+                'municipality_tax': round(total_municipality, 2),
+            })
+
+    def unlink(self):
+        for record in self:
+            if record.state == 'posted':
+                raise UserError(_("You cannot delete a record that is posted."))
+        folios_to_update = self.mapped('folio_id')
+        dates_to_update = self.mapped('date')
+        companies_to_update = self.mapped('company_id')
+
+        # Store context values before deletion
+        records_context = [(rec.folio_id, rec.company_id, rec.date) for rec in self]
+
+        # Proceed with standard deletion
+        res = super(TzHotelManualPosting, self).unlink()
+
+        # Now update each affected folio after deletion
+        for folio, company, date in records_context:
+            # Use sudo if needed to bypass access rules
+            relevant_postings = self.sudo().search([
+                ('folio_id', '=', folio.id),
+                ('company_id', '=', company.id),
+                ('date', '=', date),
+            ])
+
+            # Use a dummy record to call your existing method
+            if relevant_postings:
+                relevant_postings.update_folio_debit_credit_and_taxes()
+            else:
+                # No remaining postings — reset values to zero
+                folio.sudo().write({
+                    'total_debit': 0.0,
+                    'total_credit': 0.0,
+                    'value_added_tax': 0.0,
+                    'municipality_tax': 0.0,
+                })
+
+        return res
+
+
+
+
+
+
+
 
 

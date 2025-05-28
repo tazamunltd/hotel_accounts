@@ -181,9 +181,11 @@ class AutoPostingWizard(models.TransientModel):
         system_date = self.env.company.system_date.date()
         # Check for existing postings first
         existing = self.env['tz.manual.posting'].search([
+            ('company_id', '=', booking_line.booking_id.company_id.id),
             ('folio_id', '=', folio.id),
             ('item_id', '=', item_id),
-            ('room_list', '=', booking_line.room_id.id),
+            ('booking_id', '=', booking_line.booking_id.id),
+            # ('room_list', '=', booking_line.room_id.id),
             ('date', '=', system_date),
         ], limit=1)
 

@@ -82,13 +82,13 @@
                                         <span t-esc="item.first_date"/>
                                     </td>
                                     <td class="text-right">
-                                        <span t-esc="item.total_debit"/>
+                                        <span t-esc="round(item.total_debit, 2)"/>
                                     </td>
                                     <td class="text-right">
-                                        <span t-esc="item.total_credit"/>
+                                        <span t-esc="round(item.total_credit, 2)"/>
                                     </td>
                                     <td class="text-right">
-                                        <span t-esc="item.total_balance"/>
+                                        <span t-esc="round(item.total_balance, 2)"/>
                                     </td>
                                 </tr>
                             </t>
@@ -116,7 +116,7 @@
                         <span t-esc="folio_header.folio_balance"/>
                         <br/>
                         <h6>
-                            <strong>Grand Total:</strong>
+                            <strong>Balance:</strong>
                             <span t-esc="folio_header.grand_total"/>
                         </h6>
                     </div>

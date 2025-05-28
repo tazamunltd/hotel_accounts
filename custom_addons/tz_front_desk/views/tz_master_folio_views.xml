@@ -7,9 +7,6 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-<!--                <field name="room_id"/>-->
-<!--                <field name="group_id"/>-->
-<!--                <field name="dummy_id"/>-->
                 <field name="display_info"/>
                 <field name="guest_id"/>
                 <field name="check_in"/>
@@ -65,8 +62,8 @@
                                     <field name="unavailable_room_ids" column_invisible="1"/>
                                     <field name="description"/>
                                     <field name="voucher_number"/>
-                                    <field name="debit_amount" sum="Total Debit"/>
-                                    <field name="credit_amount" sum="Total Credit"/>
+                                    <field name="debit_without_vat" sum="Total Debit"/>
+                                    <field name="credit_without_vat" sum="Total Credit"/>
                                     <field name="balance"/>
                                 </tree>
                             </field>
@@ -88,13 +85,6 @@
                                                options="{'currency_field': 'currency_id'}" class="oe_inline"/>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-12 text-end">
-                                        <label for="balance" string="Balance:"/>
-                                        <field name="balance" widget="monetary"
-                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
-                                    </div>
-                                </div>
 
                                 <div class="row mt-2">
                                     <div class="col-12 text-end">
@@ -113,7 +103,7 @@
 
                                 <div class="row mt-2 oe_subtotal_footer_separator">
                                     <div class="col-12 text-end">
-                                        <label for="grand_total" string="Grand Total:" class="fw-bold"/>
+                                        <label for="grand_total" string="Balance:" class="fw-bold"/>
                                         <field name="grand_total" widget="monetary"
                                                options="{'currency_field': 'currency_id'}" class="fw-bold oe_inline"/>
                                     </div>
@@ -139,7 +129,7 @@
                 <field name="bill_number" string="Bill Number"/>
                 <field name="total_debit" string="Total Debit"/>
                 <field name="total_credit" string="Total Credit"/>
-                <field name="grand_total" string="Grand Total"/>
+                <field name="grand_total" string="Balance"/>
             </search>
         </field>
     </record>

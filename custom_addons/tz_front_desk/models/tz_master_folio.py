@@ -1,7 +1,4 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
-from collections import defaultdict
-import base64
 
 class TzMasterFolio(models.Model):
     _name = 'tz.master.folio'
@@ -24,12 +21,14 @@ class TzMasterFolio(models.Model):
     check_in = fields.Datetime(string="Check-in")
     check_out = fields.Datetime(string="Check-out")
     bill_number = fields.Char(string="Bill Number")
-    total_debit = fields.Float(string="Total Debit", compute='_compute_totals', store=True)
-    total_credit = fields.Float(string="Total Credit", compute='_compute_totals', store=True)
-    balance = fields.Float(string="Balance", compute='_compute_totals', store=True)
+    total_debit = fields.Float(string="Total Debit")
+    total_credit = fields.Float(string="Total Credit")
+    balance = fields.Float(string="Balance", compute='_compute_balance', store=True)
+
     value_added_tax = fields.Float(string="Value Added Tax")
     municipality_tax = fields.Float(string="Municipality Tax")
-    grand_total = fields.Float(string="Grand Total", compute='_compute_totals', store=True)
+
+    grand_total = fields.Float(string="Grand Total", compute='_compute_grand_total', store=True)
     manual_posting_ids = fields.One2many(
         'tz.manual.posting',
         'folio_id',
@@ -56,17 +55,6 @@ class TzMasterFolio(models.Model):
 
     display_info = fields.Char(string="Room/Group", compute="_compute_display_info", store=True)
 
-    @api.depends('manual_posting_ids.debit_amount', 'manual_posting_ids.credit_amount', 'value_added_tax',
-                 'municipality_tax')
-    def _compute_totals(self):
-        for folio in self:
-            total_debit = sum(line.debit_amount for line in folio.manual_posting_ids)
-            total_credit = sum(line.credit_amount for line in folio.manual_posting_ids)
-            folio.total_debit = total_debit
-            folio.total_credit = total_credit
-            folio.balance = total_debit - total_credit
-            folio.grand_total = total_debit + folio.value_added_tax + folio.municipality_tax
-
     @api.model
     def create(self, vals):
         if vals.get('name', 'New') == 'New':
@@ -88,59 +76,10 @@ class TzMasterFolio(models.Model):
 
         return super(TzMasterFolio, self).create(vals)
 
-    def action_folio_report_pdf(self):
-        self.ensure_one()
-        data = {
-            'doc_ids': [self.id],
-            'doc_model': 'tz.master.folio',
-            'docs': self,
-            'postings_grouped': self._prepare_postings_grouped_data(),
-        }
-        raise UserError(data)
-        return self.env.ref('tz_front_desk.action_report_master_folio').report_action(self, data=data)
-
-    def _prepare_postings_grouped_data(self):
-        query = """
-                            SELECT
-                                pi.id AS item_id,
-                                pi.item_code AS item_name,
-                                pi.description AS item_description,
-                                MIN(mp.date) AS first_date,
-                                MIN(mp.time) AS first_time,
-                                SUM(mp.debit_amount) AS total_debit,
-                                SUM(mp.credit_amount) AS total_credit,
-                                SUM(mp.balance) AS total_balance
-                            FROM
-                                tz_manual_posting mp
-                            JOIN
-                                posting_item pi ON mp.item_id = pi.id
-                            WHERE
-                                mp.folio_id = %s
-                            GROUP BY
-                                pi.id, pi.item_code, pi.description
-                            ORDER BY
-                                pi.item_code
-                        """
-        self.env.cr.execute(query, (self.id,))
-        return self.env.cr.dictfetchall()
-
     def action_generate_and_show_report(self):
         for folio in self:
             report_lines = self.env['tz.master.folio.report'].generate_folio_report(folio_id=folio.id)
             return self.env.ref('tz_front_desk.action_report_tz_master_folio').report_action(report_lines)
-
-    @api.model
-    def action_generate_pdf_report(self):
-        """ Generate and return the PDF report """
-        self.ensure_one()
-
-        self.generate_folio_report(self.folio_id.id)
-
-        if not self.exists():
-            raise UserError("No data available for this report.")
-
-        report_action = self.env.ref('tz_front_desk.action_report_tz_master_folio')
-        return report_action.report_action(self)
 
     @api.depends('room_id', 'group_id', 'dummy_id')
     def _compute_display_info(self):
@@ -153,4 +92,15 @@ class TzMasterFolio(models.Model):
             if rec.dummy_id:
                 values.append(f"Dummy: {rec.dummy_id.name}")
             rec.display_info = " | ".join(values)
+
+    @api.depends('total_debit', 'total_credit')
+    def _compute_balance(self):
+        for record in self:
+            record.balance = record.total_debit - record.total_credit
+
+    @api.depends('value_added_tax', 'municipality_tax', 'balance')
+    def _compute_grand_total(self):
+        for record in self:
+            record.grand_total = record.balance + record.value_added_tax + record.municipality_tax
+
 

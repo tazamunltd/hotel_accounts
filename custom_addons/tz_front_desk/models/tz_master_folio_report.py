@@ -65,8 +65,8 @@ class TzMasterFolioReport(models.Model):
                 COALESCE(pi.description ->> %s, pi.description ->> 'en_US') AS item_description,
                 MIN(mp.date) AS first_date,
                 MIN(mp.time) AS first_time,
-                SUM(mp.debit_amount) AS total_debit,
-                SUM(mp.credit_amount) AS total_credit,
+                SUM(mp.debit_without_vat) AS total_debit,
+                SUM(mp.credit_without_vat) AS total_credit,
                 SUM(mp.balance) AS total_balance
             FROM tz_manual_posting mp
             JOIN posting_item pi ON mp.item_id = pi.id

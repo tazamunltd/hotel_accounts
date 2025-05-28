@@ -8,3 +8,4 @@ access_tz_master_folio_manager,tz.master.folio.manager,model_tz_master_folio,,1,
 access_auto_posting_wizard,access.auto.posting.wizard,model_auto_posting_wizard,,1,1,1,1
 access_tz_master_folio_report_manager,tz.master.folio.report.manager,model_tz_master_folio_report,,1,1,1,1
 access_tz_dummy_group_manager,access.tz.dummy.group.manager,model_tz_dummy_group,,1,1,1,1
+access_tz_manual_posting_tax_public,access.tz.manual.posting.tax,model_tz_manual_posting_tax,,1,1,1,1

@@ -95,7 +95,7 @@ msgid ""
 "                        <strong>Total Credit:</strong>"
 msgstr ""
 "<br/>\n"
-"                        <strong>إجمالي الائتمان:</strong>"
+"                        <strong>إجمالي الرصيد الدائن:</strong>"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
@@ -1392,12 +1392,12 @@ msgstr "إجمالي الرصيد"
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
 msgid "Total Credit"
-msgstr "إجمالي الائتمان"
+msgstr "إجمالي الرصيد الدائن"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
 msgid "Total Credit:"
-msgstr "إجمالي الائتمان:"
+msgstr "إجمالي الرصيد الدائن:"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__total_debit

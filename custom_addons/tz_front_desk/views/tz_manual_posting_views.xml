@@ -84,10 +84,19 @@
                                             </div>
                                         </div>
                                         <hr/>
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <label for="type" class="form-label small mb-2">Type</label>
                                             <div class="d-flex flex-row gap-3">
                                                 <field name="type" widget="radio" options="{'horizontal': True}"
+                                                       readonly="source_type == 'auto' or state == 'posted'"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" invisible="type != 'booking'">
+                                            <div class="form-group">
+                                                <label for="booking_id" class="form-label small"/>
+                                            </div>
+                                            <div class="form-control form-control-sm">
+                                                <field name="booking_id" options="{'no_create': True}"
                                                        readonly="source_type == 'auto' or state == 'posted'"/>
                                             </div>
                                         </div>
@@ -115,28 +124,20 @@
                                                 <label for="folio_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="folio_id" readonly="1"/>
+                                                <field name="folio_id" readonly="1" force_save="1"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-3" invisible="not booking_id">
+                                        <hr invisible="not booking_id"/>
+                                        <div class="col-md-4" invisible="not booking_id">
                                             <div class="form-group">
-                                                <label for="booking_id" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="booking_id" readonly="1"/>
-                                            </div>
-                                        </div>
-                                        <hr invisible="not room_list"/>
-                                        <div class="col-md-4" invisible="not room_list">
-                                            <div class="form-group" invisible="not room_list">
                                                 <label for="partner_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="partner_id" force_save="1"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-4" invisible="not room_list">
-                                            <div class="form-group" invisible="not room_list">
+                                        <div class="col-md-4" invisible="not booking_id">
+                                            <div class="form-group">
                                                 <label for="reference_contact_" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
@@ -260,7 +261,19 @@
                                 </div>
                             </div>
                         </div>
+                        <notebook invisible="not item_id">
+                            <page string="Details">
+                                <field name="tax_ids" readonly="1">
+                                    <tree>
+<!--                                        <field name="posting_id"/>-->
+                                        <field name="description"/>
+                                        <field name="price"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                     </div>
+
                 </sheet>
                 <div class="oe_chatter" style="margin-top: 20px;">
                     <field name="message_ids" widget="mail_thread"/>

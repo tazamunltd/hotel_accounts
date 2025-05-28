@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <tree string="Dummy Groups">
                 <field name="name"/>
-                <field name="abbreviation"/>
+<!--                <field name="abbreviation"/>-->
                 <field name="description"/>
                 <field name="company_id"/>
                 <field name="obsolete" widget="boolean" decoration-danger="obsolete == True"/>
