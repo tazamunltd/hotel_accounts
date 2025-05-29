@@ -513,36 +513,39 @@ class TzHotelManualPosting(models.Model):
         for rec in self:
             taxes = rec.item_id.taxes
             total = rec.debit_amount if rec.sign == 'debit' else rec.credit_amount
+
             if not total or total <= 0:
                 continue
 
             tax_lines = []
+            room_charge = total  # Default if no taxes
+            vat_amount = 0.0
+            municipality_amount = 0.0
 
             if taxes:
-                # Initialize variables for tax rates
+                # Initialize variables
                 vat_rate = 0.0
                 municipality_rate = 0.0
 
+                # First pass: get all tax rates
                 for tax in taxes:
-                    if 'vat' in tax.description.lower():
-                        vat_rate = tax.amount / 100.0
-                    else:
-                        municipality_rate = tax.amount / 100.0
+                    tax_description = tax.description or ""  # Handle False/None descriptions
+                    if isinstance(tax_description, str):
+                        if 'vat' in tax_description.lower():
+                            vat_rate = tax.amount / 100.0
+                        else:
+                            municipality_rate = tax.amount / 100.0
 
-                vat_divisor = 1 + vat_rate
-                municipality_divisor = 1 + municipality_rate
+                # Calculate amounts using original logic
+                if vat_rate > 0:
+                    vat_amount = total - (total / (1 + vat_rate))
+                    room_charge = total - vat_amount
 
-                vat_amount = total - (total / vat_divisor)
-                amount_after_vat = total - vat_amount
-                municipality_amount = amount_after_vat - (amount_after_vat / municipality_divisor)
-                room_charge = total - vat_amount - municipality_amount
-            else:
-                # No taxes, so room_charge is the total amount
-                vat_amount = 0.0
-                municipality_amount = 0.0
-                room_charge = total
+                if municipality_rate > 0:
+                    municipality_amount = room_charge - (room_charge / (1 + municipality_rate))
+                    room_charge = room_charge - municipality_amount
 
-            # Always add Room Charge or item description
+            # Always add Room Charge or item description (FIRST)
             tax_lines.append({
                 'date': rec.date,
                 'time': rec.time,
@@ -554,138 +557,47 @@ class TzHotelManualPosting(models.Model):
                 'type': 'amount',
             })
 
-            # Add tax lines only if taxes exist
+            # Add tax lines if taxes exist
             if taxes:
                 for tax in taxes:
-                    if 'vat' in tax.description.lower():
-                        tax_lines.append({
-                            'date': rec.date,
-                            'time': rec.time,
-                            'description': tax.description,
-                            'debit_amount': round(vat_amount, 2) if rec.sign == 'debit' else 0.0,
-                            'credit_amount': round(vat_amount, 2) if rec.sign == 'credit' else 0.0,
-                            'balance': round(vat_amount, 2) if rec.sign == 'debit' else -round(vat_amount, 2),
-                            'posting_id': rec.id,
-                            'type': 'vat',
-                        })
-                    else:
-                        tax_lines.append({
-                            'date': rec.date,
-                            'time': rec.time,
-                            'description': tax.description,
-                            'debit_amount': round(municipality_amount, 2) if rec.sign == 'debit' else 0.0,
-                            'credit_amount': round(municipality_amount, 2) if rec.sign == 'credit' else 0.0,
-                            'balance': round(municipality_amount, 2) if rec.sign == 'debit' else -round(
-                                municipality_amount, 2),
-                            'posting_id': rec.id,
-                            'type': 'municipality',
-                        })
+                    tax_description = tax.description or ""
+                    if isinstance(tax_description, str):
+                        if 'vat' in tax_description.lower():
+                            tax_lines.append({
+                                'date': rec.date,
+                                'time': rec.time,
+                                'description': tax_description or "VAT",
+                                'debit_amount': round(vat_amount, 2) if rec.sign == 'debit' else 0.0,
+                                'credit_amount': round(vat_amount, 2) if rec.sign == 'credit' else 0.0,
+                                'balance': round(vat_amount, 2) if rec.sign == 'debit' else -round(vat_amount, 2),
+                                'posting_id': rec.id,
+                                'type': 'vat',
+                            })
+                        else:
+                            tax_lines.append({
+                                'date': rec.date,
+                                'time': rec.time,
+                                'description': tax_description or "Municipality Tax",
+                                'debit_amount': round(municipality_amount, 2) if rec.sign == 'debit' else 0.0,
+                                'credit_amount': round(municipality_amount, 2) if rec.sign == 'credit' else 0.0,
+                                'balance': round(municipality_amount, 2) if rec.sign == 'debit' else -round(
+                                    municipality_amount, 2),
+                                'posting_id': rec.id,
+                                'type': 'municipality',
+                            })
 
-            # Create tax lines with non-zero values
+            # Create records for non-zero lines
             for line in tax_lines:
                 if line['debit_amount'] > 0 or line['credit_amount'] > 0:
                     tax_model.create(line)
 
-            # Save net amounts
+            # Update net amounts
             rec.write({
                 'debit_without_vat': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
                 'credit_without_vat': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
             })
 
             rec.update_folio_debit_credit_and_taxes()
-
-    # def compute_manual_taxes(self):
-    #     tax_model = self.env['tz.manual.posting.tax']
-    #     for rec in self:
-    #         taxes = rec.item_id.taxes
-    #         if not taxes:
-    #             continue  # Skip if item has no taxes
-    #
-    #         # Determine the total amount based on the sign
-    #         total = rec.debit_amount if rec.sign == 'debit' else rec.credit_amount
-    #         if not total or total <= 0:
-    #             continue
-    #
-    #         # Initialize variables for tax rates
-    #         vat_rate = 0.0
-    #         municipality_rate = 0.0
-    #
-    #         # Get rates from taxes field
-    #         for tax in taxes:
-    #             if 'vat' in tax.description.lower():
-    #                 vat_rate = tax.amount / 100.0  # Convert percentage to decimal
-    #             else:
-    #                 municipality_rate = tax.amount / 100.0  # Convert percentage to decimal
-    #
-    #         # Calculate amounts using dynamic rates
-    #         vat_divisor = 1 + vat_rate
-    #         municipality_divisor = 1 + municipality_rate
-    #
-    #         # Calculate VAT
-    #         vat_amount = total - (total / vat_divisor)
-    #
-    #         # Calculate amount after VAT
-    #         amount_after_vat = total - vat_amount
-    #
-    #         # Calculate Municipality (from amount after VAT)
-    #         municipality_amount = amount_after_vat - (amount_after_vat / municipality_divisor)
-    #
-    #         # Calculate Room Charge (net amount)
-    #         room_charge = total - vat_amount - municipality_amount
-    #
-    #         tax_lines = []
-    #
-    #         # Create tax lines in the correct order
-    #         for tax in taxes:
-    #             if 'vat' in tax.description.lower():
-    #                 # VAT line
-    #                 tax_lines.append({
-    #                     'date': rec.date,
-    #                     'time': rec.time,
-    #                     'description': tax.description,
-    #                     'debit_amount': round(vat_amount, 2) if rec.sign == 'debit' else 0.0,
-    #                     'credit_amount': round(vat_amount, 2) if rec.sign == 'credit' else 0.0,
-    #                     'balance': round(vat_amount, 2) if rec.sign == 'debit' else -round(vat_amount, 2),
-    #                     'posting_id': rec.id,
-    #                     'type': 'vat',
-    #                 })
-    #             else:
-    #                 # Municipality line
-    #                 tax_lines.append({
-    #                     'date': rec.date,
-    #                     'time': rec.time,
-    #                     'description': tax.description,
-    #                     'debit_amount': round(municipality_amount, 2) if rec.sign == 'debit' else 0.0,
-    #                     'credit_amount': round(municipality_amount, 2) if rec.sign == 'credit' else 0.0,
-    #                     'balance': round(municipality_amount, 2) if rec.sign == 'debit' else -round(municipality_amount,
-    #                                                                                                 2),
-    #                     'posting_id': rec.id,
-    #                     'type': 'municipality',
-    #                 })
-    #
-    #         # Add Room Charge as the first record
-    #         tax_lines.insert(0, {
-    #             'date': rec.date,
-    #             'time': rec.time,
-    #             'description': rec.item_id.description or 'Room Charge',
-    #             'debit_amount': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
-    #             'credit_amount': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
-    #             'balance': round(room_charge, 2) if rec.sign == 'debit' else -round(room_charge, 2),
-    #             'posting_id': rec.id,
-    #             'type': 'amount',
-    #         })
-    #
-    #         # Create records with non-zero values
-    #         for line in tax_lines:
-    #             if line['debit_amount'] > 0 or line['credit_amount'] > 0:
-    #                 tax_model.create(line)
-    #
-    #         rec.write({
-    #             'debit_without_vat': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
-    #             'credit_without_vat': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
-    #         })
-    #         rec.update_folio_debit_credit_and_taxes()
-    #         raise UserError(rec.item_id.taxes)
 
     def update_folio_debit_credit_and_taxes(self):
         for rec in self:

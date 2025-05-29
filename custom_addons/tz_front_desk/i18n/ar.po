@@ -6,14 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-24 11:27+0000\n"
-"PO-Revision-Date: 2025-05-24 11:27+0000\n"
+"POT-Creation-Date: 2025-05-28 19:39+0000\n"
+"PO-Revision-Date: 2025-05-28 19:39+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid ""
@@ -159,6 +160,7 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-file-powerpoint-o m-1\"/>\n"
 "                                    <span class=\"fw-bold\">معلومات بند التحميل</span>"
+
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
 msgid ""
@@ -206,13 +208,13 @@ msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
-msgid "<strong>Folio:</strong>"
-msgstr "<strong>الفليو:</strong>"
+msgid "<strong>Balance:</strong>"
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
-msgid "<strong>Grand Total:</strong>"
-msgstr "<strong>الرصيد:</strong>"
+msgid "<strong>Folio:</strong>"
+msgstr "<strong>الفليو:</strong>"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
@@ -299,6 +301,11 @@ msgid "All bookings associated with this Master Folio"
 msgstr "جميع الحجوزات المرتبطة بهذا فوليو النزيل"
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_tax__type__amount
+msgid "Amount"
+msgstr ""
+
+#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "Amount Selection"
 msgstr "اختيار المبلغ"
@@ -334,8 +341,10 @@ msgstr "الغرف المتاحة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__balance
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__balance
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__balance
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
 msgid "Balance"
 msgstr "رصيد الحساب"
 
@@ -350,6 +359,11 @@ msgstr "الرصيد:"
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
 msgid "Bill Number"
 msgstr "رقم الفاتورة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__type__booking
+msgid "Booking"
+msgstr "الحجز"
 
 #. module: tz_front_desk
 #. odoo-python
@@ -438,6 +452,7 @@ msgstr "مرجع الاتصال"
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__create_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__create_uid
@@ -449,6 +464,7 @@ msgstr "أنشئ بواسطة"
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__create_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__create_date
@@ -458,6 +474,8 @@ msgstr "أنشئ في"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__credit_amount
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__credit_without_vat
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__credit_amount
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__sign__credit
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid "Credit"
@@ -474,6 +492,11 @@ msgstr "مبلغ الائتمان"
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__currency_id
 msgid "Currency"
 msgstr "العملة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__date
+msgid "Date"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__date
@@ -493,6 +516,8 @@ msgstr "تاريخ تسجيل المغادرة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__debit_amount
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__debit_without_vat
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__debit_amount
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__sign__debit
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid "Debit"
@@ -508,6 +533,7 @@ msgstr "المبلغ المدين"
 #: code:addons/tz_front_desk/models/tz_manual_posting.py:0
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__description
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__description
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__description
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__item_description
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 #, python-format
@@ -515,9 +541,9 @@ msgid "Description"
 msgstr "الوصف"
 
 #. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_dummy_group_view_search
-msgid "Discount"
-msgstr "خصم"
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
+msgid "Details"
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
@@ -532,6 +558,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__display_name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__display_name
@@ -668,14 +695,8 @@ msgstr "إنشاء تقرير الفيليو"
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__grand_total
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__grand_total
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
 msgid "Grand Total"
 msgstr "الرصيد"
-
-#. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
-msgid "Grand Total:"
-msgstr "الرصيد:"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__group_list
@@ -708,6 +729,7 @@ msgstr "معرف المجموعة"
 #: model:ir.model.fields,help:tz_front_desk.field_room_booking__group_booking
 msgid "Group associated with this booking"
 msgstr "المجموعة المرتبطة بهذا الحجز"
+
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__all_group
 msgid "Group or Dummy Group"
@@ -748,6 +770,7 @@ msgstr "لديه رسالة"
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__company_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__company_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__company_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__company_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__company_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__company_id
@@ -760,9 +783,15 @@ msgid "Hotel Manual Posting"
 msgstr "ترحيل يدوي للفندق"
 
 #. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_tz_manual_posting_tax
+msgid "Hotel Manual Posting Tax"
+msgstr ""
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__id
@@ -860,6 +889,7 @@ msgstr "يجب أن يكون بند التحميل لكل ملف فريدًا!"
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__write_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__write_uid
@@ -871,6 +901,7 @@ msgstr "آخر تحديث بواسطة"
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__write_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__write_date
@@ -889,6 +920,7 @@ msgid "Manual"
 msgstr "يدوي"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__posting_id
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
 msgid "Manual Posting"
 msgstr "ترحيل يدوي"
@@ -982,6 +1014,11 @@ msgid "Messages"
 msgstr "الرسائل"
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_tax__type__municipality
+msgid "Municipality"
+msgstr ""
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__municipality_tax
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__municipality_tax
 msgid "Municipality Tax"
@@ -1033,11 +1070,6 @@ msgid "No Smoking"
 msgstr "ممنوع التدخين"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__no_of_nights
-msgid "No of Nights"
-msgstr "عدد الليالي"
-
-#. module: tz_front_desk
 #. odoo-python
 #: code:addons/tz_front_desk/wizard/tz_auto_posting.py:0
 #, python-format
@@ -1072,6 +1104,7 @@ msgid "Number of Actions"
 msgstr "عدد الإجراءات"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__no_of_nights
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__no_of_nights
 msgid "Number of Nights"
 msgstr "عدد الليالي"
@@ -1149,6 +1182,7 @@ msgstr "بنود التحميل"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__price
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__price
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
 msgid "Price"
 msgstr "السعر"
@@ -1175,7 +1209,9 @@ msgstr "الكمية"
 msgid ""
 "Rate Code is required. Please a Rate Code or configure a default Rate Code "
 "in Company Settings"
-msgstr "كود التعاقد مطلوب. يرجى إدخال كود التعاقد أو تكوين كود التعاقد افتراضي في إعدادات الشركة"
+msgstr ""
+"كود التعاقد مطلوب. يرجى إدخال كود التعاقد أو تكوين كود التعاقد افتراضي في "
+"إعدادات الشركة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_user_id
@@ -1316,8 +1352,7 @@ msgstr "المصدر"
 msgid ""
 "Source of Business is required. Please configure a default Source of "
 "Business in Company Settings."
-msgstr ""
-"المصدر التجاري مطلوب. يرجى تكوين مصدر افتراضي في إعدادات الشركة."
+msgstr "المصدر التجاري مطلوب. يرجى تكوين مصدر افتراضي في إعدادات الشركة."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_rate_forecast__state
@@ -1346,6 +1381,7 @@ msgid "Suite"
 msgstr "جناح"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__tax_ids
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__taxes
 msgid "Taxes"
 msgstr "الضرائب"
@@ -1357,10 +1393,12 @@ msgid ""
 "country format. You can use '/' to indicate that the partner is not subject "
 "to tax."
 msgstr ""
-"رقم التعريف الضريبي. سيتم التحقق من القيم هنا بناءً على تنسيق البلد. يمكنك استخدام '/' للإشارة إلى أن الشريك غير خاضع للضريبة."
+"رقم التعريف الضريبي. سيتم التحقق من القيم هنا بناءً على تنسيق البلد. يمكنك "
+"استخدام '/' للإشارة إلى أن الشريك غير خاضع للضريبة."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__time
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__time
 msgid "Time"
 msgstr "الوقت"
 
@@ -1429,6 +1467,7 @@ msgstr "نموذج مؤقت للبحث عن غرف الفنادق"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__type
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__type
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
 msgid "Type"
 msgstr "النوع"
@@ -1461,6 +1500,7 @@ msgstr "استخدام سعر الغرفة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__value_added_tax
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_tax__type__vat
 msgid "VAT"
 msgstr "ضريبة القيمة المضافة"
 
@@ -1482,7 +1522,7 @@ msgstr "رقم السند"
 
 #. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_room_booking
-msgid "Waiting List Room Availability"
+msgid "Waiting List Room Availability"
 msgstr "توافر غرفة الانتظار"
 
 #. module: tz_front_desk

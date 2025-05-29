@@ -18,11 +18,6 @@ class AutoPostingWizard(models.TransientModel):
     group_from = fields.Many2one('group.booking', string="From Group")
     group_to = fields.Many2one('group.booking', string="To Group")
 
-    # Dummy group selection fields
-    # all_dummys = fields.Boolean(string="All Dummy Groups", default=True)
-    # dummy_from = fields.Many2one('tz.dummy.group', string="From Dummy")
-    # dummy_to = fields.Many2one('tz.dummy.group', string="To Dummy")
-
     # Charge type selection
     include_rates = fields.Boolean(string="Room Rates", default=True)
     include_meals = fields.Boolean(string="Meals", default=True)
@@ -40,12 +35,6 @@ class AutoPostingWizard(models.TransientModel):
         if self.all_groups:
             self.group_from = False
             self.group_to = False
-
-    # @api.onchange('all_dummys')
-    # def _onchange_all_dummys(self):
-    #     if self.all_dummys:
-    #         self.dummy_from = False
-    #         self.dummy_to = False
 
     def action_auto_posting(self):
         self.ensure_one()
