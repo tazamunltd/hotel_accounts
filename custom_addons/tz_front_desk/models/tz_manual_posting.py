@@ -508,7 +508,8 @@ class TzHotelManualPosting(models.Model):
                 'balance': tax['amount'],
             })
 
-    def compute_manual_taxes(self):
+    # the below is working fine but without options [Included in Price?, Affect Base of Subsequent Taxes?]
+    def compute_manual_taxesX(self):
         tax_model = self.env['tz.manual.posting.tax']
         for rec in self:
             taxes = rec.item_id.taxes
@@ -585,6 +586,76 @@ class TzHotelManualPosting(models.Model):
                                 'posting_id': rec.id,
                                 'type': 'municipality',
                             })
+
+            # Create records for non-zero lines
+            for line in tax_lines:
+                if line['debit_amount'] > 0 or line['credit_amount'] > 0:
+                    tax_model.create(line)
+
+            # Update net amounts
+            rec.write({
+                'debit_without_vat': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
+                'credit_without_vat': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
+            })
+
+            rec.update_folio_debit_credit_and_taxes()
+
+    def compute_manual_taxes(self):
+        tax_model = self.env['tz.manual.posting.tax']
+        for rec in self:
+            taxes = rec.item_id.taxes.sorted('sequence')  # Process taxes in sequence
+            total = rec.debit_amount if rec.sign == 'debit' else rec.credit_amount
+
+            if not total or total <= 0:
+                continue
+
+            tax_lines = []
+            base_amount = total
+            amounts_by_tax = {}
+
+            # Calculate tax amounts considering tax options
+            for tax in taxes:
+                if tax.price_include:  # If tax is included in price
+                    tax_amount = base_amount - (base_amount / (1 + tax.amount / 100.0))
+                    base_amount -= tax_amount
+                else:  # If tax is added on top
+                    tax_amount = base_amount * (tax.amount / 100.0)
+
+                amounts_by_tax[tax.id] = tax_amount
+
+                # If tax affects subsequent taxes, add to base
+                if tax.include_base_amount:
+                    base_amount += tax_amount
+
+            # Room charge is now the base_amount after all included taxes are subtracted
+            room_charge = base_amount
+
+            # Add Room Charge line
+            tax_lines.append({
+                'date': rec.date,
+                'time': rec.time,
+                'description': rec.item_id.description or 'Room Charge',
+                'debit_amount': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
+                'credit_amount': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
+                'balance': round(room_charge, 2) if rec.sign == 'debit' else -round(room_charge, 2),
+                'posting_id': rec.id,
+                'type': 'amount',
+            })
+
+            # Add tax lines
+            for tax in taxes:
+                tax_amount = amounts_by_tax.get(tax.id, 0.0)
+                if tax_amount > 0:
+                    tax_lines.append({
+                        'date': rec.date,
+                        'time': rec.time,
+                        'description': tax.description or tax.name,
+                        'debit_amount': round(tax_amount, 2) if rec.sign == 'debit' else 0.0,
+                        'credit_amount': round(tax_amount, 2) if rec.sign == 'credit' else 0.0,
+                        'balance': round(tax_amount, 2) if rec.sign == 'debit' else -round(tax_amount, 2),
+                        'posting_id': rec.id,
+                        'type': 'vat' if 'vat' in (tax.description or '').lower() else 'municipality',
+                    })
 
             # Create records for non-zero lines
             for line in tax_lines:

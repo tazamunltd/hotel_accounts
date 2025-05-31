@@ -51,6 +51,7 @@ class AutoPostingWizard(models.TransientModel):
 
         # 2. Process each forecast
         for forecast in forecasts:
+
             # Get linked booking lines for this forecast
             booking_line = self.env['room.booking.line'].search([
                 ('booking_id', '=', forecast.room_booking_id.id),
@@ -97,8 +98,7 @@ class AutoPostingWizard(models.TransientModel):
         """Find existing folio that is active during the system_date"""
         domain = [
             ('company_id', '=', self.env.company.id),
-            ('check_in', '>=', fields.Datetime.to_datetime(system_date)),
-            ('check_in', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
+            ('state', '=', 'draft'),
         ]
 
         if booking_line.booking_id.group_booking:
@@ -118,6 +118,7 @@ class AutoPostingWizard(models.TransientModel):
         # new_rate_code =  self.env['rate.code'].sudo().browse(62) #62
         package_items = booking.rate_code.rate_detail_ids.line_ids.packages_posting_item if booking.rate_code else None
         fixed_items = booking.posting_item_ids.posting_item_id
+
 
         # Room Rate
         if rate_item:
@@ -162,7 +163,6 @@ class AutoPostingWizard(models.TransientModel):
             if self.include_fixed and forecast.fixed_post > 0:
                 raise UserError(
                     _("No posting item configured for fixed post"))
-
         return created_count
 
     def _create_posting_line(self, folio, booking_line, item_id, description, amount):
@@ -173,8 +173,8 @@ class AutoPostingWizard(models.TransientModel):
             ('company_id', '=', booking_line.booking_id.company_id.id),
             ('folio_id', '=', folio.id),
             ('item_id', '=', item_id),
-            ('booking_id', '=', booking_line.booking_id.id),
-            # ('room_list', '=', booking_line.room_id.id),
+            # ('booking_id', '=', booking_line.booking_id.id),
+            ('room_list', '=', booking_line.room_id.id),
             ('date', '=', system_date),
         ], limit=1)
 
