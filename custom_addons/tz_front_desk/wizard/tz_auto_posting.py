@@ -176,6 +176,7 @@ class AutoPostingWizard(models.TransientModel):
             # ('booking_id', '=', booking_line.booking_id.id),
             ('room_list', '=', booking_line.room_id.id),
             ('date', '=', system_date),
+            ('source_type', '=', 'auto'),
         ], limit=1)
 
         if existing:

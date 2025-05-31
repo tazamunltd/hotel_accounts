@@ -1,3 +1,5 @@
+from logging import setLogRecordFactory
+
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 from datetime import datetime, timedelta
@@ -188,22 +190,30 @@ class TzHotelManualPosting(models.Model):
             vals[
                 'name'] = f"{company.name}/{self.env['ir.sequence'].with_company(company).next_by_code('tz.manual.posting') or '00001'}"
 
+        record = super(TzHotelManualPosting, self).create(vals)
+
         if self._context.get('manual_creation'):
             if vals.get('group_list', False):
                 vals['room_list'] = self._get_master_room_id(vals['group_list'])
-
-            vals['source_type'] = 'manual'
-
-        record = super(TzHotelManualPosting, self).create(vals)
-
-        # Optimize folio linking - consider making this a separate method or async
-        if self._context.get('manual_creation') and not record.folio_id:
             folio = False
             if record.room_list:
-                folio = record._create_master_folio(record.room_list.id)
+                folio = self._create_master_folio(record.room_list.id)
+                vals['source_type'] = 'manual'
             elif record.dummy_list:
                 folio = record._get_master_folio_for_dummy(record.dummy_list.id)
+
             record.folio_id = folio
+        #
+        #
+        #
+        # # Optimize folio linking - consider making this a separate method or async
+        # if self._context.get('manual_creation') and not record.folio_id:
+        #     folio = False
+        #     if record.room_list:
+        #         folio = record._create_master_folio(record.room_list.id)
+        #     elif record.dummy_list:
+        #         folio = record._get_master_folio_for_dummy(record.dummy_list.id)
+        #     record.folio_id = folio
 
         if record.item_id:
             record.compute_manual_taxes()
@@ -381,7 +391,7 @@ class TzHotelManualPosting(models.Model):
             ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
         ], limit=1)
 
-        domain = self._get_domain_filter(room_id, system_date)
+        domain = self._get_domain_filter(room_id)
 
         if booking_line.booking_id.group_booking:
             folio = self.env['tz.master.folio'].sudo().search(domain, limit=1)
@@ -408,12 +418,11 @@ class TzHotelManualPosting(models.Model):
         else:
             return self.env['tz.master.folio'].sudo().search(domain, limit=1)
 
-    def _get_domain_filter(self, room_id, system_date):
+    def _get_domain_filter(self, room_id):
         return [
             ('company_id', '=', self.env.company.id),
             ('room_id', '=', room_id),
-            ('check_in', '>=', fields.Datetime.to_datetime(system_date)),
-            ('check_in', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1)))
+            ('state', '=', 'draft'),
         ]
 
     def _get_master_folio_for_dummy(self, dummy_id):

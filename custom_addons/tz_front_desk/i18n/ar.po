@@ -369,8 +369,8 @@ msgstr "الحجز"
 #. odoo-python
 #: code:addons/tz_front_desk/models/room_booking.py:0
 #, python-format
-msgid "Booking checked in and master folio created successfully!"
-msgstr "تم تسجيل الوصول وإنشاء فوليو النزيل بنجاح!"
+msgid "Master folio successfully created."
+msgstr "تم إنشاء فوليو النزيل بنجاح!"
 
 #. module: tz_front_desk
 #: model:ir.actions.act_window,name:tz_front_desk.fd_action_room_booking_list

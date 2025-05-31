@@ -15,43 +15,43 @@
 
                 <!-- Folio Header -->
                 <div class="row" style="margin-bottom: 15px;">
-                    <!-- Left Side (Start-aligned) -->
-                    <div class="col-6">
-                        <strong>Folio:</strong>
-                        <span t-esc="folio_header.folio_number"/>
-                        <br/>
-                        <strong>Room:</strong>
-                        <span t-esc="folio_header.room_id.name"/>
-                        (<span t-esc="folio_header.room_type_id.room_type"/>)
-                        <br/>
-                        <strong>Guest:</strong>
-                        <span t-esc="folio_header.guest_id.name"/>
-                        <br/>
-                        <strong>Check-in:</strong>
-                        <span t-esc="folio_header.check_in"/>
-                        <br/>
-                        <strong>Check-out:</strong>
-                        <span t-esc="folio_header.check_out"/>
-                    </div>
+    <!-- Left Side (Start-aligned) -->
+    <div class="col-6">
+        <strong>Folio:</strong>
+        <span t-esc="folio_header.folio_number"/>
+        <br/>
+        <strong>Room:</strong>
+        <span t-esc="folio_header.room_id.name"/>
+        (<span t-esc="folio_header.room_type_id.room_type"/>)
+        <br/>
+        <strong>Guest:</strong>
+        <span t-esc="folio_header.guest_id.name"/>
+        <br/>
+        <strong>Check-in:</strong>
+        <span t-field="folio_header.check_in" t-options="{'format': 'dd/MM/yyyy'}"/>
+        <br/>
+        <strong>Check-out:</strong>
+        <span t-field="folio_header.check_out" t-options="{'format': 'dd/MM/yyyy'}"/>
+    </div>
 
-                    <!-- Right Side (End-aligned with text-end) -->
-                    <div class="col-6 text-end">
-                        <strong>Group:</strong>
-                        <span t-esc="folio_header.group_id.name"/>
-                        <br/>
-                        <strong>VAT:</strong>
-                        <span t-esc="folio_header.company_vat"/>
-                        <br/>
-                        <strong>Bill Number:</strong>
-                        <span t-esc="folio_header.bill_number"/>
-                        <br/>
-                        <strong>Rooming Info:</strong>
-                        <span t-esc="folio_header.rooming_info"/>
-                        <br/>
-                        <strong>Currency:</strong>
-                        <span t-esc="folio_header.currency_id.name"/>
-                    </div>
-                </div>
+    <!-- Right Side (End-aligned with text-end) -->
+    <div class="col-6 text-end">
+        <strong>Group:</strong>
+        <span t-esc="folio_header.group_id.name"/>
+        <br/>
+        <strong>VAT:</strong>
+        <span t-esc="folio_header.company_vat"/>
+        <br/>
+        <strong>Bill Number:</strong>
+        <span t-esc="folio_header.bill_number"/>
+        <br/>
+        <strong>Rooming Info:</strong>
+        <span t-esc="folio_header.rooming_info"/>
+        <br/>
+        <strong>Currency:</strong>
+        <span t-esc="folio_header.currency_id.name"/>
+    </div>
+</div>
 
 
                 <!-- Table -->

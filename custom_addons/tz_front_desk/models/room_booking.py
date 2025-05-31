@@ -317,7 +317,7 @@ class RoomBooking(models.Model):
             'tag': 'display_notification',
             'params': {
                 'type': 'success',
-                'message': _("Booking checked in and master folio created successfully!"),
+                'message': _("Master folio successfully created."),
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }

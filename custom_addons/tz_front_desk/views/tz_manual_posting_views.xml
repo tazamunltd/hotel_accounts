@@ -4,7 +4,7 @@
         <field name="name">tz.manual.posting.tree</field>
         <field name="model">tz.manual.posting</field>
         <field name="arch" type="xml">
-            <tree string="Manual Postings">
+            <tree string="Manual Postings" default_order="create_date desc">
                 <field name="name"/>
                 <field name="item_id"/>
                 <field name="date"/>
@@ -18,6 +18,9 @@
                 <field name="source_type" widget="badge" decoration-danger="source_type == 'auto'"
                        decoration-info="source_type == 'manual'"/>
                 <field name="state"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-success="state == 'posted'"/>
             </tree>
         </field>
     </record>
@@ -265,7 +268,7 @@
                             <page string="Details">
                                 <field name="tax_ids" readonly="1">
                                     <tree>
-<!--                                        <field name="posting_id"/>-->
+                                        <!--                                        <field name="posting_id"/>-->
                                         <field name="description"/>
                                         <field name="price"/>
                                     </tree>

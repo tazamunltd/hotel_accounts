@@ -9,8 +9,8 @@
                 <field name="name"/>
                 <field name="display_info"/>
                 <field name="guest_id"/>
-                <field name="check_in"/>
-                <field name="check_out"/>
+                <field name="check_in" widget="date"/>
+                <field name="check_out" widget="date"/>
                 <field name="grand_total"/>
             </tree>
         </field>
@@ -39,8 +39,8 @@
                             <field name="room_id"/>
                             <field name="room_type_id"/>
                             <field name="guest_id"/>
-                            <field name="check_in"/>
-                            <field name="check_out"/>
+                            <field name="check_in" widget="date"/>
+                            <field name="check_out" widget="date"/>
                             <field name="currency_id"/>
                         </group>
                         <group>
