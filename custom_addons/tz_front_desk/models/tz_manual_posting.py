@@ -627,17 +627,18 @@ class TzHotelManualPosting(models.Model):
                 if tax.price_include:  # If tax is included in price
                     tax_amount = base_amount - (base_amount / (1 + tax.amount / 100.0))
                     base_amount -= tax_amount
+                    # If tax affects subsequent taxes, add to base
+                    # if tax.include_base_amount:
+                    #     base_amount += tax_amount
+
                 else:  # If tax is added on top
                     tax_amount = base_amount * (tax.amount / 100.0)
 
                 amounts_by_tax[tax.id] = tax_amount
 
-                # If tax affects subsequent taxes, add to base
-                if tax.include_base_amount:
-                    base_amount += tax_amount
-
             # Room charge is now the base_amount after all included taxes are subtracted
             room_charge = base_amount
+            # raise UserError(round(room_charge, 2))
 
             # Add Room Charge line
             tax_lines.append({
