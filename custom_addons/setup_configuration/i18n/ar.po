@@ -27,6 +27,148 @@ msgstr ""
 msgid "Application Room Type"
 msgstr "أنواع الغرف في نموذج الحجز"
 
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__amount_selection__line_wise
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__percentage_selection__line_wise
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__quantity_type__per_room
+msgid "Per Room"
+msgstr "للغرفة"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_sub_type_form
+msgid ""
+"<i class=\"fa fa-utensils\"/>\n"
+"                                    <span class=\"fw-bold\">Main Meal Pattern  Details</span>"
+msgstr "تفاصيل نمط الوجبة الرئيسي"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_meal_pattern_sub_type
+#: model:ir.model.fields,field_description:setup_configuration.field_meal_pattern_sub_type__name
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_meal_pattern_sub_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_sub_type_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_sub_type_tree
+msgid "Main Meal Pattern"
+msgstr "نمط الوجبة الرئيسي"
+
+#. module: setup_configuration
+#: model:ir.model.fields,field_description:setup_configuration.field_meal_pattern__meal_pattern_sub_type
+msgid "Main Meal Pattern "
+msgstr "نمط الوجبة الرئيسي"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_form
+msgid ""
+"<i class=\"fa fa-list-alt\"/>\n"
+"                                <span class=\"fw-bold\">Main Meal Pattern </span>"
+msgstr "نمط الوجبة الرئيسي"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_sub_type_form
+msgid ""
+"<i class=\"fa fa-cutlery\"/>\n"
+"                                    <span class=\"fw-bold\">Main Meal Code Details</span>"
+msgstr "تفاصيل رمز الوجبة الرئيسي"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_form
+msgid ""
+"<i class=\"fa fa-list-alt\"/>\n"
+"                                <span class=\"fw-bold\">Main Meal Code</span>"
+msgstr "رمز الوجبة الرئيسي"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_form
+msgid ""
+"<i class=\"fa fa-list-alt\"/>\n"
+"                                <span class=\"fw-bold\">Main Meal Code</span>"
+msgstr "رمز الوجبة الرئيسي"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_market_segment_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_source_business_form
+msgid ""
+"<i class=\"fa fa-tag\"/>\n"
+"                                    <span class=\"fw-bold\"> Additional Details</span>"
+msgstr "تفاصيل إضافية"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_form
+msgid ""
+"<i class=\"fa fa-language\"/>\n"
+"                                <span class=\"fw-bold\">Additional Details</span>"
+msgstr "تفاصيل إضافية"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_hotel_code_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_rentable_asset_form
+msgid ""
+"<i class=\"fa fa-info-circle\"/>\n"
+"                                    <span class=\"fw-bold\">Additional Details</span>"
+msgstr "تفاصيل إضافية"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_room_specification_form
+msgid ""
+"<i class=\"fa fa-cogs\"/>\n"
+"                                <span class=\"fw-bold\">Additional Details</span>"
+msgstr "تفاصيل إضافية"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_department_category_form
+msgid ""
+"<i class=\"fa fa-cogs\"/>\n"
+"                                    <span class=\"fw-bold\"> Additional Details</span>"
+msgstr "تفاصيل إضافية"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_form
+msgid ""
+"<i class=\"fa fa-list\"/>\n"
+"                                <span class=\"fw-bold\">Meals List</span>"
+msgstr "قائمة الوجبات"
+
+#. module: setup_configuration
+#: model:ir.model.fields,field_description:setup_configuration.field_meal_pattern__meals_list_ids
+msgid "Meals List"
+msgstr "قائمة الوجبات"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__amount_selection__line_wise
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__percentage_selection__line_wise
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__quantity_type__per_room
+msgid "Per Room"
+msgstr "للغرفة"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__percentage_selection__total
+msgid "All Room"
+msgstr "لكل الغرف"
+
+#. module: setup_configuration
+#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__amount_selection__total
+msgid "All Room"
+msgstr "لكل الغرف"
+
+#. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_pattern_form
+msgid ""
+"<i class=\"fa fa-cutlery\"/>\n"
+"                                <span class=\"fw-bold\">Meal Details</span>"
+msgstr "تفاصيل الوجبة"
+
+#. module: setup_configuration
+#: model:ir.actions.act_window,name:setup_configuration.action_meal_code_sub_type
+#: model:ir.model.fields,field_description:setup_configuration.field_meal_code__meal_code_sub_type
+#: model:ir.model.fields,field_description:setup_configuration.field_meal_code_sub_type__name
+#: model:ir.ui.menu,name:setup_configuration.sub_menu_meal_code_sub_type
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_sub_type_form
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_meal_code_sub_type_tree
+msgid "Main Meal Code"
+msgstr "رمز الوجبة الرئيسي"
+
+
 #. module: setup_configuration
 #: model:ir.actions.act_window,name:setup_configuration.action_meal_code_sub_type
 msgid "Main Meal Codes"
@@ -2029,6 +2171,11 @@ msgid "Additions"
 msgstr "الإضافات"
 
 #. module: setup_configuration
+#: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
+msgid "Hotel"
+msgstr "الفندق"
+
+#. module: setup_configuration
 #. odoo-python
 #: code:addons/setup_configuration/models/models.py:0
 #: model:ir.model.fields,field_description:setup_configuration.field_system_configuration__address
@@ -3735,12 +3882,12 @@ msgstr "القيمة الافتراضية"
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
 #, python-format
 msgid "Default Currency"
-msgstr "العملة الافتراضية"
+msgstr "العملة الإفتراضية"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_kanban
 msgid "Default Currency:"
-msgstr "العملة الافتراضية:"
+msgstr "العملة الإفتراضية"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_frontdesk_walkin_main__profile_id
@@ -4511,6 +4658,16 @@ msgstr "يتطلب اذن الدخول"
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item_addition__is_entry_value
 msgid "Entry Value"
 msgstr "قيمة إدخال"
+
+#. module: setup_configuration
+#: model:ir.model.fields,field_description:setup_configuration.field_posting_item__default_currency_
+msgid "Default Currency"
+msgstr "العملة الإفتراضية"
+
+#. module: setup_configuration
+#: model:ir.model.fields,field_description:setup_configuration.field_posting_item__company_id
+msgid "Hotel"
+msgstr "الفندق"
 
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_posting_item_form
@@ -6789,10 +6946,6 @@ msgstr "المستوى:"
 msgid "Line"
 msgstr "بند"
 
-#. module: setup_configuration
-#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__amount_selection__line_wise
-msgid "Line Wise"
-msgstr "حسب البند"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_rate_detail__line_ids
@@ -8552,7 +8705,7 @@ msgstr "معرف تكامل PMS"
 #. module: setup_configuration
 #: model_terms:ir.ui.view,arch_db:setup_configuration.view_rate_detail_form
 msgid "Packages"
-msgstr "حزم اضافية"
+msgstr "الباقات"
 
 #. module: setup_configuration
 #: model:ir.model.fields.selection,name:setup_configuration.selection__contact_method_type__contact_type__pager
@@ -8673,6 +8826,15 @@ msgstr "للشخص الواحد"
 #: model:ir.model.fields.selection,name:setup_configuration.selection__rentable_asset__quantity_type__per_room
 msgid "Per Room"
 msgstr "لكل غرفة"
+
+#. module: setup_configuration
+#. odoo-python
+#: code:addons/setup_configuration/models/models.py:0
+#: code:addons/setup_configuration/models/models.py:0
+#, python-format
+msgid ""
+"Discount value must be greater than 0 when Amount or Percentage is selected!"
+msgstr "يجب أن تكون قيمة الخصم أكبر من 0 عند اختيار الخصم بالقيمة أو بالنسبة المئوية!"
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_posting_item_addition__percentage_of_additions
@@ -10816,11 +10978,7 @@ msgstr "الخميس ٦ أشخاص"
 msgid "To Date"
 msgstr "الى تاريخ"
 
-#. module: setup_configuration
-#: model:ir.model.fields.selection,name:setup_configuration.selection__posting_item__entry_value_type__total
-#: model:ir.model.fields.selection,name:setup_configuration.selection__rate_detail__amount_selection__total
-msgid "Total"
-msgstr "اجمالي المبلغ"
+
 
 #. module: setup_configuration
 #: model:ir.model.fields,field_description:setup_configuration.field_reservation_group_profile__total_cancellations

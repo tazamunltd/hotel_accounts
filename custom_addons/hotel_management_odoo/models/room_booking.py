@@ -16,6 +16,8 @@ from pytz import timezone
 import re
 from datetime import time      # ← this shadows the real time module
 from collections import defaultdict
+from odoo.tools.translate import _
+
 
 
 _logger = logging.getLogger(__name__)
@@ -1242,12 +1244,15 @@ class RoomBooking(models.Model):
                 # Update record fields
                 rec.packages_vat = total_package_vat
                 rec.packages_municiplaity_tax = total_package_municipality
-                rec.packages_untaxed = total_package_untaxed
+                # rec.packages_untaxed = total_package_untaxed
+                rec.packages_untaxed = (rec.total_package_after_discount or 0.0) - total_package_vat - total_package_municipality
 
                 # Final check - if both taxes are 0, set untaxed to total package amount
                 if rec.packages_vat == 0.0 and rec.packages_municiplaity_tax == 0.0:
                     rec.packages_untaxed = rec.total_package_after_discount or 0.0
 
+   
+   
     # def _onchange_fixed_post_taxes(self):
     #     for record in self:
     #         posting_items = record.posting_item_ids
@@ -1360,6 +1365,8 @@ class RoomBooking(models.Model):
             if record.fixed_post_vat == 0.0 and record.fixed_post_municiplaity_tax == 0.0:
                 record.fixed_post_untaxed = record.total_fixed_post_after_discount or 0.0
     
+    
+    
     @api.depends('rate_forecast_ids.rate')
     def _compute_total_rate_forecast(self):
         for record in self:
@@ -1390,12 +1397,14 @@ class RoomBooking(models.Model):
             record.packages_municiplaity_tax +
             record.fixed_post_municiplaity_tax
         )
+
         record.total_vat = (
             record.room_rate_vat +
             record.meal_rate_vat +
             record.packages_vat +
             record.fixed_post_vat
         )
+
         record.total_untaxed = (
             record.room_rate_untaxed +
             record.meal_rate_untaxed +
@@ -1529,8 +1538,8 @@ class RoomBooking(models.Model):
     @api.depends('rate_forecast_ids.packages')
     def _compute_total_package_forecast(self):
         for record in self:
-            record.total_package_forecast = sum(
-                line.packages for line in record.rate_forecast_ids)
+            record.total_package_forecast = sum(line.packages for line in record.rate_forecast_ids)
+            record.total_package_forecast = 0.0
 
     total_fixed_post_forecast = fields.Float(
         string='Total Fixed Pst.',
@@ -1717,13 +1726,16 @@ class RoomBooking(models.Model):
                 total_discount = rate_detail_discount_value
                 
                 # Apply discounts with protection against negative values
-                rate_discount_amount = rate_detail_discount_value * total_days
+                # rate_discount_amount = rate_detail_discount_value * total_days
+                rate_discount_amount = rate_detail_discount_value * record.room_count 
                 record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
                 
-                meal_discount_amount = rate_detail_discount_value * total_days
+                # meal_discount_amount = rate_detail_discount_value * total_days
+                meal_discount_amount = rate_detail_discount_value * record.room_count
                 record.total_meal_after_discount = max(0, total_meal_forecast - meal_discount_amount)
                 
-                package_discount_amount = rate_detail_discount_value * total_days
+                # package_discount_amount = rate_detail_discount_value * total_days
+                package_discount_amount = rate_detail_discount_value * record.room_count
                 record.total_package_after_discount = max(0, total_package_forecast - package_discount_amount)
                 
                 # Fixed post doesn't get discounted
@@ -1834,6 +1846,14 @@ class RoomBooking(models.Model):
 
     
     def get_all_prices(self, forecast_date, record):
+        # Ensure we're working with a single record
+        if isinstance(record, list) or (hasattr(record, '_ids') and len(record._ids) > 1):
+            # If multiple records, just use the first one
+            if hasattr(record, '_ids'):
+                record = record[0] if record else record
+            else:
+                record = record[0] if record else record
+        
         meal_price = 0
         room_price = 0
         package_price = 0
@@ -2084,15 +2104,18 @@ class RoomBooking(models.Model):
     def calculate_total(self, price, discount, is_percentage, is_amount, percentage_selection, amount_selection, condition,
                             room_price=0.0,
                             meal_price=0.0,   
-                            package_price=0.0):
+                            package_price=0.0, 
+                            forecast_date = False,
+                            record_ = False):
+       
         if condition:
             multiplier = 0
             if room_price != 0:
                 multiplier += 1
             if meal_price != 0:
                 multiplier += 1
-            if package_price != 0:
-                multiplier += 1
+            # if package_price != 0:
+            #     multiplier += 1
             # if is_percentage:
             #     total = (price * discount)
             if is_amount and amount_selection == 'line_wise':
@@ -2103,22 +2126,81 @@ class RoomBooking(models.Model):
             #     print("Percentage Selection Line Wise")
             #     total = (price * discount) / 100 
             
-            # elif is_percentage and percentage_selection == 'line_wise':
             elif is_percentage and percentage_selection in ['line_wise', 'total']:
                 discount_ = 0.0
-                # Get first forecast line
-                if self.rate_forecast_ids:
-                    forecast_line = self.rate_forecast_ids[0]
-                    rate = forecast_line.rate or 0.0
-                    meals = forecast_line.meals or 0.0
-                    packages = forecast_line.packages or 0.0
-                    forecast_line_fixed_post = forecast_line.fixed_post or 0.0
-                    price = rate + meals + packages
-                    discount_ = price * discount 
+                if record_ and forecast_date:
+                    # Ensure record_ is a singleton before passing to get_all_prices
+                    if isinstance(record_, list) or (hasattr(record_, '_ids') and len(record_._ids) > 1):
+                        if hasattr(record_, '_ids'):
+                            record_singleton = record_[0] if record_ else record_
+                        else:
+                            record_singleton = record_[0] if record_ else record_
+                        meals, rate, packages, _1, _2 = self.get_all_prices(forecast_date, record_singleton)
+                    else:
+                        meals, rate, packages, _1, _2 = self.get_all_prices(forecast_date, record_)
+                
                 else:
-                    price = 0.0
+                    forecast_line = self.env['room.rate.forecast'].search([
+                        ('room_booking_id', '=', self.id)
+                    ], order='date asc', limit=1)
+
+                    if forecast_line:
+                        rate = forecast_line.rate or 0.0
+                        meals = forecast_line.meals or 0.0
+                        packages = forecast_line.packages or 0.0
+                        
+
+                # price = rate + meals + packages  
+                price = rate + meals + 0.0  
+                discount_ = price * discount
                 
                 total = round(discount_, 2)
+
+
+            # elif is_percentage and percentage_selection == 'line_wise':
+            # elif is_percentage and percentage_selection == 'line_wise':
+            #     print("IN PERCENTAGE SELECTION LINE WISE")
+            #     discount_ = 0.0
+            #     # Get first forecast line
+            #     if self.rate_forecast_ids:
+            #         forecast_line = self.rate_forecast_ids[0]
+            #         rate = forecast_line.rate or 0.0
+            #         # print(f"Rate: {rate}")
+            #         meals = forecast_line.meals or 0.0
+            #         # print(f"Meals: {meals}")
+            #         packages = forecast_line.packages or 0.0
+            #         # print(f"Packages: {packages}")
+            #         forecast_line_fixed_post = forecast_line.fixed_post or 0.0
+            #         price = rate + meals + packages
+            #         # print(f"Price: {price}")
+            #         discount_ = price * discount 
+            #         # print(f"Discount: {discount_}")
+            #     else:
+            #         price = 0.0
+                
+            #     total = round(discount_, 2)
+
+            # elif is_percentage and percentage_selection == 'total':
+            #     print("IN PERCENTAGE SELECTION TOTAL")
+            #     discount_ = 0.0
+            #     # Get first forecast line
+            #     if self.rate_forecast_ids:
+            #         forecast_line = self.rate_forecast_ids[0]
+            #         rate = forecast_line.rate or 0.0
+            #         # print(f"Rate: {rate}")
+            #         meals = forecast_line.meals or 0.0
+            #         # print(f"Meals: {meals}")
+            #         packages = forecast_line.packages or 0.0
+            #         # print(f"Packages: {packages}")
+            #         forecast_line_fixed_post = forecast_line.fixed_post or 0.0
+            #         price = rate + meals + packages
+            #         # print(f"Price: {price}")
+            #         discount_ = price * discount 
+            #         # print(f"Discount: {discount_}")
+            #     else:
+            #         price = 0.0
+                
+            #     total = round(discount_, 2)
 
             # elif is_percentage and percentage_selection == 'total':
             #     total = (price * discount) / 100
@@ -2126,10 +2208,8 @@ class RoomBooking(models.Model):
                 total = 0
         else:
             total = 0
-
         return total  # Ensure the total doesn't go below zero
 
-    
     
     
     @api.model
@@ -2349,7 +2429,7 @@ class RoomBooking(models.Model):
                                                         percentage_selection_value,
                                                         record.room_is_amount,
                                                         record.room_amount_selection,
-                                                        record.use_price, 0, 0 ,0)
+                                                        record.use_price, 0, 0 ,0, forecast_date, self)
 
                     if not record.use_meal_price:
                         _meal_price = meal_price
@@ -2362,17 +2442,19 @@ class RoomBooking(models.Model):
                         record.meal_is_percentage,
                         percentage_selection_value,
                         record.meal_is_amount,
-                        record.meal_amount_selection, record.use_meal_price, 0, 0, 0)
+                        record.meal_amount_selection, record.use_meal_price, 0, 0, 0, forecast_date, self)
                     
                     
                     
-                    before_discount = room_price + meal_price + package_price + fixed_post_value
+                    # before_discount = room_price + meal_price + package_price + fixed_post_value
+                    before_discount = room_price + meal_price + 0.0 + fixed_post_value
 
                     
 
                     get_discount = self.calculate_total(before_discount, rate_detail_discount_value,
                                                         is_percentage_value, is_amount_value, percentage_selection_value,
-                                                        amount_selection_value, True, room_price, meal_price, package_price)    
+                                                        amount_selection_value, True, room_price, meal_price, package_price, forecast_date, self)
+
 
                                                 # (self, price, discount, is_percentage, is_amount, percentage_selection, amount_selection, condition)
 
@@ -2400,6 +2482,7 @@ class RoomBooking(models.Model):
 
                         total = before_discount - get_discount - \
                             room_price_after_discount - meal_price_after_discount
+                        print("LINE 2468", total)
 
 
                     if existing_forecast:
@@ -2409,7 +2492,8 @@ class RoomBooking(models.Model):
                             'rate': actual_room_price,
                             # 'meals': meal_price,
                             'meals': actual_meal_price,
-                            'packages': package_price,
+                            # 'packages': package_price,
+                            'packages': 0.0,
                             'fixed_post': fixed_post_value,
                             # 'total': total_after_discount,
                             # 'total': get_discount + fixed_post_value,
@@ -2425,7 +2509,8 @@ class RoomBooking(models.Model):
                             # 'rate': room_price_after_discount if record.room_price else room_price,
                             # 'meals': meal_price_after_discount if record.meal_price else meal_price,
                             'meals': actual_meal_price,
-                            'packages': package_price,
+                            # 'packages': package_price,
+                            'packages': 0.0,
                             'fixed_post': fixed_post_value,
                             'total': total,
                             'before_discount': before_discount,
@@ -3258,104 +3343,193 @@ class RoomBooking(models.Model):
         tracking=True
     )
 
+    # def action_confirm_booking(self):
+    #     # Ensure all selected records have the same state
+    #     states = self.mapped('state')
+    #     if len(set(states)) > 1:
+    #         raise ValidationError("Please select records with the same state.")
+
+    #      # 2) That one state must be allowed:
+    #     state = states.pop()
+    #     allowed = {'not_confirmed', 'no_show'}
+    #     if state not in allowed:
+    #         raise ValidationError(_(
+    #             "Please select only records in the 'Not Confirmed' or 'No Show' state to confirm."
+    #         ))
+
+    #     # for rec in self:
+    #     #     print("Confirm ▶︎ rec %s, .state = %r", rec.name, rec.state)
+
+
+    #     # Ensure the state of all selected records is 'not_confirmed'
+    #     # if any(record.state != 'not_confirmed' for record in self):
+    #     #     raise ValidationError(
+    #     #         "Please select only records in the 'Not Confirmed' state to confirm.")
+
+    #     # Additional Validation: Check mandatory fields for each record
+    #     for record in self:
+    #         if not record.nationality:
+    #             raise ValidationError(
+    #                 _("The field 'Nationality' is required for record '%s'. Please fill it before confirming.")
+    #                 % record.name
+    #             )
+    #         if not record.source_of_business:
+    #             raise ValidationError(
+    #                 _("The field 'Source of Business' is required for record '%s'. Please fill it before confirming.")
+    #                 % record.name
+    #             )
+    #         if not record.market_segment:
+    #             raise ValidationError(
+    #                 _("The field 'Market Segment' is required for record '%s'. Please fill it before confirming.")
+    #                 % record.name
+    #             )
+
+    #         if not record.rate_code:
+    #             raise ValidationError(
+    #                 _("The field 'Rate Code' is required for record '%s'. Please fill it before confirming.")
+    #                 % record.name
+    #             )
+    #         if not record.meal_pattern:
+    #             raise ValidationError(
+    #                 _("The field 'Meal Pattern' is required for record '%s'. Please fill it before confirming.")
+    #                 % record.name
+    #             )
+
+    #     today = fields.Date.context_today(self)
+    #     state_changed = False  # Flag to track if any state was changed to 'confirmed'
+
+    #     for booking in self:
+    #         # if not booking.availability_results:
+    #         #     raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
+    #         # If the booking is a parent, process its children
+    #         child_bookings = self.search(
+    #             [('parent_booking_name', '=', booking.name)])
+
+    #         for child in child_bookings:
+    #             if child.state == 'not_confirmed':
+    #                 # Call the action to split rooms
+    #                 child.action_split_rooms()
+
+    #                 # Adjust availability for each result
+    #                 for search_result in child.availability_results:
+    #                     search_result.available_rooms -= search_result.rooms_reserved
+
+    #                 # Confirm the child booking
+    #                 child.write({"state": "confirmed"})
+    #                 state_changed = True
+    #                 print(
+    #                     f"Child Booking ID {child.id} confirmed and rooms adjusted.")
+
+    #         # If the current booking is not a parent, process it directly
+    #         if not child_bookings and booking.state == 'not_confirmed':
+    #             # Call the action to split rooms
+    #             booking.action_split_rooms()
+
+    #             # Adjust availability for each result
+    #             for search_result in booking.availability_results:
+    #                 search_result.available_rooms -= search_result.rooms_reserved
+
+    #             # Confirm the booking
+    #             booking.write({"state": "confirmed"})
+    #             state_changed = True
+    #             print(f"Booking ID {booking.id} confirmed and rooms adjusted.")
+
+    #     # Only retrieve dashboard counts and display the notification if the state changed to 'confirmed'
+    #     if state_changed:
+    #         dashboard_data = self.retrieve_dashboard()
+    #         print("Updated dashboard data after confirm action:", dashboard_data)
+
+    #         # Display success notification with updated dashboard data
+    #         return {
+    #             'type': 'ir.actions.client',
+    #             'tag': 'display_notification',
+    #             'params': {
+    #                 'type': 'success',
+    #                 'message': "Booking Confirmed Successfully!",
+    #                 'next': {'type': 'ir.actions.act_window_close'},
+    #                 'dashboard_data': dashboard_data,
+    #             }
+    #         }
+    #     else:
+    #         raise ValidationError(
+    #             _("No bookings were confirmed. Please ensure the state is 'not_confirmed' before confirming."))
+
+    
     def action_confirm_booking(self):
-        # Ensure all selected records have the same state
-        states = self.mapped('state')
-        if len(set(states)) > 1:
-            raise ValidationError("Please select records with the same state.")
+        # 1) Ensure all selected records share the same state
+        states = set(self.mapped('state'))
+        if len(states) > 1:
+            raise ValidationError(_("Please select records with the same state."))
 
-        # Ensure the state of all selected records is 'not_confirmed'
-        if any(record.state != 'not_confirmed' for record in self):
-            raise ValidationError(
-                "Please select only records in the 'Not Confirmed' state to confirm.")
+        # 2) Only allow 'not_confirmed' or 'no_show'
+        state = states.pop()
+        allowed = {'not_confirmed', 'no_show'}
+        if state not in allowed:
+            raise ValidationError(_(
+                "Please select only records in the 'Not Confirmed' or 'No Show' state to confirm."
+            ))
 
-        # Additional Validation: Check mandatory fields for each record
-        for record in self:
-            if not record.nationality:
+        # 3) Mandatory-field checks
+        for rec in self:
+            if not rec.nationality:
                 raise ValidationError(
-                    _("The field 'Nationality' is required for record '%s'. Please fill it before confirming.")
-                    % record.name
+                    _("The field 'Nationality' is required for record '%s'. Please fill it before confirming.") % rec.name
                 )
-            if not record.source_of_business:
+            if not rec.source_of_business:
                 raise ValidationError(
-                    _("The field 'Source of Business' is required for record '%s'. Please fill it before confirming.")
-                    % record.name
+                    _("The field 'Source of Business' is required for record '%s'. Please fill it before confirming.") % rec.name
                 )
-            if not record.market_segment:
+            if not rec.market_segment:
                 raise ValidationError(
-                    _("The field 'Market Segment' is required for record '%s'. Please fill it before confirming.")
-                    % record.name
+                    _("The field 'Market Segment' is required for record '%s'. Please fill it before confirming.") % rec.name
                 )
-
-            if not record.rate_code:
+            if not rec.rate_code:
                 raise ValidationError(
-                    _("The field 'Rate Code' is required for record '%s'. Please fill it before confirming.")
-                    % record.name
+                    _("The field 'Rate Code' is required for record '%s'. Please fill it before confirming.") % rec.name
                 )
-            if not record.meal_pattern:
+            if not rec.meal_pattern:
                 raise ValidationError(
-                    _("The field 'Meal Pattern' is required for record '%s'. Please fill it before confirming.")
-                    % record.name
+                    _("The field 'Meal Pattern' is required for record '%s'. Please fill it before confirming.") % rec.name
                 )
 
-        today = fields.Date.context_today(self)
-        state_changed = False  # Flag to track if any state was changed to 'confirmed'
-
+        # 4) Confirm logic for both parent and children
+        state_changed = False
         for booking in self:
-            # if not booking.availability_results:
-            #     raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
-            # If the booking is a parent, process its children
-            child_bookings = self.search(
-                [('parent_booking_name', '=', booking.name)])
-
-            for child in child_bookings:
-                if child.state == 'not_confirmed':
-                    # Call the action to split rooms
-                    child.action_split_rooms()
-
-                    # Adjust availability for each result
-                    for search_result in child.availability_results:
-                        search_result.available_rooms -= search_result.rooms_reserved
-
-                    # Confirm the child booking
-                    child.write({"state": "confirmed"})
-                    state_changed = True
-                    print(
-                        f"Child Booking ID {child.id} confirmed and rooms adjusted.")
-
-            # If the current booking is not a parent, process it directly
-            if not child_bookings and booking.state == 'not_confirmed':
-                # Call the action to split rooms
+            # Confirm the booking itself if in allowed state
+            if booking.state in allowed:
                 booking.action_split_rooms()
-
-                # Adjust availability for each result
-                for search_result in booking.availability_results:
-                    search_result.available_rooms -= search_result.rooms_reserved
-
-                # Confirm the booking
-                booking.write({"state": "confirmed"})
+                for res in booking.availability_results:
+                    res.available_rooms -= res.rooms_reserved
+                booking.write({'state': 'confirmed'})
                 state_changed = True
-                print(f"Booking ID {booking.id} confirmed and rooms adjusted.")
 
-        # Only retrieve dashboard counts and display the notification if the state changed to 'confirmed'
+            # Then confirm any child bookings
+            children = self.search([('parent_booking_name', '=', booking.name)])
+            for child in children:
+                if child.state in allowed:
+                    child.action_split_rooms()
+                    for res in child.availability_results:
+                        res.available_rooms -= res.rooms_reserved
+                    child.write({'state': 'confirmed'})
+                    state_changed = True
+
+        # 5) Notify success or raise error
         if state_changed:
             dashboard_data = self.retrieve_dashboard()
-            print("Updated dashboard data after confirm action:", dashboard_data)
-
-            # Display success notification with updated dashboard data
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'type': 'success',
-                    'message': "Booking Confirmed Successfully!",
+                    'message': _("Booking(s) confirmed successfully!"),
                     'next': {'type': 'ir.actions.act_window_close'},
                     'dashboard_data': dashboard_data,
-                }
+                },
             }
         else:
-            raise ValidationError(
-                _("No bookings were confirmed. Please ensure the state is 'not_confirmed' before confirming."))
+            raise ValidationError(_(
+                "No bookings were confirmed. Please ensure the state is 'Not Confirmed' or 'No Show' before confirming."
+            ))
 
     def action_no_show_tree(self):
         """Convert parent + children *block* bookings to **no_show**
@@ -3385,7 +3559,7 @@ class RoomBooking(models.Model):
                 "tag": "display_notification",
                 "params": {
                     "type": "success",
-                    "message": _("Booking(s) marked as 'No Show' successfully!"),
+                    "message": _("Booking(s) marked as 'No Show' successfully!"),
                     "next": {"type": "ir.actions.act_window_close"},
                 },
             }
@@ -3519,76 +3693,121 @@ class RoomBooking(models.Model):
     #         raise ValidationError(
     #             _("No bookings were marked as 'No Show'. Please ensure the state is 'block' before performing this action."))
 
+    # def action_cancel_booking(self):
+    #     # Ensure all selected records have the same state
+    #     states = self.mapped('state')
+    #     if len(set(states)) > 1:
+    #         raise ValidationError("Please select records with the same state.")
+
+    #     # Define allowed states for cancellation
+    #     allowed_states = ['not_confirmed', 'confirmed', 'waiting']
+
+       
+    #     if any(record.state not in allowed_states for record in self):
+    #         raise ValidationError(
+    #             "You are not allowed to cancel bookings in the current state.")
+
+    #     today = fields.Date.context_today(self)
+
+    #     for booking in self:
+    #         # Find child bookings if the current booking is a parent
+    #         child_bookings = self.search(
+    #             [('parent_booking_name', '=', booking.name)])
+
+    #         # Process child bookings
+    #         for child in child_bookings:
+    #             if child.state in allowed_states:
+    #                 # Cancel child booking and make rooms available
+    #                 child.write({"state": "cancel"})
+    #                 print(f"Child Booking ID {child.id} cancelled.")
+
+    #                 if child.room_line_ids:
+    #                     for room in child.room_line_ids:
+    #                         room.room_id.write({
+    #                             'status': 'available',
+    #                         })
+    #                         room.room_id.is_room_avail = True
+
+    #         # Process the current booking if it's not a parent
+    #         if not child_bookings and booking.state in allowed_states:
+    #             booking.write({"state": "cancel"})
+    #             print(f"Booking ID {booking.id} cancelled.")
+
+    #             if booking.room_line_ids:
+    #                 for room in booking.room_line_ids:
+    #                     room.room_id.write({
+    #                         'status': 'available',
+    #                     })
+    #                     room.room_id.is_room_avail = True
+
+    #     # Commit the transaction to ensure changes are saved immediately
+    #     self.env.cr.commit()
+
+    #     # Retrieve updated dashboard counts
+    #     dashboard_data = self.retrieve_dashboard()
+    #     print("Updated dashboard data after cancel action:", dashboard_data)
+
+    #     # Display success notification with updated dashboard data
+    #     return {
+    #         'type': 'ir.actions.client',
+    #         'tag': 'display_notification',
+    #         'params': {
+    #             'type': 'success',
+    #             'message': "Booking Cancelled Successfully!",
+    #             'next': {'type': 'ir.actions.act_window_close'},
+    #             'dashboard_data': dashboard_data,
+    #         }
+    #     }
+
+
     def action_cancel_booking(self):
-        # Ensure all selected records have the same state
+        # 1) sanity checks
         states = self.mapped('state')
         if len(set(states)) > 1:
             raise ValidationError("Please select records with the same state.")
+        allowed = {'not_confirmed', 'confirmed', 'waiting'}
+        bad = self.filtered(lambda b: b.state not in allowed)
+        if bad:
+            raise ValidationError("You cannot cancel bookings in state %s." % bad[0].state)
 
-        # Define allowed states for cancellation
-        allowed_states = ['not_confirmed', 'confirmed', 'waiting']
-
-        # Explicitly check if any record is in 'check_in' state and raise an error
-        # if any(record.state == 'check_in' for record in self):
-        #     raise ValidationError("You cannot cancel records that are in the 'Checkin' state.")
-
-        if any(record.state not in allowed_states for record in self):
-            raise ValidationError(
-                "You are not allowed to cancel bookings in the current state.")
-
-        today = fields.Date.context_today(self)
-
+        # 2) for each booking in the selection...
         for booking in self:
-            # Find child bookings if the current booking is a parent
-            child_bookings = self.search(
-                [('parent_booking_name', '=', booking.name)])
+            # 2a) if it's a parent, cancel its children too
+            children = self.search([
+                ('parent_booking_name', '=', booking.name),
+                ('state', 'in', list(allowed))
+            ])
+            if children:
+                children.write({'state': 'cancel'})
+                # free up rooms on those children
+                for line in children.mapped('room_line_ids'):
+                    line.room_id.write({
+                        'status': 'available',
+                        'is_room_avail': True,
+                    })
 
-            # Process child bookings
-            for child in child_bookings:
-                if child.state in allowed_states:
-                    # Cancel child booking and make rooms available
-                    child.write({"state": "cancel"})
-                    print(f"Child Booking ID {child.id} cancelled.")
+            # 2b) now cancel the booking itself
+            booking.write({'state': 'cancel'})
+            for line in booking.room_line_ids:
+                line.room_id.write({
+                    'status': 'available',
+                    'is_room_avail': True,
+                })
 
-                    if child.room_line_ids:
-                        for room in child.room_line_ids:
-                            room.room_id.write({
-                                'status': 'available',
-                            })
-                            room.room_id.is_room_avail = True
-
-            # Process the current booking if it's not a parent
-            if not child_bookings and booking.state in allowed_states:
-                booking.write({"state": "cancel"})
-                print(f"Booking ID {booking.id} cancelled.")
-
-                if booking.room_line_ids:
-                    for room in booking.room_line_ids:
-                        room.room_id.write({
-                            'status': 'available',
-                        })
-                        room.room_id.is_room_avail = True
-
-        # Commit the transaction to ensure changes are saved immediately
+        # 3) commit & refresh dashboard
         self.env.cr.commit()
+        data = self.retrieve_dashboard()
 
-        # Retrieve updated dashboard counts
-        dashboard_data = self.retrieve_dashboard()
-        print("Updated dashboard data after cancel action:", dashboard_data)
-
-        # Display success notification with updated dashboard data
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'type': 'success',
-                'message': "Booking Cancelled Successfully!",
+                'message': "Booking(s) cancelled successfully!",
                 'next': {'type': 'ir.actions.act_window_close'},
-                'dashboard_data': dashboard_data,
+                'dashboard_data': data,
             }
         }
-
-
 
     def action_checkin_booking(self):
         # today = datetime.now().date()
@@ -4319,8 +4538,8 @@ class RoomBooking(models.Model):
             if not record.parent_booking_name:
                 # if not record.availability_results:
                 if record.state != "no_show" and not record.availability_results:
-                    raise ValidationError(
-                        "Search Room is empty. Please search for available rooms before confirming.")
+                    raise ValidationError(_("Search Room is empty. Please search for available rooms before confirming."))
+
             # if not record.availability_results:
             #     raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
 
@@ -5097,18 +5316,32 @@ class RoomBooking(models.Model):
     #                 "House Use Code is required when House Use is selected!")
 
     
+    # @api.constrains('vip', 'vip_code', 'complementary', 'complementary_codes', 'house_use', 'house_use_codes')
+    # def _check_required_codes(self):
+    #     for record in self:
+    #         errors = []
+    #         if record.vip and not record.vip_code:
+    #             errors.append(_("VIP Code is required when VIP is selected."))
+    #         if record.complementary and not record.complementary_codes:
+    #             errors.append(_("Complimentary Code is required when Complimentary is selected."))
+    #         if record.house_use and not record.house_use_codes:
+    #             errors.append(_("House Use Code is required when House Use is selected."))
+    #         if errors:
+    #             raise ValidationError(
+    #                 _("Please correct the following:\n- ") + "\n- ".join(errors))
+
     @api.constrains('vip', 'vip_code', 'complementary', 'complementary_codes', 'house_use', 'house_use_codes')
     def _check_required_codes(self):
         for record in self:
             errors = []
             if record.vip and not record.vip_code:
-                errors.append("VIP Code is required when VIP is selected.")
+                errors.append(_("VIP Code is required when VIP is selected."))
             if record.complementary and not record.complementary_codes:
-                errors.append("Complimentary Code is required when Complimentary is selected.")
+                errors.append(_("Complimentary Code is required when Complimentary is selected."))
             if record.house_use and not record.house_use_codes:
-                errors.append("House Use Code is required when House Use is selected.")
+                errors.append(_("House Use Code is required when House Use is selected."))
             if errors:
-                raise ValidationError("Please correct the following:\n- " + "\n- ".join(errors))
+                raise ValidationError('\n'.join([_("")] + errors))
 
 
 
@@ -6233,9 +6466,8 @@ class RoomBooking(models.Model):
             unassigned_lines = record.room_line_ids.filtered(
                 lambda line: not line.room_id)
             if unassigned_lines:
-                raise ValidationError(
-                    "All rooms must be assigned in room lines before moving to the 'block' state."
-                )
+                raise ValidationError(_("All rooms must be assigned in room lines before moving to the 'block' state."))
+                 
 
             # If all rooms are assigned, allow state change
             record.state = "block"
@@ -6401,19 +6633,35 @@ class RoomBooking(models.Model):
 
     room_price = fields.Float(string="Room Price", default=0, tracking=True)
     
-    @api.constrains('use_price', 'room_price')
-    def _validate_room_price(self):
+    @api.constrains('use_price', 'room_price', 'use_meal_price', 'meal_price')
+    def _check_price_values(self):
         for record in self:
-            if record.use_price and record.room_price <= 0:
-                raise ValidationError(
-                    _("Room Price must be greater than 0 when 'Use Room Price' is selected!"))
+            errors = []
+
+            # Room price validation
+            if record.use_price and (record.room_price is None or record.room_price <= 0):
+                errors.append(_("Room Price must be greater than 0 when 'Use Price' is selected!"))
+
+            # Meal price validation
+            if record.use_meal_price and (record.meal_price is None or record.meal_price <= 0):
+                errors.append(_("Meal Price must be greater than 0 when 'Use Meal Price' is selected!"))
+
+            if errors:
+                raise ValidationError('\n'.join([_("Please correct the following:")] + errors))
+
+    # @api.constrains('use_price', 'room_price')
+    # def _validate_room_price(self):
+    #     for record in self:
+    #         if record.use_price and record.room_price <= 0:
+    #             raise ValidationError(
+    #                 _("Room Price must be greater than 0 when 'Use Room Price' is selected!"))
             
-    @api.constrains('use_meal_price', 'meal_price')
-    def _validate_meal_price(self):
-        for record in self:
-            if record.use_meal_price and record.meal_price <= 0:
-                raise ValidationError(
-                    _("Meal Price must be greater than 0 when 'Use Meal Price' is selected!"))
+    # @api.constrains('use_meal_price', 'meal_price')
+    # def _validate_meal_price(self):
+    #     for record in self:
+    #         if record.use_meal_price and record.meal_price <= 0:
+    #             raise ValidationError(
+    #                 _("Meal Price must be greater than 0 when 'Use Meal Price' is selected!"))
 
     room_child_price = fields.Float(string="Room Child Price", tracking=True)
     room_infant_price = fields.Float(string="Room Infant Price", tracking=True)
@@ -6703,10 +6951,13 @@ class RoomBooking(models.Model):
     @api.depends('room_line_ids')
     def _compute_room_ids_display(self):
         for record in self:
-            room_names = record.room_line_ids.mapped(
-                'room_id.name')  # Get all room names
-            record.room_ids_display = ", ".join(
-                room_names) if room_names else "Room Not Assigned"
+            room_names = record.room_line_ids.mapped('room_id.name')  # Get all room names
+            if room_names:
+                record.room_ids_display = ", ".join(room_names)
+            else:
+                record.room_ids_display = _('Room Not Assigned')
+            # record.room_ids_display = ", ".join(
+            #     room_names) if room_names else "Room Not Assigned"
 
     def _search_room_ids_display(self, operator, value):
         # Implement a custom search domain
@@ -6718,11 +6969,15 @@ class RoomBooking(models.Model):
         for record in self:
             # Correctly map the room type name from the room_line_ids
             # room_types = record.room_line_ids.mapped('room_id.room_type_name.room_type')  # Get all room type names
-            room_types = record.room_line_ids.mapped(
-                'hotel_room_type.room_type')
+            room_types = record.room_line_ids.mapped('hotel_room_type.room_type')
+            if room_types:
+                record.room_type_display = ", ".join(room_types)
+            else:
+                # Marked for translation:
+                record.room_type_display = _('Room Not Assigned')
             # print('2458', room_types)
-            record.room_type_display = ", ".join(
-                room_types) if room_types else "Rooms Not Assigned"
+            # record.room_type_display = ", ".join(
+            #     room_types) if room_types else "Rooms Not Assigned"
             # print('2461', record.room_type_display)
 
     # parent_booking = fields.Selection(
@@ -7568,110 +7823,122 @@ class RoomBooking(models.Model):
 
 
 
+    
+    
     # def action_assign_all_rooms(self):
-    #     print("START TIME", datetime.now())
     #     for booking in self:
-    #         _logger.info("Starting assignment for booking ID: %s", booking.id)
+    #         start_time = datetime.now()
+    #         print("START TIME", start_time)
+    #         print("==> Begin assign_all_rooms for Booking %s at %s", booking.name, start_time)
 
+    #         # 1. State & room_line validations
     #         if booking.state != 'confirmed':
     #             _logger.warning("Booking %s is not confirmed", booking.name)
     #             raise UserError("Booking must be Confirmed first.")
     #         if not booking.room_line_ids:
     #             _logger.warning("No room lines found for booking %s", booking.name)
     #             raise UserError("No room lines to assign.")
-                
-    #         original_rate_forecasts = booking.rate_forecast_ids
+
+    #         # 2. Divide parent forecasts evenly
     #         room_count = len(booking.room_line_ids)
-    #         _logger.info("Dividing rate forecasts for %s room lines", room_count)
-            
+    #         _logger.info("Dividing %s parent forecasts across %s rooms", len(booking.rate_forecast_ids), room_count)
+
     #         forecast_data = []
-    #         for forecast in original_rate_forecasts:
-    #             divided_data = {
-    #                 'date': forecast.date,
-    #                 'rate': forecast.rate / room_count if room_count else forecast.rate,
-    #                 'meals': forecast.meals / room_count if room_count else forecast.meals,
-    #                 'packages': forecast.packages / room_count if room_count else forecast.packages,
-    #                 'fixed_post': forecast.fixed_post / room_count if room_count else forecast.fixed_post,
-    #                 'total': forecast.total / room_count if room_count else forecast.total,
-    #                 'before_discount': forecast.before_discount / room_count if room_count else forecast.before_discount
+    #         for fc in booking.rate_forecast_ids:
+    #             print("FC------>", fc)
+    #             divided = {
+    #                 'date':            fc.date,
+    #                 'rate':            fc.rate / room_count,
+    #                 'meals':           fc.meals / room_count,
+    #                 'packages':        fc.packages / room_count,
+    #                 'fixed_post':      fc.fixed_post / room_count,
+    #                 'total':           fc.total / room_count,
+    #                 'before_discount': fc.before_discount / room_count,
     #             }
-    #             forecast_data.append(divided_data)
+    #             print("Divided Forecast Data:", divided)
+    #             forecast_data.append(divided)
+    #             fc.write(divided)
+    #             _logger.debug("Parent forecast on %s updated to %s", fc.date, divided)
 
-    #             forecast.write(divided_data)
-    #             _logger.debug("Updated parent forecast on %s with %s", forecast.date, divided_data)
+    #         # 2a) Snapshot the parent totals for VAT / muni / untaxed
+    #         total_vat  = booking.total_vat  or 0.0
+    #         total_mun  = booking.total_municipality_tax or 0.0
+    #         total_unt  = booking.total_untaxed or 0.0
 
-    #         print("Calling stored procedure to split booking %s, %s", booking.id, datetime.now())
+    #         get_fixed_post_muni = booking.fixed_post_municiplaity_tax or 0.0
+    #         get_fixed_post_vat = booking.fixed_post_vat or 0.0
+
+    #         # 3. Call stored procedure to split booking rows in DB
+    #         print("Calling stored procedure split_confirmed_booking(%s)", booking.id)
     #         self.env.cr.execute("CALL split_confirmed_booking(%s)", (booking.id,))
-    #         print("Stored procedure executed successfully", datetime.now())
+    #         print("Query Executed successfully at", datetime.now())
 
-    #         child_bookings = self.env['room.booking'].search([
-    #             ('parent_booking_id', '=', booking.id)
-    #         ])
+    #         # 4. Fetch all child bookings in one go
+    #         child_bookings = self.search([('parent_booking_id', '=', booking.id)])
     #         _logger.info("Found %s child bookings", len(child_bookings))
 
-    #         for child_booking in child_bookings:
-    #             self.env.invalidate_all()
-    #             child_forecasts = child_booking.rate_forecast_ids
-    #             if not child_forecasts:
-    #                 _logger.info("Creating new forecasts for child booking ID: %s", child_booking.id)
-    #                 for data in forecast_data:
-    #                     self.env['room.rate.forecast'].create({
-    #                         'room_booking_id': child_booking.id,
-    #                         'date': data['date'],
-    #                         'rate': data['rate'],
-    #                         'meals': data['meals'],
-    #                         'packages': data['packages'],
-    #                         'fixed_post': data['fixed_post'],
-    #                         'total': data['total'],
-    #                         'before_discount': data['before_discount']
-    #                     })
-    #             else:
-    #                 _logger.info("Updating existing forecasts for child booking ID: %s", child_booking.id)
-    #                 for forecast in child_forecasts:
-    #                     matching_data = next((data for data in forecast_data if data['date'] == forecast.date), None)
-    #                     if matching_data:
-    #                         forecast.write(matching_data)
-    #                         _logger.debug("Updated child forecast on %s with %s", forecast.date, matching_data)
+    #         # 5. Batch-create child forecasts
+    #         to_create = []
+    #         for child in child_bookings:
+    #             for data in forecast_data:
+    #                 vals = dict(data, room_booking_id=child.id)
+    #                 print("Child Forecast Values:", vals)
+    #                 to_create.append(vals)
 
+    #         if to_create:
+    #             _logger.info("Creating %s child forecasts in batch", len(to_create))
+    #             self.env['room.rate.forecast'].create(to_create)
+
+    #         all_bookings = booking | child_bookings
+    #         per_vat = total_vat  / len(all_bookings)
+    #         per_mun = total_mun  / len(all_bookings)
+    #         per_unt = total_unt  / len(all_bookings)
+    #         for rec in all_bookings:
+    #             rec.write({
+    #                 'total_vat':              per_vat,
+    #                 'total_municipality_tax': per_mun,
+    #                 'total_untaxed':          per_unt,
+    #             })
+    #         print("Split VAT/mun/untaxed= %.2f/%.2f/%.2f to each of %s bookings", per_vat, per_mun, per_unt, len(all_bookings))
+
+            
+    #         # 6. Sequence adjustment (so names stay unique & increasing)
     #         self.env.cr.execute("""
     #             SELECT MAX(CAST(regexp_replace(name, '.*/', '') AS INT))
     #             FROM room_booking
     #             WHERE company_id = %s
     #         """, (booking.company_id.id,))
-    #         max_booking_number = self.env.cr.fetchone()[0] or 0
-    #         _logger.info("Max booking number for company %s is %s", booking.company_id.name, max_booking_number)
-
-    #         sequence = self.env['ir.sequence'].search([
+    #         max_num = self.env.cr.fetchone()[0] or 0
+    #         seq = self.env['ir.sequence'].search([
     #             ('code', '=', 'room.booking'),
-    #             ('company_id', '=', booking.company_id.id)
+    #             ('company_id', '=', booking.company_id.id),
     #         ], limit=1)
+    #         if seq:
+    #             increment = seq.number_increment or 1
+    #             next_no = max_num + increment
+    #             seq.sudo().write({'number_next': next_no})
+    #             _logger.info("Sequence %s set to next_number=%s", seq.code, next_no)
+    #             for dr in self.env['ir.sequence.date_range'].search([('sequence_id', '=', seq.id)]):
+    #                 if dr.number_next <= max_num:
+    #                     dr.sudo().write({'number_next': next_no})
+    #                     _logger.debug("Date range %s adjusted to %s", dr, next_no)
 
-    #         if sequence:
-    #             increment = sequence.number_increment or 1
-    #             next_number = max_booking_number + increment
-    #             sequence.sudo().write({'number_next': next_number})
-    #             _logger.info("Updated sequence %s to next number %s", sequence.name, next_number)
+    #         # 7. Final cache clear & UI refresh
+    #         self.env.invalidate_all()
+    #         booking.room_line_ids._compute_state()
+    #         booking._compute_show_in_tree()
 
-    #             date_ranges = self.env['ir.sequence.date_range'].search([
-    #                 ('sequence_id', '=', sequence.id)
-    #             ])
-    #             for date_range in date_ranges:
-    #                 if date_range.number_next <= max_booking_number:
-    #                     date_range.sudo().write({'number_next': next_number})
-    #                     _logger.info("Updated sequence date range %s to next number %s", date_range.name, next_number)
+    #         end_time = datetime.now()
+    #         print("END TIME", end_time)
+    #         duration = (end_time - start_time).total_seconds()
+    #         _logger.info("<== Finished assign_all_rooms for Booking %s at %s (%.2fs)",booking.name, end_time, duration)
 
-    #     self.env.invalidate_all()
-    #     booking.room_line_ids._compute_state()
-    #     booking._compute_show_in_tree()
-    #     _logger.info("Completed room assignment for booking ID: %s", booking.id)
-    #     print("END TIME", datetime.now())
-
-    
+            
     def action_assign_all_rooms(self):
         for booking in self:
             start_time = datetime.now()
             print("START TIME", start_time)
-            print("==> Begin assign_all_rooms for Booking %s at %s", booking.name, start_time)
+            print("==> Begin assign_all_rooms for Booking %s at %s" % (booking.name, start_time))
 
             # 1. State & room_line validations
             if booking.state != 'confirmed':
@@ -7681,10 +7948,50 @@ class RoomBooking(models.Model):
                 _logger.warning("No room lines found for booking %s", booking.name)
                 raise UserError("No room lines to assign.")
 
-            # 2. Divide parent forecasts evenly
+            # 2. Special Case: If only 1 room, no need to split
+            if len(booking.room_line_ids) == 1:
+                print("Only 1 room. Assigning room without splitting.")
+
+                # Find available room
+                available_room = self.env['hotel.room'].search([
+                    ('company_id', '=', booking.company_id.id),
+                    ('room_type_name', '=', booking.hotel_room_type.id),
+                    ('id', 'not in', booking.room_line_ids.mapped('room_id').ids)
+                ], limit=1)
+
+                if not available_room:
+                    raise UserError(_("No available room for type %s") % booking.hotel_room_type)
+
+                # Assign room to booking line
+                booking.room_line_ids.write({
+                    'room_id': available_room.id,
+                    'state_': 'block'
+                })
+
+                # Move parent booking to block
+                booking.write({
+                    'state': 'block',
+                    'show_in_tree': True,
+                })
+
+                # Invalidate cache
+                self.env.invalidate_all()
+                booking.room_line_ids._compute_state()
+                booking._compute_show_in_tree()
+
+                end_time = datetime.now()
+                print("END TIME", end_time)
+                duration = (end_time - start_time).total_seconds()
+                _logger.info("<== Finished assign_all_rooms for Booking %s at %s (%.2fs)",
+                            booking.name, end_time, duration)
+
+                continue  # Move to next booking in for-loop
+
+            # 3. Normal case: room_count > 1
             room_count = len(booking.room_line_ids)
             _logger.info("Dividing %s parent forecasts across %s rooms", len(booking.rate_forecast_ids), room_count)
 
+            # 3a) Divide parent forecasts
             forecast_data = []
             for fc in booking.rate_forecast_ids:
                 divided = {
@@ -7696,31 +8003,61 @@ class RoomBooking(models.Model):
                     'total':           fc.total / room_count,
                     'before_discount': fc.before_discount / room_count,
                 }
+                print("Divided Forecast Data:", divided)
                 forecast_data.append(divided)
                 fc.write(divided)
                 _logger.debug("Parent forecast on %s updated to %s", fc.date, divided)
 
-            # 3. Call stored procedure to split booking rows in DB
-            print("Calling stored procedure split_confirmed_booking(%s)", booking.id)
+            # 3b) Snapshot the parent totals for VAT / municipality / untaxed
+            total_vat  = booking.total_vat  or 0.0
+            total_mun  = booking.total_municipality_tax or 0.0
+            total_unt  = booking.total_untaxed or 0.0
+
+            get_fixed_post_muni = booking.fixed_post_municiplaity_tax or 0.0
+            print("Fixed Post Municipality Tax:", get_fixed_post_muni)
+            get_fixed_post_vat = booking.fixed_post_vat or 0.0
+            print("Fixed Post VAT:", get_fixed_post_vat)
+
+            # 4. Call stored procedure to split booking rows in DB
+            print("Calling stored procedure split_confirmed_booking(%s)" % booking.id)
             self.env.cr.execute("CALL split_confirmed_booking(%s)", (booking.id,))
             print("Query Executed successfully at", datetime.now())
 
-            # 4. Fetch all child bookings in one go
+            # 5. Fetch all child bookings
             child_bookings = self.search([('parent_booking_id', '=', booking.id)])
             _logger.info("Found %s child bookings", len(child_bookings))
 
-            # 5. Batch-create child forecasts
+            # 6. Batch-create child forecasts
             to_create = []
+            print("FORECAST DATA:", forecast_data)
+            print("Child Bookings:", child_bookings)
             for child in child_bookings:
                 for data in forecast_data:
                     vals = dict(data, room_booking_id=child.id)
+                    print("Child Forecast Values:", vals)
                     to_create.append(vals)
 
             if to_create:
                 _logger.info("Creating %s child forecasts in batch", len(to_create))
                 self.env['room.rate.forecast'].create(to_create)
 
-            # 6. Sequence adjustment (so names stay unique & increasing)
+            # 7. Distribute VAT/municipality tax/untaxed across all bookings
+            all_bookings = booking | child_bookings
+            per_vat = total_vat / len(all_bookings)
+            per_mun = total_mun / len(all_bookings)
+            per_unt = total_unt / len(all_bookings)
+
+            for rec in all_bookings:
+                rec.write({
+                    'total_vat':              per_vat,
+                    'total_municipality_tax': per_mun,
+                    'total_untaxed':          per_unt,
+                })
+            print("Split VAT/mun/untaxed= %.2f/%.2f/%.2f to each of %s bookings" % (
+                per_vat, per_mun, per_unt, len(all_bookings))
+            )
+
+            # 8. Adjust sequence number for future bookings
             self.env.cr.execute("""
                 SELECT MAX(CAST(regexp_replace(name, '.*/', '') AS INT))
                 FROM room_booking
@@ -7741,7 +8078,7 @@ class RoomBooking(models.Model):
                         dr.sudo().write({'number_next': next_no})
                         _logger.debug("Date range %s adjusted to %s", dr, next_no)
 
-            # 7. Final cache clear & UI refresh
+            # 9. Final cache clear & UI refresh
             self.env.invalidate_all()
             booking.room_line_ids._compute_state()
             booking._compute_show_in_tree()
@@ -7750,7 +8087,8 @@ class RoomBooking(models.Model):
             print("END TIME", end_time)
             duration = (end_time - start_time).total_seconds()
             _logger.info("<== Finished assign_all_rooms for Booking %s at %s (%.2fs)",
-                         booking.name, end_time, duration)
+                        booking.name, end_time, duration)
+    
     
     # def action_assign_all_rooms(self):
     #     for booking in self:

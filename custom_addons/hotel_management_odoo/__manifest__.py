@@ -94,6 +94,7 @@
         # 'views/header_datetime.xml',
         'views/new_dashboard_views.xml',
         'views/new_dashboard_action.xml',  # Added new dashboard action - 2025-01-20T00:16:16
+        # 'views/room_booking_validation_template.xml',
         # 'views/assets.xml',  
         
         # 'views/templates.xml',

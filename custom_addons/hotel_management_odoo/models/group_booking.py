@@ -65,11 +65,11 @@ class GroupBooking(models.Model):
     total_no_shows = fields.Integer(
         string='No Shows', compute='_compute_no_show_count', tracking=True, store=True)
     total_confirmed = fields.Integer(
-        string='Confirmed', compute='_compute_no_show_count', tracking=True, store=True)
+        string='Confirmed', compute='_compute_no_show_count', tracking=True, store=False)
     total_not_confirmed = fields.Integer(
         string='Not Confirmed', compute='_compute_no_show_count', tracking=True, store=True)
     total_block = fields.Integer(
-        string='Blocks', compute='_compute_no_show_count', tracking=True, store=True)
+        string='Blocks', compute='_compute_no_show_count', tracking=True, store=False)
     total_checkin = fields.Integer(
         string='Check-Ins', compute='_compute_no_show_count', tracking=True, store=True)
     total_checkout = fields.Integer(
@@ -91,8 +91,7 @@ class GroupBooking(models.Model):
                 lambda b: b.state == 'confirmed')
             not_confirmed_bookings = active_bookings.filtered(
                 lambda b: b.state == 'not_confirmed')
-            block_bookings = active_bookings.filtered(
-                lambda b: b.state == 'block')
+            block_bookings = active_bookings.filtered(lambda b: b.state == 'block')
             checkin_bookings = active_bookings.filtered(
                 lambda b: b.state == 'check_in')
             checkout_bookings = active_bookings.filtered(

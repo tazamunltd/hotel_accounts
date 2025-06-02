@@ -50,6 +50,74 @@ msgid " Cancellations"
 msgstr "الإلغاء"
 
 #. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__packages
+msgid "Packages"
+msgstr "الباقات"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_count_confirm_wizard_form
+msgid "Yes, search rooms"
+msgstr "نعم، ابحث عن الغرف"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/new_dashboard_templates.xml:0
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__activity_item__status__cancel
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__hk_activity_item__hk_status__cancel
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking_line__state___cancel
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_detail_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.sale_order_detail_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_confirm_early_checkout_wizard
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_availability_wizard
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_booking_update_wizard
+#, python-format
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/xml/offline_search_widget.xml:0
+#: code:addons/hotel_management_odoo/static/src/xml/offline_search_widget.xml:0
+#: model:ir.model,name:hotel_management_odoo.model_hotel_hotel
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_all_reservation_status_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_cleaning_request__hotel
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_company_forecast_report__company_name
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_deleted_reservation_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_fsm_location__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_amenity__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room__hotel_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_hotel_room_result__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_market_segment_forecast_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_by_nationality_forecast__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_meals_forecast_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_monthly_allotment_charts__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_monthly_groups_charts__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_status_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_reservation_summary_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_revenue_forecast__company_name
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_result_by_client__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_result_by_room_type__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_search__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_rooms_forecast_report__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_source_of_buisness_forecast__company_id
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_yearly_geographical_chart__company_id
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__cleaning_request__cleaning_type__hotel
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.hotel_amenity_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
+#, python-format
+msgid "Hotel"
+msgstr "الفندق"
+
+
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields,help:hotel_management_odoo.field_fleet_booking_line__state
 #: model:ir.model.fields,help:hotel_management_odoo.field_food_booking_line__state
 #: model:ir.model.fields,help:hotel_management_odoo.field_room_booking_line__state
@@ -677,6 +745,93 @@ msgid "Age Threshold"
 msgstr "عتبة العمر"
 
 #. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Booking(s) marked as 'No Show' successfully!"
+msgstr "تم تصنيف الحجز/الحجوزات على أنها 'عدم حضور' بنجاح."
+
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Room Not Assigned"
+msgstr "الغرف غير مخصصة."
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Are you sure?"
+msgstr "هل أنت متأكد؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Cancel"
+msgstr ""
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Do you want to search rooms for count %(count)s?"
+msgstr "هل ترغب في البحث عن الغرف حسب العدد؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Yes, search rooms!"
+msgstr "نعم، ابحث عن الغرف!"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/timer.js:0
+#, python-format
+msgid "System Date:"
+msgstr "تاريخ النظام:"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "VIP Code is required when VIP is selected."
+msgstr "يرجى تصحيح ما يلي: رمز الـ VIP مطلوب عند اختيار VIP."
+
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "All rooms must be assigned in room lines before moving to the 'block' state."
+msgstr "يجب تعيين جميع الغرف في سجلات الغرف قبل الانتقال إلى حالة 'التخصيص'."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Complimentary Code is required when Complimentary is selected."
+msgstr "يرجى تصحيح ما يلي:رمز الإعفاء مطلوب عند اختيار الإعفاء."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "House Use Code is required when House Use is selected."
+msgstr "يرجى تصحيح ما يلي: رمز الاستخدام الداخلي مطلوب عند اختيار الاستخدام الداخلي"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Search Room is empty. Please search for available rooms before confirming."
+msgstr "لا توجد غرف في نتائج البحث. الرجاء البحث عن غرف متاحة قبل المتابعة"
+
+
+#. module: hotel_management_odoo
 #: model:ir.model,name:hotel_management_odoo.model_agent_agent
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__agent
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_partner_form_inherit_hotel
@@ -745,6 +900,7 @@ msgstr "جميع تقارير حالة الحجوزات"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__all_rooms_assigned
 msgid "All Rooms Assigned"
 msgstr "جميع الغرف المخصصـة"
+
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -1065,6 +1221,121 @@ msgstr "التحويل البنكي"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__before_discount
 msgid "Before Discount"
 msgstr "قبل الخصم"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Room Rate After Discount"
+msgstr "إجمالي سعر الغرفة بعد الخصم"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_meal_after_discount
+msgid "Total Meal After Discount"
+msgstr "إجمالي سعر الوجبات بعد الخصم"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_package_after_discount
+msgid "Total Package After Discount"
+msgstr "إجمالي سعر الباقات بعد الخصم"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_fixed_post_after_discount
+msgid "Total Fixed Post After Discount"
+msgstr "إجمالي سعر البنود الثابتة بعد الخصم"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Fixed Pst After Discount"
+msgstr "إجمالي سعر البنود الثابتة بعد الخصم"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__room_rate_municiplaity_tax
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Room Rate Municipality Tax"
+msgstr "ضريبة بلدية الغرفة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__room_rate_untaxed
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Room Rate Untaxed"
+msgstr "سعر الغرفة بدون ضرائب"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__room_rate_vat
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Room Rate VAT"
+msgstr "ضريبة القيمة المضافة للغرفة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_rate_municiplaity_tax
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Meal Rate Municipality Tax"
+msgstr "ضريبة بلدية الوجبات"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_rate_untaxed
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Meal Rate Untaxed"
+msgstr "سعر الوجبات بدون ضرائب"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_rate_vat
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Meal Rate VAT"
+msgstr "ضريبة القيمة المضافة للوجبات"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__packages_municiplaity_tax
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Packages Municipality Tax"
+msgstr "ضريبة بلدية الباقات"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__packages_untaxed
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Packages Untaxed"
+msgstr "سعر الباقات بدون ضرائب"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__packages_vat
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Packages VAT"
+msgstr "ضريبة القيمة المضافة للباقات"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__fixed_post_municiplaity_tax
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Fixed Post Municipality Tax"
+msgstr "ضريبة بلدية البنود الثابتة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__fixed_post_untaxed
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Fixed Post Untaxed"
+msgstr "سعر البنود الثابتة بدون ضرائب"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__fixed_post_vat
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Fixed Post VAT"
+msgstr "ضريبة القيمة المضافة للبنود الثابتة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_municipality_tax
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Municipality Tax"
+msgstr "إجمالي ضريبة البلدية"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_vat
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total VAT"
+msgstr "إجمالي قيمة الضريبة المضافة"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_untaxed
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_rate_forecast_view
+msgid "Total Untaxed"
+msgstr "الإجمالي بدون ضرائب"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__billing_address
@@ -6140,7 +6411,7 @@ msgstr "مالك"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__packages
 msgid "Packages"
-msgstr "حزم"
+msgstr "الباقات"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_payment__payment_status__paid
@@ -9133,6 +9404,39 @@ msgstr "كبار الشخصيات\n"
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__vip_code
 msgid "VIP Code"
 msgstr "رمز كبار الشخصيات"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Do you want to search rooms for count %s?"
+msgstr "هل ترغب في البحث عن الغرف حسب العدد؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Are you sure?"
+msgstr "هل أنت متأكد؟"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_room_count_confirm_wizard_form
+msgid "Yes, search rooms"
+msgstr "نعم، ابحث عن الغرف!"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Yes, search rooms!"
+msgstr "نعم، ابحث عن الغرف!"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Cancel"
+msgstr "إلغاء!"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_cleaning_request__vehicle_id

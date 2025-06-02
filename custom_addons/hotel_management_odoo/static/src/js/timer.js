@@ -3,6 +3,8 @@
 import { Component, onWillStart, onWillDestroy } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { _t } from "@web/core/l10n/translation";
+
 
 export class TimerWidget extends Component {
   static props = [];
@@ -25,9 +27,11 @@ export class TimerWidget extends Component {
 
       // Show notification when the page loads
       if (this.state.systemDate) {
-        this.notificationService.add(`System Date: ${this.state.systemDate}`, {
-          type: "info",
-        });
+        // this.notificationService.add(`System Date: ${this.state.systemDate}`, {type: "info",});
+        this.notificationService.add(
+          _t("System Date:") + " " + this.state.systemDate,
+          { type: "info" }
+        );
       }
 
       // Setup company change watcher

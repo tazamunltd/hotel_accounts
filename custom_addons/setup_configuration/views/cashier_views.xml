@@ -770,11 +770,11 @@
                                         </div>
                                         <div class="card-body py-1 px-2">
                                             <div class="form-group mb-1">
-                                                <label for="default_currency"
+                                                <label for="default_currency_"
                                                     class="form-label small">Default Currency</label>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="default_currency"
+                                                <field name="default_currency_"
                                                     placeholder="Enter Default Currency" />
                                             </div>
                                             <div class="form-group mb-1">
@@ -950,7 +950,7 @@
                 <field name="description" optional='show' />
                 <field name="abbreviation" optional='show' />
                 <field name="main_department" optional='show' />
-                <field name="default_currency" optional='show' />
+                <field name="default_currency_" optional='show' />
                 <field name="default_value" optional='show' />
             </tree>
         </field>
@@ -964,7 +964,7 @@
                 <field name="description" />
                 <field name="abbreviation" />
                 <field name="main_department" />
-                <field name="default_currency" />
+                <field name="default_currency_" />
                 <field name="default_value" />
                 <templates>
                     <t t-name="kanban-box">
@@ -978,7 +978,7 @@
                             </div>
                             <div>Main Department: <field name="main_department" />
                             </div>
-                            <div>Default Currency: <field name="default_currency" />
+                            <div>Default Currency: <field name="default_currency_" />
                             </div>
                             <div>Default Value: <field name="default_value" />
                             </div>
@@ -995,7 +995,7 @@
             <pivot string="Posting Items">
                 <field name="item_code" type="row" />
                 <field name="main_department" type="row" />
-                <field name="default_currency" type="row" />
+                <field name="default_currency_" type="row" />
                 <field name="default_value" type="measure" />
             </pivot>
         </field>
@@ -1007,7 +1007,7 @@
             <graph string="Posting Items" type="bar">
                 <field name="item_code" type="row" />
                 <field name="main_department" type="row" />
-                <field name="default_currency" type="row" />
+                <field name="default_currency_" type="row" />
                 <field name="default_value" type="measure" />
             </graph>
         </field>
@@ -1021,7 +1021,7 @@
                 <field name="description" string="Description" />
                 <field name="abbreviation" string="Abbreviation" />
                 <field name="main_department" string="Main Department" />
-                <field name="default_currency" string="Currency" />
+                <field name="default_currency_" string="Currency" />
                 <field name="default_value" string="Default Value" />
             </search>
         </field>

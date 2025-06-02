@@ -1322,7 +1322,7 @@ action = {
         <field name="name">room.booking.view.tree</field>
         <field name="model">room.booking</field>
         <field name="arch" type="xml">
-            <tree js_class="reservation_dashboard_list">
+            <tree js_class="reservation_dashboard_list" default_order="id desc">
                 <header>
                     <button name="action_confirm_booking" string="Confirm" type="object"
                         class="btn-primary" />

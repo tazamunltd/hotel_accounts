@@ -3707,8 +3707,7 @@ class RoomBookingFrontDesk(models.Model):
 
             if not record.parent_booking_name:
                 if not record.availability_results:
-                    raise ValidationError(
-                        "Search Room is empty. Please search for available rooms before confirming.")
+                    raise ValidationError(_("Search Room is empty. Please search for available rooms before confirming."))
             # if not record.availability_results:
             #     raise ValidationError("Search Room is empty. Please search for available rooms before confirming.")
 

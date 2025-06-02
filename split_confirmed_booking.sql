@@ -21,7 +21,13 @@ DECLARE
     v_seq_str        TEXT;
 
     v_new_book_id    INT;
+
+    -- Cursors for copying adult/child/infant rows
+    rec_adult        RECORD;
+    rec_child        RECORD;
+    rec_infant       RECORD;
 BEGIN
+    -------------------------------------------------------------------
     -- 1) Load & validate parent booking
     SELECT *
       INTO parent_rec
@@ -32,16 +38,19 @@ BEGIN
         RAISE EXCEPTION 'Booking % not found or not CONFIRMED', p_booking_id;
     END IF;
 
-    -- 1a) Extract the numeric part of the parent name
+    -------------------------------------------------------------------
+    -- 1a) Extract numeric part of parent name
     v_parent_num := regexp_replace(parent_rec.name, '.*/', '')::INT;
 
-    -- 1b) Fetch company info
+    -------------------------------------------------------------------
+    -- 1b) Fetch company info (ID and name)
     SELECT id, name
       INTO v_company_id, v_company_name
       FROM res_company
      WHERE id = parent_rec.company_id;
 
-    -- 1c) Get sequence padding & increment
+    -------------------------------------------------------------------
+    -- 1c) Get sequence padding & increment from ir_sequence
     SELECT padding, number_increment
       INTO v_padding, v_increment
       FROM ir_sequence
@@ -49,6 +58,7 @@ BEGIN
        AND company_id = v_company_id
      LIMIT 1;
 
+    -------------------------------------------------------------------
     -- 2a) Gather rooms already booked in the same date range
     SELECT array_agg(rl.room_id)
       INTO v_booked_ids
@@ -61,9 +71,8 @@ BEGIN
        AND b.company_id = v_company_id;
 
     -------------------------------------------------------------------
-    -- 2b) Single-room shortcut
+    -- 2b) Single‐room shortcut (no children needed)
     IF parent_rec.room_count = 1 THEN
-        -- find one free room of the parent’s type
         SELECT id
           INTO v_room_id
           FROM hotel_room
@@ -75,27 +84,67 @@ BEGIN
             RAISE EXCEPTION 'No available room for type %', parent_rec.hotel_room_type;
         END IF;
 
-        -- assign it to the only line
+        -- Assign that single room to the parent’s only line
         UPDATE room_booking_line
            SET room_id = v_room_id,
                state_  = 'block'
          WHERE booking_id = p_booking_id;
 
-        -- block the booking
+        -- Update the parent booking itself
         UPDATE room_booking
            SET state        = 'block',
                room_count   = 1,
                show_in_tree = TRUE
          WHERE id = p_booking_id;
 
+        -------------------------------------------------------------------
+        -- COPY / UPDATE parent’s reservation_adult rows (only sequence 1)
+        FOR rec_adult IN
+          SELECT *
+            FROM reservation_adult
+           WHERE reservation_id = p_booking_id
+             AND room_sequence = 1
+        LOOP
+            UPDATE reservation_adult
+               SET room_id      = v_room_id
+             WHERE id = rec_adult.id;
+        END LOOP;
+
+        -------------------------------------------------------------------
+        -- COPY / UPDATE parent’s reservation_child rows (only sequence 1)
+        FOR rec_child IN
+          SELECT *
+            FROM reservation_child
+           WHERE reservation_id = p_booking_id
+             AND room_sequence = 1
+        LOOP
+            UPDATE reservation_child
+               SET room_id      = v_room_id
+             WHERE id = rec_child.id;
+        END LOOP;
+
+        -------------------------------------------------------------------
+        -- COPY / UPDATE parent’s reservation_infant rows (only sequence 1)
+        FOR rec_infant IN
+          SELECT *
+            FROM reservation_infant
+           WHERE reservation_id = p_booking_id
+             AND room_sequence = 1
+        LOOP
+            UPDATE reservation_infant
+               SET room_id      = v_room_id
+             WHERE id = rec_infant.id;
+        END LOOP;
+
         RETURN;
     END IF;
     -------------------------------------------------------------------
 
-    -- initialize max child-num to the parent number
+    -- init max child‐num (we’ll keep track of the highest suffix used)
     v_max_child_num := v_parent_num;
 
-    -- 3) Loop each line: assign room + create child bookings
+    -------------------------------------------------------------------
+    -- 3) Loop each room_booking_line: assign room + create child bookings
     FOR v_line IN
       SELECT id, counter, hotel_room_type
         FROM room_booking_line
@@ -104,7 +153,9 @@ BEGIN
     LOOP
         v_room_type_id := v_line.hotel_room_type;
 
-        -- 3a) Find an available room of that type
+        ----------------------------------------------------------------
+        -- 3a) Find an available room of that type, excluding already‐booked &
+        --     already‐assigned for this split operation
         SELECT id
           INTO v_room_id
           FROM hotel_room
@@ -118,21 +169,27 @@ BEGIN
         END IF;
         v_assigned_ids := array_append(v_assigned_ids, v_room_id);
 
-        -- 3b) Compute this line's numeric suffix
+        ----------------------------------------------------------------
+        -- 3b) Compute numeric suffix: parent_num + (counter – 1)
         v_child_num := v_parent_num + (v_line.counter - 1);
         IF v_child_num > v_max_child_num THEN
             v_max_child_num := v_child_num;
         END IF;
         v_seq_str := LPAD(v_child_num::TEXT, v_padding, '0');
 
+        ----------------------------------------------------------------
+        -- 3c) If this is the first line (counter = 1), update the parent’s line:
         IF v_line.counter = 1 THEN
-            -- first line: assign back to parent
             UPDATE room_booking_line
                SET room_id = v_room_id,
                    state_  = 'block'
              WHERE id = v_line.id;
+
+            CONTINUE;  -- move to next v_line (don’t create a child booking for seq 1)
+
         ELSE
-            -- subsequent lines: create child booking
+            ----------------------------------------------------------------
+            -- 3d) For counter > 1: create a new child booking
             INSERT INTO room_booking (
                 name,
                 parent_booking_id,
@@ -234,16 +291,248 @@ BEGIN
             )
             RETURNING id INTO v_new_book_id;
 
-            -- reassign that line to its child booking
+            ----------------------------------------------------------------
+            -- 3e) Reassign that line to its new child booking
             UPDATE room_booking_line
                SET booking_id = v_new_book_id,
                    room_id    = v_room_id,
-				   state_     = 'block'
+                   state_     = 'block'
              WHERE id = v_line.id;
+
+            ----------------------------------------------------------------
+            -- 3f) Copy parent’s posting_item_ids into this new child
+            INSERT INTO room_booking_posting_item (
+                booking_id,
+                posting_item_id,
+                item_code,
+                description,
+                posting_item_selection,
+                from_date,
+                to_date,
+                default_value
+            )
+            SELECT
+                v_new_book_id,
+                posting_item_id,
+                item_code,
+                description,
+                posting_item_selection,
+                from_date,
+                to_date,
+                default_value
+            FROM room_booking_posting_item
+            WHERE booking_id = p_booking_id;
+
+            ----------------------------------------------------------------
+            -- 3g) COPY reservation_adult rows for this sequence (counter) into the child
+            FOR rec_adult IN
+              SELECT *
+                FROM reservation_adult
+               WHERE reservation_id = p_booking_id
+                 AND room_sequence = v_line.counter
+            LOOP
+                INSERT INTO reservation_adult (
+                    reservation_id,
+                    room_sequence,
+                    first_name,
+                    last_name,
+                    profile,
+                    nationality,
+                    birth_date,
+                    passport_number,
+                    id_number,
+                    visa_number,
+                    id_type,
+                    phone_number,
+                    relation,
+                    room_type_id,
+                    room_id
+                ) VALUES (
+                    v_new_book_id,
+                    v_line.counter,
+                    rec_adult.first_name,
+                    rec_adult.last_name,
+                    rec_adult.profile,
+                    rec_adult.nationality,
+                    rec_adult.birth_date,
+                    rec_adult.passport_number,
+                    rec_adult.id_number,
+                    rec_adult.visa_number,
+                    rec_adult.id_type,
+                    rec_adult.phone_number,
+                    rec_adult.relation,
+                    rec_adult.room_type_id,
+                    v_room_id
+                );
+            END LOOP;
+
+            ----------------------------------------------------------------
+            -- 3h) COPY reservation_child rows for this sequence into the child
+            FOR rec_child IN
+              SELECT *
+                FROM reservation_child
+               WHERE reservation_id = p_booking_id
+                 AND room_sequence = v_line.counter
+            LOOP
+                INSERT INTO reservation_child (
+                    reservation_id,
+                    room_sequence,
+                    first_name,
+                    last_name,
+                    profile,
+                    nationality,
+                    birth_date,
+                    passport_number,
+                    id_number,
+                    visa_number,
+                    id_type,
+                    phone_number,
+                    relation,
+                    room_type_id,
+                    room_id
+                ) VALUES (
+                    v_new_book_id,
+                    v_line.counter,
+                    rec_child.first_name,
+                    rec_child.last_name,
+                    rec_child.profile,
+                    rec_child.nationality,
+                    rec_child.birth_date,
+                    rec_child.passport_number,
+                    rec_child.id_number,
+                    rec_child.visa_number,
+                    rec_child.id_type,
+                    rec_child.phone_number,
+                    rec_child.relation,
+                    rec_child.room_type_id,
+                    v_room_id
+                );
+            END LOOP;
+
+            ----------------------------------------------------------------
+            -- 3i) COPY reservation_infant rows for this sequence into the child
+            FOR rec_infant IN
+              SELECT *
+                FROM reservation_infant
+               WHERE reservation_id = p_booking_id
+                 AND room_sequence = v_line.counter
+            LOOP
+                INSERT INTO reservation_infant (
+                    reservation_id,
+                    room_sequence,
+                    first_name,
+                    last_name,
+                    profile,
+                    nationality,
+                    birth_date,
+                    passport_number,
+                    id_number,
+                    visa_number,
+                    id_type,
+                    phone_number,
+                    relation,
+                    room_type_id,
+                    room_id
+                ) VALUES (
+                    v_new_book_id,
+                    v_line.counter,
+                    rec_infant.first_name,
+                    rec_infant.last_name,
+                    rec_infant.profile,
+                    rec_infant.nationality,
+                    rec_infant.birth_date,
+                    rec_infant.passport_number,
+                    rec_infant.id_number,
+                    rec_infant.visa_number,
+                    rec_infant.id_type,
+                    rec_infant.phone_number,
+                    rec_infant.relation,
+                    rec_infant.room_type_id,
+                    v_room_id
+                );
+            END LOOP;
+
         END IF;
+        ----------------------------------------------------------------
     END LOOP;
 
-    -- 4) Close out the parent booking
+    -------------------------------------------------------------------
+    -- 4) After creating all children, we must clean up the parent’s reservation_* rows
+
+    -- 4a) Update parent’s reservation_adult rows where room_sequence = 1
+    FOR rec_adult IN
+      SELECT *
+        FROM reservation_adult
+       WHERE reservation_id = p_booking_id
+         AND room_sequence = 1
+    LOOP
+        -- Find the room_id that was assigned to the parent’s first line:
+        UPDATE reservation_adult
+           SET room_id = (
+               SELECT room_id
+                 FROM room_booking_line rbl
+                WHERE rbl.booking_id = p_booking_id
+                  AND rbl.counter = 1
+           )
+         WHERE id = rec_adult.id;
+    END LOOP;
+
+    -- 4b) Delete any parent’s reservation_adult rows with sequence > 1
+    DELETE
+      FROM reservation_adult
+     WHERE reservation_id = p_booking_id
+       AND room_sequence > 1;
+
+    -------------------------------------------------------------------
+    -- 4c) Update parent’s reservation_child rows where room_sequence = 1
+    FOR rec_child IN
+      SELECT *
+        FROM reservation_child
+       WHERE reservation_id = p_booking_id
+         AND room_sequence = 1
+    LOOP
+        UPDATE reservation_child
+           SET room_id = (
+               SELECT room_id
+                 FROM room_booking_line rbl
+                WHERE rbl.booking_id = p_booking_id
+                  AND rbl.counter = 1
+           )
+         WHERE id = rec_child.id;
+    END LOOP;
+
+    -- 4d) Delete any parent’s reservation_child rows with sequence > 1
+    DELETE
+      FROM reservation_child
+     WHERE reservation_id = p_booking_id
+       AND room_sequence > 1;
+
+    -------------------------------------------------------------------
+    -- 4e) Update parent’s reservation_infant rows where room_sequence = 1
+    FOR rec_infant IN
+      SELECT *
+        FROM reservation_infant
+       WHERE reservation_id = p_booking_id
+         AND room_sequence = 1
+    LOOP
+        UPDATE reservation_infant
+           SET room_id = (
+               SELECT room_id
+                 FROM room_booking_line rbl
+                WHERE rbl.booking_id = p_booking_id
+                  AND rbl.counter = 1
+           )
+         WHERE id = rec_infant.id;
+    END LOOP;
+
+    -- 4f) Delete any parent’s reservation_infant rows with sequence > 1
+    DELETE
+      FROM reservation_infant
+     WHERE reservation_id = p_booking_id
+       AND room_sequence > 1;
+
+    -------------------------------------------------------------------
+    -- 5) Finally, close out the parent booking
     UPDATE room_booking
        SET state        = 'block',
            room_count   = (

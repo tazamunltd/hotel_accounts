@@ -177,6 +177,7 @@ class PostingItem(models.Model):
     arabic_abbreviation = fields.Char(string=_("Arabic Abbr."),tracking=True, translate=True)
     main_department = fields.Many2one('department.code', string="Main Department",tracking=True)
     default_currency = fields.Char(string=_("Default Currency"),tracking=True, translate=True)
+    default_currency_ = fields.Many2one('res.currency', string=_("Default Currency"),tracking=True)
     default_value = fields.Float(string="Default Value", default=1,tracking=True)
     
     @api.onchange('default_value')
