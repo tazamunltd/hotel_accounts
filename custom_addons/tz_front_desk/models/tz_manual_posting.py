@@ -198,22 +198,14 @@ class TzHotelManualPosting(models.Model):
             folio = False
             if record.room_list:
                 folio = self._create_master_folio(record.room_list.id)
-                vals['source_type'] = 'manual'
             elif record.dummy_list:
                 folio = record._get_master_folio_for_dummy(record.dummy_list.id)
 
-            record.folio_id = folio
-        #
-        #
-        #
-        # # Optimize folio linking - consider making this a separate method or async
-        # if self._context.get('manual_creation') and not record.folio_id:
-        #     folio = False
-        #     if record.room_list:
-        #         folio = record._create_master_folio(record.room_list.id)
-        #     elif record.dummy_list:
-        #         folio = record._get_master_folio_for_dummy(record.dummy_list.id)
-        #     record.folio_id = folio
+            if folio:
+                record.folio_id = folio
+
+        vals['source_type'] = 'manual'
+        # raise UserError(record.folio_id)
 
         if record.item_id:
             record.compute_manual_taxes()

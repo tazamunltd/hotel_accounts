@@ -99,8 +99,10 @@
                                                 <label for="booking_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="booking_id" options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="booking_id"
+                                                       options="{'no_create': True}"
+                                                       readonly="source_type == 'auto' or state == 'posted'"
+                                                       required="type == 'booking'"/>
                                             </div>
                                         </div>
                                         <div class="col-md-2" invisible="type != 'room'">
@@ -108,8 +110,10 @@
                                                 <label for="room_list" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="room_list" options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="room_list"
+                                                       options="{'no_create': True}"
+                                                       readonly="source_type == 'auto' or state == 'posted'"
+                                                       required="type == 'room'"/>
                                                 <field name="unavailable_room_ids" invisible="1"/>
                                             </div>
                                         </div>
@@ -118,16 +122,18 @@
                                                 <label for="all_group" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="all_group" options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
+                                                <field name="all_group"
+                                                       options="{'no_create': True}"
+                                                       readonly="source_type == 'auto' or state == 'posted'"
+                                                       required="type == 'group'"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-3" invisible="not folio_id">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="folio_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="folio_id" readonly="1" force_save="1"/>
+                                                <field name="folio_id" force_save="1"/>
                                             </div>
                                         </div>
                                         <hr invisible="not booking_id"/>
@@ -276,7 +282,6 @@
                             </page>
                         </notebook>
                     </div>
-
                 </sheet>
                 <div class="oe_chatter" style="margin-top: 20px;">
                     <field name="message_ids" widget="mail_thread"/>
