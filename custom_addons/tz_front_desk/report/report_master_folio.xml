@@ -59,9 +59,9 @@
                     <table class="table table-sm table-bordered">
                         <thead>
                             <tr>
-                                <th>Item Code</th>
+                                <th class="text-right">Date</th>
+                                <th class="text-right">Time</th>
                                 <th>Description</th>
-                                <th class="text-right">First Date</th>
                                 <th class="text-right">Debit</th>
                                 <th class="text-right">Credit</th>
                                 <th class="text-right">Balance</th>
@@ -72,14 +72,14 @@
                                t-value="docs.filtered(lambda r: r.folio_id.id == folio_header.folio_id.id)"/>
                             <t t-foreach="folio_items" t-as="item">
                                 <tr>
+                                    <td class="text-right">
+                                        <span t-esc="item.date"/>
+                                    </td>
                                     <td>
-                                        <span t-esc="item.item_name"/>
+                                        <span t-esc="item.report_time"/>
                                     </td>
                                     <td>
                                         <span t-esc="item.item_description"/>
-                                    </td>
-                                    <td class="text-right">
-                                        <span t-esc="item.first_date"/>
                                     </td>
                                     <td class="text-right">
                                         <span t-esc="round(item.total_debit, 2)"/>
@@ -99,25 +99,25 @@
                 <!-- Totals -->
                 <div class="row" style="margin-top: 30px; border-top: 1px solid #000; padding-top: 10px;">
                     <div class="col-6">
-                        <strong>Municipality Tax:</strong>
-                        <span t-esc="folio_header.municipality_tax"/>
-                        <br/>
                         <strong>VAT:</strong>
-                        <span t-esc="folio_header.value_added_tax"/>
+                        <span t-esc="round(folio_header.value_added_tax, 2)"/>
+                        <br/>
+                        <strong>Municipality Tax:</strong>
+                        <span t-esc="round(folio_header.municipality_tax, 2)"/>
                     </div>
                     <div class="col-6 text-end">
                         <strong>Total Debit:</strong>
-                        <span t-esc="folio_header.folio_total_debit"/>
+                        <span t-esc="round(folio_header.folio_total_debit, 2)"/>
                         <br/>
                         <strong>Total Credit:</strong>
-                        <span t-esc="folio_header.folio_total_credit"/>
+                        <span t-esc="round(folio_header.folio_total_credit, 2)"/>
                         <br/>
                         <strong>Balance:</strong>
-                        <span t-esc="folio_header.folio_balance"/>
+                        <span t-esc="round(folio_header.folio_balance, 2)"/>
                         <br/>
                         <h6>
-                            <strong>Balance:</strong>
-                            <span t-esc="folio_header.grand_total"/>
+                        <strong>Total:</strong>
+                        <span t-esc="round(folio_header.grand_total, 2)"/>
                         </h6>
                     </div>
                 </div>

@@ -23,7 +23,8 @@ class TzHotelManualPostingTax(models.Model):
     type = fields.Selection([
         ('amount', 'Amount'),
         ('vat', 'VAT'),
-        ('municipality', 'Municipality')
+        ('municipality', 'Municipality'),
+        ('other', 'Other'),
     ], string='Type')
 
     @api.depends('debit_amount', 'credit_amount')

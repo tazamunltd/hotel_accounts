@@ -265,8 +265,13 @@ class TzHotelManualPosting(models.Model):
             else:
                 record.total = 0.0
 
-    @api.depends('folio_id', 'debit_without_vat', 'credit_without_vat')
+    @api.depends('debit_without_vat', 'credit_without_vat')
     def _compute_balance(self):
+        for record in self:
+            record.balance = record.debit_without_vat - record.credit_without_vat
+
+    @api.depends('folio_id', 'debit_without_vat', 'credit_without_vat')
+    def _compute_balanceX(self):
         for folio in self.mapped('folio_id'):
             lines = folio.manual_posting_ids.sorted(key=lambda r: (r.date, r.id))
             running_balance = 0
@@ -659,12 +664,12 @@ class TzHotelManualPosting(models.Model):
                     tax_lines.append({
                         'date': rec.date,
                         'time': rec.time,
-                        'description': tax.description or tax.name,
+                        'description': tax.name,
                         'debit_amount': round(tax_amount, 2) if rec.sign == 'debit' else 0.0,
                         'credit_amount': round(tax_amount, 2) if rec.sign == 'credit' else 0.0,
                         'balance': round(tax_amount, 2) if rec.sign == 'debit' else -round(tax_amount, 2),
                         'posting_id': rec.id,
-                        'type': 'vat' if 'vat' in (tax.description or '').lower() else 'municipality',
+                        'type': 'vat' if '15' in (tax.name or '').lower() else 'municipality' if '2.5' in (tax.name or '').lower() else 'other',
                     })
 
             # Create records for non-zero lines
