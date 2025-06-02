@@ -64,7 +64,7 @@
                                     <field name="voucher_number"/>
                                     <field name="debit_without_vat" sum="Total Debit"/>
                                     <field name="credit_without_vat" sum="Total Credit"/>
-                                    <field name="balance"/>
+                                    <field name="formula_balance"/>
                                 </tree>
                             </field>
 

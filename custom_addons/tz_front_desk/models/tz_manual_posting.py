@@ -105,6 +105,7 @@ class TzHotelManualPosting(models.Model):
     quantity = fields.Integer(string="Quantity", default=1, tracking=True, index=True)
     total = fields.Float(string="Total", tracking=True, index=True, compute='_compute_total', store=True)
     balance = fields.Float(string="Balance", compute='_compute_balance', store=True)
+    formula_balance = fields.Float(string="Balance", compute='_compute_formula_balance', store=True)
 
     currency_id = fields.Many2one(
         'res.currency',
@@ -263,13 +264,13 @@ class TzHotelManualPosting(models.Model):
             record.balance = record.debit_without_vat - record.credit_without_vat
 
     @api.depends('folio_id', 'debit_without_vat', 'credit_without_vat')
-    def _compute_balanceX(self):
+    def _compute_formula_balance(self):
         for folio in self.mapped('folio_id'):
             lines = folio.manual_posting_ids.sorted(key=lambda r: (r.date, r.id))
             running_balance = 0
             for line in lines:
                 running_balance += line.debit_without_vat - line.credit_without_vat
-                line.balance = running_balance
+                line.formula_balance = running_balance
 
     @api.depends('room_list')
     def _compute_booking_info(self):

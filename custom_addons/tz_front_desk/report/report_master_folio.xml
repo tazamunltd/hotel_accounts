@@ -53,7 +53,6 @@
     </div>
 </div>
 
-
                 <!-- Table -->
                 <div class="table-responsive">
                     <table class="table table-sm table-bordered">
@@ -98,14 +97,7 @@
 
                 <!-- Totals -->
                 <div class="row" style="margin-top: 30px; border-top: 1px solid #000; padding-top: 10px;">
-                    <div class="col-6">
-                        <strong>VAT:</strong>
-                        <span t-esc="round(folio_header.value_added_tax, 2)"/>
-                        <br/>
-                        <strong>Municipality Tax:</strong>
-                        <span t-esc="round(folio_header.municipality_tax, 2)"/>
-                    </div>
-                    <div class="col-6 text-end">
+                    <div class="col-12 text-end">
                         <strong>Total Debit:</strong>
                         <span t-esc="round(folio_header.folio_total_debit, 2)"/>
                         <br/>
@@ -115,6 +107,11 @@
                         <strong>Balance:</strong>
                         <span t-esc="round(folio_header.folio_balance, 2)"/>
                         <br/>
+                        <strong>VAT:</strong>
+                        <span t-esc="round(folio_header.value_added_tax, 2)"/>
+                        <br/>
+                        <strong>Municipality Tax:</strong>
+                        <span t-esc="round(folio_header.municipality_tax, 2)"/>
                         <h6>
                         <strong>Total:</strong>
                         <span t-esc="round(folio_header.grand_total, 2)"/>
