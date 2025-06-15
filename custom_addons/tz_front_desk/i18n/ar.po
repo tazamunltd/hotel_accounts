@@ -693,12 +693,6 @@ msgid "Generate Folio Report"
 msgstr "إنشاء تقرير الفيليو"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__grand_total
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__grand_total
-msgid "Grand Total"
-msgstr "الرصيد"
-
-#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__group_list
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__group_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__group_id
@@ -1554,3 +1548,14 @@ msgstr "لا يمكنك حذف سجل تم نشره."
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "use_priceMeal Price"
 msgstr "استخدام سعر الوجبة"
+
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__reference_contact_
+msgid "Contact Reference"
+msgstr "اسم النزيل"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__ref_id_bk
+msgid "Ref. ID(booking.com)"
+msgstr "رقم الحجز من Booking"

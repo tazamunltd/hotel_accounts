@@ -1,9 +1,7 @@
-from logging import setLogRecordFactory
-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 from datetime import datetime, timedelta
-
+import json
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -107,13 +105,6 @@ class TzHotelManualPosting(models.Model):
     balance = fields.Float(string="Balance", compute='_compute_balance', store=True)
     formula_balance = fields.Float(string="Balance", compute='_compute_formula_balance', store=True)
 
-    currency_id = fields.Many2one(
-        'res.currency',
-        string='Currency',
-        readonly=True,
-        default=lambda self: self.env.company.currency_id
-    )
-
     sign = fields.Selection(
         selection=[
             ('debit', 'Debit'),
@@ -125,7 +116,7 @@ class TzHotelManualPosting(models.Model):
         compute='_compute_sign',
     )
 
-    taxes = fields.Many2many('account.tax', string="Taxes", compute='_compute_taxes', store=True)
+    taxes = fields.Many2many('account.tax', compute='_compute_taxes', store=True, string="Taxes")
 
     partner_id = fields.Many2one(
         'res.partner',
@@ -170,6 +161,15 @@ class TzHotelManualPosting(models.Model):
 
     debit_without_vat = fields.Float(string="Debit", index=True)
     credit_without_vat = fields.Float(string="Credit", index=True)
+
+    currency_id = fields.Many2one(related='folio_id.currency_id', store=True)
+    price_subtotal = fields.Monetary(string="Untaxed", compute='_compute_amounts', store=True)
+    tax_amount = fields.Monetary(string="Tax", compute='_compute_amounts', store=True)
+    price_total = fields.Monetary(string="Total", compute='_compute_amounts', store=True)
+
+    display_type = fields.Selection([
+        ('line_section', "Section"),
+        ('line_note', "Note")], string="Display Type")
 
     @api.model
     def default_get(self, fields_list):
@@ -238,6 +238,7 @@ class TzHotelManualPosting(models.Model):
                 if posting_tax:
                     posting_tax.unlink()
                 rec.compute_manual_taxes()
+                raise UserError('STOP')
 
         return res
 
@@ -366,6 +367,10 @@ class TzHotelManualPosting(models.Model):
                 self.credit_amount = self.item_id.default_value
                 self.debit_amount = 0.0
             self.description = self.item_id.description
+            # self.taxes = self.item_id.taxes
+        else:
+            self.description = False
+            # self.taxes = False
 
     @api.onchange('type')
     def _onchange_type(self):
@@ -484,39 +489,7 @@ class TzHotelManualPosting(models.Model):
                 return self.env['group.booking'].browse(rec_id)
         return None
 
-    def compute_and_create_taxes(self):
-        self.ensure_one()
-        self.tax_ids.unlink()  # Always clear existing tax lines before recompute
-
-        if not self.item_id or not self.item_id.taxes:
-            return
-
-        # Total amount input by user
-        total_amount = self.debit_amount or self.credit_amount
-        if not total_amount:
-            return
-
-        # Calculate taxes from included price
-        taxes = self.item_id.taxes.with_context(price_include=True).compute_all(
-            total_amount,
-            currency=self.currency_id,
-            quantity=1.0,
-            product=self.item_id,
-            partner=self.partner_id,
-        )
-
-        for tax in taxes['taxes']:
-            self.env['tz.manual.posting.tax'].create({
-                'posting_id': self.id,
-                'tax_type': tax['name'],
-                'item_description': tax['name'],
-                'debit_amount': tax['amount'] if self.debit_amount else 0.0,
-                'credit_amount': tax['amount'] if self.credit_amount else 0.0,
-                'balance': tax['amount'],
-            })
-
-    # the below is working fine but without options [Included in Price?, Affect Base of Subsequent Taxes?]
-    def compute_manual_taxesX(self):
+    def compute_manual_taxes(self):
         tax_model = self.env['tz.manual.posting.tax']
         for rec in self:
             taxes = rec.item_id.taxes
@@ -605,78 +578,7 @@ class TzHotelManualPosting(models.Model):
                 'credit_without_vat': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
             })
 
-            rec.update_folio_debit_credit_and_taxes()
-
-    def compute_manual_taxes(self):
-        tax_model = self.env['tz.manual.posting.tax']
-        for rec in self:
-            taxes = rec.item_id.taxes.sorted('sequence')  # Process taxes in sequence
-            total = rec.debit_amount if rec.sign == 'debit' else rec.credit_amount
-
-            if not total or total <= 0:
-                continue
-
-            tax_lines = []
-            base_amount = total
-            amounts_by_tax = {}
-
-            # Calculate tax amounts considering tax options
-            for tax in taxes:
-                if tax.price_include:  # If tax is included in price
-                    tax_amount = base_amount - (base_amount / (1 + tax.amount / 100.0))
-                    base_amount -= tax_amount
-                    # If tax affects subsequent taxes, add to base
-                    # if tax.include_base_amount:
-                    #     base_amount += tax_amount
-
-                else:  # If tax is added on top
-                    tax_amount = base_amount * (tax.amount / 100.0)
-
-                amounts_by_tax[tax.id] = tax_amount
-
-            # Room charge is now the base_amount after all included taxes are subtracted
-            room_charge = base_amount
-            # raise UserError(round(room_charge, 2))
-
-            # Add Room Charge line
-            tax_lines.append({
-                'date': rec.date,
-                'time': rec.time,
-                'description': rec.item_id.description or 'Room Charge',
-                'debit_amount': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
-                'credit_amount': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
-                'balance': round(room_charge, 2) if rec.sign == 'debit' else -round(room_charge, 2),
-                'posting_id': rec.id,
-                'type': 'amount',
-            })
-
-            # Add tax lines
-            for tax in taxes:
-                tax_amount = amounts_by_tax.get(tax.id, 0.0)
-                if tax_amount > 0:
-                    tax_lines.append({
-                        'date': rec.date,
-                        'time': rec.time,
-                        'description': tax.name,
-                        'debit_amount': round(tax_amount, 2) if rec.sign == 'debit' else 0.0,
-                        'credit_amount': round(tax_amount, 2) if rec.sign == 'credit' else 0.0,
-                        'balance': round(tax_amount, 2) if rec.sign == 'debit' else -round(tax_amount, 2),
-                        'posting_id': rec.id,
-                        'type': 'vat' if '15' in (tax.name or '').lower() else 'municipality' if '2.5' in (tax.name or '').lower() else 'other',
-                    })
-
-            # Create records for non-zero lines
-            for line in tax_lines:
-                if line['debit_amount'] > 0 or line['credit_amount'] > 0:
-                    tax_model.create(line)
-
-            # Update net amounts
-            rec.write({
-                'debit_without_vat': round(room_charge, 2) if rec.sign == 'debit' else 0.0,
-                'credit_without_vat': round(room_charge, 2) if rec.sign == 'credit' else 0.0,
-            })
-
-            rec.update_folio_debit_credit_and_taxes()
+            # rec.update_folio_debit_credit_and_taxes()
 
     def update_folio_debit_credit_and_taxes(self):
         for rec in self:
@@ -708,6 +610,8 @@ class TzHotelManualPosting(models.Model):
                 'value_added_tax': round(total_vat, 2),
                 'municipality_tax': round(total_municipality, 2),
             })
+            # Trigger the tax totals recompute
+            rec.folio_id._compute_tax_totals()
 
     def unlink(self):
         for record in self:
@@ -733,22 +637,48 @@ class TzHotelManualPosting(models.Model):
             ])
 
             # Use a dummy record to call your existing method
-            if relevant_postings:
-                relevant_postings.update_folio_debit_credit_and_taxes()
-            else:
-                # No remaining postings — reset values to zero
-                folio.sudo().write({
-                    'total_debit': 0.0,
-                    'total_credit': 0.0,
-                    'value_added_tax': 0.0,
-                    'municipality_tax': 0.0,
-                })
+            # if relevant_postings:
+            #     relevant_postings.update_folio_debit_credit_and_taxes()
+            # else:
+            #     # No remaining postings — reset values to zero
+            #     folio.sudo().write({
+            #         'total_debit': 0.0,
+            #         'total_credit': 0.0,
+            #         'value_added_tax': 0.0,
+            #         'municipality_tax': 0.0,
+            #     })
 
         return res
 
+    @api.depends('debit_amount', 'credit_amount', 'quantity', 'taxes')
+    def _compute_amounts(self):
+        for line in self:
+            price_unit = (line.debit_amount or line.credit_amount) / (line.quantity or 1)
+            taxes = line.taxes.compute_all(
+                price_unit,
+                line.currency_id,
+                line.quantity,
+                product=False,
+                partner=line.folio_id.guest_id if line.folio_id else None,
+            )
+            line.price_subtotal = taxes['total_excluded']
+            line.tax_amount = taxes['total_included'] - taxes['total_excluded']
+            line.price_total = taxes['total_included']
 
-
-
+    def _convert_to_tax_base_line_dict(self):
+        self.ensure_one()
+        price_unit = (self.debit_amount or self.credit_amount) / (self.quantity or 1)
+        return self.env['account.tax']._convert_to_tax_base_line_dict(
+            self,
+            partner=self.folio_id.guest_id,
+            currency=self.currency_id,
+            product=None,
+            taxes=self.taxes,
+            price_unit=price_unit,
+            quantity=self.quantity,
+            discount=0.0,
+            price_subtotal=self.price_subtotal,
+        )
 
 
 

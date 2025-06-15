@@ -11,7 +11,7 @@
                 <field name="guest_id"/>
                 <field name="check_in" widget="date"/>
                 <field name="check_out" widget="date"/>
-                <field name="grand_total"/>
+                <field name="amount_total"/>
             </tree>
         </field>
     </record>
@@ -71,43 +71,17 @@
                             <!-- Totals section aligned to the right -->
                             <div class="oe_subtotal_footer oe_right"
                                  style="width: 300px; margin-left: auto; margin-top: 16px;">
-                                <div class="row">
-                                    <div class="col-12 text-end">
-                                        <label for="total_debit" string="Total Debit:"/>
-                                        <field name="total_debit" widget="monetary"
-                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12 text-end">
-                                        <label for="total_credit" string="Total Credit:"/>
-                                        <field name="total_credit" widget="monetary"
-                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
-                                    </div>
-                                </div>
+                                <group class="oe_subtotal_footer">
+                                    <!--<field name="amount_untaxed"/>
+                                    <field name="amount_tax"/>
+                                    <field name="amount_total"/>
+                                    <field name="currency_id"/>-->
 
-                                <div class="row mt-2">
-                                    <div class="col-12 text-end">
-                                        <label for="value_added_tax" string="Value Added Tax:"/>
-                                        <field name="value_added_tax" widget="monetary"
-                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12 text-end">
-                                        <label for="municipality_tax" string="Municipality Tax:"/>
-                                        <field name="municipality_tax" widget="monetary"
-                                               options="{'currency_field': 'currency_id'}" class="oe_inline"/>
-                                    </div>
-                                </div>
-
-                                <div class="row mt-2 oe_subtotal_footer_separator">
-                                    <div class="col-12 text-end">
-                                        <label for="grand_total" string="Balance:" class="fw-bold"/>
-                                        <field name="grand_total" widget="monetary"
-                                               options="{'currency_field': 'currency_id'}" class="fw-bold oe_inline"/>
-                                    </div>
-                                </div>
+                                    <field name="tax_totals"
+                                           widget="account-tax-totals-field"
+                                           options="{'currency_field': 'currency_id'}"
+                                           nolabel="1"/>
+                                </group>
                             </div>
                         </page>
                     </notebook>
@@ -129,7 +103,7 @@
                 <field name="bill_number" string="Bill Number"/>
                 <field name="total_debit" string="Total Debit"/>
                 <field name="total_credit" string="Total Credit"/>
-                <field name="grand_total" string="Balance"/>
+                <field name="amount_total" string="Balance"/>
             </search>
         </field>
     </record>

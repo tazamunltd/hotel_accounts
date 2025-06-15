@@ -15,8 +15,8 @@ class AutoPostingWizard(models.TransientModel):
 
     # Group selection fields
     all_groups = fields.Boolean(string="All Groups", default=True)
-    group_from = fields.Many2one('group.booking', string="From Group")
-    group_to = fields.Many2one('group.booking', string="To Group")
+    group_from = fields.Many2one('group.booking', domain="[('has_master_folio', '=', True)]", string="From Group")
+    group_to = fields.Many2one('group.booking', domain="[('has_master_folio', '=', True)]", string="To Group")
 
     # Charge type selection
     include_rates = fields.Boolean(string="Room Rates", default=True)
