@@ -30,13 +30,14 @@ class TzMasterFolioReport(models.Model):
     rooming_info = fields.Char(string="Rooming Info")
     value_added_tax = fields.Float(string='VAT')
     municipality_tax = fields.Float(string='Municipality Tax')
-    grand_total = fields.Float(string='Grand Total')
+    amount_total = fields.Float(string='Grand Total')
     currency_id = fields.Many2one('res.currency', string='Currency')
 
     # Fields from posting items
     item_id = fields.Many2one('posting.item', string='Posting Item')
     item_name = fields.Char(string='Item Code')
     item_description = fields.Char(string='Description')
+    tax_descriptions = fields.Char(string='Tax Descriptions')
     date = fields.Date(string='Date')
     report_time = fields.Char(string='Time')
     total_debit = fields.Float(string='Total Debit')
@@ -105,7 +106,7 @@ class TzMasterFolioReport(models.Model):
                 mf.rooming_info,
                 mf.value_added_tax,
                 mf.municipality_tax,
-                mf.grand_total,
+                mf.amount_total,
                 mf.currency_id,
                 mf.total_debit AS folio_total_debit,
                 mf.total_credit AS folio_total_credit,

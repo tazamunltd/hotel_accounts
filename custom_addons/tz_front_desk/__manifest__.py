@@ -54,6 +54,9 @@
         'views/tz_manual_posting_views.xml',
         'views/tz_master_folio_views.xml',
         'views/tz_dummy_group_views.xml',
+
+        'views/muk_views.xml',
+
         'wizard/tz_auto_posting_views.xml',
         'report/report_master_folio.xml',
     ],

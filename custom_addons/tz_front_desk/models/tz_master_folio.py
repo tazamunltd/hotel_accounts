@@ -1,4 +1,11 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError, UserError
+import json
+import base64
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class TzMasterFolio(models.Model):
     _name = 'tz.master.folio'
@@ -28,19 +35,6 @@ class TzMasterFolio(models.Model):
     value_added_tax = fields.Float(string="Value Added Tax")
     municipality_tax = fields.Float(string="Municipality Tax")
 
-    grand_total = fields.Float(string="Grand Total", compute='_compute_grand_total', store=True)
-    manual_posting_ids = fields.One2many(
-        'tz.manual.posting',
-        'folio_id',
-        string="Posting Lines",
-        order='create_date asc'
-    )
-
-    currency_id = fields.Many2one(
-        'res.currency',
-        string='Currency'
-    )
-
     state = fields.Selection(
         [('draft', 'Draft'), ('posted', 'Posted')],
         string="State",
@@ -54,6 +48,35 @@ class TzMasterFolio(models.Model):
     )
 
     display_info = fields.Char(string="Room/Group", compute="_compute_display_info", store=True)
+
+    tax_totals = fields.Binary(
+        string="Tax Totals",
+        compute='_compute_tax_totals',
+        exportable=False,
+        help="JSON-formatted tax summary"
+    )
+
+    manual_posting_ids = fields.One2many(
+        'tz.manual.posting',
+        'folio_id',
+        string="Manual Postings"
+    )
+
+    amount_untaxed = fields.Monetary(
+        string="Untaxed Amount", compute='_compute_amounts', store=True)
+    amount_tax = fields.Monetary(
+        string="Taxes", compute='_compute_amounts', store=True)
+    amount_total = fields.Monetary(
+        string="Total", compute='_compute_amounts', store=True)
+    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
+
+    @api.depends('manual_posting_ids.total', 'manual_posting_ids.tax_amount')
+    def _compute_amounts(self):
+        for folio in self:
+            lines = folio.manual_posting_ids
+            folio.amount_untaxed = sum(l.price_subtotal for l in lines)
+            folio.amount_tax = sum(l.tax_amount for l in lines)
+            folio.amount_total = folio.amount_untaxed + folio.amount_tax
 
     @api.model
     def create(self, vals):
@@ -98,9 +121,12 @@ class TzMasterFolio(models.Model):
         for record in self:
             record.balance = record.total_debit - record.total_credit
 
-    @api.depends('value_added_tax', 'municipality_tax', 'balance')
-    def _compute_grand_total(self):
-        for record in self:
-            record.grand_total = record.balance + record.value_added_tax + record.municipality_tax
-
-
+    @api.depends_context('lang')
+    @api.depends('manual_posting_ids.taxes', 'manual_posting_ids.total', 'amount_total', 'amount_untaxed')
+    def _compute_tax_totals(self):
+        for folio in self:
+            lines = folio.manual_posting_ids.filtered(lambda l: not l.display_type)
+            folio.tax_totals = self.env['account.tax']._prepare_tax_totals(
+                [l._convert_to_tax_base_line_dict() for l in lines],
+                folio.currency_id or folio.company_id.currency_id,
+            )

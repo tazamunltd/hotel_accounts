@@ -174,7 +174,7 @@
                                     </td>
                                     <td class="text-right">
                                         <strong>
-                                            <span t-esc="docs.grand_total"/>
+                                            <span t-esc="docs.amount_total"/>
                                             <span t-esc="docs.currency_id.name"/>
                                         </strong>
                                     </td>
