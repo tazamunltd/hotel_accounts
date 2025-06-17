@@ -358,6 +358,11 @@ class RoomBooking(models.Model):
                 nights = max(rec.no_of_nights, 1)
                 rec.checkout_date = rec.checkin_date + timedelta(days=nights)
 
+    # @api.onchange('rate_code')
+    # def _onchange_rate_code(self):
+    #     if self.company:
+    #         self.nationality = self.company.nationality.id
+
 
 class RoomRateForecast(models.Model):
     _inherit = 'room.rate.forecast'

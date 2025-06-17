@@ -273,20 +273,31 @@ class TzHotelManualPosting(models.Model):
                 running_balance += line.debit_without_vat - line.credit_without_vat
                 line.formula_balance = running_balance
 
-    @api.depends('room_list')
+    @api.depends('room_list', 'all_group', 'booking_id')
     def _compute_booking_info(self):
         for record in self:
-            booking_line = self.env['room.booking.line'].search([
-                ('room_id', '=', record.room_list.id),
-                ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
-            ], limit=1)
+            partner_id = False
+            reference_contact_ = False
 
-            if booking_line and booking_line.booking_id:
-                record.partner_id = booking_line.booking_id.partner_id
-                record.reference_contact_ = booking_line.booking_id.reference_contact_
-            else:
-                record.partner_id = False
-                record.reference_contact_ = False
+            # Priority 1: If booking_id is set, use its values
+            if record.booking_id:
+                partner_id = record.booking_id.partner_id
+                reference_contact_ = record.booking_id.reference_contact_
+            # Priority 2: If room_list is set, look for active booking line
+            elif record.room_list:
+                booking_line = self.env['room.booking.line'].search([
+                    ('room_id', '=', record.room_list.id),
+                    ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
+                ], limit=1)
+
+                if booking_line and booking_line.booking_id:
+                    partner_id = booking_line.booking_id.partner_id
+                    reference_contact_ = booking_line.booking_id.reference_contact_
+            # Priority 3: If all_group is set, you might want to handle group case
+            # (Add your logic here if needed for all_group)
+
+            record.partner_id = partner_id
+            record.reference_contact_ = reference_contact_
 
     @api.depends()
     def _compute_current_time(self):

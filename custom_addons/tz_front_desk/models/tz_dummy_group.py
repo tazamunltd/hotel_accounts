@@ -1,5 +1,5 @@
-from odoo import fields, models, api
-
+from odoo import fields, models, api, _
+from odoo.exceptions import UserError, ValidationError
 
 class DummyGroup(models.Model):
     _name = 'tz.dummy.group'
@@ -57,6 +57,12 @@ class DummyGroup(models.Model):
         group._create_master_folio()
         return group
 
-
-
+    def copy(self, default=None):
+        self.ensure_one()
+        company = self.company_id or self.env.company
+        prefix = f"{company.name}/"
+        name = prefix + (self.env['ir.sequence'].sudo().with_company(company)
+                                     .next_by_code('tz.dummy.group'))
+        default = dict(default or {}, name=name)
+        return super().copy(default)
 
