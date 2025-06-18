@@ -133,7 +133,7 @@
                                                 <label for="folio_id" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
-                                                <field name="folio_id" force_save="1"/>
+                                                <field name="folio_id" force_save="1" readonly="1"/>
                                             </div>
                                         </div>
                                         <hr invisible="not (room_list or all_group or booking_id)"/>

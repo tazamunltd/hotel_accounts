@@ -3,13 +3,10 @@ access_tz_room_search_public,access.tz.room.search,model_tz_room_search,,1,1,1,1
 access_tz_room_availability_public,access.tz.room.availability,model_tz_room_availability,,1,1,1,1
 access_tz_manual_posting_public,access.tz.manual.posting,model_tz_manual_posting,,1,1,1,1
 
-access_tz_master_folio_manager,tz.master.folio.manager,model_tz_master_folio,,1,1,1,1
+access_tz_master_folio_manager,tz.master.folio.manager,model_tz_master_folio,,1,0,0,0
 
 access_auto_posting_wizard,access.auto.posting.wizard,model_auto_posting_wizard,,1,1,1,1
 access_tz_master_folio_report_manager,tz.master.folio.report.manager,model_tz_master_folio_report,,1,1,1,1
 access_tz_dummy_group_manager,access.tz.dummy.group.manager,model_tz_dummy_group,,1,1,1,1
 access_tz_manual_posting_tax_public,access.tz.manual.posting.tax,model_tz_manual_posting_tax,,1,1,1,1
 
-
-access_mk_sale_order,mk.sale.order,model_mk_sale_order,base.group_user,1,1,1,1
-access_mk_sale_order_line,mk.sale.order.line,model_mk_sale_order_line,base.group_user,1,1,1,1
