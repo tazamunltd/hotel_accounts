@@ -154,7 +154,8 @@ class TzHotelManualPosting(models.Model):
 
     booking_id = fields.Many2one(
         'room.booking',
-        string="Room Booking"
+        string="Room Booking",
+        domain=lambda self: [('state', 'in', ['confirmed', 'no_show', 'block', 'check_in'])]
     )
 
     tax_ids = fields.One2many('tz.manual.posting.tax', 'posting_id', string='Taxes')

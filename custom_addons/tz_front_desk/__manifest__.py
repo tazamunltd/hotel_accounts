@@ -41,6 +41,7 @@
     'application': True,
     'version': '0.1',
     'license': 'OEEL-1',
+    # 'pre_init_hook': 'pre_init_hook',
 
     # any module necessary for this one to work correctly
     'depends': ['hotel_management_odoo'],
@@ -55,7 +56,7 @@
         'views/tz_master_folio_views.xml',
         'views/tz_dummy_group_views.xml',
 
-        'views/muk_views.xml',
+        # 'views/muk_views.xml',
 
         'wizard/tz_auto_posting_views.xml',
         'report/report_master_folio.xml',
