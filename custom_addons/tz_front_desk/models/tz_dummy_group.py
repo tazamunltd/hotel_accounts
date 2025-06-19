@@ -1,5 +1,4 @@
 from odoo import fields, models, api, _
-from odoo.exceptions import UserError, ValidationError
 
 class DummyGroup(models.Model):
     _name = 'tz.dummy.group'
@@ -7,6 +6,7 @@ class DummyGroup(models.Model):
     _order = 'create_date desc'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _check_company_auto = True
+    # _rec_name = 'description'
 
     name = fields.Char(
         string="Group ID",
@@ -18,7 +18,7 @@ class DummyGroup(models.Model):
                                  index=True,
                                  default=lambda self: self.env.company)
     abbreviation = fields.Char(string='Abbreviation')
-    description = fields.Char(string='Description')
+    description = fields.Char(string='Description', required=True)
     reopen = fields.Boolean(string='Open or reopen a group account automatically', default=False, tracking=True)
     auto_payment = fields.Boolean(string='Cash Room – Auto Payment Load', default=False, tracking=True)
     obsolete = fields.Boolean(string='Obsolete', default=False, tracking=True)
