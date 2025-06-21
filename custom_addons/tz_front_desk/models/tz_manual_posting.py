@@ -239,7 +239,7 @@ class TzHotelManualPosting(models.Model):
                 if posting_tax:
                     posting_tax.unlink()
                 rec.compute_manual_taxes()
-                raise UserError('STOP')
+                # raise UserError('STOP')
 
         return res
 
@@ -467,11 +467,11 @@ class TzHotelManualPosting(models.Model):
 
         # Add dummy groups to selection
         for dummy in dummy_groups:
-            result.append((f'dummy_{dummy.id}', f'Dummy Group: {dummy.name}'))
+            result.append((f'dummy_{dummy.id}', f'DG: {dummy.description}'))
 
         # Add group bookings to selection
         for group in group_bookings:
-            result.append((f'group_{group.id}', f'Group: {group.name}'))
+            result.append((f'group_{group.id}', f'G: {group.group_name}'))
 
         return result
 

@@ -51,37 +51,38 @@ class AutoPostingWizard(models.TransientModel):
 
         # 2. Process each forecast
         for forecast in forecasts:
-
             # Get linked booking lines for this forecast
             booking_line = self.env['room.booking.line'].search([
+                ('current_company_id', '=', self.env.company.id),
                 ('booking_id', '=', forecast.room_booking_id.id),
-                ('state_', '=', 'check_in')
+                ('state_', '=', 'check_in'),
             ], limit=1)
 
             if not booking_line:
                 continue
 
-            # Apply room/group filters
+            room_valid = True
+            group_valid = True
+
+            # Apply room filtering
             if not self.all_rooms:
                 if not self.room_from or not self.room_to:
                     raise UserError(_("Please select both From and To rooms"))
-                if not (self.room_from.id <= booking_line.room_id.id <= self.room_to.id):
-                    continue
+                room_valid = self.room_from.id <= booking_line.room_id.id <= self.room_to.id
 
+            # Apply group filtering
             if not self.all_groups:
                 if not self.group_from or not self.group_to:
                     raise UserError(_("Please select both From and To groups"))
-                if not (booking_line.booking_id.group_booking and
-                        self.group_from.id <= booking_line.booking_id.group_booking.id <= self.group_to.id):
-                    continue
+                group = booking_line.booking_id.group_booking
+                group_valid = group and (self.group_from.id <= group.id <= self.group_to.id)
 
-            folio = self._find_existing_folio(booking_line, system_date)
-
-            if not folio:
-                continue
-
-            records_created = self._create_folio_lines(booking_line, folio, forecast)
-            created_count += records_created
+            # Check both room and group validity
+            if (self.all_rooms or room_valid) or (self.all_groups or group_valid):
+                folio = self._find_existing_folio(booking_line, system_date)
+                if folio:
+                    records_created = self._create_folio_lines(booking_line, folio, forecast)
+                    created_count += records_created
 
         if created_count > 0:
             return self._show_notification(
@@ -118,7 +119,6 @@ class AutoPostingWizard(models.TransientModel):
         # new_rate_code =  self.env['rate.code'].sudo().browse(62) #62
         package_items = booking.rate_code.rate_detail_ids.line_ids.packages_posting_item if booking.rate_code else None
         fixed_items = booking.posting_item_ids.posting_item_id
-
 
         # Room Rate
         if rate_item:
@@ -163,6 +163,7 @@ class AutoPostingWizard(models.TransientModel):
             if self.include_fixed and forecast.fixed_post > 0:
                 raise UserError(
                     _("No posting item configured for fixed post"))
+
         return created_count
 
     def _create_posting_line(self, folio, booking_line, item_id, description, amount):
