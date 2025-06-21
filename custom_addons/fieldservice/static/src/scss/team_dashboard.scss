@@ -3,3 +3,6 @@
         width: 308px;
     }
 }
+.dropdown-item.o_menu_item:has(.oi.oi-unarchive) {
+        display: none;
+    }

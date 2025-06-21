@@ -351,6 +351,10 @@ class FSMLocation(models.Model):
         if self.state_id.country_id:
             self.country_id = self.state_id.country_id
 
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+
 
 class FSMPerson(models.Model):
     _inherit = "fsm.person"

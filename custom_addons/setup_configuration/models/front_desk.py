@@ -162,7 +162,7 @@ class MealPattern(models.Model):
     arabic_description = fields.Char(string=_("Arabic Description"),tracking=True, translate=True)
     arabic_abbreviation = fields.Char(string=_("Arabic Abbreviation"),tracking=True, translate=True)
     # meal_posting_item = fields.Char(string=_("Meal Posting Item",tracking=True)
-    meal_posting_item = fields.Many2one('posting.item',string="Meal Posting Item",ondelete="cascade",tracking=True)
+    meal_posting_item = fields.Many2one('posting.item',string="Meal Posting Item",ondelete="cascade", required=True, tracking=True)
     user_sort = fields.Integer(string="User Sort",tracking=True)
     meals_list_ids = fields.One2many('meal.list', 'meal_pattern_id', string="Meals List") #
     taxes = fields.Many2one('account.tax', string="Taxes",tracking=True)

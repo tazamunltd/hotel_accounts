@@ -8,3 +8,8 @@
   cursor: pointer !important;       /* Change cursor to pointer */
   text-decoration: underline !important;  /* Make it look clickable */
 }
+.o_form_view .o_field_one2many[name="rate_forecast_ids"] {
+  pointer-events: none !important;
+  /* opacity: 0.6; */
+  cursor: not-allowed !important;
+}

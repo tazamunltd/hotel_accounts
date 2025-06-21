@@ -403,6 +403,7 @@ action = {
                                     <field name="rooms_searched" />
                                     <field name="company_ids_" />
                                     <field name="all_rooms_assigned" />
+                                    <field name="previous_room_count" />
                                     <field name="allow_profile_change"
                                         readonly="state in ('check_out', 'no_show')" />
                                     <field name="need_service"
@@ -765,11 +766,12 @@ action = {
                                                     <label for="room_amount_selection"
                                                         class="form-label small">Amount Selection</label>
                                                     <field name="room_amount_selection"
-                                                        string="Room Amount Selection"
+                                                        string="Discount Type"
+                                                        widget="radio"
                                                         readonly="state in ('check_out', 'no_show')"
                                                         class="form-control form-control-sm"
                                                         force_save="1"
-                                                        style="height: 24px; padding: 2px 6px;" />
+                                                        />
                                                 </div>
                                             </div>
                                         </div>
@@ -846,6 +848,8 @@ action = {
                                                     <label for="meal_amount_selection"
                                                         class="form-label small">Amount Selection</label>
                                                     <field name="meal_amount_selection"
+                                                        string="Discount Type"
+                                                        widget="radio"
                                                         readonly="state in ('check_out', 'no_show')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
@@ -1239,17 +1243,21 @@ action = {
                     <field name="readonly_nationality" invisible="1" />
                     <field name="readonly_checkin_date" invisible="1" />
                     <field name="readonly_checkout_date" invisible="1" />
+                    <field name="readonly_source_of_business" invisible="1" />
+                    <field name="readonly_room_type" invisible="1" />
+                    <field name="readonly_market_segment" invisible="1" />
                     <!-- <field name="readonly_source_of_business" invisible="1"/> -->
                     <!-- <field name="readonly_market_segment" invisible="1"/> -->
                     <field name="checkin_date" readonly="readonly_checkin_date == True" />
                     <field name="checkout_date" readonly="readonly_checkout_date == True" />
                     <field name="meal_pattern" readonly="readonly_meal_pattern == True" />
-                    <field name="source_of_business" />
-                    <field name="room_type" />
+                    <field name="source_of_business" readonly="readonly_source_of_business == True"/>
+                    <field name="room_type" readonly="readonly_room_type == True"/>
                     <field name="blocked_room_action" widget="radio" invisible="room_type == False" />
-                    <field name="market_segment" />
+                    <field name="market_segment" readonly="readonly_market_segment == True"/>
                     <field name="rate_code" readonly="readonly_rate_code == True" />
                     <field name="nationality" readonly="readonly_nationality == True" />
+                    <field name="company_id" />
 
                     <!-- <field name="source_of_business" readonly="readonly_source_of_business ==
                     True"/> -->
@@ -1334,8 +1342,11 @@ action = {
                         class="btn-primary" />
                     <button name="action_no_show_tree" string="No Show" class="btn-danger"
                         type="object" />
-                    <button name="%(action_open_room_booking_update_wizard)d" string="Edit Data"
-                        type="action" class="oe_highlight" />
+                    <button name="%(action_open_room_booking_update_wizard)d" 
+                            string="Edit Data"
+                            type="action"   
+                            class="oe_highlight"
+                            />
                 </header>
                 <field name="name" optional="show" />
                 <field name="room_ids_display" string="Room Name" optional="show" />
@@ -1611,7 +1622,9 @@ action = {
                 <footer>
                     <button string="Send to Waiting List" type="object"
                         name="action_send_to_waiting" class="btn-primary" />
-                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                    <!-- <button string="Cancel" class="btn-secondary" special="cancel" /> -->
+                     <button string="Cancel" type="object"
+                        name="action_restore_room_count" class="btn-secondary" />
                 </footer>
             </form>
         </field>

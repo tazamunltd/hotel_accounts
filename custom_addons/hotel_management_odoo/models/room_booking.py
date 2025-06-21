@@ -17,6 +17,8 @@ import re
 from datetime import time      # ← this shadows the real time module
 from collections import defaultdict
 from odoo.tools.translate import _
+from odoo.tools.float_utils import float_round
+from textwrap import dedent
 
 
 
@@ -33,7 +35,19 @@ class RoomBooking(models.Model):
 
 
     
+    previous_room_count = fields.Integer(string='Previous Room Count')
 
+    @api.onchange('room_count')
+    def _onchange_room_count(self):
+        print("ON CHAGED CALLED")
+        for record in self:
+            if record._origin and not record.previous_room_count:
+                previous_db_room_count = record._origin.room_count
+                print("previous_db_room_count", previous_db_room_count)
+                record.previous_room_count = previous_db_room_count
+                print(f"[DEBUG] Capturing Previous Room Count from DB: {previous_db_room_count}")
+            else:
+                print(f"[DEBUG] Room Count Changed: Previous={record.previous_room_count}, Current={record.room_count}")
     
 
     def generateRcGuestPDF(self):
@@ -983,93 +997,138 @@ class RoomBooking(models.Model):
     total_untaxed = fields.Float(string="Total Untaxed", store=False, tracking=True)
 
     
-    def _onchange_rate_code_taxes(self):
-        for rec in self:
-            total_rate_amount = rec.total_rate_after_discount
-            # print("total_rate_amount", total_rate_amount)
-            taxes = rec.rate_code.rate_posting_item.taxes
-            if taxes:
-                vat_tax = taxes[0] if len(taxes) > 0 else None
-                unit_price = 0.0
-                if vat_tax:
-                    try:
-                        percentage_value = vat_tax.amount
-                        total_percentage_value = total_rate_amount + (total_rate_amount * (percentage_value / 100))
-                        if total_percentage_value == 0:
-                            raise ZeroDivisionError("Total percentage value is zero, cannot divide")
-                        unit_price = total_rate_amount * (total_rate_amount / total_percentage_value)
-                        rec.room_rate_vat = total_rate_amount - unit_price
-                    except ZeroDivisionError as e:
-                        rec.room_rate_vat = 0.0  # Or handle gracefully
-                    except ValueError:
-                        rec.room_rate_vat = 0.0
-                municipality_tax = taxes[1] if len(taxes) > 1 else None
-
-                if municipality_tax:
-                    try:
-                        percentage_value = municipality_tax.amount
-                        total_percentage_value = unit_price + (unit_price * (percentage_value / 100))
-                        if total_percentage_value == 0:
-                            raise ZeroDivisionError("Municipality total percentage value is zero!")
-                        unit_price_municipality = unit_price * (unit_price / total_percentage_value)
-                        rec.room_rate_municiplaity_tax = unit_price - unit_price_municipality
-                        rec.room_rate_untaxed = unit_price_municipality
-
-                    except ZeroDivisionError as e:
-                        rec.room_rate_municiplaity_tax = 0.0
-                        rec.room_rate_untaxed = unit_price  # default to unit_price if error
-
-                    except Exception as e:
-                        rec.room_rate_municiplaity_tax = 0.0
-                        rec.room_rate_untaxed = unit_price
-
-            if rec.room_rate_vat == 0.0 and rec.room_rate_municiplaity_tax == 0.0:
-                rec.room_rate_untaxed = total_rate_amount
-
-            # else:
-            #     rec.room_rate_vat = rec.room_rate_municiplaity_tax = rec.room_rate_untaxed = 0.0
-
-    
     # def _onchange_rate_code_taxes(self):
     #     for rec in self:
     #         total_rate_amount = rec.total_rate_after_discount
-    #         taxes = rec.rate_code.rate_posting_item.taxes if rec.rate_code and rec.rate_code.rate_posting_item else []
-            
-    #         # Initialize all tax fields
-    #         rec.room_rate_vat = 0.0
-    #         rec.room_rate_municiplaity_tax = 0.0
-    #         rec.room_rate_untaxed = total_rate_amount  # Default to total rate if no taxes
-            
+    #         print("total_rate_amount", total_rate_amount)
+    #         taxes = rec.rate_code.rate_posting_item.taxes
+    #         print("taxes", taxes)
     #         if taxes:
-    #             # Calculate VAT tax if exists
     #             vat_tax = taxes[0] if len(taxes) > 0 else None
+    #             print("vat_tax", vat_tax)
+    #             unit_price = 0.0
     #             if vat_tax:
     #                 try:
     #                     percentage_value = vat_tax.amount
+    #                     print("percentage_value", percentage_value)
     #                     total_percentage_value = total_rate_amount + (total_rate_amount * (percentage_value / 100))
-    #                     if total_percentage_value != 0:
-    #                         unit_price = total_rate_amount * (total_rate_amount / total_percentage_value)
-    #                         rec.room_rate_vat = total_rate_amount - unit_price
-    #                         rec.room_rate_untaxed = unit_price
-    #                 except (ZeroDivisionError, ValueError):
-    #                     pass  # Keep default values if calculation fails
-                
-    #             # Calculate Municipality tax if exists
+    #                     print("total_percentage_value", total_percentage_value)
+    #                     if total_percentage_value == 0:
+    #                         raise ZeroDivisionError("Total percentage value is zero, cannot divide")
+    #                     unit_price = total_rate_amount * (total_rate_amount / total_percentage_value)
+    #                     rec.room_rate_vat = total_rate_amount - unit_price
+    #                 except ZeroDivisionError as e:
+    #                     rec.room_rate_vat = 0.0  # Or handle gracefully
+    #                 except ValueError:
+    #                     rec.room_rate_vat = 0.0
     #             municipality_tax = taxes[1] if len(taxes) > 1 else None
-    #             if municipality_tax and rec.room_rate_untaxed > 0:
+    #             print("municipality_tax", municipality_tax)
+
+    #             if municipality_tax:
     #                 try:
     #                     percentage_value = municipality_tax.amount
-    #                     municipality_tax_amount = rec.room_rate_untaxed * (percentage_value / 100)
-    #                     rec.room_rate_municiplaity_tax = municipality_tax_amount
-    #                     rec.room_rate_untaxed = rec.room_rate_untaxed - municipality_tax_amount
-    #                 except (ZeroDivisionError, ValueError):
-    #                     pass  # Keep previous values if calculation fails
-            
-    #         # Final check - if both taxes are 0, set untaxed to total rate
+    #                     print("municipality_percentage_value", percentage_value)
+    #                     total_percentage_value = unit_price + (unit_price * (percentage_value / 100))
+    #                     print("total_percentage_value", total_percentage_value)
+    #                     if total_percentage_value == 0:
+    #                         raise ZeroDivisionError("Municipality total percentage value is zero!")
+    #                     unit_price_municipality = unit_price * (unit_price / total_percentage_value)
+    #                     print("unit_price_municipality", unit_price_municipality)
+    #                     rec.room_rate_municiplaity_tax = unit_price - unit_price_municipality
+    #                     print("rec.room_rate_municiplaity_tax", rec.room_rate_municiplaity_tax)
+    #                     rec.room_rate_untaxed = unit_price_municipality
+    #                     print("rec.room_rate_untaxed", rec.room_rate_untaxed)
+
+    #                 except ZeroDivisionError as e:
+    #                     rec.room_rate_municiplaity_tax = 0.0
+    #                     rec.room_rate_untaxed = unit_price  # default to unit_price if error
+
+    #                 except Exception as e:
+    #                     rec.room_rate_municiplaity_tax = 0.0
+    #                     rec.room_rate_untaxed = unit_price
+
     #         if rec.room_rate_vat == 0.0 and rec.room_rate_municiplaity_tax == 0.0:
     #             rec.room_rate_untaxed = total_rate_amount
 
-   
+    @api.depends(
+        'total_rate_after_discount',
+        'rate_code',
+        'rate_code.rate_posting_item',
+        'rate_code.rate_posting_item.taxes',
+        'rate_code.rate_posting_item.taxes.amount',  # Catch tax % change
+        'rate_code.rate_posting_item.taxes.amount_type', 
+        'rate_code.rate_posting_item.taxes.include_base_amount', 
+        'rate_code.rate_posting_item.taxes.price_include', 
+        'rate_code.rate_posting_item.taxes.tax_group_id', 
+        'rate_code.rate_posting_item.taxes.name',    # Optional: for UI tracking
+    )
+    def _compute_room_taxes(self):
+        for rec in self:
+            amount = rec.total_rate_after_discount or 0.0
+            taxes = rec.rate_code.rate_posting_item.taxes if rec.rate_code and rec.rate_code.rate_posting_item else self.env['account.tax']
+            currency = self.env.company.currency_id
+
+            rec.room_rate_vat = 0.0
+            rec.room_rate_municiplaity_tax = 0.0
+            rec.room_rate_untaxed = amount
+
+            if not taxes:
+                continue
+
+            tax_result = taxes.compute_all(amount, currency=currency)
+
+            for tax in tax_result.get('taxes', []):
+                tax_obj = self.env['account.tax'].browse(tax['id'])
+                tax_name = tax_obj.with_context(lang='en_US').name.lower().strip()
+                
+                if 'vat' in tax_name:
+                    rec.room_rate_vat += tax['amount']
+                # if 'muncipality' in tax_name:
+                if 'muncipality' in tax_name or 'municipality' in tax_name or 'muni' in tax_name:
+                    rec.room_rate_municiplaity_tax += tax['amount']
+
+            rec.room_rate_untaxed = tax_result['total_excluded']
+
+
+
+    # working
+    def _onchange_rate_code_taxes(self):
+        for rec in self:
+            total = rec.total_rate_after_discount or 0.0
+            taxes = rec.rate_code.rate_posting_item.taxes or self.env['account.tax']
+
+            # pick out VAT and Municipality taxes (if any)
+            vat_tax = taxes[0] if len(taxes) > 0 else None
+            muni_tax = taxes[1] if len(taxes) > 1 else None
+
+            if not vat_tax and not muni_tax:
+                rec.room_rate_vat = 0.0
+                rec.room_rate_municiplaity_tax = 0.0
+                rec.room_rate_untaxed = total
+                continue
+
+            rec.room_rate_vat = 0.0
+            if vat_tax and vat_tax.amount:
+                pct_vat = vat_tax.amount / 100.0
+                # total includes VAT, so base = total / (1 + pct)
+                untaxed_base = total / (1 + pct_vat)
+                rec.room_rate_vat = total - untaxed_base
+            else:
+                untaxed_base = total
+
+            if muni_tax and muni_tax.amount:
+                pct_muni = muni_tax.amount / 100.0
+                # amount after removing VAT
+                base_after_vat = total - rec.room_rate_vat
+                untaxed_after_muni = base_after_vat / (1 + pct_muni)
+                rec.room_rate_municiplaity_tax = base_after_vat - untaxed_after_muni
+                rec.room_rate_untaxed = untaxed_after_muni
+            else:
+                # no municipality tax: untaxed = total minus VAT
+                rec.room_rate_municiplaity_tax = 0.0
+                rec.room_rate_untaxed = total - rec.room_rate_vat
+
+    
     def _onchange_meal_rate_taxes(self):
         for rec in self:
             meal_base_amount = rec.total_meal_after_discount or 0.0
@@ -1124,63 +1183,7 @@ class RoomBooking(models.Model):
             rec.meal_rate_municiplaity_tax = round(total_municipality, 2)
             rec.meal_rate_untaxed = round(total_untaxed, 2)
     
-    # def _onchange_packaged_taxes(self):
-    #     for rec in self:
-        
-    #         checkin_date = fields.Date.from_string(rec.checkin_date)
-    #         checkout_date = fields.Date.from_string(rec.checkout_date)
-
-    #         rate_details = self.env['rate.detail'].search([
-    #             ('rate_code_id', '=', rec.rate_code.id),
-    #             ('from_date', '<=', checkin_date),
-    #             ('to_date', '>=', checkout_date)
-    #         ], limit=1)
-
-    #         package_base_total = package_vat = package_municipality = package_untaxed = 0.0
-            
-    #         if rate_details:
-    #             for line in rate_details.line_ids:
-    #                 # base = line.packages_value or 0.0
-    #                 base = rec.total_package_after_discount or 0.0
-    #                 posting_item_taxes = line.packages_posting_item.taxes
-    #                 unit_price = 0.0
-
-    #                 if posting_item_taxes:
-    #                     vat_tax = posting_item_taxes[0] if len(posting_item_taxes) > 0 else None
-                        
-    #                     if vat_tax:
-    #                         percentage = vat_tax.amount
-    #                         total_with_vat = base + (base * percentage / 100)
-                            
-    #                         if total_with_vat != 0:
-    #                             unit_price = base * (base / total_with_vat)
-    #                         else:
-    #                             unit_price = 0.0  # fallback to prevent crash
-                                
-    #                         package_vat += base - unit_price
-    #                         rec.packages_vat = package_vat
-
-    #                     municipality_tax = posting_item_taxes[1] if len(posting_item_taxes) > 1 else None
-                        
-    #                     if municipality_tax:
-    #                         percentage = municipality_tax.amount
-    #                         total_with_municipality = unit_price + (unit_price * percentage / 100)
-                            
-    #                         if total_with_municipality != 0:
-    #                             unit_price_municipality = unit_price * (unit_price / total_with_municipality)
-    #                         else:
-    #                             unit_price_municipality = 0.0
-
-    #                         package_municipality += unit_price - unit_price_municipality
-    #                         rec.packages_municiplaity_tax = package_municipality
-    #                         package_untaxed += unit_price_municipality
-    #                         rec.packages_untaxed = package_untaxed
-    #                     else:
-    #                         package_untaxed += unit_price
-    #                         rec.packages_untaxed = package_untaxed
-
-    #                 package_base_total += base
-
+    
     def _onchange_packaged_taxes(self):
         for rec in self:
             # Initialize all package tax fields
@@ -1253,57 +1256,6 @@ class RoomBooking(models.Model):
 
    
    
-    # def _onchange_fixed_post_taxes(self):
-    #     for record in self:
-    #         posting_items = record.posting_item_ids
-
-    #         # Initialize totals
-    #         # fixed_base = sum(line.default_value for line in posting_items)
-    #         fixed_base = record.total_fixed_post_after_discount or 0.0
-        
-    #         fixed_vat = 0.0
-    #         fixed_municipality = 0.0
-    #         fixed_untaxed = 0.0
-    #         base = 0.0
-
-    #         # Loop through posting items
-    #         for line in posting_items:
-    #             # base = line.default_value or 0.0
-    #             base = fixed_base
-    #             posting_item = line.posting_item_id
-    #             unit_price = 0.0
-
-    #             if posting_item and posting_item.taxes:
-    #                 vat_tax = posting_item.taxes[0] if len(posting_item.taxes) > 0 else None
-    #                 if vat_tax:
-    #                     vat_percentage = vat_tax.amount
-    #                     total_with_vat = fixed_base + (fixed_base * (vat_percentage / 100))
-    #                     if total_with_vat != 0:
-    #                         unit_price = fixed_base * (fixed_base / total_with_vat)
-    #                     else:
-    #                         unit_price = 0.0
-    #                     fixed_vat += fixed_base - unit_price
-    #                     record.fixed_post_vat = fixed_vat
-
-    #                 municipality_tax = posting_item.taxes[1] if len(posting_item.taxes) > 1 else None
-    #                 if municipality_tax:
-    #                     municipality_percentage = municipality_tax.amount
-    #                     total_with_municipality = unit_price + (unit_price * (municipality_percentage / 100))
-    #                     if total_with_municipality != 0:
-    #                         unit_price_municipality = unit_price * (unit_price / total_with_municipality)
-    #                     else:
-    #                         unit_price_municipality = 0.0
-    #                     fixed_municipality += unit_price - unit_price_municipality
-    #                     record.fixed_post_municiplaity_tax = fixed_municipality
-    #                     record.fixed_post_untaxed = fixed_base - fixed_vat - fixed_municipality
-    #                 else:
-    #                     # No municipality tax
-    #                     fixed_untaxed += unit_price
-                        
-    #             else:
-    #                 # No taxes at all
-    #                 fixed_untaxed += fixed_base
-
     def _onchange_fixed_post_taxes(self):
         for record in self:
             # Initialize all tax fields
@@ -1366,27 +1318,155 @@ class RoomBooking(models.Model):
                 record.fixed_post_untaxed = record.total_fixed_post_after_discount or 0.0
     
     
+    @api.depends(
+        'total_meal_after_discount',
+        'meal_pattern',
+        'meal_pattern.meal_posting_item.taxes',
+        'meal_pattern.meal_posting_item.taxes.amount',
+        'meal_pattern.meal_posting_item.taxes.amount_type',
+        'meal_pattern.meal_posting_item.taxes.price_include',
+        'meal_pattern.meals_list_ids.meal_code.posting_item.taxes',
+        'meal_pattern.meals_list_ids.meal_code.posting_item.taxes.amount',
+        'meal_pattern.meals_list_ids.meal_code.posting_item.taxes.amount_type',
+        'meal_pattern.meals_list_ids.meal_code.posting_item.taxes.price_include',
+    )
+    def _compute_meal_taxes(self):
+        for rec in self:
+            base_amount = rec.total_meal_after_discount or 0.0
+            currency = rec.currency_id or rec.env.company.currency_id
+
+            total_vat = 0.0
+            total_municipality = 0.0
+            total_untaxed = 0.0
+
+            posting_items = []
+
+            if rec.meal_pattern and rec.meal_pattern.meal_posting_item:
+                posting_items.append(rec.meal_pattern.meal_posting_item)
+
+            elif rec.meal_pattern and rec.meal_pattern.meals_list_ids:
+                for line in rec.meal_pattern.meals_list_ids:
+                    if line.meal_code and line.meal_code.posting_item:
+                        posting_items.append(line.meal_code.posting_item)
+
+            if posting_items:
+                for posting_item in posting_items:
+                    taxes = posting_item.taxes or rec.env['account.tax']
+                    result = taxes.compute_all(base_amount, currency=currency, quantity=1.0)
+
+                    total_untaxed += result['total_excluded']
+
+                    for tax_line in result['taxes']:
+                        tax_obj = rec.env['account.tax'].browse(tax_line['id'])
+                        if 'vat' in tax_obj.name.lower():
+                            total_vat += tax_line['amount']
+                        if 'muncipality' in tax_obj.name.lower() or 'municipality' in tax_obj.name.lower() or 'muni' in tax_obj.name.lower():
+                            total_municipality += tax_line['amount']
+            else:
+                total_untaxed = base_amount
+
+            rec.meal_rate_vat = float_round(total_vat, precision_digits=2)
+            rec.meal_rate_municiplaity_tax = float_round(total_municipality, precision_digits=2)
+            rec.meal_rate_untaxed = float_round(
+                                        rec.total_meal_after_discount - total_vat - total_municipality,
+                                        precision_digits=2
+                                    )
+
     
     @api.depends('rate_forecast_ids.rate')
     def _compute_total_rate_forecast(self):
         for record in self:
+            checkin_date = fields.Date.from_string(record.checkin_date)
+            checkout_date = fields.Date.from_string(record.checkout_date)
+            total_days = (checkout_date - checkin_date).days
+
+            total = sum(line.rate for line in record.rate_forecast_ids)
+
             if record.use_price:
-                if record.room_amount_selection.lower() == "total":
-                    total = sum(line.rate for line in record.rate_forecast_ids)
-                    if record.room_is_amount:
-                        record.total_rate_forecast = total - record.room_discount
+                if record.room_is_amount:
+                    if record.room_amount_selection and record.room_amount_selection.lower() == "total":
+                        record.total_rate_forecast = total
+                        record.total_rate_after_discount = total - (record.room_discount * record.room_count)
+
+                    elif record.room_amount_selection and record.room_amount_selection.lower() == "line_wise":
+                        record.total_rate_forecast = total
+                        record.total_rate_after_discount = total - (record.room_discount * record.room_count * total_days)
+
                     else:
-                        record.total_rate_forecast = sum(
-                            line.rate for line in record.rate_forecast_ids)
+                        record.total_rate_forecast = total
+
+                elif record.room_is_percentage:
+                    record.total_rate_forecast = total
+                    discount_amount = total * record.room_discount
+                    record.total_rate_after_discount = total - discount_amount
                 else:
-                    record.total_rate_forecast = sum(
-                        line.rate for line in record.rate_forecast_ids)
+                    record.total_rate_forecast = total
+
             else:
-                record.total_rate_forecast = sum(
-                    line.rate for line in record.rate_forecast_ids)
+                record.total_rate_forecast = total
+
+            # -------------------- MEAL CALCULATION --------------------
+            total_meal = sum(line.meals for line in record.rate_forecast_ids)
+
+            if record.use_meal_price:
+                if record.meal_is_amount:
+                    if record.meal_amount_selection and record.meal_amount_selection.lower() == "total":
+                        record.total_meal_forecast = total_meal
+                        record.total_meal_after_discount = total_meal - (record.meal_discount * record.room_count)
+
+                    elif record.meal_amount_selection and record.meal_amount_selection.lower() == "line_wise":
+                        record.total_meal_forecast = total_meal
+                        record.total_meal_after_discount = total_meal - (record.meal_discount * record.room_count * total_days)
+
+                    else:
+                        record.total_meal_forecast = total_meal
+
+                elif record.meal_is_percentage:
+                    record.total_meal_forecast = total_meal
+                    discount_amount_meal = total_meal * record.meal_discount
+                    record.total_meal_after_discount = total_meal - discount_amount_meal
+                else:
+                    record.total_meal_forecast = total_meal
+            else:
+                record.total_meal_forecast = total_meal
+
+            # -------------------- FINAL TOTAL FORECAST --------------------
+            record.total_total_forecast = (
+                (record.total_rate_after_discount or 0.0) +
+                (record.total_meal_after_discount or 0.0) +
+                (record.total_package_after_discount or 0.0) +
+                (record.total_fixed_post_after_discount or 0.0)
+            )
+
+            # if record.use_price:
+            #     if record.room_amount_selection.lower() == "total":
+            #         total = sum(line.rate for line in record.rate_forecast_ids)
+            #         print("Total Rate Forecast:", total)
+            #         if record.room_is_amount:
+            #             record.total_rate_forecast = total
+            #             record.total_rate_after_discount = total - record.room_discount * record.room_count
+            #         else:
+            #             record.total_rate_forecast = sum(line.rate for line in record.rate_forecast_ids)
+            #     elif record.room_amount_selection.lower() == "line_wise":
+            #         total = sum(line.rate for line in record.rate_forecast_ids)
+            #         print("Total Rate Forecast:", total)
+            #         if record.room_is_amount:
+            #             record.total_rate_forecast = total
+            #             record.total_rate_after_discount = total - record.room_discount * record.room_count * total_days
+            #         else:
+            #             record.total_rate_forecast = sum(
+            #                 line.rate for line in record.rate_forecast_ids)
+            #     else:
+            #         record.total_rate_forecast = sum(
+            #             line.rate for line in record.rate_forecast_ids)
+            # else:
+            #     record.total_rate_forecast = sum(
+            #         line.rate for line in record.rate_forecast_ids)
                 
-        self._onchange_rate_code_taxes()
-        self._onchange_meal_rate_taxes()
+        # self._onchange_rate_code_taxes()
+        self._compute_room_taxes()
+        self._compute_meal_taxes()
+        # self._onchange_meal_rate_taxes()
         self._onchange_fixed_post_taxes()
         self._onchange_packaged_taxes()
 
@@ -1413,6 +1493,8 @@ class RoomBooking(models.Model):
         )
 
     
+
+
     total_meal_forecast = fields.Float(
         string='Total Meals',
         compute='_compute_total_meal_forecast',
@@ -1555,7 +1637,7 @@ class RoomBooking(models.Model):
     total_total_forecast = fields.Float(
         string='Grand Total',
         compute='_compute_total_total_forecast',
-        store = False,
+        store = True,
         tracking=True
     )
 
@@ -1712,6 +1794,54 @@ class RoomBooking(models.Model):
                 + total_fixed_post_forecast
             )
 
+            record.total_rate_after_discount     = total_rate_forecast
+            record.total_meal_after_discount     = total_meal_forecast
+            record.total_package_after_discount  = total_package_forecast
+            record.total_fixed_post_after_discount = total_fixed_post_forecast
+            record.total_total_forecast = total_sum
+
+            if rate_detail_discount_value > 0:
+                if is_amount_value and amount_selection_value == 'total':
+                    rate_discount_amount    = rate_detail_discount_value * record.room_count
+                    meal_discount_amount    = rate_detail_discount_value * record.room_count
+                    package_discount_amount = rate_detail_discount_value * record.room_count
+                    # update fields, never go below zero
+                    record.total_rate_after_discount = max(0, total_rate_forecast    - rate_discount_amount)
+                    record.total_meal_after_discount = max(0, total_meal_forecast    - meal_discount_amount)
+                    record.total_package_after_discount = max(0, total_package_forecast - package_discount_amount)
+
+                elif is_amount_value and amount_selection_value == 'line_wise':
+                    rate_discount_amount = rate_detail_discount_value * record.room_count * total_days
+                    record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
+                    record.total_meal_after_discount = max(0, total_meal_forecast - rate_discount_amount)
+                    record.total_package_after_discount = max(0, total_package_forecast - rate_discount_amount)
+
+                # ---------- percentage discount ----------
+                elif is_percentage_value and percentage_selection_value == 'total':
+                    rate_discount_amount    = total_rate_forecast    * rate_detail_discount_value / 100
+                    meal_discount_amount    = total_meal_forecast    * rate_detail_discount_value / 100
+                    package_discount_amount = total_package_forecast * rate_detail_discount_value / 100
+                    record.total_rate_after_discount = max(0, total_rate_forecast    - rate_discount_amount)
+                    record.total_meal_after_discount = max(0, total_meal_forecast    - meal_discount_amount)
+                    record.total_package_after_discount = max(0, total_package_forecast - package_discount_amount)
+
+                elif is_percentage_value and percentage_selection_value == 'line_wise':
+                    rate_discount_amount    = total_rate_forecast    * rate_detail_discount_value / 100
+                    meal_discount_amount    = total_meal_forecast    * rate_detail_discount_value / 100
+                    package_discount_amount = total_package_forecast * rate_detail_discount_value / 100
+                    record.total_rate_after_discount = max(0, total_rate_forecast    - rate_discount_amount)
+                    record.total_meal_after_discount = max(0, total_meal_forecast    - meal_discount_amount)
+                    record.total_package_after_discount = max(0, total_package_forecast - package_discount_amount)
+
+                # ---------- final grand-total after any discount ----------
+                record.total_total_forecast = (
+                    record.total_rate_after_discount +
+                    record.total_meal_after_discount +
+                    record.total_package_after_discount +
+                    record.total_fixed_post_after_discount
+                )
+
+
 
             # if is_amount_value and amount_selection_value == 'total':
             #     record.total_total_forecast = total_sum - rate_detail_discount_value
@@ -1721,79 +1851,81 @@ class RoomBooking(models.Model):
             #     record.total_fixed_post_after_discount = total_fixed_post_forecast 
             #     record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
 
-            if is_amount_value and amount_selection_value == 'total':
-                # Calculate total discount first
-                total_discount = rate_detail_discount_value
+            # if is_amount_value and amount_selection_value == 'total':
+            #     # Calculate total discount first
+            #     total_discount = rate_detail_discount_value
                 
-                # Apply discounts with protection against negative values
-                # rate_discount_amount = rate_detail_discount_value * total_days
-                rate_discount_amount = rate_detail_discount_value * record.room_count 
-                record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
+            #     # Apply discounts with protection against negative values
+            #     # rate_discount_amount = rate_detail_discount_value * total_days
+            #     rate_discount_amount = rate_detail_discount_value * record.room_count 
+            #     record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
                 
-                # meal_discount_amount = rate_detail_discount_value * total_days
-                meal_discount_amount = rate_detail_discount_value * record.room_count
-                record.total_meal_after_discount = max(0, total_meal_forecast - meal_discount_amount)
+            #     # meal_discount_amount = rate_detail_discount_value * total_days
+            #     meal_discount_amount = rate_detail_discount_value * record.room_count
+            #     record.total_meal_after_discount = max(0, total_meal_forecast - meal_discount_amount)
                 
-                # package_discount_amount = rate_detail_discount_value * total_days
-                package_discount_amount = rate_detail_discount_value * record.room_count
-                record.total_package_after_discount = max(0, total_package_forecast - package_discount_amount)
+            #     # package_discount_amount = rate_detail_discount_value * total_days
+            #     package_discount_amount = rate_detail_discount_value * record.room_count
+            #     record.total_package_after_discount = max(0, total_package_forecast - package_discount_amount)
                 
-                # Fixed post doesn't get discounted
-                record.total_fixed_post_after_discount = total_fixed_post_forecast 
+            #     # Fixed post doesn't get discounted
+            #     record.total_fixed_post_after_discount = total_fixed_post_forecast 
                 
-                # Recalculate total forecast based on protected values
-                record.total_total_forecast = (
-                    record.total_rate_after_discount + 
-                    record.total_meal_after_discount + 
-                    record.total_package_after_discount + 
-                    record.total_fixed_post_after_discount
-                )
+            #     # Recalculate total forecast based on protected values
+            #     record.total_total_forecast = (
+            #         record.total_rate_after_discount + 
+            #         record.total_meal_after_discount + 
+            #         record.total_package_after_discount + 
+            #         record.total_fixed_post_after_discount
+            #     )
 
-            elif is_amount_value and amount_selection_value == 'line_wise':
-                rate_discount_amount = rate_detail_discount_value * record.room_count * total_days
-                record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
-                record.total_meal_after_discount = max(0, total_meal_forecast - rate_discount_amount)
-                record.total_package_after_discount = max(0, total_package_forecast - rate_discount_amount) 
-                record.total_fixed_post_after_discount = total_fixed_post_forecast 
-                record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
+            # elif is_amount_value and amount_selection_value == 'line_wise':
+            #     rate_discount_amount = rate_detail_discount_value * record.room_count * total_days
+            #     record.total_rate_after_discount = max(0, total_rate_forecast - rate_discount_amount)
+            #     record.total_meal_after_discount = max(0, total_meal_forecast - rate_discount_amount)
+            #     record.total_package_after_discount = max(0, total_package_forecast - rate_discount_amount) 
+            #     record.total_fixed_post_after_discount = total_fixed_post_forecast 
+            #     record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
 
-            elif is_percentage_value and percentage_selection_value == 'total':
-                rate_discount_amount = (total_rate_forecast * rate_detail_discount_value / 100) 
-                meal_discount_amount = (total_meal_forecast * rate_detail_discount_value / 100) 
-                package_discount_amount = (total_package_forecast * rate_detail_discount_value / 100) 
+            # elif is_percentage_value and percentage_selection_value == 'total':
+            #     rate_discount_amount = (total_rate_forecast * rate_detail_discount_value / 100) 
+            #     meal_discount_amount = (total_meal_forecast * rate_detail_discount_value / 100) 
+            #     package_discount_amount = (total_package_forecast * rate_detail_discount_value / 100) 
 
-                record.total_rate_after_discount = max(0, record.total_rate_forecast - rate_discount_amount)
-                record.total_meal_after_discount = max(0, record.total_meal_forecast - meal_discount_amount)
-                record.total_package_after_discount = max(0, record.total_package_forecast - package_discount_amount)
-                record.total_fixed_post_after_discount = total_fixed_post_forecast  # No discount applied here
-                record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
+            #     record.total_rate_after_discount = max(0, record.total_rate_forecast - rate_discount_amount)
+            #     record.total_meal_after_discount = max(0, record.total_meal_forecast - meal_discount_amount)
+            #     record.total_package_after_discount = max(0, record.total_package_forecast - package_discount_amount)
+            #     record.total_fixed_post_after_discount = total_fixed_post_forecast  # No discount applied here
+            #     record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
 
-            elif is_percentage_value and percentage_selection_value == 'line_wise':
-                room_count = record.room_count or 1
-                rate_discount_amount = record.total_rate_forecast * (rate_detail_discount_value / 100)     
-                meal_discount_amount = record.total_meal_forecast * (rate_detail_discount_value / 100)
-                package_discount_amount = record.total_package_forecast * (rate_detail_discount_value / 100)
-                # Final totals after discount
-                record.total_total_forecast = total_sum - (rate_discount_amount + meal_discount_amount + package_discount_amount)
-                record.total_rate_after_discount = total_rate_forecast - rate_discount_amount
-                record.total_meal_after_discount = total_meal_forecast - meal_discount_amount
-                record.total_package_after_discount = total_package_forecast - package_discount_amount
-                record.total_fixed_post_after_discount = total_fixed_post_forecast  
-                record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
+            # elif is_percentage_value and percentage_selection_value == 'line_wise':
+            #     room_count = record.room_count or 1
+            #     rate_discount_amount = record.total_rate_forecast * (rate_detail_discount_value / 100)     
+            #     meal_discount_amount = record.total_meal_forecast * (rate_detail_discount_value / 100)
+            #     package_discount_amount = record.total_package_forecast * (rate_detail_discount_value / 100)
+            #     # Final totals after discount
+            #     record.total_total_forecast = total_sum - (rate_discount_amount + meal_discount_amount + package_discount_amount)
+            #     record.total_rate_after_discount = total_rate_forecast - rate_discount_amount
+            #     record.total_meal_after_discount = total_meal_forecast - meal_discount_amount
+            #     record.total_package_after_discount = total_package_forecast - package_discount_amount
+            #     record.total_fixed_post_after_discount = total_fixed_post_forecast  
+            #     record.total_total_forecast = record.total_rate_after_discount + record.total_meal_after_discount + record.total_package_after_discount + record.total_fixed_post_after_discount
 
             
-            # elif is_percentage_value:
-            #     discount_amount = (total_sum * rate_detail_discount_value) / 100
-            #     record.total_total_forecast = total_sum - discount_amount
+            # # elif is_percentage_value:
+            # #     discount_amount = (total_sum * rate_detail_discount_value) / 100
+            # #     record.total_total_forecast = total_sum - discount_amount
 
-            # elif is_percentage_value:
-            #     record.total_total_forecast = (total_sum * rate_detail_discount_value) / 100
-            #     print(f"Applied percentage discount: {rate_detail_discount_value}%")
+            # # elif is_percentage_value:
+            # #     record.total_total_forecast = (total_sum * rate_detail_discount_value) / 100
+            # #     print(f"Applied percentage discount: {rate_detail_discount_value}%")
             
-            else:
-                record.total_total_forecast = total_sum or 0
+            # else:
+            #     record.total_total_forecast = total_sum or 0
 
     
+   
+   
     total_rate_after_discount = fields.Float(
         string='Total Rate After Discount'
     )
@@ -2098,7 +2230,109 @@ class RoomBooking(models.Model):
     #             if line.packages_rhythm == "first_night" and line.packages_value_type == "per_pax":
     #                 package_price += line.packages_value * record.adult_count
 
-    #     return meal_price, room_price, package_price
+    #     return meal_price, room_price, 
+    
+    @api.model
+    def calculate_room_meal_discount(self, record_, 
+                                    use_price, room_is_amount, room_amount_selection, room_discount,
+                                    use_meal_price, meal_is_amount, meal_amount_selection, meal_discount,room_is_percentage,meal_is_percentage,forecast_date):
+        total = 0.0
+
+        # ---------- Room ----------
+        if use_price and room_is_amount and room_amount_selection == 'line_wise':
+            # print("inside use room line wise")
+            if record_:
+                if len(record_) > 1:
+                    total += room_discount * record_[0].room_count 
+                else:
+                    total += room_discount * record_.room_count 
+            else:
+                total += room_discount * self.ensure_one().room_count 
+
+        if use_price and room_is_amount and room_amount_selection == 'total':
+            # print("inside use room total")
+            total += room_discount 
+
+        # ---------- Meal ----------
+        if use_meal_price and meal_is_amount and meal_amount_selection == 'line_wise':
+            # print("inside use meal line wise")
+            if record_:
+                if len(record_) > 1:
+                    total += meal_discount * record_[0].room_count 
+                else:
+                    total += meal_discount * record_.room_count 
+            else:
+                total += meal_discount * self.ensure_one().room_count 
+
+        if use_meal_price and meal_is_amount and meal_amount_selection == 'total':
+            # print("inside use meal total")
+            total += meal_discount 
+
+            # ---------- Room Percentage ----------
+        if room_is_percentage or meal_is_percentage:
+            if record_ and forecast_date:
+                if isinstance(record_, list) or (hasattr(record_, '_ids') and len(record_._ids) > 1):
+                    if hasattr(record_, '_ids'):
+                        record_singleton = record_[0] if record_ else record_
+                    else:
+                        record_singleton = record_[0] if record_ else record_
+                    meals, rate, packages, _1, _2 = self.get_all_prices(forecast_date, record_singleton)
+                else:
+                    meals, rate, packages, _1, _2 = self.get_all_prices(forecast_date, record_)
+            else:
+                if len(self) > 1:
+                    record_id = self[0].id
+                else:
+                    record_id = self.id
+                forecast_line = self.env['room.rate.forecast'].search([
+                    ('room_booking_id', '=', record_id)
+                ], order='date asc', limit=1)
+
+                if forecast_line:
+                    rate = forecast_line.rate or 0.0
+                    meals = forecast_line.meals or 0.0
+                    packages = forecast_line.packages or 0.0
+                else:
+                    rate = meals = packages = 0.0
+
+            price = rate + meals + 0.0  
+            discount_ = price * room_discount
+            total += round(discount_, 2)
+
+        # ---------- Meal Percentage ----------
+        # if meal_is_percentage:
+        #     if record_ and forecast_date:
+        #         if isinstance(record_, list) or (hasattr(record_, '_ids') and len(record_._ids) > 1):
+        #             if hasattr(record_, '_ids'):
+        #                 record_singleton = record_[0] if record_ else record_
+        #             else:
+        #                 record_singleton = record_[0] if record_ else record_
+        #             meals, rate, packages, _1, _2 = self.get_all_prices(forecast_date, record_singleton)
+        #         else:
+        #             meals, rate, packages, _1, _2 = self.get_all_prices(forecast_date, record_)
+        #     else:
+        #         if len(self) > 1:
+        #             record_id = self[0].id
+        #         else:
+        #             record_id = self.id
+        #         forecast_line = self.env['room.rate.forecast'].search([
+        #             ('room_booking_id', '=', record_id)
+        #         ], order='date asc', limit=1)
+
+        #         if forecast_line:
+        #             rate = forecast_line.rate or 0.0
+        #             meals = forecast_line.meals or 0.0
+        #             packages = forecast_line.packages or 0.0
+        #         else:
+        #             rate = meals = packages = 0.0
+
+        #     price = rate + meals + 0.0  
+        #     discount_ = price * meal_discount
+        #     total += round(discount_, 2)
+
+
+        return total
+
 
     @api.model
     def calculate_total(self, price, discount, is_percentage, is_amount, percentage_selection, amount_selection, condition,
@@ -2106,8 +2340,19 @@ class RoomBooking(models.Model):
                             meal_price=0.0,   
                             package_price=0.0, 
                             forecast_date = False,
-                            record_ = False):
-       
+                            record_ = False,
+                            use_price=False,
+                            room_is_amount=False,
+                            room_amount_selection=False,
+                            room_discount=False,
+                            use_meal_price = False,
+                            meal_is_amount = False,
+                            meal_amount_selection = False,
+                            meal_discount = False,
+                            room_is_percentage= False,
+                            meal_is_percentage = False):
+
+        total = 0.0
         if condition:
             multiplier = 0
             if room_price != 0:
@@ -2118,8 +2363,75 @@ class RoomBooking(models.Model):
             #     multiplier += 1
             # if is_percentage:
             #     total = (price * discount)
+            # if use_price and room_is_amount and room_amount_selection == 'line_wise':
+            #     print("inside use room line wise")
+            #     # Use record_.room_count instead of self.room_count when record_ is provided
+            #     if record_:
+            #         # Handle case where record_ is a multi-record set
+            #         if len(record_) > 1:
+            #             # We're processing multiple records, use the first one for calculation
+            #             # This assumes all records should have the same room_count for this calculation
+            #             total = room_discount * record_[0].room_count * multiplier
+            #             print('total', total)
+            #         else:
+            #             total = room_discount * record_.room_count * multiplier
+            #             print('total 2219', total)
+            #     else:
+            #         total = room_discount * self.ensure_one().room_count * multiplier
+
+            # elif use_price and room_is_amount and room_amount_selection == 'total':
+            #     print("inside use room total", room_discount, multiplier)
+            #     total = room_discount * multiplier
+            #     print('toal', total)
+
+            # elif use_meal_price and meal_is_amount and meal_amount_selection == 'line_wise':
+            #     print("inside use room line wise")
+            #     # Use record_.room_count instead of self.room_count when record_ is provided
+            #     if record_:
+            #         # Handle case where record_ is a multi-record set
+            #         if len(record_) > 1:
+            #             # We're processing multiple records, use the first one for calculation
+            #             # This assumes all records should have the same room_count for this calculation
+            #             total = meal_discount * record_[0].room_count * multiplier
+            #             print('total', total)
+            #         else:
+            #             total = meal_discount * record_.room_count * multiplier
+            #             print('total 2219', total)
+            #     else:
+            #         total = meal_discount * self.ensure_one().room_count * multiplier
+
+            # elif use_meal_price and meal_is_amount and meal_amount_selection == 'total':
+            #     print("inside use meal total", room_discount, multiplier)
+            #     total = meal_discount * multiplier
+            #     print('toal', total)
+        #     room_meal_total = self.calculate_room_meal_discount(
+        #     record_, multiplier, 
+        #     use_price, room_is_amount, room_amount_selection, room_discount,
+        #     use_meal_price, meal_is_amount, meal_amount_selection, meal_discount, room_is_percentage, meal_is_percentage,forecast_date
+        # )
+
+        #     if room_meal_total > 0:
+        #         total += room_meal_total
+        #         return total
+
+        #     else :
             if is_amount and amount_selection == 'line_wise':
-                total = discount * self.room_count * multiplier
+                # Use record_.room_count instead of self.room_count when record_ is provided
+                if record_:
+                    # Handle case where record_ is a multi-record set
+                    if len(record_) > 1:
+                        # We're processing multiple records, use the first one for calculation
+                        # This assumes all records should have the same room_count for this calculation
+                        total = discount * record_[0].room_count * multiplier
+                    else:
+                        total = discount * record_.room_count * multiplier
+                else:
+                    total = discount * self.ensure_one().room_count * multiplier
+            
+            
+            
+            
+
             elif is_amount and amount_selection == 'total':
                 total = discount * multiplier
             # elif is_percentage and percentage_selection == 'line_wise':
@@ -2140,8 +2452,15 @@ class RoomBooking(models.Model):
                         meals, rate, packages, _1, _2 = self.get_all_prices(forecast_date, record_)
                 
                 else:
+                    # When self is a multi-record set, we need to handle it properly
+                    if len(self) > 1:
+                        # Use the first record for calculation
+                        record_id = self[0].id
+                    else:
+                        record_id = self.id
+                        
                     forecast_line = self.env['room.rate.forecast'].search([
-                        ('room_booking_id', '=', self.id)
+                        ('room_booking_id', '=', record_id)
                     ], order='date asc', limit=1)
 
                     if forecast_line:
@@ -2204,8 +2523,8 @@ class RoomBooking(models.Model):
 
             # elif is_percentage and percentage_selection == 'total':
             #     total = (price * discount) / 100
-            else:
-                total = 0
+            # else:
+            #     total = 0
         else:
             total = 0
         return total  # Ensure the total doesn't go below zero
@@ -2451,9 +2770,58 @@ class RoomBooking(models.Model):
 
                     
 
-                    get_discount = self.calculate_total(before_discount, rate_detail_discount_value,
-                                                        is_percentage_value, is_amount_value, percentage_selection_value,
-                                                        amount_selection_value, True, room_price, meal_price, package_price, forecast_date, self)
+                    # Calculate discount for each record individually
+                    if len(self) > 1:
+                        if record.use_price or record.use_meal_price:
+                            get_discount = self[0].calculate_room_meal_discount(
+                                self[0], 
+                                record.use_price, record.room_is_amount, record.room_amount_selection, record.room_discount,
+                                record.use_meal_price, record.meal_is_amount, record.meal_amount_selection, record.meal_discount,
+                                record.room_is_percentage, record.meal_is_percentage, forecast_date
+                            )
+                            # print('2731', get_discount)
+                        # When processing multiple records, calculate for each one individually
+                        # and use the result from the first record (assumes similar configuration for all selected records)
+                        else:
+
+                            get_discount = self[0].calculate_total(before_discount, rate_detail_discount_value,
+                                                            is_percentage_value, is_amount_value, percentage_selection_value,
+                                                            amount_selection_value, True, room_price, meal_price, package_price, forecast_date, self[0], 
+                                                            use_price=record.use_price,
+                                                            room_is_amount=record.room_is_amount,
+                                                            room_amount_selection=record.room_amount_selection,
+                                                            room_discount = record.room_discount,
+                                                            use_meal_price = record.meal_price,
+                                                            meal_is_amount = record.meal_is_amount,
+                                                            meal_amount_selection = record.meal_amount_selection,
+                                                            meal_discount = record.meal_discount,
+                                                            room_is_percentage= record.room_is_percentage,
+                                                            meal_is_percentage = record.meal_is_percentage)
+                    else:
+                        if record.use_price or record.use_meal_price:
+                            get_discount = self.calculate_room_meal_discount(
+                                self,
+                                record.use_price, record.room_is_amount, record.room_amount_selection, record.room_discount,
+                                record.use_meal_price, record.meal_is_amount, record.meal_amount_selection, record.meal_discount,
+                                record.room_is_percentage, record.meal_is_percentage, forecast_date
+                            )
+                            # print('2757', get_discount)
+ 
+                        # Normal case for single record
+                        else:
+                            get_discount = self.calculate_total(before_discount, rate_detail_discount_value,
+                                                            is_percentage_value, is_amount_value, percentage_selection_value,
+                                                            amount_selection_value, True, room_price, meal_price, package_price, forecast_date, self,
+                                                            use_price=record.use_price,
+                                                            room_is_amount=record.room_is_amount,
+                                                            room_amount_selection=record.room_amount_selection,
+                                                            room_discount = record.room_discount,
+                                                            use_meal_price = record.meal_price,
+                                                            meal_is_amount = record.meal_is_amount,
+                                                            meal_amount_selection = record.meal_amount_selection,
+                                                            meal_discount = record.meal_discount,
+                                                            room_is_percentage= record.room_is_percentage,
+                                                            meal_is_percentage = record.meal_is_percentage)
 
 
                                                 # (self, price, discount, is_percentage, is_amount, percentage_selection, amount_selection, condition)
@@ -2462,8 +2830,10 @@ class RoomBooking(models.Model):
                     #     get_discount = 0
 
                     # total = before_discount - get_discount - room_price - meal_price
+                    # print("2782", before_discount, get_discount, room_price_after_discount, meal_price_after_discount)
                     total = before_discount - get_discount - room_price_after_discount - meal_price_after_discount
-                    
+                    # print("2783", total)
+
                     room_line_ids = record.room_line_ids.ids
                     actual_room_price = room_price - room_price_after_discount
                     actual_meal_price = meal_price - meal_price_after_discount
@@ -2739,20 +3109,36 @@ class RoomBooking(models.Model):
 
 
     def write(self, vals):
-        # if self.env.context.get('ignore_search_guard'):
-        #     return super().write(vals)
-
-        # for rec in self:
-        #     future_state = vals.get("state", rec.state)
-        #     future_flag  = vals.get("search_performed",
-        #                              rec.search_performed)
-        #     if future_state == "confirmed" and not future_flag:
-        #         raise ValidationError(_(
-        #             "You changed the Room Count. "
-        #             "Click the “Search Rooms” button before saving."
-        #         ))
-            
         self.check_room_meal_validation(vals, True)
+        for record in self:
+            if record.state == 'confirmed':
+                protected_fields = [
+                    'partner_id', 'nationality', 'source_of_business',
+                    'market_segment', 'rate_code', 'meal_pattern'
+                ]
+                # Friendly display names
+                field_labels = {
+                    'partner_id': 'Contact',
+                    'nationality': 'Nationality',
+                    'source_of_business': 'Source of Business',
+                    'market_segment': 'Market Segment',
+                    'rate_code': 'Rate Code',
+                    'meal_pattern': 'Meal Pattern'
+                }
+                for field in protected_fields:
+                    if field in vals and not vals.get(field):
+                        label = field_labels.get(field, field.replace('_', ' ').title())
+                        raise ValidationError(_("You cannot remove the field %s after confirmation.") % label)
+        # for record in self:
+        #     if record.state == 'confirmed':
+        #         protected_fields = [
+        #             'partner_id', 'nationality', 'source_of_business',
+        #             'market_segment', 'rate_code', 'meal_pattern'
+        #         ]
+        #         for field in protected_fields:
+        #             if field in vals and not vals.get(field):
+        #                 raise ValidationError(_("You cannot remove the field %s after confirmation.") % field.replace('_', ' ').title())
+
 
         if 'company_id' in vals:
             company = self.env['res.company'].browse(vals['company_id'])
@@ -2783,6 +3169,9 @@ class RoomBooking(models.Model):
 
         if 'checkin_date' in vals and not vals['checkin_date']:
             raise ValidationError(_("Check-In Date is required and cannot be empty."))
+
+        if 'checkout_date' in vals and not vals['checkout_date']:
+            raise ValidationError(_("Check-Out Date is required and cannot be empty."))
         
         # if 'checkin_date' in vals or 'checkout_date' in vals:
         #     for booking in self:
@@ -2808,8 +3197,11 @@ class RoomBooking(models.Model):
                             ('checkin_date', '<', updated_checkout_date),
                             ('checkout_date', '>', updated_checkin_date)
                         ])
+                        # if overlapping_bookings:
+                        #     raise UserError(_(f"Room {line.room_id.name} is already booked for the selected date range."))
                         if overlapping_bookings:
-                            raise UserError(f"Room {line.room_id.name} is already booked for the selected date range.")
+                            msg = _("Room %s is already booked for the selected date range.")
+                            raise UserError(msg % line.room_id.name)
 
                     # No conflicts found, update the dates
                     booking.room_line_ids.write({
@@ -3014,17 +3406,17 @@ class RoomBooking(models.Model):
         if self.company_id:
             self.checkin_date = self.company_id.system_date.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    @api.onchange('checkin_date')
-    def _onchange_checkin_date(self):
-        # current_time = fields.Datetime.now() - timedelta(minutes=10)  # 10-minute buffer
-        system_date = lambda self: self.env.user.company_id.system_date,
-        # if self.checkin_date and self.checkin_date < system_date:
-        #     raise UserError(
-        #         "Check-In Date cannot be more than 10 minutes in the past. Please select a valid time.")
+    # @api.onchange('checkin_date')
+    # def _onchange_checkin_date(self):
+    #     # current_time = fields.Datetime.now() - timedelta(minutes=10)  # 10-minute buffer
+    #     system_date = lambda self: self.env.user.company_id.system_date,
+    #     # if self.checkin_date and self.checkin_date < system_date:
+    #     #     raise UserError(
+    #     #         "Check-In Date cannot be more than 10 minutes in the past. Please select a valid time.")
 
-        if self.checkin_date:
-            # Set checkout_date to the end of the checkin_date
-            self.checkout_date = self.checkin_date + timedelta(hours=23, minutes=59, seconds=59)
+    #     if self.checkin_date:
+    #         # Set checkout_date to the end of the checkin_date
+    #         self.checkout_date = self.checkin_date + timedelta(hours=23, minutes=59, seconds=59)
 
     # no_of_nights = fields.Integer(string="No of Nights", default=1)
 
@@ -3101,8 +3493,8 @@ class RoomBooking(models.Model):
                 print("Checkout Date: %s", self.checkout_date)
                 return {
                     'warning': {
-                        'title': 'Invalid Check-Out Date',
-                        'message': "Check-Out Date cannot be before Check-In Date. It has been reset."
+                        'title': _("Invalid Check-Out Date"),
+                        'message': _("Check-Out Date cannot be before Check-In Date. It has been reset.")
                     }
                 }
             delta = (self.checkout_date - self.checkin_date).days
@@ -3564,8 +3956,7 @@ class RoomBooking(models.Model):
                 },
             }
         raise ValidationError(_(
-            "Nothing was marked as 'No Show'. "
-            "Bookings must be in state 'block' and today must be the check‑in date."
+            "Nothing was marked as 'No Show'.Bookings must be in state 'block' and today must be the Check In date."
         ))
 
     # ───────────────────────────────────────────────────────────────
@@ -4491,6 +4882,8 @@ class RoomBooking(models.Model):
     room_type_name = fields.Many2one('room.type', string='Room Type Name')
 
     def action_unconfirm(self):
+        self.ensure_one()
+        self.action_clear_rooms()
         """Set the booking back to 'not_confirmed' state from 'confirmed' or 'block'"""
         for record in self:
             if record.state in ['block', 'confirmed', 'waiting', 'cancel']:
@@ -4521,19 +4914,19 @@ class RoomBooking(models.Model):
                     _("You cannot confirm a booking with a check-in date in the past."))
 
             if not record.partner_id:
-                raise ValidationError(_("The field 'Contact' is required. Please fill it before confirming."))
+                raise ValidationError(_("The field Contact is required. Please fill it before confirming."))
 
             if not record.nationality:
-                raise ValidationError(_("The field 'Nationality' is required. Please fill it before confirming."))
+                raise ValidationError(_("The field Nationality is required. Please fill it before confirming."))
             if not record.source_of_business:
                 raise ValidationError(
-                    _("The field 'Source of Business' is required. Please fill it before confirming."))
+                    _("The field Source of Business is required. Please fill it before confirming."))
             if not record.market_segment:
-                raise ValidationError(_("The field 'Market Segment' is required. Please fill it before confirming."))
+                raise ValidationError(_("The field Market Segment is required. Please fill it before confirming."))
             if not record.rate_code:
                 raise ValidationError(_("The field 'Rate Code ' is required. Please fill it before confirming."))
             if not record.meal_pattern:
-                raise ValidationError(_("The field 'Meal Pattern' is required. Please fill it before confirming."))
+                raise ValidationError(_("The field Meal Pattern is required. Please fill it before confirming."))
 
             if not record.parent_booking_name:
                 # if not record.availability_results:
@@ -5004,6 +5397,8 @@ class RoomBooking(models.Model):
     
     @api.onchange('rate_code')
     def _onchange_rate_code_(self):
+        self._compute_room_taxes()
+        self._compute_meal_taxes()
         for record in self:
             if record.rate_code.id:
                 rate_details = self.env['rate.detail'].search([
@@ -5015,8 +5410,10 @@ class RoomBooking(models.Model):
 
                 if not rate_details:
                     # raise ValidationError('The selected rate code is expired. Please select another rate code.')
+                    # raise ValidationError(f'The selected rate code "{record.rate_code.code}" is expired. Please select another rate code.')
                     raise ValidationError(
-                        f'The selected rate code "{record.rate_code.code}" is expired. Please select another rate code.')
+                        _('The selected rate code %s is expired. Please select another rate code.') % record.rate_code.code
+                    )
                 # Search for rate.detail linked to the selected rate_code
                 # rate_detail = self.env['rate.code'].search([('code', '=', record.rate_code.id)], limit=1)
                 # print('4093', rate_detail)
@@ -5420,8 +5817,11 @@ class RoomBooking(models.Model):
             raise ValidationError("Infant count cannot be less than zero.")
 
         if not vals_list.get('checkin_date'):
-            raise ValidationError(
-                _("Check-In Date is required and cannot be empty."))
+            raise ValidationError( _("Check-In Date is required and cannot be empty."))
+
+        if not vals_list.get('checkout_date'):
+            raise ValidationError( _("Check-Out Date is required and cannot be empty."))
+
         # Fetch the company_id from vals_list or default to the current user's company
         company_id = vals_list.get('company_id', self.env.company.id)
         company = self.env['res.company'].browse(company_id)
@@ -6878,14 +7278,14 @@ class RoomBooking(models.Model):
 
     # Amount Selection for Room and Meal Prices
     room_amount_selection = fields.Selection([
-        ('total', 'Total'),
-        ('line_wise', 'Line Wise')
-    ], string="Room Amount Selection", default='total', tracking=True)
+        ('total', 'All Room'),
+        ('line_wise', 'Per Room')
+    ], string="Discount Type", default='total', tracking=True)
 
     meal_amount_selection = fields.Selection([
-        ('total', 'Total'),
-        ('line_wise', 'Line Wise')
-    ], string="Meal Amount Selection", default='total', tracking=True)
+        ('total', 'All Room'),
+        ('line_wise', 'Per Room')
+    ], string="Discount Type", default='total', tracking=True)
 
     @api.onchange('room_is_amount')
     def _onchange_room_is_amount(self):
@@ -7490,7 +7890,6 @@ class RoomBooking(models.Model):
                     # Exclude allocated lines
                     ('id', 'not in', self.env.context.get('already_allocated', []))
                 ])
-                print('6769', booked_rooms,self.env.context.get('already_allocated', []))
 
                 rooms_on_hold_count = self.env['rooms.on.hold.management.front.desk'].search_count([
                     ('company_id', '=', self.env.company.id),
@@ -7507,7 +7906,6 @@ class RoomBooking(models.Model):
                     ('from_date', '<=', checkout_date),
                     ('to_date', '>=', checkin_date)
                 ])
-                print(f"Out of order rooms count: {out_of_order_rooms_count}")
                 confirmed_bookings = self.env['room.booking'].search([
                     ('hotel_room_type', '=', room_type_id),
                     ('checkin_date', '<', checkout_date),
@@ -7516,17 +7914,12 @@ class RoomBooking(models.Model):
                     ('state', '=', 'confirmed'),
                     ('id', 'not in', self.env.context.get('already_allocated', []))
                 ])
-                print('6832', confirmed_bookings)
                 # Get the count of room_line_ids for confirmed bookings
                 confirmed_room_lines_count = sum(len(booking.room_line_ids) for booking in confirmed_bookings)
                 if sum(len(booking.room_line_ids) for booking in confirmed_bookings) > 0:
                     confirmed_room_lines_count -= 1
-
-                print('6795',confirmed_room_lines_count)
-
                 
                 booked_rooms = booked_rooms + rooms_on_hold_count + out_of_order_rooms_count+confirmed_room_lines_count
-                print('6799', booked_rooms)
 
                 if availability['overbooking_allowed']:
                     available_rooms = max(
@@ -7584,13 +7977,37 @@ class RoomBooking(models.Model):
             room_type_record = self.env['room.type'].browse(hotel_room_type_id)
             room_type_name = room_type_record.description or room_type_record.room_type
 
-        message = f"""
-    <div style="text-align: center; font-size: 14px; line-height: 1.6; padding: 10px; white-space: nowrap;">
-        <strong>Room Availability:</strong> You requested <strong>{room_count}</strong> room(s) of type <strong>{room_type_name}</strong>, 
-        but only <strong>{total_available_rooms}</strong> room(s) are available.<br>
-        Would you like to send this booking to the <strong>Waiting List</strong>?
-    </div>
-    """
+    #     message = f"""
+    # <div style="text-align: center; font-size: 14px; line-height: 1.6; padding: 10px; white-space: nowrap;">
+    #     <strong>Room Availability:</strong> You requested <strong>{room_count}</strong> room(s) of type <strong>{room_type_name}</strong>, 
+    #     but only <strong>{total_available_rooms}</strong> room(s) are available.<br>
+    #     Would you like to send this booking to the <strong>Waiting List</strong>?
+    # </div>
+    # # """
+        message = _(
+            '<div style="text-align: center; font-size: 14px; line-height: 1.6; padding: 10px; white-space: nowrap;">'
+            '<strong>Room Availability:</strong> You requested <strong>%s</strong> room(s) of type '
+            '<strong>%s</strong>, but only <strong>%s</strong> room(s) are available.<br>'
+            'Would you like to send this booking to the <strong>Waiting List</strong>?'
+            '</div>'
+        ) % (
+            room_count,
+            room_type_name,
+            total_available_rooms,
+        )
+
+
+    #     message = _(
+    #     """<div style="text-align: center; font-size: 14px; line-height: 1.6; padding: 10px; white-space: nowrap;">
+    #     <strong>Room Availability:</strong> You requested <strong>%(room_count)s</strong> room(s) of type <strong>%(room_type)s</strong>, 
+    #     but only <strong>%(available_rooms)s</strong> room(s) are available.<br>
+    #     Would you like to send this booking to the <strong>Waiting List</strong>?
+    #     </div>"""
+    # ) % {
+    #     'room_count': room_count,
+    #     'room_type': room_type_name,
+    #     'available_rooms': total_available_rooms
+    # }
 
         return {
             'type': 'ir.actions.act_window',
@@ -7601,6 +8018,7 @@ class RoomBooking(models.Model):
             'context': {
                 'default_room_booking_id': self.id,
                 'default_message': message,
+                'default_previous_room_count': self.previous_room_count,  
             },
         }
 
@@ -7634,13 +8052,11 @@ class RoomBooking(models.Model):
                                                                     ['room_type', 'total_room_count',
                                                                     'overbooking_allowed', 'overbooking_rooms'],
                                                                     order='room_type ASC')
-        print(f"Room availabilities found: {room_availabilities}")
 
         grouped_availabilities = {}
 
         for availability in room_availabilities:
             room_type_id = availability['room_type'][0] if isinstance(availability['room_type'], tuple) else availability['room_type']
-            print(f"Processing availability for room_type_id: {room_type_id}")
 
             if room_type_id not in grouped_availabilities:
                 grouped_availabilities[room_type_id] = {
@@ -7653,7 +8069,6 @@ class RoomBooking(models.Model):
             grouped_availabilities[room_type_id]['overbooking_rooms'] += availability['overbooking_rooms']
             grouped_availabilities[room_type_id]['entries'].append(availability)
 
-            print(f"Grouped availability so far: {grouped_availabilities}")
 
         total_available_rooms = 0
         for room_type_id, availability in grouped_availabilities.items():
@@ -7683,7 +8098,6 @@ class RoomBooking(models.Model):
                 ('from_date', '<=', checkout_date),
                 ('to_date', '>=', checkin_date)
             ])
-            print(f"Out of order rooms count: {out_of_order_rooms_count}")
 
             confirmed_bookings = self.env['room.booking'].search([
                     ('hotel_room_type', '=', room_type_id),
@@ -7703,7 +8117,6 @@ class RoomBooking(models.Model):
                 
 
             # booked_rooms += rooms_on_hold_count + out_of_order_rooms_count
-            print(f"Total booked rooms (including on hold and out of order): {booked_rooms}")
 
             if availability['overbooking_allowed']:
                 available_rooms = max(availability['total_room_count'] - booked_rooms + availability['overbooking_rooms'], 0)
@@ -7714,12 +8127,9 @@ class RoomBooking(models.Model):
                     return 99999  # Unlimited rooms
             else:
                 available_rooms = max(availability['total_room_count'] - booked_rooms, 0)
-                print(f"Available rooms without overbooking: {available_rooms}")
 
             total_available_rooms += available_rooms
-            print(f"Total available rooms so far: {total_available_rooms}")
 
-        print(f"Final total available rooms: {total_available_rooms}")
         return total_available_rooms
 
     @api.onchange('state')
@@ -7937,9 +8347,6 @@ class RoomBooking(models.Model):
     def action_assign_all_rooms(self):
         for booking in self:
             start_time = datetime.now()
-            print("START TIME", start_time)
-            print("==> Begin assign_all_rooms for Booking %s at %s" % (booking.name, start_time))
-
             # 1. State & room_line validations
             if booking.state != 'confirmed':
                 _logger.warning("Booking %s is not confirmed", booking.name)
@@ -7952,12 +8359,26 @@ class RoomBooking(models.Model):
             if len(booking.room_line_ids) == 1:
                 print("Only 1 room. Assigning room without splitting.")
 
-                # Find available room
+                booked_rooms = self.env['room.booking.line'].search([
+                ('room_id', '!=', False),
+                ('booking_id.checkin_date', '<', booking.checkout_date),
+                ('booking_id.checkout_date', '>', booking.checkin_date),
+                ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
+                ('booking_id.company_id', '=', booking.company_id.id)
+                    ]).mapped('room_id').ids
+
                 available_room = self.env['hotel.room'].search([
                     ('company_id', '=', booking.company_id.id),
                     ('room_type_name', '=', booking.hotel_room_type.id),
-                    ('id', 'not in', booking.room_line_ids.mapped('room_id').ids)
+                    ('id', 'not in', booked_rooms)
                 ], limit=1)
+
+                # Find available room
+                # available_room = self.env['hotel.room'].search([
+                #     ('company_id', '=', booking.company_id.id),
+                #     ('room_type_name', '=', booking.hotel_room_type.id),
+                #     ('id', 'not in', booking.room_line_ids.mapped('room_id').ids)
+                # ], limit=1)
 
                 if not available_room:
                     raise UserError(_("No available room for type %s") % booking.hotel_room_type)
@@ -8003,7 +8424,6 @@ class RoomBooking(models.Model):
                     'total':           fc.total / room_count,
                     'before_discount': fc.before_discount / room_count,
                 }
-                print("Divided Forecast Data:", divided)
                 forecast_data.append(divided)
                 fc.write(divided)
                 _logger.debug("Parent forecast on %s updated to %s", fc.date, divided)
@@ -8014,9 +8434,7 @@ class RoomBooking(models.Model):
             total_unt  = booking.total_untaxed or 0.0
 
             get_fixed_post_muni = booking.fixed_post_municiplaity_tax or 0.0
-            print("Fixed Post Municipality Tax:", get_fixed_post_muni)
             get_fixed_post_vat = booking.fixed_post_vat or 0.0
-            print("Fixed Post VAT:", get_fixed_post_vat)
 
             # 4. Call stored procedure to split booking rows in DB
             print("Calling stored procedure split_confirmed_booking(%s)" % booking.id)
@@ -8029,12 +8447,9 @@ class RoomBooking(models.Model):
 
             # 6. Batch-create child forecasts
             to_create = []
-            print("FORECAST DATA:", forecast_data)
-            print("Child Bookings:", child_bookings)
             for child in child_bookings:
                 for data in forecast_data:
                     vals = dict(data, room_booking_id=child.id)
-                    print("Child Forecast Values:", vals)
                     to_create.append(vals)
 
             if to_create:
@@ -8053,9 +8468,6 @@ class RoomBooking(models.Model):
                     'total_municipality_tax': per_mun,
                     'total_untaxed':          per_unt,
                 })
-            print("Split VAT/mun/untaxed= %.2f/%.2f/%.2f to each of %s bookings" % (
-                per_vat, per_mun, per_unt, len(all_bookings))
-            )
 
             # 8. Adjust sequence number for future bookings
             self.env.cr.execute("""
@@ -9940,6 +10352,60 @@ class RoomAvailabilityWizard(models.TransientModel):
     html_message = fields.Html(
         string='Formatted Message', compute='_compute_html_message', sanitize=False)
 
+    previous_room_count = fields.Integer(string="Previous Room Count")
+
+    def action_restore_room_count(self):
+        self.ensure_one()
+        print("[DEBUG] action_restore_room_count TRIGGERED")
+
+        if self.room_booking_id:
+            current = self.room_booking_id.room_count
+            previous = self.previous_room_count or 0
+
+            print(f"[DEBUG] Current room count: {current}, Previous: {previous}")
+
+            if previous == 0:
+                # No previous value stored — treat current as correct
+                print("[DEBUG] Previous room count is 0, saving current as previous.")
+                self.room_booking_id.write({
+                    'previous_room_count': current,
+                })
+            elif current != previous:
+                print(f"[DEBUG] Restoring room count from {current} to {previous}")
+                self.room_booking_id.write({
+                    'room_count': previous,
+                    'previous_room_count': False,
+                })
+            else:
+                print("[DEBUG] Room count unchanged. No action taken.")
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'room.booking',
+            'res_id': self.room_booking_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    # def action_restore_room_count(self):
+    #     self.ensure_one()
+    #     print("Previous Room Count: ", self.previous_room_count)
+    #     print("[DEBUG] action_restore_room_count TRIGGERED")  # 👈 PRINT HERE!
+    #     if self.room_booking_id:
+    #         print(f"[DEBUG] Restoring room count from {self.room_booking_id.room_count} to {self.previous_room_count}")
+    #         self.room_booking_id.write({
+    #             'room_count': self.previous_room_count,
+    #             'previous_room_count': False,
+    #         })
+
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'res_model': 'room.booking',
+    #         'res_id': self.room_booking_id.id,
+    #         'view_mode': 'form',
+    #         'target': 'current',
+    #     }
+
     @api.depends('message')
     def _compute_html_message(self):
         for wizard in self:
@@ -10417,28 +10883,29 @@ class RoomBookingUpdateWizard(models.TransientModel):
     _description = 'Wizard to Update Check-In and Check-Out Dates'
 
     checkin_date = fields.Datetime(string='Check-In Date')
+    readonly_checkin_date = fields.Boolean(string="Lock Check-In", default=False)
+
     checkout_date = fields.Datetime(string='Check-Out Date')
+    readonly_checkout_date = fields.Boolean(string="Lock Check-Out", default=False)
+
     meal_pattern = fields.Many2one('meal.pattern', string="Meal Pattern")
-    readonly_meal_pattern = fields.Boolean(
-        string="Is Meal Pattern Readonly", default=False)
-    rate_code = fields.Many2one('rate.code', string='Rate Code')
-    readonly_rate_code = fields.Boolean(
-        string="Is Rate Code Readonly", default=False)
-    nationality = fields.Many2one('res.country', string='Nationality')
-    readonly_nationality = fields.Boolean(
-        string="Is Nationality Readonly", default=False)
-    source_of_business = fields.Many2one(
-        'source.business', string='Source of Business')
+    readonly_meal_pattern = fields.Boolean(string="Lock Meal Pattern", default=False)
+
+    source_of_business = fields.Many2one('source.business', string='Source of Business')
+    readonly_source_of_business = fields.Boolean(string="Lock Source of Business", default=False)
+
     room_type = fields.Many2one('room.type', string='Room Type')
-    readonly_source_of_business = fields.Boolean(
-        string="Is Nationality Readonly", default=False)
+    readonly_room_type = fields.Boolean(string="Lock Room Type", default=False)
+
     market_segment = fields.Many2one('market.segment', string='Market Segment')
-    readonly_market_segment = fields.Boolean(
-        string="Is Nationality Readonly", default=False)
-    readonly_checkin_date = fields.Boolean(
-        string="Is Check-In Date Readonly", default=False)
-    readonly_checkout_date = fields.Boolean(
-        string="Is Check-Out Date Readonly", default=False)
+    readonly_market_segment = fields.Boolean(string="Lock Market Segment", default=False)
+
+    rate_code = fields.Many2one('rate.code', string='Rate Code')
+    readonly_rate_code = fields.Boolean(string="Lock Rate Code", default=False)
+
+    nationality = fields.Many2one('res.country', string='Nationality')
+    readonly_nationality = fields.Boolean(string="Lock Nationality", default=False)
+
     blocked_room_action = fields.Selection(
         [
             ('auto_assign', 'Automatically assign rooms of the new type'),
@@ -10447,6 +10914,14 @@ class RoomBookingUpdateWizard(models.TransientModel):
         ],
         string='Blocked Room Action'
     )
+
+    company_id = fields.Many2one(
+        'res.company', 
+        string='Company', 
+        default=lambda self: self.env.company,
+        readonly=True
+    )
+    readonly_company_id = fields.Boolean(string="Lock Company", default=True)  # Typically company shouldn't be changed
 
     # def action_update_selected_bookings(self):
     #     # Get the selected bookings from the context
@@ -10470,17 +10945,158 @@ class RoomBookingUpdateWizard(models.TransientModel):
                 raise UserError(
                     "Check-Out Date must be greater than Check-In Date.")
 
+    # @api.model
+    # def default_get(self, fields_list):
+    #     today = datetime.now()
+    #     res = super(RoomBookingUpdateWizard, self).default_get(fields_list)
+    #     active_ids = self.env.context.get('active_ids', [])
+
+    #     if active_ids:
+    #         bookings = self.env['room.booking'].browse(active_ids)
+
+    #     return res
+
     @api.model
     def default_get(self, fields_list):
-        today = datetime.now()
         res = super(RoomBookingUpdateWizard, self).default_get(fields_list)
         active_ids = self.env.context.get('active_ids', [])
-
         if active_ids:
-            bookings = self.env['room.booking'].browse(active_ids)
-
+            # Assume all selected bookings must share the same state.
+            # We simply check the first booking’s state:
+            first_booking = self.env['room.booking'].browse(active_ids[0])
+            if first_booking.state in ('no_show', 'check_out'):
+                # Mark every field‐readonly flag True
+                res.update({
+                    'readonly_checkin_date': True,
+                    'readonly_checkout_date': True,
+                    'readonly_meal_pattern': True,
+                    'readonly_rate_code': True,
+                    'readonly_nationality': True,
+                    'readonly_source_of_business': True,
+                    'readonly_room_type': True,
+                    'readonly_market_segment': True,
+                    'readonly_blocked_room_action': True,
+                })
+            
+            if first_booking.state == 'check_in':
+                # Mark check-in date readonly if booking is already checked in
+                res.update({
+                    'readonly_checkin_date': True,
+                })
+            if first_booking.state in ('block', 'check_in'):
+                # Allow updating check-in and check-out dates only if booking is in 'block' or 'check_in' state
+                res.update({
+                    'readonly_room_type': True, 
+                })
+            if first_booking.state == 'not_confirmed':
+                # Mark check-in date readonly if booking is already checked in
+                res.update({
+                    'readonly_room_type': True,
+                })
         return res
 
+
+    # def action_update_selected_bookings(self):
+    #     active_ids = self.env.context.get('active_ids', [])
+    #     if not active_ids:
+    #         return {'type': 'ir.actions.act_window_close'}
+
+    #     bookings = self.env['room.booking'].browse(active_ids)
+    #     grouped_data = {}
+
+    #     # Group room names by their room types
+    #     for booking in bookings:
+    #         for line in booking.room_line_ids:
+    #             room_name = line.room_id.name
+    #             room_type = line.hotel_room_type.room_type
+
+    #             if room_type:
+    #                 grouped_data.setdefault(room_type, []).append(room_name)
+
+    #     # Check for overlapping bookings for each room
+    #     for room_type, room_names in grouped_data.items():
+    #         for room_name in room_names:
+    #             if not room_name:
+    #                 continue  # Skip undefined rooms
+
+    #             overlapping_bookings = self.env['room.booking.line'].search([
+    #                 ('room_id', '=', room_name),
+    #                 ('booking_id.state', 'in', ['block', 'check_in']),
+    #                 '|',
+    #                 '&', ('checkin_date', '<=', self.checkout_date), (
+    #                     'checkout_date', '>=', self.checkin_date),
+    #                 '&', ('checkin_date', '>=', self.checkin_date), ('checkin_date',
+    #                                                                  '<=', self.checkout_date),
+    #             ])
+
+    #             if overlapping_bookings:
+    #                 raise ValidationError(
+    #                     f"Room '{room_name}' of type '{room_type}' is not available for "
+    #                     f"check-in on {self.checkin_date} and check-out on {self.checkout_date} "
+    #                     f"because it is already booked in 'block' or 'check-in' state."
+    #                 )
+    #     for booking in bookings:
+    #         if booking.state != 'block':
+    #             raise ValidationError(
+    #                 f"Booking '{booking.name}' is not in the 'block' state. "
+    #                 "All selected bookings must be in the 'block' state."
+    #             )
+    #         room_count = len(booking.room_line_ids)
+    #         adult_count = sum(booking.room_line_ids.mapped('adult_count'))
+    #         hotel_room_type_id = booking.room_line_ids.mapped(
+    #             'hotel_room_type').id if booking.room_line_ids else None
+
+    #         room_availability = booking.check_room_availability_all_hotels_split_across_type(
+    #             checkin_date=self.checkin_date,
+    #             checkout_date=self.checkout_date,
+    #             room_count=room_count,
+    #             adult_count=adult_count,
+    #             hotel_room_type_id=hotel_room_type_id
+    #         )
+
+    #         if not room_availability:
+    #             raise ValidationError(
+    #                 f"Rooms of type '{room_type}' are not available for the selected check-in and check-out dates."
+    #             )
+    #     for booking in bookings:
+    #         update_values = {
+    #             'checkin_date': self.checkin_date,
+    #             'checkout_date': self.checkout_date,
+    #             'meal_pattern': self.meal_pattern.id,
+    #             'nationality': self.nationality.id,
+    #             'rate_code': self.rate_code.id,
+    #             'source_of_business': self.source_of_business.id,
+    #             'market_segment': self.market_segment.id,
+    #         }
+    #         if self.blocked_room_action == 'unassign_confirm':
+    #             booking.write(update_values)
+    #             for booking in bookings:
+    #                 booking.write({'state': 'confirmed'})
+    #                 for line in booking.room_line_ids:
+    #                     line.write({
+    #                         'hotel_room_type': self.room_type.id,
+    #                         'state_': 'confirmed'
+    #                     })
+
+    #         elif self.blocked_room_action == 'auto_assign':
+    #             update_values['state'] = 'confirmed'
+    #             booking.write(update_values)
+    #             # booking.write({'state': 'confirmed'})
+    #             self.env.cr.flush()
+
+    #             for line in booking.room_line_ids:
+    #                 line.write({
+    #                     'hotel_room_type': self.room_type.id,
+    #                     'state_': 'confirmed'
+    #                 })
+    #             # Call the method to assign available rooms
+    #             booking.action_assign_all_rooms()
+
+    #         else:
+    #             # Default case: Just update the booking with the common fields
+    #             booking.write(update_values)
+
+    
     def action_update_selected_bookings(self):
         active_ids = self.env.context.get('active_ids', [])
         if not active_ids:
@@ -10508,10 +11124,8 @@ class RoomBookingUpdateWizard(models.TransientModel):
                     ('room_id', '=', room_name),
                     ('booking_id.state', 'in', ['block', 'check_in']),
                     '|',
-                    '&', ('checkin_date', '<=', self.checkout_date), (
-                        'checkout_date', '>=', self.checkin_date),
-                    '&', ('checkin_date', '>=', self.checkin_date), ('checkin_date',
-                                                                     '<=', self.checkout_date),
+                    '&', ('checkin_date', '<=', self.checkout_date), ('checkout_date', '>=', self.checkin_date),
+                    '&', ('checkin_date', '>=', self.checkin_date), ('checkin_date', '<=', self.checkout_date),
                 ])
 
                 if overlapping_bookings:
@@ -10520,16 +11134,18 @@ class RoomBookingUpdateWizard(models.TransientModel):
                         f"check-in on {self.checkin_date} and check-out on {self.checkout_date} "
                         f"because it is already booked in 'block' or 'check-in' state."
                     )
+
+        # Ensure all selected bookings are in 'block' state and that rooms are available
         for booking in bookings:
-            if booking.state != 'block':
-                raise ValidationError(
-                    f"Booking '{booking.name}' is not in the 'block' state. "
-                    "All selected bookings must be in the 'block' state."
-                )
+            # if booking.state != 'block':
+            #     raise ValidationError(
+            #         f"Booking '{booking.name}' is not in the 'block' state. "
+            #         "All selected bookings must be in the 'block' state."
+            #     )
+
             room_count = len(booking.room_line_ids)
             adult_count = sum(booking.room_line_ids.mapped('adult_count'))
-            hotel_room_type_id = booking.room_line_ids.mapped(
-                'hotel_room_type').id if booking.room_line_ids else None
+            hotel_room_type_id = booking.room_line_ids.mapped('hotel_room_type').id if booking.room_line_ids else None
 
             room_availability = booking.check_room_availability_all_hotels_split_across_type(
                 checkin_date=self.checkin_date,
@@ -10541,47 +11157,68 @@ class RoomBookingUpdateWizard(models.TransientModel):
 
             if not room_availability:
                 raise ValidationError(
-                    f"Rooms of type '{room_type}' are not available for the selected check-in and check-out dates."
+                    f"Rooms of type '{hotel_room_type_id}' are not available for the selected check-in and check-out dates."
                 )
+
+        # Now perform the updates: only update fields that the user actually filled in the wizard
         for booking in bookings:
-            update_values = {
-                'checkin_date': self.checkin_date,
-                'checkout_date': self.checkout_date,
-                'meal_pattern': self.meal_pattern.id,
-                'nationality': self.nationality.id,
-                'rate_code': self.rate_code.id,
-                'source_of_business': self.source_of_business.id,
-                'market_segment': self.market_segment.id,
-            }
+            vals = {}
+            if self.checkin_date:
+                vals['checkin_date'] = self.checkin_date
+            if self.checkout_date:
+                vals['checkout_date'] = self.checkout_date
+            if self.meal_pattern:
+                vals['meal_pattern'] = self.meal_pattern.id
+            if self.nationality:
+                vals['nationality'] = self.nationality.id
+            if self.rate_code:
+                vals['rate_code'] = self.rate_code.id
+            if self.source_of_business:
+                vals['source_of_business'] = self.source_of_business.id
+            if self.market_segment:
+                vals['market_segment'] = self.market_segment.id
+
+            # If the wizard provided a new room_type, store it; otherwise leave False
+            chosen_room_type = self.room_type.id if self.room_type else False
+
             if self.blocked_room_action == 'unassign_confirm':
-                booking.write(update_values)
-                for booking in bookings:
-                    booking.write({'state': 'confirmed'})
-                    for line in booking.room_line_ids:
-                        line.write({
-                            'hotel_room_type': self.room_type.id,
-                            'state_': 'confirmed'
-                        })
+                # First write any fields the user set
+                if vals:
+                    booking.write(vals)
+
+                # Change the booking state to 'confirmed'
+                booking.write({'state': 'confirmed'})
+                booking.write({'hotel_room_type': chosen_room_type})
+
+                # For each room_line, update hotel_room_type only if user set it, and set state_ to 'confirmed'
+                for line in booking.room_line_ids:
+                    line_vals = {'state_': 'confirmed'}
+                    if chosen_room_type:
+                        line_vals['hotel_room_type'] = chosen_room_type
+                    line.write(line_vals)
 
             elif self.blocked_room_action == 'auto_assign':
-                update_values['state'] = 'confirmed'
-                booking.write(update_values)
-                # booking.write({'state': 'confirmed'})
+                # Automatically assign new rooms of the chosen type
+                # Include 'state': 'confirmed' along with any other fields
+                vals['state'] = 'confirmed'
+                booking.write(vals)
                 self.env.cr.flush()
 
+                # Update each line with chosen room_type (if any) and set state_
                 for line in booking.room_line_ids:
-                    line.write({
-                        'hotel_room_type': self.room_type.id,
-                        'state_': 'confirmed'
-                    })
-                # Call the method to assign available rooms
+                    line_vals = {'state_': 'confirmed'}
+                    if chosen_room_type:
+                        line_vals['hotel_room_type'] = chosen_room_type
+                    line.write(line_vals)
+
+                # Call the existing method to assign available rooms
                 booking.action_assign_all_rooms()
 
             else:
-                # Default case: Just update the booking with the common fields
-                booking.write(update_values)
+                # Default: just update whichever keys the user provided
+                if vals:
+                    booking.write(vals)
 
-        
 
 # email configuration
 class EmailConfigurationSettings(models.Model):
@@ -10804,3 +11441,6 @@ class RoomCountConfirmWizard(models.TransientModel):
     # NO  → simply close the pop-up
     def action_no(self):
         return {"type": "ir.actions.act_window_close"}
+
+
+

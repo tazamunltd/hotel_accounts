@@ -293,7 +293,7 @@ class GroupBooking(models.Model):
             # else:
             #     record.first_visit = False
             # valid_bookings = record.room_booking_ids.filtered(lambda b: b.state != 'cancel')
-            valid_bookings = record.room_booking_ids.filtered(lambda b: b.state not in ['cancel', 'not_confirmed'])
+            valid_bookings = record.room_booking_ids.filtered(lambda b: b.state not in ['cancel', 'not_confirmed', 'no_show'])
 
             checkin_dates = valid_bookings.mapped('checkin_date')
             if checkin_dates:

@@ -146,6 +146,15 @@
             'hotel_management_odoo/static/src/xml/delete_with_notification.xml',
             'hotel_management_odoo/static/src/js/delete_with_notification.js',
             'hotel_management_odoo/static/src/js/room_booking_validation.js',
+            'hotel_management_odoo/static/src/js/room_type_change_validation.js',
+
+            # 'hotel_management_odoo/static/src/xml/loader_template.xml',
+            # 'hotel_management_odoo/static/src/scss/loader.scss',
+            # 'hotel_management_odoo/static/src/js/loader.js',
+
+            # 'hotel_management_odoo/static/src/js/no_of_nights_validation.js',
+            'hotel_management_odoo/static/src/js/checkin_date_validation.js',
+            'hotel_management_odoo/static/src/js/checkout_date_validation.js',
 
 
         ],

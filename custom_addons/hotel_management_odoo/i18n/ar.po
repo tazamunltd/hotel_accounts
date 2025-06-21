@@ -756,6 +756,28 @@ msgstr "تم تصنيف الحجز/الحجوزات على أنها 'عدم حض
 #. odoo-python
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 #, python-format
+msgid "Invalid Check-Out Date"
+msgstr "تاريخ المغادرة غير صالح"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Check-Out Date cannot be before Check-In Date. It has been reset."
+msgstr "لا يمكن أن يكون تاريخ المغادرة قبل تاريخ الوصول. تمت إعادة ضبطه."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "You cannot confirm a booking with a check-in date in the past."
+msgstr "لا يمكنك تأكيد حجز بتاريخ تسجيل دخول في الماضي."
+
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
 msgid "Room Not Assigned"
 msgstr "الغرف غير مخصصة."
 
@@ -901,6 +923,17 @@ msgstr "جميع تقارير حالة الحجوزات"
 msgid "All Rooms Assigned"
 msgstr "جميع الغرف المخصصـة"
 
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__meal_amount_selection__total
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__room_amount_selection__total
+msgid "All Room"
+msgstr "لكل الغرف"
+
+#. module: hotel_management_odoo
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__meal_amount_selection__line_wise
+#: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__room_amount_selection__line_wise
+msgid "Per Room"
+msgstr "للغرفة"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -5107,8 +5140,8 @@ msgstr "مدة التحضير للشراء"
 #. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__meal_amount_selection__line_wise
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__room_amount_selection__line_wise
-msgid "Line Wise"
-msgstr "حسب البند"
+msgid "Per Room"
+msgstr "للغرفة"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_activity_type_list__name
@@ -5364,8 +5397,8 @@ msgstr "وجبة\n"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_amount_selection
-msgid "Meal Amount Selection"
-msgstr "اختيار مبلغ الوجبة"
+msgid "Discount Type"
+msgstr "طريقة الخصم"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_child_price
@@ -5380,20 +5413,20 @@ msgstr "رموز الوجبات"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__meal_discount
 msgid "Meal Discount"
-msgstr "خصم وجبة"
+msgstr "خصم الوجبة"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Meal Discount\n"
 "                                                        (Amount)"
-msgstr "خصم وجبة\n"
+msgstr "خصم الوجبة\n"
 "                                                        (المبلغ)"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Meal Discount\n"
 "                                                        (Percentage)"
-msgstr "خصم وجبة\n"
+msgstr "خصم الوجبة\n"
 "                                                        (نسبة مئوية)"
 
 #. module: hotel_management_odoo
@@ -7262,8 +7295,8 @@ msgstr "ملحقات الغرفة"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__room_amount_selection
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
-msgid "Room Amount Selection"
-msgstr "تحديد مبلغ الغرفة"
+msgid "Discount Type"
+msgstr "طريقة الخصم"
 
 #. module: hotel_management_odoo
 #: model:ir.ui.menu,name:hotel_management_odoo.menu_run_process_room_availability
@@ -8879,10 +8912,14 @@ msgstr "مغادرة اليوم ("
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking_line__price_total
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__total
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_service_booking_line__price_total
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: hotel_management_odoo
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__meal_amount_selection__total
 #: model:ir.model.fields.selection,name:hotel_management_odoo.selection__room_booking__room_amount_selection__total
 msgid "Total"
-msgstr "الإجمالي"
+msgstr "لكل الغرف"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
@@ -9834,3 +9871,81 @@ msgid ""
 "<i class=\"fa fa-cutlery\"/>\n"
 "                                            <span class=\"fw-bold\"> Meals Price Details</span>"
 msgstr "تفاصيل سعر الوجبات"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Nothing was marked as 'No Show'.Bookings must be in state 'block' and today must be the Check In date."
+msgstr "لم يتم تحديد أي حجز كـ لم يحضر. يجب أن تكون الحجوزات في حالة محجوز وأن يكون تاريخ اليوم هو تاريخ تسجيل الوصول"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Room %s is already booked for the selected date range."
+msgstr "الغرفة %s محجوزة بالفعل للفترة الزمنية المحددة."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "The selected rate code %s is expired. Please select another rate code."
+msgstr "رمز السعر المحدد %s منتهي الصلاحية. يرجى اختيار رمز سعر آخر."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "The field Contact is required. Please fill it before confirming."
+msgstr "الحقل جهة الاتصال مطلوب. يرجى تعبئته قبل التأكيد."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "The field Nationality is required. Please fill it before confirming."
+msgstr "الحقل الجنسية مطلوب. يرجى تعبئته قبل التأكيد."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "The field Source of Business is required. Please fill it before confirming."
+msgstr "الحقل مصدر الحجز مطلوب. يرجى تعبئته قبل التأكيد"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "The field Market Segment is required. Please fill it before confirming."
+msgstr "الحقل القطاع السوقي مطلوب. يرجى تعبئته قبل التأكيد."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "The field Meal Pattern is required. Please fill it before confirming."
+msgstr "الحقل نمط الوجبات مطلوب. يرجى تعبئته قبل التأكيد."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "You cannot remove the field %s after confirmation."
+msgstr "لا يمكنك إزالة الحقل %s بعد التأكيد."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "You cannot block  booking with a check-in date in the past."
+msgstr "لا يمكنك تأكيد حجز بتاريخ تسجيل دخول في الماضي."
+
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid ""
+"<div style=\"text-align: center; font-size: 14px; line-height: 1.6; padding: 10px; white-space: nowrap;\">"
+"<strong>Room Availability:</strong> You requested <strong>%s</strong> room(s) of type <strong>%s</strong>, "
+"but only <strong>%s</strong> room(s) are available.<br>"
+"Would you like to send this booking to the <strong>Waiting List</strong>?"
+"</div>"
+msgstr ""
+"<div style=\"text-align: center; font-size: 14px; line-height: 1.6; padding: 10px; white-space: nowrap;\">"
+"<strong>توفّر الغرف:</strong> لقد طلبت <strong>%s</strong> غرفة/غرف من نوع <strong>%s</strong>، "
+"ولكن المتوفر حالياً هو <strong>%s</strong> غرفة فقط.<br>"
+"هل ترغب في إرسال هذا الحجز إلى <strong>قائمة الانتظار</strong>؟"
+"</div>"
+
+
+

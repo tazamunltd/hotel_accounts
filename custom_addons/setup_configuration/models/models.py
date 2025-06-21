@@ -82,7 +82,7 @@ class RateCode(models.Model):
     rate_code_category_id = fields.Many2one(
         'rate.category', string='Category', required=True, tracking=True)
     rate_posting_item = fields.Many2one(
-        'posting.item', string='Rate Posting Item', tracking=True)
+        'posting.item', string='Rate Posting Item', required=True, tracking=True)
     currency_id = fields.Many2one(
         'res.currency', string='Currency', tracking=True)
     include_meals = fields.Boolean(
@@ -191,7 +191,6 @@ class RateDetail(models.Model):
             ('state', 'not in', ['done', 'cancel', 'no_show', 'check_out']),
 
         ])
-        print("BOOKINGS", len(bookings))
 
         # print("BOOKINGS", bookings)
 
@@ -277,9 +276,8 @@ class RateDetail(models.Model):
                 print('251', system_date)
                 from_date = fields.Date.to_date(record.from_date)
                 if from_date < system_date:
-                    raise ValidationError(
-                        "The 'From Date' cannot be earlier than the system date set in the company."
-                    )
+                    raise ValidationError(_(
+                        "The From Date cannot be earlier than the system date set in the company."))
             if record.to_date <= record.from_date:
                 raise ValidationError(
                     "The 'To Date' must be greater than the 'From Date'.")
@@ -374,12 +372,12 @@ class RateDetail(models.Model):
     amount_selection = fields.Selection([
         ('total', 'All Room'),
         ('line_wise', 'Per Room')
-    ], string="Amount Selection", tracking=True)
+    ], string="Discount Type", tracking=True)
 
     percentage_selection = fields.Selection([
         ('total', 'All Room'),
         ('line_wise', 'Per Room')
-    ], string="Percentage Selection", tracking=True)
+    ], string="Discount Type", tracking=True)
 
 
     posting_item = fields.Many2one(

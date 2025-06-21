@@ -2084,7 +2084,6 @@ class WebAppController(http.Controller):
             return max_height
         """Draw company logo from Odoo binary field data"""
         try:
-            print("Attempting to draw company logo from binary data")
 
             # Check if logo data exists
             if not logo_data:
@@ -2413,49 +2412,94 @@ class WebAppController(http.Controller):
         # line_height = 20
         pax_count = booking.adult_count + booking.child_count + booking.infant_count
         booking_type = "Company" if booking.is_agent else "Individual"
+        rate_detail = None
+        room_discount = ""
+        meal_discount = ""
         if booking.use_price or booking.use_meal_price:
-            # Determine display codes based on which flags are set
-            if booking.use_price:
-                display_rate_code = "Manual"
-            else:
-                display_rate_code = booking.rate_code.description if booking.rate_code else ""
+            # Determine display codes
+            display_rate_code = "Manual" if booking.use_price else (booking.rate_code.description if booking.rate_code else "")
+            display_meal_code = "Manual" if booking.use_meal_price else (booking.meal_pattern.description if booking.meal_pattern else "")
 
-            if booking.use_meal_price:
-                display_meal_code = "Manual"
-            else:
-                display_meal_code = booking.meal_pattern.description if booking.meal_pattern else ""
-
-            # Calculate Room Discount if use_price is selected
+            # Room discount
             if booking.use_price:
                 if booking.room_is_amount:
-                    room_discount = f"{booking.room_discount} SAR"  # Adjust currency as needed
+                    room_discount = f"{booking.room_discount} SAR"
                 elif booking.room_is_percentage:
                     room_discount = f"{booking.room_discount * 100}%"
                 else:
-                    room_discount = 'N/A'  # Or any default value you prefer
+                    room_discount = 'N/A'
             else:
-                room_discount = ""  # No discount to display if use_price is not selected
+                # Fetch from rate.detail if use_price is not selected
+                rate_detail = booking.env['rate.detail'].search([
+                    ('rate_code_id', '=', booking.rate_code.id),
+                    ('from_date', '<=', booking.checkin_date),
+                    ('to_date', '>=', booking.checkin_date),
+                ], limit=1)
+                if rate_detail and rate_detail.rate_detail_dicsount:
+                    if rate_detail.is_percentage:
+                        room_discount = f"{float(rate_detail.rate_detail_dicsount)}%"
+                    elif rate_detail.is_amount:
+                        room_discount = f"{float(rate_detail.rate_detail_dicsount)} SAR"
+                    else:
+                        room_discount = 'N/A'
+                else:
+                    room_discount = ""
 
-            # Calculate Meal Discount if use_meal_price is selected
+            # Meal discount
             if booking.use_meal_price:
                 if booking.meal_is_amount:
-                    meal_discount = f"{booking.meal_discount} SAR"  # Adjust currency as needed
+                    meal_discount = f"{booking.meal_discount} SAR"
                 elif booking.meal_is_percentage:
                     meal_discount = f"{booking.meal_discount * 100}%"
                 else:
-                    meal_discount = 'N/A'  # Or any default value you prefer
+                    meal_discount = 'N/A'
             else:
-                meal_discount = ""  # No discount to display if use_meal_price is not selected
+                # Also fetch from same rate_detail if available
+                if not booking.use_price:
+                    # rate_detail already fetched above
+                    pass
+                elif not rate_detail:  # re-fetch if not done yet
+                    rate_detail = booking.env['rate.detail'].search([
+                        ('rate_code_id', '=', booking.rate_code.id),
+                        ('from_date', '<=', booking.checkin_date),
+                        ('to_date', '>=', booking.checkin_date),
+                    ], limit=1)
+
+                if rate_detail and rate_detail.rate_detail_dicsount:
+                    if rate_detail.is_percentage:
+                        meal_discount = f"{float(rate_detail.rate_detail_dicsount)}%"
+                    elif rate_detail.is_amount:
+                        meal_discount = f"{float(rate_detail.rate_detail_dicsount)} SAR"
+                    else:
+                        meal_discount = 'N/A'
+                else:
+                    meal_discount = ""
 
         else:
-            # Neither use_price nor use_meal_price is selected
+            # Neither use_price nor use_meal_price
             display_rate_code = booking.rate_code.description if booking.rate_code else ""
             display_meal_code = booking.meal_pattern.description if booking.meal_pattern else ""
-            room_discount = ""
-            meal_discount = ""
 
+            rate_detail = booking.env['rate.detail'].search([
+                ('rate_code_id', '=', booking.rate_code.id),
+                ('from_date', '<=', booking.checkin_date),
+                ('to_date', '>=', booking.checkin_date),
+            ], limit=1)
+
+            if rate_detail and rate_detail.rate_detail_dicsount:
+                if rate_detail.is_percentage:
+                    room_discount = f"{float(rate_detail.rate_detail_dicsount)}%"
+                    meal_discount = f"{float(rate_detail.rate_detail_dicsount)}%"
+                elif rate_detail.is_amount:
+                    room_discount = f"{float(rate_detail.rate_detail_dicsount)} SAR"
+                    meal_discount = f"{float(rate_detail.rate_detail_dicsount)} SAR"
+                else:
+                    room_discount = 'N/A'
+                    meal_discount = 'N/A'
+            else:
+                room_discount = ""
+                meal_discount = ""        
         
-
         # nationality = booking.nationality.name if booking.nationality else not_available_text
 
         user_lang = request.env.user.lang
@@ -2525,7 +2569,7 @@ class WebAppController(http.Controller):
             else:
                 c.drawString(RIGHT_VALUE_X, y_position, r_value)
 
-            if l_label in ("Rate Code:", "Meal Pattern:", "Room Disc:", "Room Type:"):
+            if l_label in ("Rate Code:", "Meal Pattern:", "Room Disc:", "Room Type:", "Room Number:"):
                 self.draw_arabic_text_left(c, LEFT_VALUE_X, y_position, l_value)
             else:
                 c.drawString(LEFT_VALUE_X, y_position, l_value)
@@ -2542,14 +2586,15 @@ class WebAppController(http.Controller):
             total_meals = sum(line.meals for line in forecast_lines)
             line_count = len(forecast_lines)
             if line_count > 0:
-                avg_rate = round(total_rate / line_count, 2)
-                avg_meals = round(total_meals / line_count, 2)
+                avg_rate = round(booking.total_rate_after_discount / line_count, 2)
+                avg_meals = round(booking.total_meal_after_discount / line_count, 2)
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
         
         get_total_vat = round(booking.total_vat, 2) if round(booking.total_vat, 2) else 0.0
         get_total_municipality = round(booking.total_municipality_tax, 2) if round(booking.total_municipality_tax, 2) else 0.0
         get_total_tax = get_total_vat + get_total_municipality
 
+        grand_total = booking.total_total_forecast
         # Payment Details
 
         payment_details = [
@@ -2559,12 +2604,12 @@ class WebAppController(http.Controller):
              "Meals Rate(Avg):", f"{avg_meals}", "متوسط سعر الوجبات اليومي:"),
             ("Municipality:", f"{get_total_municipality}", "رسوم البلدية:              ",
              "Total Fixed Post:", f"{booking.total_fixed_post_forecast}", "إجمالي المشاركات الثابتة:"),
-            ("Total Taxes:", f"{get_total_tax}", "إجمالي الضرائب:          ", 
+            ("Total Taxes:", f"{round(get_total_tax, 2)}", "إجمالي الضرائب:          ", 
              "Total Packages:", f"{booking.total_package_forecast}", "إجمالي الباقات:               "),
             ("VAT ID:", "", "الرقم الضريبي:            ",
              "Remaining:", "", "المبلغ المتبقي:               "),
             ("Payments:", "", "المبلغ المدفوع:            ", 
-             "Total Amount:", f"{booking.total_total_forecast}", "المبلغ الإجمالي:              ")
+             "Total Amount:", f"{grand_total}", "المبلغ الإجمالي:              ")
         ]
 
         for l_label, l_value, l_arabic, r_label, r_value, r_arabic in payment_details:
@@ -2973,7 +3018,6 @@ class WebAppController(http.Controller):
                 return max_height
             """Draw company logo from Odoo binary field data"""
             try:
-                print("Attempting to draw company logo from binary data")
 
                 # Check if logo data exists
                 if not logo_data:
@@ -3721,7 +3765,7 @@ class WebAppController(http.Controller):
             ])
     
     # GROUP BOOKING
-    def _generate_rc_pdf_for_booking(self, booking, forecast_lines=None): # GROUP BOOKING
+    def _generate_rc_pdf_for_booking(self, booking, forecast_lines=None, booking_ids=None, company_id=None): # GROUP BOOKING
         if forecast_lines is None:
             # fetch them here or set them to an empty list
             forecast_lines = request.env["room.rate.forecast"].search([("room_booking_id", "=", booking.id)])
@@ -3878,6 +3922,9 @@ class WebAppController(http.Controller):
         total_vat = 0.0
         total_total_municipality_tax = 0.0
 
+        total_pax = 0
+        total_nights = 0
+
         report_data = {
                 'avg_rate': avg_rate_report,
                 'avg_meals': avg_meals_report,
@@ -3885,15 +3932,16 @@ class WebAppController(http.Controller):
                 'total_meal_rate': total_meal_rate
             }
 
+        
         if group_bookings:
             # Fetch all bookings with the same group_id
             group_bookings_data = request.env['room.booking'].search([('group_booking', '=', booking.id)])
 
             for booking_ in group_bookings_data:
+                if not booking_.parent_booking_name:
+                    total_nights += booking_.no_of_nights
                 # pull every forecast line for this booking
-                room_rate_forecast = request.env['room.rate.forecast'].search([
-                    ('room_booking_id', '=', booking_.id)
-                ])
+                room_rate_forecast = request.env['room.rate.forecast'].search([('room_booking_id', '=', booking_.id)])
 
                 # If you still need the TOTAL rates as well:
                 # total_room_rate  += booking_.total_rate_forecast or 0
@@ -3904,6 +3952,9 @@ class WebAppController(http.Controller):
                  
                 total_vat += booking_.total_vat or 0
                 total_total_municipality_tax += booking_.total_municipality_tax or 0
+
+                total_pax += booking_.adult_count or 0
+                # total_nights += booking_.no_of_nights or 0
                 
                 get_discount_room = booking_.room_discount or 0
                 
@@ -4078,7 +4129,7 @@ class WebAppController(http.Controller):
 
 
             ("Nights:",
-            f"{booking.total_nights or '0'}",
+             f"{total_nights or '0'}",
             "عدد الليالي:     ",
 
             "Nationality:",
@@ -4095,7 +4146,7 @@ class WebAppController(http.Controller):
             "مسؤول المجموعة:  "),
 
             ("No. of Paxs:",
-            f"{booking.total_adult_count or self.get_arabic_text('N/A')}",
+            f"{total_pax or self.get_arabic_text('N/A')}",
             "عدد الأفراد:     ",
 
             "Mobile No.:",
@@ -4607,8 +4658,12 @@ class WebAppController(http.Controller):
                 ('company_id',        '=', current_company_id),
             ])
             print("children", children)
-            total_room_rate = sum((children | parent).mapped('total_rate_after_discount'))
-            total_meal_rate = sum((children | parent).mapped('total_meal_after_discount'))
+            total_room_rate = sum((children | parent).mapped('total_rate_forecast'))
+            total_meal_rate = sum((children | parent).mapped('total_meal_forecast'))
+
+            room_rate_avg = sum((children | parent).mapped('total_rate_after_discount'))
+            meal_rate_avg = sum((children | parent).mapped('total_meal_after_discount'))
+
             total_package_rate = sum((children | parent).mapped('total_package_after_discount'))
             total_fixed_post_forecast = sum((children | parent).mapped('total_fixed_post_after_discount'))
             total_total_rate = sum((children | parent).mapped('total_total_forecast'))
@@ -4620,6 +4675,7 @@ class WebAppController(http.Controller):
             total_infant_count = sum((children | parent).mapped('infant_count'))
             get_room_discount = sum(children.filtered(lambda r: r.room_is_amount).mapped('room_discount'))
             get_meal_discount = sum(children.filtered(lambda r: r.room_is_amount).mapped('meal_discount'))
+            
 
             # total_municipality_tax = sum((children | parent).mapped('total_municipality_tax'))
             # print("total_municipality_tax", total_municipality_tax)
@@ -4663,8 +4719,12 @@ class WebAppController(http.Controller):
                         ('company_id',        '=', current_company_id),
                     ])
                     # 2) compute totals exactly as above
-                    total_room_rate  = sum((children | parent).mapped('total_rate_forecast'))
-                    total_meal_rate  = sum((children | parent).mapped('total_meal_forecast'))
+                    total_room_rate = sum((children | parent).mapped('total_rate_forecast'))
+                    total_meal_rate = sum((children | parent).mapped('total_meal_forecast'))
+
+                    room_rate_avg = sum((children | parent).mapped('total_rate_after_discount'))
+                    meal_rate_avg = sum((children | parent).mapped('total_meal_after_discount'))
+
                     total_package_rate = sum((children | parent).mapped('total_package_forecast'))
                     total_fixed_post_forecast = sum((children | parent).mapped('total_fixed_post_forecast'))
                     total_total_rate = sum((children | parent).mapped('total_total_forecast'))
@@ -4684,6 +4744,8 @@ class WebAppController(http.Controller):
                         parent,
                         total_room_rate=total_room_rate,
                         total_meal_rate=total_meal_rate,
+                        room_rate_avg=room_rate_avg,
+                        meal_rate_avg=meal_rate_avg,
                         total_package_rate=total_package_rate,
                         total_fixed_post_forecast=total_fixed_post_forecast,
                         total_total_rate=total_total_rate,
@@ -4710,18 +4772,22 @@ class WebAppController(http.Controller):
                 ]
             )
 
-    def _generate_rc_guest_pdf_for_booking_main(self, booking, total_room_rate=None, total_meal_rate=None,
+    def _generate_rc_guest_pdf_for_booking_main(self, booking, total_room_rate=None,
+                                                total_meal_rate=None,
+                                                room_rate_avg=None,
+                                                meal_rate_avg=None,
                                                 total_package_rate=None,
                                                 total_fixed_post_forecast=None,
                                                 total_total_rate=None,
                                                 total_room_count=None, 
-                        total_adult_count=None,
-                        total_child_count=None, 
-                        total_infant_count=None,
-                        get_room_discount=None,
-                        get_meal_discount=None, 
-                        forecast_lines=None,
-                                                total_municipality_tax=None, total_vat=None, total_untaxed=None):  # Guest Report main
+                                                total_adult_count=None,
+                                                total_child_count=None, 
+                                                total_infant_count=None,
+                                                get_room_discount=None,
+                                                get_meal_discount=None, 
+                                                forecast_lines=None,
+                                                total_municipality_tax=None, total_vat=None, 
+                                                total_untaxed=None):  # Guest Report main
         if forecast_lines is None:
             # fetch them here or set them to an empty list
             forecast_lines = request.env["room.rate.forecast"].search([
@@ -5109,6 +5175,24 @@ class WebAppController(http.Controller):
             total_infant_count if total_infant_count is not None
             else booking.infant_count
         )
+
+
+        total_room_rate = (total_room_rate if total_room_rate is not None else booking.total_room_rate)
+        total_meal_rate = (total_meal_rate if total_meal_rate is not None else booking.total_meal_rate)
+
+        room_rate_avg = (room_rate_avg if room_rate_avg is not None else booking.total_rate_after_discount)
+        meal_rate_avg = (meal_rate_avg if meal_rate_avg is not None else booking.total_meal_after_discount)
+
+        avg_rate = 0.0
+        avg_meals = 0.0
+        if forecast_lines:
+            total_rate = sum(line.rate for line in forecast_lines)
+            total_meals = sum(line.meals for line in forecast_lines)
+            line_count = len(forecast_lines)
+            if line_count > 0:
+                # avg_rate = round(total_rate / line_count, 2)
+                avg_rate = round(room_rate_avg / line_count, 2)
+                avg_meals = round(meal_rate_avg / line_count, 2)
         
         guest_details = [
             ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:           ",
@@ -5125,8 +5209,10 @@ class WebAppController(http.Controller):
              f"{total_child_count}", "عدد الأطفال:                "),
             ("Meal Pattern:", f"{display_meal_code}", "نظام الوجبات:           ", "No. of infants:",
              f"{total_infant_count}", "عدد الرضع:                  ") ,
+            # ("Room Rate Avg:", f"{avg_rate}", "متوسط سعر الغرفة اليومي:             ",
             ("Room Rate Avg:", f"{avg_rate}", "متوسط سعر الغرفة اليومي:             ",
-             "Meal Rate Avg:", f"{avg_meal}", "متوسط سعر الوجبات اليومي:"),
+             "Meal Rate Avg:", f"{avg_meals}", "متوسط سعر الوجبات اليومي:"),
+            #  "Meal Rate Avg:", f"{avg_meal}", "متوسط سعر الوجبات اليومي:"),
             ("Room Rate Min:", f"{min(rate_list) if rate_list else 0}", "سعر الغرفة الأدنى:     ", "Meal Rate Min:", f"{min(meal_list) if meal_list else 0}",
              "سعر الوجبة الأدنى:        "),
             ("Room Rate Max:", f"{max(rate_list) if rate_list else 0}", "سعر الغرفة الأعلى:    ", "Meal Rate Max:", f"{max(meal_list) if meal_list else 0}",
@@ -5186,17 +5272,17 @@ class WebAppController(http.Controller):
                 avg_meals = round(total_meals / line_count, 2)
         pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
 
-        total_room_rate = (
-            total_room_rate if total_room_rate is not None
-            else booking.total_rate_forecast
-        )
+        # total_room_rate = (
+        #     total_room_rate if total_room_rate is not None
+        #     else booking.total_rate_after discount
+        # )
 
-        # total_room_rate = total_room_rate + get_room_discount
+        # # total_room_rate = total_room_rate + get_room_discount
 
-        total_meal_rate = (
-            total_meal_rate if total_meal_rate is not None
-            else booking.total_meal_forecast
-        )
+        # total_meal_rate = (
+        #     total_meal_rate if total_meal_rate is not None
+        #     else booking.total_meal_after_discount
+        # )
 
         # total_meal_rate = total_meal_rate + get_meal_discount
 
