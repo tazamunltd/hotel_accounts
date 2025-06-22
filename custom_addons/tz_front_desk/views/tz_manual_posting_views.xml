@@ -17,7 +17,6 @@
                 <field name="total"/>
                 <field name="source_type" widget="badge" decoration-danger="source_type == 'auto'"
                        decoration-info="source_type == 'manual'"/>
-                <field name="state"/>
                 <field name="state" widget="badge"
                        decoration-warning="state == 'draft'"
                        decoration-success="state == 'posted'"/>

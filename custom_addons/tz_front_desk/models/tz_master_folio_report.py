@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.tools import formatLang
@@ -48,6 +50,32 @@ class TzMasterFolioReport(models.Model):
     folio_total_debit = fields.Float(string='Folio Total Debit')
     folio_total_credit = fields.Float(string='Folio Total Credit')
     folio_balance = fields.Float(string='Folio Balance')
+
+    taxes_info = fields.Json(string="Taxes", compute="_compute_taxes_info", store=False)
+
+    def _compute_taxes_info(self):
+        for rec in self:
+            tax_lines = self.env['tz.manual.posting.tax'].search([
+                ('posting_id.folio_id', '=', rec.folio_id.id)
+            ])
+            tax_summary = defaultdict(float)
+
+            for tax in tax_lines:
+                if tax.description:
+                    label = tax.description.strip()
+                elif tax.type == 'vat':
+                    label = "VAT"
+                elif tax.type == 'municipality':
+                    label = "Municipality Tax"
+                else:
+                    label = "Other Tax"
+
+                tax_summary[label] += tax.price or 0.0
+
+            rec.taxes_info = [
+                {'label': label, 'amount': round(amount, 2)}
+                for label, amount in tax_summary.items() if amount > 0
+            ]
 
     def generate_folio_report(self, folio_id=None):
         """ Generate or refresh the report data """
