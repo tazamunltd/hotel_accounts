@@ -117,6 +117,14 @@
                             <span t-esc="round(doc.amount_total, 2)"/>
                         </h6>
                     </div>
+                    <hr/>
+                    <t t-if="doc.taxes_info">
+                        <t t-foreach="doc.taxes_info" t-as="tax">
+                            <strong t-esc="tax['label']"/>:
+                            <span t-esc="tax['amount']"/>
+                            <br/>
+                        </t>
+                    </t>
                 </div>
 
                 <!-- Thank You -->

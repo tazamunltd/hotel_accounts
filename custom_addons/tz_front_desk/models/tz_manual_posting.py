@@ -183,12 +183,15 @@ class TzHotelManualPosting(models.Model):
 
     @api.model
     def create(self, vals):
+        booking = self.env['room.booking'].browse(vals.get('booking_id'))
+        if booking and booking.state == 'cancel':
+            raise ValidationError("You cannot create a manual posting for a canceled booking.")
+
         if not vals.get('sign'):
             raise ValidationError("You must select a Sign before creating a manual posting.")
 
-        # Optimized sequence generation
         if vals.get('name', 'New') == 'New':
-            company = self.env.company  # Directly get current company
+            company = self.env.company
             vals[
                 'name'] = f"{company.name}/{self.env['ir.sequence'].with_company(company).next_by_code('tz.manual.posting') or '00001'}"
 
@@ -197,6 +200,7 @@ class TzHotelManualPosting(models.Model):
         if self._context.get('manual_creation'):
             if vals.get('group_list', False):
                 vals['room_list'] = self._get_master_room_id(vals['group_list'])
+
             folio = False
             if record.room_list:
                 folio = self._create_master_folio(record.room_list.id)
@@ -207,41 +211,19 @@ class TzHotelManualPosting(models.Model):
                 record.folio_id = folio
 
         vals['source_type'] = 'manual'
-        # raise UserError(record.folio_id)
 
         if record.item_id:
             record.compute_manual_taxes()
+
         return record
 
     def write(self, vals):
-        res = super().write(vals)
+        if 'booking_id' in vals:
+            booking = self.env['room.booking'].browse(vals['booking_id'])
+            if booking.state == 'cancel':
+                raise ValidationError("You cannot update manual posting to link to a canceled booking.")
 
-        for rec in self:
-            needs_recompute = False
-            posting_tax = self.env['tz.manual.posting.tax']
-
-            if 'item_id' in vals:
-                # Remove old tax records before recomputing
-                posting_tax = posting_tax.search([
-                    ('company_id', '=', rec.company_id.id),
-                    ('posting_id', '=', rec.id),
-                    ('date', '=', rec.date),
-                    ('time', '=', rec.time),
-                    ('description', '!=', rec.item_id.description or 'Room Charge')
-                ])
-                needs_recompute = True
-
-            if any(key in vals for key in ['debit_amount', 'credit_amount']):
-                needs_recompute = True
-
-            if needs_recompute:
-                # Delete old taxes first if changing item_id
-                if posting_tax:
-                    posting_tax.unlink()
-                rec.compute_manual_taxes()
-                # raise UserError('STOP')
-
-        return res
+        return super().write(vals)
 
     def _compute_unavailable_rooms(self):
         for rec in self:
@@ -626,12 +608,14 @@ class TzHotelManualPosting(models.Model):
             rec.folio_id._compute_tax_totals()
 
     def unlink(self):
+        system_date = self.env.company.system_date.date()
+        yesterday = system_date - timedelta(days=1)
+
         for record in self:
             if record.state == 'posted':
                 raise UserError(_("You cannot delete a record that is posted."))
-        folios_to_update = self.mapped('folio_id')
-        dates_to_update = self.mapped('date')
-        companies_to_update = self.mapped('company_id')
+            if record.date == yesterday:
+                raise UserError(_("You cannot delete a record from yesterday's date."))
 
         # Store context values before deletion
         records_context = [(rec.folio_id, rec.company_id, rec.date) for rec in self]
