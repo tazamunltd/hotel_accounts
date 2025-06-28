@@ -1,5 +1,6 @@
 from odoo import fields, models, api, _
 
+
 class DummyGroup(models.Model):
     _name = 'tz.dummy.group'
     _description = 'Dummy Group'
@@ -22,6 +23,16 @@ class DummyGroup(models.Model):
     reopen = fields.Boolean(string='Open or reopen a group account automatically', default=False, tracking=True)
     auto_payment = fields.Boolean(string='Cash Room – Auto Payment Load', default=False, tracking=True)
     obsolete = fields.Boolean(string='Obsolete', default=False, tracking=True)
+    start_date = fields.Datetime(string="Start Date",
+                           default=lambda self: self.env.user.company_id.system_date,
+                           required=True, tracking=True)
+
+    end_date = fields.Datetime()
+
+    state = fields.Selection([
+        ('in', 'In'),
+        ('out', 'Out')
+    ], string='State', default='in', tracking=True)
 
     def _create_master_folio(self):
         """
@@ -62,7 +73,6 @@ class DummyGroup(models.Model):
         company = self.company_id or self.env.company
         prefix = f"{company.name}/"
         name = prefix + (self.env['ir.sequence'].sudo().with_company(company)
-                                     .next_by_code('tz.dummy.group'))
+                         .next_by_code('tz.dummy.group'))
         default = dict(default or {}, name=name)
         return super().copy(default)
-

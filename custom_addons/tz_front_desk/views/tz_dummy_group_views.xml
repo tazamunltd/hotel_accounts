@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <tree string="Dummy Groups">
                 <field name="name"/>
-<!--                <field name="abbreviation"/>-->
+                <!--                <field name="abbreviation"/>-->
                 <field name="description"/>
                 <field name="company_id"/>
                 <field name="obsolete" widget="boolean" decoration-danger="obsolete == True"/>
@@ -43,6 +43,10 @@
                                             <label for="company_id" class="form-label"/>
                                             <field name="company_id" readonly="1" class="form-control"/>
                                         </div>
+                                        <div class="col-md-4">
+                                            <label for="start_date" class="form-label"/>
+                                            <field name="start_date" readonly="1" class="form-control"/>
+                                        </div>
                                         <hr/>
                                         <div class="col-md-2">
                                             <div class="form-group">
@@ -52,13 +56,17 @@
                                                 <field name="abbreviation"/>
                                             </div>
                                         </div>
-                                       <div class="col-md-4">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="description" class="form-label small"/>
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="description"/>
                                             </div>
+                                        </div>
+                                        <div class="col-md-4" invisible="not end_date">
+                                            <label for="end_date" class="form-label"/>
+                                            <field name="end_date" readonly="1" class="form-control"/>
                                         </div>
                                         <hr/>
                                         <div class="form-group mb-1">
@@ -114,5 +122,5 @@
 
     <!-- Menu Item -->
     <menuitem id="menu_dummy_group" name="Dummy Groups" parent="menu_cashier_parent"
-              action="tz_action_dummy_group" sequence="7"/>
+              action="tz_action_dummy_group" sequence="6"/>
 </odoo>
