@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
+                <field name="all_name"/>
                 <field name="room_id" column_invisible="1"/>
                 <field name="partner_id"/>
                 <field name="checkin_date" widget="date"/>
@@ -25,6 +26,6 @@
         <field name="view_mode">tree</field>
     </record>
 
-    <menuitem id="menu_tz_checkout" name="Checkouts" parent="menu_cashier_parent" action="action_tz_checkout" sequence="7"/>
+<!--    <menuitem id="menu_tz_checkout" name="Checkouts" parent="menu_cashier_parent" action="action_tz_checkout" sequence="7"/>-->
 </odoo>
 

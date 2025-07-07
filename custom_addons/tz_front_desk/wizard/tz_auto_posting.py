@@ -51,7 +51,6 @@ class AutoPostingWizard(models.TransientModel):
 
         # 2. Process each forecast
         for forecast in forecasts:
-            # Get linked booking lines for this forecast
             booking_line = self.env['room.booking.line'].search([
                 ('current_company_id', '=', self.env.company.id),
                 ('booking_id', '=', forecast.room_booking_id.id),
@@ -77,9 +76,24 @@ class AutoPostingWizard(models.TransientModel):
                 group = booking_line.booking_id.group_booking
                 group_valid = group and (self.group_from.id <= group.id <= self.group_to.id)
 
+            """
+            The below to suspended auto posting for groups only - rooms only inside (_create_folio_lines)
+            """
+            if booking_line.booking_id.group_booking:
+                suspended = self.env['tz.hotel.checkout'].search([
+                    '|',
+                    ('room_id', '=', booking_line.room_id.id),
+                    ('group_booking_id', '=',
+                     booking_line.booking_id.group_booking.id if booking_line.booking_id.group_booking else False),
+                    ('is_suspended_auto_posting', '=', True)
+                ], limit=1)
+                # raise UserError(suspended)
+                if suspended:
+                    continue
+
             # Check both room and group validity
             if (self.all_rooms or room_valid) or (self.all_groups or group_valid):
-                folio = self._find_existing_folio(booking_line, system_date)
+                folio = self._find_existing_folio(booking_line)
                 if folio:
                     records_created = self._create_folio_lines(booking_line, folio, forecast)
                     created_count += records_created
@@ -95,7 +109,7 @@ class AutoPostingWizard(models.TransientModel):
                 "warning"
             )
 
-    def _find_existing_folio(self, booking_line, system_date):
+    def _find_existing_folio(self, booking_line):
         """Find existing folio that is active during the system_date"""
         domain = [
             ('company_id', '=', self.env.company.id),
@@ -169,19 +183,35 @@ class AutoPostingWizard(models.TransientModel):
     def _create_posting_line(self, folio, booking_line, item_id, description, amount):
         """Create posting line and return True if created, False if skipped"""
         system_date = self.env.company.system_date.date()
+        """
+        The below to suspended auto posting for rooms only - we did for groups only inside (action_auto_posting)
+        """
+        suspended = self.env['tz.hotel.checkout']._check_suspended_auto_posting(
+            room_id=booking_line.room_id.id,
+            group_id=folio.group_id.id if folio.group_id else None
+        )
+        if suspended:
+            return False  # Skip if suspended ones
         # Check for existing postings first
         existing = self.env['tz.manual.posting'].search([
             ('company_id', '=', booking_line.booking_id.company_id.id),
             ('folio_id', '=', folio.id),
             ('item_id', '=', item_id),
-            # ('booking_id', '=', booking_line.booking_id.id),
-            ('room_list', '=', booking_line.room_id.id),
+            ('room_id', '=', booking_line.room_id.id),
             ('date', '=', system_date),
             ('source_type', '=', 'auto'),
         ], limit=1)
 
         if existing:
             return False  # Skip if already exists
+
+        posting_type = self.env['tz.manual.posting.type'].search([
+            ('company_id', '=', booking_line.booking_id.company_id.id),
+            ('group_booking_id', '=',
+             booking_line.booking_id.group_booking.id if booking_line.booking_id.group_booking else False),
+            ('booking_id', '=', booking_line.booking_id.id),
+            ('room_id', '=', booking_line.room_id.id),
+        ], limit=1)
 
         item = self.env['posting.item'].browse(item_id)
         # Initialize values dictionary
@@ -194,16 +224,16 @@ class AutoPostingWizard(models.TransientModel):
             'folio_id': folio.id,
             'item_id': item_id,
             'description': description,
-            'type': 'group' if folio.group_id else 'room',
-            'room_list': booking_line.room_id.id,
-            'group_list': folio.group_id.id if folio.group_id else False,
+            'booking_id': booking_line.booking_id.id,
+            'room_id': booking_line.room_id.id,
+            'group_booking_id': folio.group_id.id if folio.group_id else False,
             'sign': item.default_sign,
             'quantity': 1,
             'source_type': 'auto',
             'total': amount,
             'debit_amount': amount if item.default_sign == 'debit' else 0.0,
             'credit_amount': amount if item.default_sign == 'credit' else 0.0,
-            'booking_id': booking_line.booking_id.id,
+            'type_id': posting_type.id
         }
         self.env['tz.manual.posting'].create(vals)
         return True
@@ -219,7 +249,6 @@ class AutoPostingWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }
-
 
 class RoomRateForecast(models.Model):
     _inherit = 'room.rate.forecast'

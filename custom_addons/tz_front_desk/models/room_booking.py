@@ -328,7 +328,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._create_master_folio(booking)
-
+        self.env['tz.manual.posting.type'].generate_manual_postings()
         return self._notify_booking_confirmation(result)
 
     def action_confirm_booking(self):
@@ -337,7 +337,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._create_master_folio(booking)
-
+        self.env['tz.manual.posting.type'].generate_manual_postings()
         return self._notify_booking_confirmation(result)
 
     @api.depends('checkin_date', 'checkout_date')
@@ -358,10 +358,33 @@ class RoomBooking(models.Model):
                 nights = max(rec.no_of_nights, 1)
                 rec.checkout_date = rec.checkin_date + timedelta(days=nights)
 
-    # @api.onchange('rate_code')
-    # def _onchange_rate_code(self):
-    #     if self.company:
-    #         self.nationality = self.company.nationality.id
+    def action_checkin(self):
+        # Call the parent method first
+        result = super(RoomBooking, self).action_checkin()
+
+        # Refresh the SQL View and Sync data
+        self.env['tz.manual.posting.type'].generate_manual_postings()
+        hotel_check_out = self.env['tz.hotel.checkout']
+        hotel_check_out.generate_data()
+        hotel_check_out.sync_from_view()
+
+        return result
+
+    def action_checkin_booking(self):
+        # Call the parent method first
+        result = super(RoomBooking, self).action_checkin_booking()
+
+        # Refresh the SQL View and Sync data
+        hotel_check_out = self.env['tz.hotel.checkout']
+        hotel_check_out.generate_data()
+        hotel_check_out.sync_from_view()
+
+        return result
+
+
+
+
+
 
 
 class RoomRateForecast(models.Model):

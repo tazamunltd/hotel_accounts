@@ -7,11 +7,9 @@
             <tree string="Manual Postings" default_order="create_date desc">
                 <field name="name"/>
                 <field name="item_id"/>
+                <field name="type_id" string="Room"/>
                 <field name="date"/>
                 <field name="description"/>
-                <field name="room_list"/>
-                <field name="all_group"/>
-                <field name="type"/>
                 <field name="price" widget="monetary"/>
                 <field name="quantity"/>
                 <field name="total"/>
@@ -33,256 +31,76 @@
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
-                    <div class="row g-2">
-                        <div class="col-lg-12 col-md-12 col-sm-12">
-                            <div class="card mb-2 shadow-sm">
-                                <div class="card-header py-1 px-2">
-                                    <i class="fa fa-file-powerpoint-o m-1"/>
-                                    <span class="fw-bold">Posting Information</span>
-                                </div>
-                                <div class="card-body py-1 px-2">
-                                    <div class="row g-2">
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="name" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="name"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="company_id" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="company_id" readonly="1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="date" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="date"
-                                                       readonly="1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="item_id" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="item_id" options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="item_description" class="form-label small"
-                                                       invisible="item_id == False"/>
-                                            </div>
-                                            <div class="m-1">
-                                                <field name="item_description" readonly="1"/>
-                                            </div>
-                                        </div>
-                                        <hr/>
-                                        <div class="col-md-3">
-                                            <label for="type" class="form-label small mb-2">Type</label>
-                                            <div class="d-flex flex-row gap-3">
-                                                <field name="type" widget="radio" options="{'horizontal': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" invisible="type != 'booking'">
-                                            <div class="form-group">
-                                                <label for="booking_id" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="booking_id"
-                                                       options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"
-                                                       required="type == 'booking'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2" invisible="type != 'room'">
-                                            <div class="form-group">
-                                                <label for="room_list" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="room_list"
-                                                       options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"
-                                                       required="type == 'room'"/>
-                                                <field name="unavailable_room_ids" invisible="1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3" invisible="type != 'group'">
-                                            <div class="form-group">
-                                                <label for="all_group" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="all_group"
-                                                       options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"
-                                                       required="type == 'group'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="folio_id" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="folio_id" force_save="1" readonly="1"/>
-                                            </div>
-                                        </div>
-                                        <hr invisible="not (room_list or all_group or booking_id)"/>
-                                        <div class="col-md-4" invisible="not (room_list or all_group or booking_id)">
-                                            <div class="form-group">
-                                                <label for="partner_id" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="partner_id" force_save="1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" invisible="not (room_list or all_group or booking_id)">
-                                            <div class="form-group">
-                                                <label for="reference_contact_" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="reference_contact_"/>
-                                            </div>
-                                        </div>
-                                        <hr/>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="description" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="description" force_save="1"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="voucher_number" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="voucher_number"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3" invisible="1">
-                                            <div class="form-group">
-                                                <label for="group_list" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="group_list"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3" invisible="1">
-                                            <div class="form-group">
-                                                <label for="dummy_list" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="dummy_list"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <group>
+                        <group>
+                            <field name="item_id" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted'"/>
+                        </group>
+                        <group>
+                            <field name="type_id" string="Room" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted'"/>
+                        </group>
+                    </group>
+                    <hr invisible="not item_id"/>
+                    <group invisible="not item_id">
+                        <group>
+                            <field name="debit_amount" invisible="sign != 'debit'" string="Price"
+                                   force_save="1" readonly="source_type == 'auto' or state == 'posted'"/>
+                            <field name="credit_amount" invisible="sign != 'credit'" string="Price"
+                                   force_save="1" readonly="source_type == 'auto' or state == 'posted'"/>
+                            <field name="quantity" readonly="source_type == 'auto' or state == 'posted'"/>
+                            <field name="total" readonly="1"/>
+                            <field name="description" force_save="1"
+                                   readonly="source_type == 'auto' or state == 'posted'"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted'"/>
+                            <field name="sign" widget="radio" options="{'horizontal': True}"
+                                   readonly="not item_id or not item_id.allow_change_sign or source_type == 'auto' or state == 'posted'"/>
+                            <field name="taxes" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="voucher_number" readonly="source_type == 'auto' or state == 'posted'"/>
 
-                            <div class="card mb-2 shadow-sm" invisible="not item_id">
-                                <div class="card-header py-1 px-2">
-                                    <i class="fa fa-calculator m-1"/>
-                                    <span class="fw-bold">Financial Details</span>
-                                </div>
-                                <div class="card-body py-1 px-2">
-                                    <div class="row g-2">
-                                        <div class="col-md-2" invisible="not item_id">
-                                            <div class="form-group">
-                                                <label for="debit_amount" invisible="sign != 'debit'"
-                                                       class="form-label small"/>
-                                                <label for="credit_amount" invisible="sign != 'credit'"
-                                                       class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="debit_amount" invisible="sign != 'debit'" string="Price"
-                                                       force_save="1"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                                <field name="credit_amount" invisible="sign != 'credit'" string="Price"
-                                                       force_save="1"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <div class="form-group">
-                                                <label for="quantity" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="quantity"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                                <field name="source_type" invisible="1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="total" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="total" readonly="1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="currency_id" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="currency_id" options="{'no_create': True}"
-                                                       readonly="source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="sign" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="sign"
-                                                       widget="radio"
-                                                       options="{'horizontal': True}"
-                                                       readonly="not item_id or not item_id.allow_change_sign or source_type == 'auto' or state == 'posted'"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="taxes" class="form-label small"/>
-                                            </div>
-                                            <div class="form-control form-control-sm">
-                                                <field name="taxes"
-                                                       widget="many2many_tags"
-                                                       options="{'no_create': True}"/>
-                                            </div>
-                                        </div>
-                                        <hr/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <notebook invisible="not item_id">
-                            <page string="Details">
-                                <field name="tax_ids" readonly="1">
-                                    <tree>
-                                        <!--                                        <field name="posting_id"/>-->
-                                        <field name="description"/>
-                                        <field name="price"/>
-                                    </tree>
-                                </field>
-                            </page>
-                        </notebook>
-                    </div>
+                        </group>
+                    </group>
+                    <hr invisible="not type_id"/>
+                    <group invisible="not type_id">
+                        <group>
+                            <field name="booking_id" force_save="1" readonly="1"/>
+                            <field name="room_id" force_save="1" readonly="1"/>
+                            <field name="unavailable_room_ids" invisible="1"/>
+                            <field name="folio_id" force_save="1" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="group_booking_id" force_save="1" readonly="1"/>
+                            <field name="dummy_id" force_save="1" readonly="1"/>
+                            <field name="partner_id" force_save="1"/>
+                            <field name="reference_contact_"/>
+                        </group>
+                    </group>
+                    <hr/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="date" readonly="1"/>
+                            <field name="source_type" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook invisible="not item_id">
+                        <page string="Details">
+                            <field name="tax_ids" readonly="1">
+                                <tree>
+                                    <field name="description"/>
+                                    <field name="price"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
                 </sheet>
-                <div class="oe_chatter" style="margin-top: 20px;">
+                <div class="oe_chatter">
                     <field name="message_ids" widget="mail_thread"/>
                     <field name="activity_ids" widget="mail_activity"/>
                 </div>
@@ -295,8 +113,19 @@
         <field name="model">tz.manual.posting</field>
         <field name="arch" type="xml">
             <search string="Manual Posting Search">
-                <field name="room_list" string="Room"/>
-                <field name="group_list" string="Group"/>
+                <filter name="room_list" string="Room"
+                        domain="[('room_id','=',context.get('search_default_room_list'))]"/>
+                <filter name="booking_id" string="Booking"
+                        domain="[('booking_id','=',context.get('search_default_booking_id'))]"/>
+                <filter name="group_list" string="Group"
+                        domain="[('group_booking_id','=',context.get('search_default_group_list'))]"/>
+                <filter name="dummy_list" string="Dummy"
+                        domain="[('dummy_id','=',context.get('search_default_dummy_list'))]"/>
+
+                <field name="type_id" string="Type"/>
+                <field name="room_id" string="Room"/>
+                <field name="group_booking_id" string="Group"/>
+                <field name="dummy_id" string="Dummy"/>
                 <field name="item_id" string="Item"/>
                 <field name="voucher_number" string="Voucher #"/>
                 <field name="debit_amount" string="Debit Amount"/>
@@ -321,4 +150,47 @@
 
     <menuitem id="menu_manual_posting" name="Manual Postings" parent="menu_cashier_parent"
               action="tz_action_manual_posting" sequence="3"/>
+
+    <record id="view_manual_posting_type_tree" model="ir.ui.view">
+        <field name="name">tz.manual.posting.type.tree</field>
+        <field name="model">tz.manual.posting.type</field>
+        <field name="arch" type="xml">
+            <tree string="Manual Posting Types">
+                <field name="name" string="Room"/>
+                <field name="booking_id"/>
+                <field name="room_id"/>
+                <field name="group_booking_id"/>
+                <field name="dummy_id"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="checkin_date" widget="date"/>
+                <field name="checkout_date" widget="date"/>
+                <field name="adult_count"/>
+                <field name="child_count"/>
+                <field name="infant_count"/>
+                <field name="rate_code"/>
+                <field name="meal_pattern"/>
+                <field name="state"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_manual_posting_type_search" model="ir.ui.view">
+    <field name="name">tz.manual.posting.type.search</field>
+    <field name="model">tz.manual.posting.type</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="name" string="All"/>
+            <field name="partner_id"/>
+            <field name="room_id"/>
+            <field name="booking_id"/>
+            <field name="group_booking_id"/>
+            <field name="dummy_id"/>
+            <field name="company_id"/>
+            <!-- Fixed filter using the correct context variable -->
+            <filter string="Current Company" name="current_company" domain="[('company_id','=', company_id)]"/>
+        </search>
+    </field>
+</record>
+
 </odoo>

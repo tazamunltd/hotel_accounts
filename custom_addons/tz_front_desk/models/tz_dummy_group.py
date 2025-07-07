@@ -32,7 +32,7 @@ class DummyGroup(models.Model):
     state = fields.Selection([
         ('in', 'In'),
         ('out', 'Out')
-    ], string='State', default='in', tracking=True)
+    ], string='State', default='in')
 
     def _create_master_folio(self):
         """
@@ -66,7 +66,26 @@ class DummyGroup(models.Model):
         # Create the group first
         group = super().create(vals)
         group._create_master_folio()
+        # Refresh the SQL View and Sync data
+        hotel_check_out = self.env['tz.hotel.checkout']
+        hotel_check_out.generate_data()
+        hotel_check_out.sync_from_view()
+        self.env['tz.manual.posting.type'].generate_manual_postings()
         return group
+
+    def write(self, vals):
+        result = super().write(vals)
+
+        for record in self:
+            # Evaluate final values after write
+            is_reopen = vals.get('reopen', record.reopen)
+            is_state_in = vals.get('state', record.state) == 'in'
+            has_end_date = 'end_date' in vals or record.end_date
+
+            if is_reopen and is_state_in and has_end_date:
+                record._create_master_folio()
+
+        return result
 
     def copy(self, default=None):
         self.ensure_one()
@@ -76,3 +95,12 @@ class DummyGroup(models.Model):
                          .next_by_code('tz.dummy.group'))
         default = dict(default or {}, name=name)
         return super().copy(default)
+
+
+class GroupBooking(models.Model):
+    _inherit = 'group.booking'
+
+    state = fields.Selection([
+        ('in', 'In'),
+        ('out', 'Out')
+    ], string='State', default='in')

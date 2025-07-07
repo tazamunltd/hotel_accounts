@@ -44,13 +44,26 @@ class TzHotelManualPosting(models.Model):
                                  readonly=True)
 
     item_id = fields.Many2one('posting.item', string="Item", index=True, required=True, tracking=True)
-    item_description = fields.Char(related='item_id.description', string='Item Description')
 
     description = fields.Char(string=_("Description"), required=True, readonly=False)
 
     voucher_number = fields.Char(string="Voucher #", index=True, tracking=True)
 
-    room_list = fields.Many2one(
+    type_id = fields.Many2one(
+        'tz.manual.posting.type',
+        string="Type",
+        required=True,
+        index=True,
+        domain="[('company_id', '=', company_id)]"
+    )
+
+    booking_id = fields.Many2one(
+        'room.booking',
+        string="Room Booking",
+        domain=lambda self: [('state', 'in', ['confirmed', 'no_show', 'block', 'check_in'])]
+    )
+
+    room_id = fields.Many2one(
         'hotel.room',
         string="Room",
         domain="[('id', 'in', unavailable_room_ids)]"
@@ -62,32 +75,16 @@ class TzHotelManualPosting(models.Model):
         store=False,
     )
 
-    group_list = fields.Many2one(
+    group_booking_id = fields.Many2one(
         'group.booking',
         string="Group",
         domain="[('status_code', '=', 'confirmed'), ('has_master_folio', '=', True)]"
     )
 
-    dummy_list = fields.Many2one(
+    dummy_id = fields.Many2one(
         'tz.dummy.group',
         string="Dummy",
         domain="[('obsolete', '=', False)]"
-    )
-
-    all_group = fields.Selection(
-        selection='_get_all_group_selection',
-        string="Group or Dummy Group"
-    )
-
-    type = fields.Selection(
-        [
-            ('booking', 'Booking'),
-            ('room', 'Room'),
-            ('group', 'Group'),
-        ],
-        string="Type",
-        default='room',
-        tracking=True
     )
 
     debit_amount = fields.Float(
@@ -152,16 +149,10 @@ class TzHotelManualPosting(models.Model):
         tracking=True
     )
 
-    booking_id = fields.Many2one(
-        'room.booking',
-        string="Room Booking",
-        domain=lambda self: [('state', 'in', ['confirmed', 'no_show', 'block', 'check_in'])]
-    )
-
     tax_ids = fields.One2many('tz.manual.posting.tax', 'posting_id', string='Taxes')
 
-    debit_without_vat = fields.Float(string="Debit", index=True)
-    credit_without_vat = fields.Float(string="Credit", index=True)
+    debit_without_vat = fields.Float(string="Debit", default=0.0, index=True)
+    credit_without_vat = fields.Float(string="Credit", default=0.0, index=True)
 
     currency_id = fields.Many2one(related='folio_id.currency_id', store=True)
     price_subtotal = fields.Monetary(string="Untaxed", compute='_compute_amounts', store=True)
@@ -171,6 +162,30 @@ class TzHotelManualPosting(models.Model):
     display_type = fields.Selection([
         ('line_section', "Section"),
         ('line_note', "Note")], string="Display Type")
+
+    @api.onchange('type_id')
+    def _onchange_type_id(self):
+        for record in self:
+            if record.type_id:
+                # Update the fields with values from the selected type_id
+                record.booking_id = record.type_id.booking_id
+                record.room_id = record.type_id.room_id
+                record.group_booking_id = record.type_id.group_booking_id
+                record.dummy_id = record.type_id.dummy_id
+
+    @api.depends('type_id')
+    def _compute_type_fields(self):
+        for record in self:
+            if record.type_id:
+                record.booking_id = record.type_id.booking_id
+                record.room_id = record.type_id.room_id
+                record.group_booking_id = record.type_id.group_booking_id
+                record.dummy_id = record.type_id.dummy_id
+            else:
+                record.booking_id = False
+                record.room_id = False
+                record.group_booking_id = False
+                record.dummy_id = False
 
     @api.model
     def default_get(self, fields_list):
@@ -183,6 +198,15 @@ class TzHotelManualPosting(models.Model):
 
     @api.model
     def create(self, vals):
+        if vals.get('source_type') != 'auto':
+            suspended = self.env['tz.hotel.checkout']._check_suspended_manual_posting(
+                room_id=vals.get('room_id'),
+                group_id=vals.get('group_booking_id'),
+                dummy_id=vals.get('dummy_id')
+            )
+            if suspended:
+                raise ValidationError("The Manual posting is suspended")
+
         booking = self.env['room.booking'].browse(vals.get('booking_id'))
         if booking and booking.state == 'cancel':
             raise ValidationError("You cannot create a manual posting for a canceled booking.")
@@ -198,14 +222,14 @@ class TzHotelManualPosting(models.Model):
         record = super(TzHotelManualPosting, self).create(vals)
 
         if self._context.get('manual_creation'):
-            if vals.get('group_list', False):
-                vals['room_list'] = self._get_master_room_id(vals['group_list'])
+            if vals.get('group_booking_id', False):
+                vals['room_id'] = self._get_master_room_id(vals['group_booking_id'])
 
             folio = False
-            if record.room_list:
-                folio = self._create_master_folio(record.room_list.id)
-            elif record.dummy_list:
-                folio = record._get_master_folio_for_dummy(record.dummy_list.id)
+            if record.room_id:
+                folio = self._create_master_folio(record.room_id.id)
+            elif record.dummy_id:
+                folio = record._get_master_folio_for_dummy(record.dummy_id.id)
 
             if folio:
                 record.folio_id = folio
@@ -218,6 +242,12 @@ class TzHotelManualPosting(models.Model):
         return record
 
     def write(self, vals):
+        room_id = vals.get('room_id', self.room_id.id)
+        group_id = vals.get('group_booking_id', self.group_booking_id.id)
+        dummy_id = vals.get('dummy_id', self.dummy_id.id)
+
+        self.env['tz.hotel.checkout']._check_suspended_manual_posting(room_id=room_id, group_id=group_id, dummy_id=dummy_id)
+
         if 'booking_id' in vals:
             booking = self.env['room.booking'].browse(vals['booking_id'])
             if booking.state == 'cancel':
@@ -225,12 +255,13 @@ class TzHotelManualPosting(models.Model):
 
         return super().write(vals)
 
+    # @api.depends_context('room_id')
     def _compute_unavailable_rooms(self):
         for rec in self:
             unavailable_rooms = self.env['room.booking.line'].search([
                 ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show']),
             ]).mapped('room_id.id')
-            rec.unavailable_room_ids = unavailable_rooms
+            rec.unavailable_room_ids = [(6, 0, unavailable_rooms)]
 
     @api.depends('debit_amount', 'credit_amount', 'quantity')
     def _compute_total(self):
@@ -242,10 +273,14 @@ class TzHotelManualPosting(models.Model):
             else:
                 record.total = 0.0
 
-    @api.depends('debit_without_vat', 'credit_without_vat')
+    @api.depends('folio_id', 'debit_amount', 'credit_amount')
     def _compute_balance(self):
-        for record in self:
-            record.balance = record.debit_without_vat - record.credit_without_vat
+        for folio in self.mapped('folio_id'):
+            lines = folio.manual_posting_ids.sorted(key=lambda r: (r.date, r.id))
+            running_balance = 0
+            for line in lines:
+                running_balance += line.balance + (line.debit_amount - line.credit_amount) - line.balance
+                line.balance = running_balance
 
     @api.depends('folio_id', 'debit_without_vat', 'credit_without_vat')
     def _compute_formula_balance(self):
@@ -256,7 +291,7 @@ class TzHotelManualPosting(models.Model):
                 running_balance += line.debit_without_vat - line.credit_without_vat
                 line.formula_balance = running_balance
 
-    @api.depends('room_list', 'all_group', 'booking_id')
+    @api.depends('booking_id', 'room_id', 'group_booking_id')
     def _compute_booking_info(self):
         for record in self:
             partner_id = False
@@ -266,18 +301,20 @@ class TzHotelManualPosting(models.Model):
             if record.booking_id:
                 partner_id = record.booking_id.partner_id
                 reference_contact_ = record.booking_id.reference_contact_
-            # Priority 2: If room_list is set, look for active booking line
-            elif record.room_list:
+            # Priority 2: If room_id is set, look for active booking line
+            elif record.room_id:
                 booking_line = self.env['room.booking.line'].search([
-                    ('room_id', '=', record.room_list.id),
+                    ('room_id', '=', record.room_id.id),
                     ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
                 ], limit=1)
 
                 if booking_line and booking_line.booking_id:
                     partner_id = booking_line.booking_id.partner_id
                     reference_contact_ = booking_line.booking_id.reference_contact_
-            # Priority 3: If all_group is set, you might want to handle group case
-            # (Add your logic here if needed for all_group)
+            # Priority 3: If group_booking_id is set, use its values
+            elif record.group_booking_id:
+                partner_id = record.group_booking_id.partner_id
+                reference_contact_ = record.group_booking_id.reference_contact_
 
             record.partner_id = partner_id
             record.reference_contact_ = reference_contact_
@@ -322,24 +359,24 @@ class TzHotelManualPosting(models.Model):
         for record in self:
             record.price = record.debit_amount or record.credit_amount
 
-    @api.onchange('booking_id', 'room_list', 'group_list')
+    @api.onchange('booking_id', 'room_id', 'group_booking_id')
     def _onchange_booking_room_or_group(self):
         """Automatically find and suggest folio when booking, room or group changes"""
-        if self.booking_id or self.room_list or self.group_list:
+        if self.booking_id or self.room_id or self.group_booking_id:
             self.folio_id = False
             domain = []
             if self.booking_id:
                 domain.append(('booking_ids', 'in', self.booking_id.id))
-            if self.room_list:
-                domain.append(('room_id', '=', self.room_list.id))
-            if self.group_list:
-                domain.append(('group_id', '=', self.group_list.id))
+            if self.room_id:
+                domain.append(('room_id', '=', self.room_id.id))
+            if self.group_booking_id:
+                domain.append(('group_id', '=', self.group_booking_id.id))
 
-            if self.room_list and self.group_list:
+            if self.room_id and self.group_booking_id:
                 folio = self.env['tz.master.folio'].search([
                     '|',
-                    ('room_id', '=', self.room_list.id),
-                    ('group_id', '=', self.group_list.id)
+                    ('room_id', '=', self.room_id.id),
+                    ('group_id', '=', self.group_booking_id.id)
                 ], limit=1, order='create_date DESC')
             elif domain:
                 folio = self.env['tz.master.folio'].search(domain, limit=1, order='create_date DESC')
@@ -365,13 +402,6 @@ class TzHotelManualPosting(models.Model):
         else:
             self.description = False
             # self.taxes = False
-
-    @api.onchange('type')
-    def _onchange_type(self):
-        self.room_list = False
-        self.group_list = False
-        self.booking_id = False
-        self.folio_id = False
 
     def _create_master_folio(self, room_id):
         """
@@ -433,55 +463,6 @@ class TzHotelManualPosting(models.Model):
         for rec in self:
             if rec.item_id.default_sign == 'debit' or rec.item_id.default_sign == 'credit':
                 rec.sign = rec.item_id.default_sign
-
-    @api.model
-    def _get_all_group_selection(self):
-        # Dummy Groups: all records from tz.dummy.group
-        dummy_groups = self.env['tz.dummy.group'].search([('obsolete', '=', False)])
-
-        # Group Bookings: only confirmed and having a master folio
-        group_bookings = self.env['group.booking'].search([
-            ('status_code', '=', 'confirmed'),
-            ('has_master_folio', '=', True)
-        ])
-
-        result = []
-
-        # Add dummy groups to selection
-        for dummy in dummy_groups:
-            result.append((f'dummy_{dummy.id}', f'DG: {dummy.description}'))
-
-        # Add group bookings to selection
-        for group in group_bookings:
-            result.append((f'group_{group.id}', f'G: {group.group_name}'))
-
-        return result
-
-    @api.onchange('all_group')
-    def _onchange_all_group(self):
-        """Automatically populate group_list or dummy_list based on all_group selection."""
-        self.group_list = False
-        self.dummy_list = False
-
-        if self.all_group:
-            type_str, rec_id = self.all_group.split('_')
-            rec_id = int(rec_id)
-
-            if type_str == 'dummy':
-                self.dummy_list = self.env['tz.dummy.group'].browse(rec_id)
-            elif type_str == 'group':
-                self.group_list = self.env['group.booking'].browse(rec_id)
-
-    def get_selected_group_record(self):
-        """Returns the actual record selected in all_group."""
-        if self.all_group:
-            type_str, rec_id = self.all_group.split('_')
-            rec_id = int(rec_id)
-            if type_str == 'dummy':
-                return self.env['tz.dummy.group'].browse(rec_id)
-            elif type_str == 'group':
-                return self.env['group.booking'].browse(rec_id)
-        return None
 
     def compute_manual_taxes(self):
         tax_model = self.env['tz.manual.posting.tax']
@@ -663,7 +644,8 @@ class TzHotelManualPosting(models.Model):
 
     def _convert_to_tax_base_line_dict(self):
         self.ensure_one()
-        price_unit = (self.debit_amount or self.credit_amount) / (self.quantity or 1)
+        price_unit = (self.debit_amount)
+        # price_unit = (self.debit_without_vat or self.credit_without_vat) / (self.quantity or 1)
         return self.env['account.tax']._convert_to_tax_base_line_dict(
             self,
             partner=self.folio_id.guest_id,
@@ -675,6 +657,9 @@ class TzHotelManualPosting(models.Model):
             discount=0.0,
             price_subtotal=self.price_subtotal,
         )
+
+
+
 
 
 

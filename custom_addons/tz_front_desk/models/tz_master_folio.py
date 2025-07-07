@@ -116,10 +116,13 @@ class TzMasterFolio(models.Model):
                 values.append(f"Dummy: {rec.dummy_id.name}")
             rec.display_info = " | ".join(values)
 
-    @api.depends('total_debit', 'total_credit')
+    @api.depends('manual_posting_ids.balance')
     def _compute_balance(self):
-        for record in self:
-            record.balance = record.total_debit - record.total_credit
+        for folio in self:
+            last_posting = folio.manual_posting_ids.sorted(
+                key=lambda p: p.create_date or p.id, reverse=True
+            )[:1]
+            folio.balance = last_posting.balance if last_posting else 0.0
 
     @api.depends_context('lang')
     @api.depends('manual_posting_ids.taxes', 'manual_posting_ids.total', 'amount_total', 'amount_untaxed')
