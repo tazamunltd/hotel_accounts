@@ -133,3 +133,11 @@ class TzMasterFolio(models.Model):
                 [l._convert_to_tax_base_line_dict() for l in lines],
                 folio.currency_id or folio.company_id.currency_id,
             )
+
+class OdooPayment(models.Model):
+    _inherit = 'account.payment'
+
+    folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True, store=True)
+
+
+

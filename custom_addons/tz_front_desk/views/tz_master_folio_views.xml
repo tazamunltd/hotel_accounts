@@ -67,7 +67,7 @@
                                     <field name="credit_without_vat" sum="Total Credit"/>
                                     <field name="credit_amount" sum="Total Credit"/>
                                     <field name="balance"/>
-<!--                                    <field name="formula_balance"/>-->
+                                    <!--                                    <field name="formula_balance"/>-->
                                 </tree>
                             </field>
 
@@ -120,4 +120,16 @@
 
     <menuitem id="menu_master_folio" name="Master Folios" parent="menu_cashier_parent" action="action_master_folio"
               sequence="4"/>
+
+    <record id="view_account_payment_form_inherit_folio" model="ir.ui.view">
+        <field name="name">account.payment.form.inherit.folio</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_bank_id" position="after">
+                <field name="folio_id" readonly="1" force_save="1"/>
+            </field>
+        </field>
+    </record>
+
 </odoo>

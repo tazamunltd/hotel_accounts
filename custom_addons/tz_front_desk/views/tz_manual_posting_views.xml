@@ -84,6 +84,7 @@
                             <field name="name"/>
                             <field name="company_id" readonly="1"/>
                             <field name="date" readonly="1"/>
+                            <field name="odoo_payment"/>
                             <field name="source_type" invisible="1"/>
                         </group>
                     </group>

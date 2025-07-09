@@ -1,3 +1,5 @@
+from pickle import FALSE
+
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 from datetime import datetime, timedelta
@@ -57,35 +59,40 @@ class TzHotelManualPosting(models.Model):
         domain="[('company_id', '=', company_id)]"
     )
 
-    booking_id = fields.Many2one(
-        'room.booking',
-        string="Room Booking",
-        domain=lambda self: [('state', 'in', ['confirmed', 'no_show', 'block', 'check_in'])]
-    )
+    booking_id = fields.Many2one('room.booking', compute='_compute_type_fields', store=True)
+    room_id = fields.Many2one('hotel.room', compute='_compute_type_fields', store=True)
+    group_booking_id = fields.Many2one('group.booking', compute='_compute_type_fields', store=True)
+    dummy_id = fields.Many2one('tz.dummy.group', compute='_compute_type_fields', store=True)
 
-    room_id = fields.Many2one(
-        'hotel.room',
-        string="Room",
-        domain="[('id', 'in', unavailable_room_ids)]"
-    )
-
+    # booking_id = fields.Many2one(
+    #     'room.booking',
+    #     string="Room Booking",
+    #     domain=lambda self: [('state', 'in', ['confirmed', 'no_show', 'block', 'check_in'])]
+    # )
+    #
+    # room_id = fields.Many2one(
+    #     'hotel.room',
+    #     string="Room",
+    #     domain="[('id', 'in', unavailable_room_ids)]"
+    # )
+    #
     unavailable_room_ids = fields.Many2many(
         comodel_name='hotel.room',
         compute='_compute_unavailable_rooms',
         store=False,
     )
-
-    group_booking_id = fields.Many2one(
-        'group.booking',
-        string="Group",
-        domain="[('status_code', '=', 'confirmed'), ('has_master_folio', '=', True)]"
-    )
-
-    dummy_id = fields.Many2one(
-        'tz.dummy.group',
-        string="Dummy",
-        domain="[('obsolete', '=', False)]"
-    )
+    #
+    # group_booking_id = fields.Many2one(
+    #     'group.booking',
+    #     string="Group",
+    #     domain="[('status_code', '=', 'confirmed'), ('has_master_folio', '=', True)]"
+    # )
+    #
+    # dummy_id = fields.Many2one(
+    #     'tz.dummy.group',
+    #     string="Dummy",
+    #     domain="[('obsolete', '=', False)]"
+    # )
 
     debit_amount = fields.Float(
         string="Debit",
@@ -163,6 +170,9 @@ class TzHotelManualPosting(models.Model):
         ('line_section', "Section"),
         ('line_note', "Note")], string="Display Type")
 
+    # temp field for creating odoo payment
+    odoo_payment = fields.Boolean()
+
     @api.onchange('type_id')
     def _onchange_type_id(self):
         for record in self:
@@ -234,6 +244,9 @@ class TzHotelManualPosting(models.Model):
             if folio:
                 record.folio_id = folio
 
+        if vals.get('odoo_payment'):
+            record.create_account_payment()
+
         vals['source_type'] = 'manual'
 
         if record.item_id:
@@ -252,6 +265,10 @@ class TzHotelManualPosting(models.Model):
             booking = self.env['room.booking'].browse(vals['booking_id'])
             if booking.state == 'cancel':
                 raise ValidationError("You cannot update manual posting to link to a canceled booking.")
+
+        if vals.get('odoo_payment'):
+            for record in self:
+                record.create_account_payment()
 
         return super().write(vals)
 
@@ -657,6 +674,37 @@ class TzHotelManualPosting(models.Model):
             discount=0.0,
             price_subtotal=self.price_subtotal,
         )
+
+    def create_account_payment(self):
+        for record in self:
+            journal = self.env['account.journal'].search([('type', '=', 'bank')], limit=1)
+
+            # Find a payment method line for this journal and payment type
+            payment_method_line = self.env['account.payment.method.line'].search([
+                ('journal_id', '=', journal.id),
+                ('payment_type', '=', 'inbound' if record.debit_amount > 0 else 'outbound')
+            ], limit=1)
+
+            if not payment_method_line:
+                raise UserError("No suitable payment method line found for the selected journal.")
+
+            payment_vals = {
+                'partner_id': record.partner_id.id,
+                'folio_id': record.folio_id.id,
+                'amount': record.price_total,
+                'date': record.date,
+                # 'ref': f'Manual Posting: {record.name} - Booking: {record.booking_id.name if record.booking_id else None}',
+                'currency_id': record.currency_id.id,
+                'company_id': record.company_id.id,
+                'payment_type': 'inbound',
+                'partner_type': 'customer',
+                'journal_id': journal.id,
+                'payment_method_line_id': payment_method_line.id,
+            }
+
+            payment = self.env['account.payment'].create(payment_vals)
+            # payment.action_post()
+
 
 
 

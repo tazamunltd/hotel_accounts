@@ -488,15 +488,15 @@ class HotelCheckOut(models.Model):
         if existing:
             return False  # Skip if already exists
 
-        posting_type = self.env['tz.manual.posting.type'].search([
-            ('company_id', '=', checkout.booking_id.company_id.id),
-            ('group_booking_id', '=',
-             checkout.booking_id.group_booking.id if checkout.booking_id.group_booking else False),
-            ('booking_id', '=', checkout.booking_id.id),
-            ('room_id', '=', checkout.room_id.id),
-        ], limit=1)
+        if checkout.group_booking_id:
+            post_type_domain = [('group_booking_id', '=', checkout.group_booking_id.id if checkout.group_booking_id else False)]
+        else:
+            post_type_domain = [
+                ('room_id', '=', checkout.room_id.id if checkout.room_id else False)]
 
-        raise UserError(posting_type)
+        posting_type = self.env['tz.manual.posting.type'].search(post_type_domain, limit=1)
+
+        # raise UserError(posting_type)
 
         item = self.env['posting.item'].browse(item_id)
         if item.default_sign == 'main':
