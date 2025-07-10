@@ -64,7 +64,6 @@ class ManualPostingType(models.Model):
                         FROM room_booking rb
                         LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
                         LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
-                        WHERE rb.group_booking IS NULL
 
                         UNION ALL
 
@@ -123,12 +122,21 @@ class ManualPostingType(models.Model):
 
         # 3. Create records in the model
         for row in results:
-            existing = self.search([
-                ('booking_id', '=', row.get('booking_id')),
-                ('room_id', '=', row.get('room_id')),
-                ('group_booking_id', '=', row.get('group_booking_id')),
-                ('dummy_id', '=', row.get('dummy_id')),
-            ], limit=1)
+            domain = []
+
+            # booking_id is present unless dummy_id has a value
+            if row.get('dummy_id'):
+                if row.get('dummy_id'):
+                    domain.append(('dummy_id', '=', row['dummy_id']))
+            else:
+                if row.get('booking_id'):
+                    domain.append(('booking_id', '=', row['booking_id']))
+                if row.get('room_id'):
+                    domain.append(('room_id', '=', row['room_id']))
+                if row.get('group_booking_id'):
+                    domain.append(('group_booking_id', '=', row['group_booking_id']))
+
+            existing = self.search(domain, limit=1)
 
             if not existing:
                 self.create({

@@ -182,6 +182,7 @@ class TzHotelManualPosting(models.Model):
                 record.room_id = record.type_id.room_id
                 record.group_booking_id = record.type_id.group_booking_id
                 record.dummy_id = record.type_id.dummy_id
+                record.folio_id = record._get_master_folio_for_dummy(record.dummy_id.id)
 
     @api.depends('type_id')
     def _compute_type_fields(self):
@@ -191,6 +192,7 @@ class TzHotelManualPosting(models.Model):
                 record.room_id = record.type_id.room_id
                 record.group_booking_id = record.type_id.group_booking_id
                 record.dummy_id = record.type_id.dummy_id
+                record.folio_id = record._get_master_folio_for_dummy(record.dummy_id.id)
             else:
                 record.booking_id = False
                 record.room_id = False

@@ -1,7 +1,7 @@
 import logging
 from odoo import models, fields, tools, api, _
 from odoo.exceptions import UserError
-
+from datetime import date
 _logger = logging.getLogger(__name__)
 
 class HotelCheckOut(models.Model):
@@ -26,9 +26,9 @@ class HotelCheckOut(models.Model):
     meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern')
     state = fields.Char('State')
     company_id = fields.Many2one('res.company', string='Company')
-    is_cashier_checkout = fields.Boolean(string="Ca. C/O", tracking=True)
-    is_suspended_manual_posting = fields.Boolean(string="Sus. MP", tracking=True)
-    is_suspended_auto_posting = fields.Boolean(string="Sus. AP", tracking=True)
+    is_cashier_checkout = fields.Boolean(string="Cashier C/O", tracking=True)
+    is_suspended_manual_posting = fields.Boolean(string="Suspended MP", tracking=True)
+    is_suspended_auto_posting = fields.Boolean(string="Suspended AP", tracking=True)
     payment_type = fields.Selection([
         ('cash', 'Cash Payment'),
         ('prepaid_credit', 'Pre-Paid / Credit Limit'),
@@ -47,6 +47,34 @@ class HotelCheckOut(models.Model):
         store=True,
         readonly=False
     )
+
+    group_by_category = fields.Selection([
+        ('expected_dep', 'Expected Departure'),
+        ('dep_with_balance', 'Departure with Balance'),
+        ('dep_zero_balance', 'Zero Balance Departure'),
+        ('in_with_balance', 'Checked-in with Balance'),
+        ('in_checkout_today', 'Check-in & C/O Today'),
+    ], string="Group By Category", compute='_compute_group_by_category', store=True)
+
+    def _compute_group_by_category(self):
+        today = self.env.user.company_id.system_date or date.today()
+        for rec in self:
+            # Initialize as False
+            rec.group_by_category = False
+
+            checkout = rec.checkout_date.date() if rec.checkout_date else None
+            checkin = rec.checkin_date.date() if rec.checkin_date else None
+
+            if rec.state == 'In' and checkout == today:
+                rec.group_by_category = 'expected_dep'
+            elif rec.folio_id and rec.folio_id.balance and checkout == today:
+                rec.group_by_category = 'dep_with_balance'
+            elif rec.folio_id and rec.folio_id.balance == 0 and checkout == today:
+                rec.group_by_category = 'dep_zero_balance'
+            elif rec.folio_id and rec.folio_id.balance:
+                rec.group_by_category = 'in_with_balance'
+            elif rec.state == 'In' and checkin == today:
+                rec.group_by_category = 'in_checkout_today'
 
     show_re_checkout = fields.Boolean(compute='_compute_button_visibility')
     show_other_buttons = fields.Boolean(compute='_compute_button_visibility')
@@ -228,7 +256,7 @@ class HotelCheckOut(models.Model):
         company_id = self.env.company.id
         view_model = self.env['tz.checkout']
         records = view_model.search([])
-        vals_list = []
+        vals = []
 
         for rec in records:
             # Check for existing record based on the unique key
@@ -246,7 +274,7 @@ class HotelCheckOut(models.Model):
             if self.search(domain, limit=1):
                 continue
 
-            vals_list.append({
+            vals.append({
                 'name': getattr(rec, 'all_name', rec.name),
                 'booking_id': rec.booking_id.id if rec.booking_id else False,
                 'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
@@ -264,8 +292,8 @@ class HotelCheckOut(models.Model):
                 'company_id': rec.company_id.id if rec.company_id else company_id,
             })
 
-        if vals_list:
-            self.create(vals_list)
+        if vals:
+            self.sudo().create(vals)
         return True
 
     @api.model
@@ -337,26 +365,6 @@ class HotelCheckOut(models.Model):
                 'manual_creation': True
             },
             'domain': [('type_id', '=', posting_type.id)] if posting_type else []
-        }
-
-    def open_manual_postingX(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Manual Posting',
-            'res_model': 'tz.manual.posting',
-            'view_mode': 'tree,form',
-            'target': 'current',
-            'context': {
-                'default_room_list': self.room_id.id,
-                'default_booking_id': self.booking_id.id,
-                'default_group_list': self.group_booking_id.id,
-                'search_default_room_list': self.room_id.id,
-                'search_default_booking_id': self.booking_id.id,
-                'search_default_group_list': self.group_booking_id.id,
-                'search_default_dummy_list': self.dummy_id.id,
-                'manual_creation': True
-            }
         }
 
     def action_auto_posting(self):
@@ -552,7 +560,7 @@ class HotelCheckOut(models.Model):
 
         if domain:
             domain.append(('is_suspended_manual_posting', '=', True))
-            suspended_checkouts = self.env['tz.hotel.checkout'].search(domain, limit=1)
+            suspended_checkouts = self.env['tz.hotel.checkout'].sudo().search(domain, limit=1)
             return bool(suspended_checkouts)
         return False
 
@@ -565,6 +573,6 @@ class HotelCheckOut(models.Model):
 
         if domain:
             domain.append(('is_suspended_auto_posting', '=', True))
-            suspended_checkouts = self.env['tz.hotel.checkout'].search(domain, limit=1)
+            suspended_checkouts = self.env['tz.hotel.checkout'].sudo().search(domain, limit=1)
             return bool(suspended_checkouts)
         return False
