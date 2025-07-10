@@ -63,8 +63,8 @@
                                     <field name="description"/>
                                     <field name="voucher_number"/>
                                     <field name="debit_amount" sum="Total Debit"/>
-                                    <field name="debit_without_vat" sum="Total Debit"/>
-                                    <field name="credit_without_vat" sum="Total Credit"/>
+<!--                                    <field name="debit_without_vat" sum="Total Debit"/>-->
+<!--                                    <field name="credit_without_vat" sum="Total Credit"/>-->
                                     <field name="credit_amount" sum="Total Credit"/>
                                     <field name="balance"/>
                                     <!--                                    <field name="formula_balance"/>-->

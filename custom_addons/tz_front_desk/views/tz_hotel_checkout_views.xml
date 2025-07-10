@@ -2,7 +2,7 @@
 <odoo>
     <!-- Action for Hotel Checkout -->
     <record id="action_hotel_checkout" model="ir.actions.act_window">
-        <field name="name">Hotel Checkouts</field>
+        <field name="name">Checkout</field>
         <field name="res_model">tz.hotel.checkout</field>
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
@@ -113,8 +113,10 @@
                             <group>
                                 <field name="state" invisible="1"/>
                                 <field name="is_cashier_checkout" string="Cashier Checkout" readonly="state == 'Out'"/>
-                                <field name="is_suspended_manual_posting" readonly="is_cashier_checkout" string="Suspended Manual Posting"/>
-                                <field name="is_suspended_auto_posting" readonly="is_cashier_checkout" string="Suspended Auto Posting"
+                                <field name="is_suspended_manual_posting" readonly="is_cashier_checkout"
+                                       string="Suspended Manual Posting"/>
+                                <field name="is_suspended_auto_posting" readonly="is_cashier_checkout"
+                                       string="Suspended Auto Posting"
                                        invisible="dummy_id > 0"/>
                                 <field name="show_re_checkout" invisible="1"/>
                                 <field name="show_other_buttons" invisible="1"/>
@@ -133,6 +135,44 @@
     </record>
 
     <!-- Search View -->
+    <!--<record id="view_hotel_checkout_search" model="ir.ui.view">
+        <field name="name">tz.hotel.checkout.search</field>
+        <field name="model">tz.hotel.checkout</field>
+        <field name="arch" type="xml">
+            <search string="Hotel Checkout Search">
+                <field name="partner_id" string="Guest"/>
+                <field name="room_id" string="Room"/>
+                <field name="checkin_date"/>
+                <field name="checkout_date"/>
+                <field name="state"/>
+
+                <filter name="expected_departures" string="Expected Dep."
+                        domain="[('state','=','In'),('checkout_date','=',context_today().strftime('%Y-%m-%d'))]"/>
+
+                <filter name="dep_with_balance" string="Dep. With Balance"
+                        domain="[('folio_id.balance','>',0),('checkout_date','=',context_today().strftime('%Y-%m-%d'))]"/>
+
+                <filter name="dep_zero_balance" string="Dep. Zero Balance"
+                        domain="[('folio_id.balance','=',0),('checkout_date','=',context_today().strftime('%Y-%m-%d'))]"/>
+
+                <filter name="in_with_balance" string="In With Balance"
+                        domain="[('folio_id.balance','>',0)]"/>
+
+                <filter name="in_co_today" string="In &amp; C/O Today"
+                        domain="[('state','=','In'),('checkin_date','=',context_today().strftime('%Y-%m-%d'))]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Guest" name="group_by_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Room" name="group_by_room" context="{'group_by': 'room_id'}"/>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Payment Type" name="group_by_payment_type" context="{'group_by': 'payment_type'}"/>
+                    <filter string="Checkout Date" name="group_by_checkout_date"
+                            context="{'group_by': 'checkout_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>-->
+
     <record id="view_hotel_checkout_search" model="ir.ui.view">
         <field name="name">tz.hotel.checkout.search</field>
         <field name="model">tz.hotel.checkout</field>
@@ -144,10 +184,16 @@
                 <field name="checkout_date"/>
                 <field name="state"/>
 
-                <!--<filter string="Today's Checkouts" name="filter_today"
-                        domain="[('checkout_date', '=', context_today().strftime('%Y-%m-%d'))]"/>-->
-                <filter string="Checked In" name="filter_checked_in" domain="[('state', '=', 'checked_in')]"/>
-                <filter string="Checked Out" name="filter_checked_out" domain="[('state', '=', 'checked_out')]"/>
+                <filter string="Expected Dep." name="group_expected_dep" context="{'group_by': 'group_by_category'}"/>
+                <filter string="Dep. With Balance" name="group_dep_with_balance"
+                        context="{'group_by': 'group_by_category'}"/>
+                <filter string="Zero Balance Dep." name="group_dep_zero_balance"
+                        context="{'group_by': 'group_by_category'}"/>
+                <filter string="In With Balance" name="group_in_with_balance"
+                        context="{'group_by': 'group_by_category'}"/>
+                <filter string="In and C/O Today" name="group_in_checkout_today"
+                        context="{'group_by': 'group_by_category'}"/>
+
 
                 <group expand="0" string="Group By">
                     <filter string="Guest" name="group_by_partner" context="{'group_by': 'partner_id'}"/>
@@ -159,7 +205,7 @@
     </record>
 
     <!-- Menu Item -->
-    <menuitem id="menu_hotel_checkout" name="Checkouts"
+    <menuitem id="menu_hotel_checkout" name="Checkout"
               parent="menu_cashier_parent" action="action_hotel_checkout" sequence="8"/>
 
 </odoo>
