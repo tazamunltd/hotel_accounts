@@ -1,7 +1,9 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_tz_room_search_public,access.tz.room.search,model_tz_room_search,,1,1,1,1
 access_tz_room_availability_public,access.tz.room.availability,model_tz_room_availability,,1,1,1,1
+
 access_tz_manual_posting_public,access.tz.manual.posting,model_tz_manual_posting,,1,1,1,1
+access_tz_manual_posting_type_public,access.tz.manual.posting.type,model_tz_manual_posting_type,,1,1,1,1
 
 access_tz_master_folio_manager,tz.master.folio.manager,model_tz_master_folio,,1,0,0,0
 
@@ -10,3 +12,6 @@ access_tz_master_folio_report_manager,tz.master.folio.report.manager,model_tz_ma
 access_tz_dummy_group_manager,access.tz.dummy.group.manager,model_tz_dummy_group,,1,1,1,1
 access_tz_manual_posting_tax_public,access.tz.manual.posting.tax,model_tz_manual_posting_tax,,1,1,1,1
 
+access_tz_checkout_public,access.tz.checkout.public,model_tz_checkout,,1,1,1,1
+access_tz_hotel_checkout_public,access.tz.hotel.checkout,model_tz_hotel_checkout,,1,1,0,0
+access_tz_checkout_data,tz.checkout.data,model_tz_checkout_data,,1,1,1,1

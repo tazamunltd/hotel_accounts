@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_tz_checkout_data_wizard" model="ir.actions.act_window">
+            <field name="name">Generate Hotel Checkout</field>
+            <field name="res_model">tz.checkout.data</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_tz_checkout_data"
+                  name="Generate Hotel Checkout"
+                  parent="menu_cashier_parent" action="action_tz_checkout_data_wizard"
+                  sequence="8"/>
+
+        <record id="tz_checkout_data_form" model="ir.ui.view">
+            <field name="name">tz.checkout.data.form</field>
+            <field name="model">tz.checkout.data</field>
+            <field name="arch" type="xml">
+                <form string="Generate Hotel Checkout">
+                    <group>
+                        <field name="filter_data"/>
+                    </group>
+                    <footer>
+                        <button name="action_generate_checkout" type="object" string="Generate" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>
