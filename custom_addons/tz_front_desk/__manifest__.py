@@ -60,6 +60,8 @@
         'views/tz_hotel_checkout_views.xml',
 
         'wizard/tz_auto_posting_views.xml',
+        'wizard/transfer_wizard_views.xml',
+        # 'wizard/night_audit_wizard.xml',
         # 'wizard/tz_generate_checkout_data_views.xml',
         'report/report_master_folio.xml',
     ],

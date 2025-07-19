@@ -213,6 +213,7 @@ class AutoPostingWizard(models.TransientModel):
             ('room_id', '=', booking_line.room_id.id),
         ], limit=1)
 
+
         item = self.env['posting.item'].browse(item_id)
         # Initialize values dictionary
         manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"

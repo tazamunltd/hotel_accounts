@@ -34,7 +34,7 @@ class DummyGroup(models.Model):
         ('out', 'Out')
     ], string='State', default='in')
 
-    def _create_master_folio(self):
+    def _get_or_create_master_folio(self):
         """
         Create a master folio for the dummy group
         Returns: master folio record
@@ -65,7 +65,7 @@ class DummyGroup(models.Model):
 
         # Create the group first
         group = super().create(vals)
-        group._create_master_folio()
+        group._get_or_create_master_folio()
         # Refresh the SQL View and Sync data
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
@@ -83,7 +83,7 @@ class DummyGroup(models.Model):
             has_end_date = 'end_date' in vals or record.end_date
 
             if is_reopen and is_state_in and has_end_date:
-                record._create_master_folio()
+                record._get_or_create_master_folio()
 
         return result
 

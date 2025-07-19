@@ -175,7 +175,7 @@ class RoomBooking(models.Model):
                     'split_flag': True
                 })
 
-                booking._create_master_folio(booking)
+                booking._get_or_create_master_folio(booking)
                 booking.create_booking_lines()
                 booking.state = "block"
                 booking.action_checkin()
@@ -244,7 +244,7 @@ class RoomBooking(models.Model):
             if non_parent_booking and non_parent_booking.room_line_ids:
                 folio.sudo().write({'room_id': non_parent_booking.room_line_ids[0].room_id.id})
 
-    def _create_master_folio(self, booking):
+    def _get_or_create_master_folio(self, booking):
         """
         Create or get existing master folio for the booking
         Rules:
@@ -327,7 +327,7 @@ class RoomBooking(models.Model):
         checked_in_bookings = self.filtered(lambda b: b.state == 'confirmed')
 
         for booking in checked_in_bookings:
-            self._create_master_folio(booking)
+            self._get_or_create_master_folio(booking)
         self.env['tz.manual.posting.type'].generate_manual_postings()
         return self._notify_booking_confirmation(result)
 
@@ -336,7 +336,7 @@ class RoomBooking(models.Model):
         checked_in_bookings = self.filtered(lambda b: b.state == 'confirmed')
 
         for booking in checked_in_bookings:
-            self._create_master_folio(booking)
+            self._get_or_create_master_folio(booking)
         self.env['tz.manual.posting.type'].generate_manual_postings()
         return self._notify_booking_confirmation(result)
 

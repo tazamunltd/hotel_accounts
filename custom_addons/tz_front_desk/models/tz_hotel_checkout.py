@@ -2,6 +2,7 @@ import logging
 from odoo import models, fields, tools, api, _
 from odoo.exceptions import UserError
 from datetime import date
+import json
 _logger = logging.getLogger(__name__)
 
 class HotelCheckOut(models.Model):
@@ -78,6 +79,8 @@ class HotelCheckOut(models.Model):
 
     show_re_checkout = fields.Boolean(compute='_compute_button_visibility')
     show_other_buttons = fields.Boolean(compute='_compute_button_visibility')
+
+    move_id = fields.Many2one('account.move', string='Invoice #')
 
     @api.onchange('is_cashier_checkout')
     def _onchange_is_cashier_checkout(self):
@@ -275,7 +278,7 @@ class HotelCheckOut(models.Model):
                 continue
 
             vals.append({
-                'name': getattr(rec, 'all_name', rec.name),
+                'name': rec.name,
                 'booking_id': rec.booking_id.id if rec.booking_id else False,
                 'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
                 'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
@@ -336,10 +339,14 @@ class HotelCheckOut(models.Model):
             if record.state == 'In':
                 record.state = 'Out'
                 record.checkout_date = self.env.company.system_date.date()
+                self.get_partner_manual_postings()
             else:
                 raise UserError("Room is already checked out.")
 
     def open_manual_posting(self):
+        # data = self.get_partner_manual_postings()
+        # json_data = json.dumps(data)  # Converts to JSON string
+        # raise UserError(json_data)
         self.ensure_one()
         # Optional: Find related posting type_id if available (one way of pre-filling or filtering)
         posting_type = self.env['tz.manual.posting.type'].search([
@@ -372,7 +379,6 @@ class HotelCheckOut(models.Model):
         created_count = 0
         for record in self:
             if record.group_booking_id:
-                # make auto posting for all rooms in checkin of the group from room.booking.line
                 room_bookings = record.group_booking_id.room_booking_ids.filtered(
                     lambda r: r.state == 'check_in' and r.company_id == self.env.company
                 )
@@ -387,7 +393,6 @@ class HotelCheckOut(models.Model):
                     records_created = self._create_folio_lines(record, folio, forecast)
                     created_count += records_created
             elif record.room_id:
-                # make auto posting for the room in checkin from room.booking.line
                 booking_line = self.env['room.booking.line'].search([
                     ('current_company_id', '=', self.env.company.id),
                     ('room_id', '=', record.room_id.id),
@@ -576,3 +581,124 @@ class HotelCheckOut(models.Model):
             suspended_checkouts = self.env['tz.hotel.checkout'].sudo().search(domain, limit=1)
             return bool(suspended_checkouts)
         return False
+
+    def get_partner_manual_postings(self):
+        """
+        Get all manual postings related to the partner_id of this checkout record.
+        Consolidate postings that share the same item description and amount into a single line.
+        Exclude any posting with item description 'Cash'.
+        Creates an invoice from the consolidated postings.
+        """
+        self.ensure_one()
+
+        if not self.partner_id:
+            return {
+                'partner': False,
+                'postings': []
+            }
+
+        postings = self.env['tz.manual.posting'].search([
+            ('company_id', '=', self.company_id.id),
+            ('partner_id', '=', self.partner_id.id)
+        ])
+
+        result = {
+            'partner': {
+                'id': self.partner_id.id,
+                'name': self.partner_id.name,
+                'contact_reference': self.booking_id.reference_contact_ if self.booking_id else '',
+                'hotel_booking_id': self.booking_id or '',
+                'group_booking_name': self.group_booking_id.name if self.group_booking_id else '',
+                'parent_booking_name': self.booking_id.parent_booking_name if self.booking_id else '',
+                'room_numbers': self.booking_id.room_ids_display if self.booking_id else '',
+            },
+            'postings': []
+        }
+
+        consolidated = {}
+        for posting in postings:
+            if posting.item_id.description.strip().lower() == 'cash':
+                continue
+
+            amount = posting.debit_amount if posting.debit_amount > 0 else posting.credit_amount
+            key = (posting.item_id.description, amount)
+
+            if key in consolidated:
+                consolidated[key]['quantity'] += posting.quantity
+                consolidated[key]['total'] += posting.total
+                consolidated[key]['balance'] = posting.balance
+            else:
+                consolidated[key] = {
+                    'id': posting.id,
+                    'item_id': posting.item_id,
+                    'date': str(posting.date),
+                    'time': posting.time,
+                    'item': posting.item_id.description,
+                    'debit': posting.debit_amount,
+                    'credit': posting.credit_amount,
+                    'quantity': posting.quantity,
+                    'taxes': posting.taxes,
+                    'total': posting.total,
+                }
+
+        result['postings'] = list(consolidated.values())
+
+        invoice = self.create_invoice(result['partner'], result['postings'])
+
+        # return {
+        #     'invoice_id': invoice.id,
+        #     'invoice_name': invoice.name,
+        #     'partner': result['partner'],
+        #     'postings': result['postings'],
+        # }
+
+    def _get_default_journal(self):
+        journal = self.env['account.journal'].search([('type', '=', 'sale')], limit=1)
+        return journal
+
+    def create_invoice(self, partner, postings):
+        default_journal = self._get_default_journal()
+        if not default_journal:
+            raise UserError(_('No accounting journal with type "Sale" defined !'))
+
+        # Find default income account
+        income_account = self.env['account.account'].search([
+            ('company_id', '=', self.company_id.id),
+            ('account_type', '=', 'income'),
+        ], limit=1)
+
+        if not income_account:
+            raise UserError(_('No income account found for this company.'))
+
+        invoice_lines = []
+        for line in postings:
+            invoice_lines.append((0, 0, {
+                'posting_item_id': line['item_id'].id if line.get('item_id') else False,
+                'name': line['item'],
+                'quantity': line['quantity'],
+                'price_unit': line['debit'] - line['credit'],
+                'posting_default_value': line['debit'] - line['credit'],
+                'tax_ids': [(6, 0, [tax.id for tax in line['taxes']])] if line['taxes'] else [],
+                'account_id': income_account.id,
+            }))
+
+        invoice = self.env['account.move'].sudo().create({
+            'move_type': 'out_invoice',
+            'journal_id': default_journal.id,
+            'partner_id': partner['id'],
+            'hotel_booking_id': partner['hotel_booking_id'].id if partner.get('hotel_booking_id') else False,
+            'group_booking_name': partner['group_booking_name'],
+            'parent_booking_name': partner['parent_booking_name'],
+            'room_numbers': partner['room_numbers'],
+            'invoice_date': self.env.company.system_date.date(),
+            'date': self.env.company.system_date.date(),
+            'ref': f"Invoice for #: {partner['name']}",
+            'invoice_line_ids': invoice_lines,
+        })
+
+        self.write({'move_id': invoice.id})
+
+        return invoice
+
+
+
