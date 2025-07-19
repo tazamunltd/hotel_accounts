@@ -1,4 +1,6 @@
 /* @odoo-module */
+import { _t } from "@web/core/l10n/translation";
+
 (function () {
   /**
    * Extracts the current record’s ID from the URL hash.
@@ -81,14 +83,15 @@
     title.style.margin = "10px 0 20px";
     title.style.fontSize = "24px";
     title.style.color = "#333";
-    title.textContent = "Are you sure?";
+    title.textContent = _t("Are you sure?");
 
     // Message (“Do you want to search rooms for room type X?”)
     const message = document.createElement("p");
     message.style.margin = "0 0 25px";
     message.style.color = "#666";
     message.style.fontSize = "16px";
-    message.textContent = `Do you want to search rooms for room type "${newValue}"?`;
+    // message.textContent = _t(`Do you want to search rooms for room type "${newValue}"?`);
+    message.textContent = _t(`Do you want to search rooms for room type "%s"?`, newValue);
 
     // Buttons container (Cancel / Yes, search rooms!)
     const btnContainer = document.createElement("div");
@@ -105,7 +108,7 @@
     cancelBtn.style.color = "#333";
     cancelBtn.style.fontSize = "14px";
     cancelBtn.style.cursor = "pointer";
-    cancelBtn.textContent = "Cancel";
+    cancelBtn.textContent = _t("Cancel");
 
     // Confirm button
     const confirmBtn = document.createElement("button");
@@ -116,7 +119,7 @@
     confirmBtn.style.color = "white";
     confirmBtn.style.fontSize = "14px";
     confirmBtn.style.cursor = "pointer";
-    confirmBtn.textContent = "Yes, search rooms!";
+    confirmBtn.textContent = _t("Yes, search rooms!");
 
     // Assemble dialog
     btnContainer.appendChild(cancelBtn);

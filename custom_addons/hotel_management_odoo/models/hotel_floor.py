@@ -9,6 +9,16 @@ class HotelFloor(models.Model):
     _order = 'id desc'
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     name = fields.Char(string=_("Name"), help="Name of the floor", required=True, translate=True)
     user_id = fields.Many2one('res.users', string='Manager',
                               help="Manager of the Floor",

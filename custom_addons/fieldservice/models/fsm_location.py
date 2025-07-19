@@ -351,9 +351,29 @@ class FSMLocation(models.Model):
         if self.state_id.country_id:
             self.country_id = self.state_id.country_id
 
+    # def action_delete_record(self):
+    #     for record in self:
+    #         record.active = False
+
     def action_delete_record(self):
         for record in self:
+            # Search for hotel.room records using this location
+            room = self.env['hotel.room'].search([
+                ('fsm_location', '=', record.id),
+                ('active', '=', True)
+            ], limit=1)
+
+            if room:
+                raise ValidationError(
+                    f"Cannot delete location '{record.name}' because it is used in hotel room: '{room.name}'."
+                )
+            
+            # Mark location inactive instead of deleting
             record.active = False
+    
+    def action_unarchive_record(self):
+        for record in self:
+            record.active = True
 
 
 class FSMPerson(models.Model):

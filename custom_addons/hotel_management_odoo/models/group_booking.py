@@ -10,6 +10,18 @@ class GroupBooking(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name'
 
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
+
     def name_get(self):
         result = []
         for rec in self:
@@ -132,13 +144,13 @@ class GroupBooking(models.Model):
     #         record.total_stays = len(record.room_booking_ids)
 
     total_adult_count = fields.Integer(
-        string='Adults', compute='_compute_pax_and_room_count', tracking=True, store=True)
+        string='Adults', compute='_compute_pax_and_room_count', tracking=True, store=False)
     total_child_count = fields.Integer(
         string='Children', compute='_compute_pax_and_room_count', tracking=True, store=True)
     total_infant_count = fields.Integer(
         string='Infants', compute='_compute_pax_and_room_count', tracking=True, store=True)
     total_room_count = fields.Integer(
-        string='Rooms', compute='_compute_pax_and_room_count', tracking=True, store=True)
+        string='Rooms', compute='_compute_pax_and_room_count', tracking=True, store=False)
 
     @api.depends(
         'room_booking_ids',
@@ -151,18 +163,22 @@ class GroupBooking(models.Model):
     def _compute_pax_and_room_count(self):
         for record in self:
             # Filter only active bookings
-            active_bookings = record.room_booking_ids.filtered(
-                lambda b: b.active)
+            active_bookings = record.room_booking_ids.filtered(lambda b: b.active)
 
             # Sum values only from active bookings
-            record.total_adult_count = sum(
-                active_bookings.mapped('adult_count') or [0])
-            record.total_child_count = sum(
-                active_bookings.mapped('child_count') or [0])
-            record.total_infant_count = sum(
-                active_bookings.mapped('infant_count') or [0])
-            record.total_room_count = sum(
-                active_bookings.mapped('room_count') or [0])
+            # record.total_adult_count = sum(active_bookings.mapped('adult_count') or [0])
+            record.total_child_count = sum(active_bookings.mapped('child_count') or [0])
+            record.total_infant_count = sum(active_bookings.mapped('infant_count') or [0])
+            record.total_room_count = sum(active_bookings.mapped('room_count') or [0])
+
+            # now build adult total with per-booking logic
+            adult_total = 0
+            for b in active_bookings:
+                if b.state in ("not_confirmed", "confirmed"):
+                    adult_total += b.adult_count * b.room_count
+                else:
+                    adult_total += b.adult_count
+            record.total_adult_count = adult_total
 
     # @api.depends(
     #     'room_booking_ids',
@@ -212,14 +228,7 @@ class GroupBooking(models.Model):
             ])
             record.total_stays = len(bookings)
 
-    # @api.depends('room_booking_ids', 'room_booking_ids.state', 'room_booking_ids.create_date')
-    # def _compute_total_stays(self):
-    #     for record in self:
-    #         # Filter bookings with state 'check_in'
-    #         checked_in_bookings = record.room_booking_ids.filtered(
-    #             lambda b: b.state == 'check_in')
-    #         record.total_stays = len(checked_in_bookings)
-
+    
     total_nights = fields.Integer(
         string='Total Nights',
         store=True,
@@ -227,40 +236,43 @@ class GroupBooking(models.Model):
         tracking=True
     )
 
-    # @api.depends('first_visit', 'last_visit', 'room_booking_ids.no_of_nights', 'room_booking_ids.active')
+    @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date')
+    def _compute_total_nights(self):
+        for group in self:
+            # collect all valid check-in and check-out dates as date objects
+            cis = []
+            cos = []
+            for booking in group.room_booking_ids:
+                if booking.checkin_date:
+                    cis.append(fields.Datetime.to_datetime(
+                        booking.checkin_date).date())
+                if booking.checkout_date:
+                    cos.append(fields.Datetime.to_datetime(
+                        booking.checkout_date).date())
+            if cis and cos:
+                # find earliest check-in and latest check-out
+                min_ci = min(cis)
+                max_co = max(cos)
+                # compute difference and guard against negatives
+                days = (max_co - min_ci).days
+                group.total_nights = days if days > 0 else 0
+            else:
+                group.total_nights = 0
+
+    # @api.depends('first_visit', 'last_visit')
     # def _compute_total_nights(self):
     #     for record in self:
-    #         total_nights = 0  # initialize to avoid unbound error
-
-    #         # Check for valid dates
+    #         # Check if both first_visit and last_visit are set
     #         if record.first_visit and record.last_visit:
+    #             # Ensure the dates are in the correct format (date object)
     #             first_visit = fields.Date.from_string(record.first_visit)
     #             last_visit = fields.Date.from_string(record.last_visit)
 
-    #             # Calculate the total number of nights
+    #             # Calculate the difference between the dates
     #             total_nights = (last_visit - first_visit).days
-
-    #         # Subtract nights from archived bookings (if any)
-    #         archived_bookings = record.room_booking_ids.filtered(lambda b: not b.active)
-    #         archived_nights = sum(archived_bookings.mapped('no_of_nights') or [0])
-
-    #         # Set final result
-    #         record.total_nights = total_nights - archived_nights
-
-    @api.depends('first_visit', 'last_visit')
-    def _compute_total_nights(self):
-        for record in self:
-            # Check if both first_visit and last_visit are set
-            if record.first_visit and record.last_visit:
-                # Ensure the dates are in the correct format (date object)
-                first_visit = fields.Date.from_string(record.first_visit)
-                last_visit = fields.Date.from_string(record.last_visit)
-
-                # Calculate the difference between the dates
-                total_nights = (last_visit - first_visit).days
-                record.total_nights = total_nights
-            else:
-                record.total_nights = 0
+    #             record.total_nights = total_nights
+    #         else:
+    #             record.total_nights = 0
 
     # @api.depends('room_booking_ids')
     # def _compute_total_nights(self):
@@ -269,47 +281,67 @@ class GroupBooking(models.Model):
     #             record.room_booking_ids.mapped('no_of_nights') or [0])
 
     first_visit = fields.Date(
-        string='First Visit',
+        string='First Arrive',
         compute='_compute_first_and_last_visit',
-        store=True,
+        store=False,
         tracking=True,
     )
 
     last_visit = fields.Date(
-        string='Last Visit',
+        string='Last Departure',
         compute='_compute_first_and_last_visit',
-        store=True,
+        store=False,
         tracking=True,
     )
 
-    @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date', 'room_booking_ids.state')
+    @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date')
     def _compute_first_and_last_visit(self):
         for record in self:
-            # Earliest check-in (you can leave this logic as is if you still want
-            # to display the earliest planned checkin_date).
-            # checkin_dates = record.room_booking_ids.mapped('checkin_date')
-            # if checkin_dates:
-            #     record.first_visit = min(checkin_dates)
-            # else:
-            #     record.first_visit = False
-            # valid_bookings = record.room_booking_ids.filtered(lambda b: b.state != 'cancel')
-            valid_bookings = record.room_booking_ids.filtered(lambda b: b.state not in ['cancel', 'not_confirmed', 'no_show'])
+            # Initialize a list for check-in dates
+            checkin_dates = []
+            checkout_dates = []
 
-            checkin_dates = valid_bookings.mapped('checkin_date')
+            # Loop through each booking in room_booking_ids
+            for booking in record.room_booking_ids:
+                # If the booking is in 'check_in' state, append the checkin_date
+                if booking.checkin_date:
+                    checkin_dates.append(booking.checkin_date)
+                # If the booking is in 'check_out' state, append the checkout_date
+                if booking.checkout_date:
+                    checkout_dates.append(booking.checkout_date)
+
+            # Get the minimum checkin_date for first_visit
             if checkin_dates:
                 record.first_visit = min(checkin_dates)
             else:
-                # No valid bookings or all are canceled
                 record.first_visit = False
 
-            # For last_visit, consider only bookings that have state = 'check_out'.
-            checked_out_bookings = record.room_booking_ids.filtered(
-                lambda b: b.state == 'check_out' and b.checkout_date)
-            if checked_out_bookings:
-                checkout_dates = checked_out_bookings.mapped('checkout_date')
+            # Get the maximum checkout_date for last_visit
+            if checkout_dates:
                 record.last_visit = max(checkout_dates)
             else:
                 record.last_visit = False
+
+    # @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date', 'room_booking_ids.state')
+    # def _compute_first_and_last_visit(self):
+    #     for record in self:
+    #         valid_bookings = record.room_booking_ids.filtered(lambda b: b.state in ['cancel', 'not_confirmed', 'no_show', 'confirmed', 'block'])
+
+    #         checkin_dates = valid_bookings.mapped('checkin_date')
+    #         if checkin_dates:
+    #             record.first_visit = min(checkin_dates)
+    #         else:
+    #             # No valid bookings or all are canceled
+    #             record.first_visit = False
+
+    #         # For last_visit, consider only bookings that have state = 'check_out'.
+    #         checked_out_bookings = record.room_booking_ids.filtered(
+    #             lambda b: b.state == 'check_out' and b.checkout_date)
+    #         if checked_out_bookings:
+    #             checkout_dates = checked_out_bookings.mapped('checkout_date')
+    #             record.last_visit = max(checkout_dates)
+    #         else:
+    #             record.last_visit = False
 
     # @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date')
     # def _compute_first_and_last_visit(self):
@@ -340,7 +372,7 @@ class GroupBooking(models.Model):
     total_revenue = fields.Float(
         string='Total Revenue',
         compute='_compute_total_revenue',
-        store=True,
+        store=False,
         tracking=True
     )
 

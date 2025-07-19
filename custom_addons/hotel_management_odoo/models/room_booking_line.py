@@ -74,50 +74,89 @@ class RoomBookingLine(models.Model):
 
     
     #Working Code 12/12/2024
-    @api.depends('booking_id', 'booking_id.state', 'sequence')
-    def _compute_state(self):
-        for record in self:
-            if record.booking_id.state == 'not_confirmed':
-                record.state_ = 'not_confirmed'
-                continue
-            if not record.room_id:
-                record.state_ = 'confirmed'
-                continue
-            if record.booking_id.state == 'block':
-                record.state_ = 'block'
-                continue
-            # Search for a child booking with parent_booking_id matching the current booking
+    # @api.depends('booking_id', 'booking_id.state', 'sequence')
+    # def _compute_state(self):
+    #     for record in self:
+    #         if record.booking_id.state == 'not_confirmed':
+    #             record.state_ = 'not_confirmed'
+    #             continue
+    #         if not record.room_id:
+    #             record.state_ = 'confirmed'
+    #             continue
+    #         if record.booking_id.state == 'block':
+    #             record.state_ = 'block'
+    #             continue
+    #         # Search for a child booking with parent_booking_id matching the current booking
 
-            # Step 1: Get all child bookings for the current booking_id
-            child_bookings_ = self.env['room.booking'].search([
-                ('parent_booking_id', '=', record.booking_id.id)
-            ])
-            if child_bookings_:
-                # Step 2: Find a matching booking line under any of the child bookings
-                matching_line = self.env['room.booking.line'].search([
-                    ('booking_id', 'in', child_bookings_.ids),
-                    ('counter', '=', record.counter)
-                ], limit=1)
-                # _logger.info('matching_',matching_line,matching_line.booking_id)
+    #         # Step 1: Get all child bookings for the current booking_id
+    #         child_bookings_ = self.env['room.booking'].search([
+    #             ('parent_booking_id', '=', record.booking_id.id)
+    #         ])
+    #         if child_bookings_:
+    #             # Step 2: Find a matching booking line under any of the child bookings
+    #             matching_line = self.env['room.booking.line'].search([
+    #                 ('booking_id', 'in', child_bookings_.ids),
+    #                 ('counter', '=', record.counter)
+    #             ], limit=1)
+    #             # _logger.info('matching_',matching_line,matching_line.booking_id)
 
-                child_bookings = self.env['room.booking'].search([
-                    ('id', '=', matching_line.booking_id.id)
-                ], limit=1)
+    #             child_bookings = self.env['room.booking'].search([
+    #                 ('id', '=', matching_line.booking_id.id)
+    #             ], limit=1)
 
-                # _logger.info("compute called",child_bookings)
-                # Assign the state of the child booking if found, else use the parent's state
-                if child_bookings:
-                    record.state_ = child_bookings.state
-                    # _logger.info(child_bookings.id, child_bookings.state, "child")
-                # else:
-                #     record.state_ = 'not_confirmed'
-                #     # _logger.info(child_booking.id, child_booking.state, "not child")
-            else:
-                if len(record.booking_id.room_line_ids) == 1:
-                    if record.booking_id.state == 'block':
-                        record.state_ = 'block'
+    #             # _logger.info("compute called",child_bookings)
+    #             # Assign the state of the child booking if found, else use the parent's state
+    #             if child_bookings:
+    #                 record.state_ = child_bookings.state
+    #                 # _logger.info(child_bookings.id, child_bookings.state, "child")
+    #             # else:
+    #             #     record.state_ = 'not_confirmed'
+    #             #     # _logger.info(child_booking.id, child_booking.state, "not child")
+    #         else:
+    #             if len(record.booking_id.room_line_ids) == 1:
+    #                 if record.booking_id.state == 'block':
+    #                     record.state_ = 'block'
                     
-    
+    #Haji bhai code    
+    @api.depends('booking_id.state', 'room_id', 'counter')
+    def _compute_state(self):
+        # Pre‐fetch all child‐booking lines once
+        parent_ids = self.mapped('booking_id.id')
+        child_lines = self.env['room.booking.line'].search([
+            ('booking_id.parent_booking_id', 'in', parent_ids)
+        ])
+        # Build map: parent_booking_id → { counter: line }
+        child_map = {}
+        for cl in child_lines:
+            pb = cl.booking_id.parent_booking_id.id
+            child_map.setdefault(pb, {})[cl.counter] = cl
+
+        for line in self:
+            bstate = line.booking_id.state
+            # 1) Not yet confirmed?
+            if bstate == 'not_confirmed':
+                line.state_ = 'not_confirmed'
+                continue
+            # 2) No room assigned yet
+            if not line.room_id:
+                line.state_ = 'confirmed'
+                continue
+            # 3) Parent is blocked
+            if bstate == 'block':
+                line.state_ = 'block'
+                continue
+            # 4) Match child booking line by counter
+            match = child_map.get(line.booking_id.id, {}).get(line.counter)
+            if match:
+                line.state_ = match.booking_id.state
+                continue
+            # 5) Fallback: single‐line parent inherits block
+            if len(line.booking_id.room_line_ids) == 1 and bstate == 'block':
+                line.state_ = 'block'
+            else:
+                # Otherwise treat as confirmed/in‐progress
+                line.state_ = 'check_in' if bstate == 'check_in' else 'confirmed'
+
     
     hide_room_id = fields.Boolean(
         string='Hide Room Field', compute='_compute_hide_room_id',tracking=True)
@@ -180,6 +219,7 @@ class RoomBookingLine(models.Model):
 
     @api.depends('checkin_date', 'checkout_date')
     def _compute_booked_room_ids(self):
+        _logger.info("Computing booked room IDs for room booking lines.")
         for record in self:
             if isinstance(record.id, NewId):
                 # Skip unsaved records, as they do not have a valid database ID
@@ -465,6 +505,7 @@ class RoomBookingLine(models.Model):
 
     @api.onchange('room_id')
     def _onchange_room_id(self):
+        _logger.info(f"Onchange room_id called for booking line")
         """Update booking state based on room_id value and log changes."""
         # if not self.id:
         #     return
@@ -602,6 +643,7 @@ class RoomBookingLine(models.Model):
 
     @api.onchange('room_line_ids')
     def _onchange_room_lines(self):
+        _logger.info("Room lines changed")
         """Triggered when room lines are changed to adjust booking state."""
         for line in self.room_line_ids:
             if line.room_id is None:
@@ -621,26 +663,7 @@ class RoomBookingLine(models.Model):
                 # break
 
     
-    # def update_adult_record(self,parent_booking,counter):
-    #     # Update existing adult and child records with new room_id
-    #     adults_to_update = self.env['reservation.adult'].search([
-    #         ('reservation_id', '=', parent_booking),
-    #         # ('room_sequence', '=', counter)
-    #     ])
-    #     adults_to_update.write({'room_id': self.room_id.id, 'room_sequence':counter})
-
-    #     children_to_update = self.env['reservation.child'].search([
-    #         ('reservation_id', '=', parent_booking),
-    #         # ('room_sequence', '=', counter)
-    #     ])
-    #     children_to_update.write({'room_id': self.room_id.id, 'room_sequence':counter})
-
-    #     infants_to_update = self.env['reservation.infant'].search([
-    #         ('reservation_id', '=', parent_booking),
-    #         # ('room_sequence', '=', counter)
-    #     ])
-    #     infants_to_update.write({'room_id': self.room_id.id,'room_sequence':counter})
-
+    
     def update_adult_record(self, parent_booking, counter):
         [self.env[model].search([('reservation_id', '=', parent_booking)]).write({
             'room_id': self.room_id.id,
@@ -648,14 +671,8 @@ class RoomBookingLine(models.Model):
         }) for model in ['reservation.adult', 'reservation.child', 'reservation.infant']]
 
 
-    # def update_adult_record(self, parent_booking, counter):
-    #     for model in ['reservation.adult', 'reservation.child', 'reservation.infant']:
-    #         self.env[model].search([('reservation_id', '=', parent_booking)]).write({
-    #             'room_id': self.room_id.id,
-    #             'room_sequence': counter
-    #         })
-
     def create_adult_record(self, parent_booking, new_booking, counter):
+        _logger.info("Creating adult record for parent booking: %s", parent_booking.id)
         ModelMap = {
             'reservation.adult': parent_booking.adult_count,
             'reservation.child': parent_booking.child_count,
@@ -706,186 +723,22 @@ class RoomBookingLine(models.Model):
 
 
 
-    # def create_adult_record(self, parent_booking, new_booking, counter):
-    #     # Fetch child bookings associated with the parent booking
-    #     child_bookings = self.env['room.booking'].search(
-    #         [('parent_booking_id', '=', parent_booking.id)], order='id')
-
-    #     # Update existing adult and child records with new room_id
-    #     adults_to_update = self.env['reservation.adult'].search([
-    #         ('reservation_id', '=', parent_booking.id),
-    #         ('room_sequence', '=', counter)
-    #     ])
-    #     adults_to_update.write({'room_id': self.room_id.id})
-
-    #     children_to_update = self.env['reservation.child'].search([
-    #         ('reservation_id', '=', parent_booking.id),
-    #         ('room_sequence', '=', counter)
-    #     ])
-    #     children_to_update.write({'room_id': self.room_id.id})
-
-    #     infants_to_update = self.env['reservation.infant'].search([
-    #     ('reservation_id', '=', parent_booking.id),
-    #     ('room_sequence', '=', counter)
-    #     ])
-    #     infants_to_update.write({'room_id': self.room_id.id})
-
-
-    #     # Fetch adults from the parent booking with the same room sequence
-    #     parent_adults = self.env['reservation.adult'].search([
-    #         ('reservation_id', '=', parent_booking.id),
-    #         ('room_sequence', '=', counter)
-    #     ])
-    #     # Fetch children from the parent booking with the same room sequence
-    #     parent_children = self.env['reservation.child'].search([
-    #         ('reservation_id', '=', parent_booking.id),
-    #         ('room_sequence', '=', counter)
-    #     ])
-
-    #     parent_infants = self.env['reservation.infant'].search([
-    #     ('reservation_id', '=', parent_booking.id),
-    #     ('room_sequence', '=', counter)])
-
-
-    #     # Handle adults
-    #     for adult in parent_adults:
-    #         # existing_adult = None
-    #         # if len(child_bookings) > 0:
-    #             # Ensure we only create unique records
-    #         existing_adult = self.env['reservation.adult'].search([
-    #             ('reservation_id', '=', new_booking.id),
-    #             ('room_sequence', '=', counter),
-    #             ('first_name', '=', adult.first_name),
-    #             ('last_name', '=', adult.last_name)
-    #         ])
-            
-    #         if not existing_adult:
-    #             # adult_line_vals = []
-    #             for i in range(parent_booking.adult_count):
-    #             # Prepare adult record values
-    #                 adult_line_vals = {
-    #                     'reservation_id': new_booking.id,
-    #                     'room_sequence': counter,
-    #                     'first_name': adult.first_name,
-    #                     'last_name': adult.last_name,
-    #                     'last_name': adult.last_name,
-    #                     'profile': adult.profile,
-    #                     'nationality': adult.nationality.id if adult.nationality else False,
-    #                     'birth_date': adult.birth_date,
-    #                     'passport_number': adult.passport_number,
-    #                     'id_number': adult.id_number,
-    #                     'visa_number': adult.visa_number,
-    #                     'id_type': adult.id_type,
-    #                     'phone_number': adult.phone_number,
-    #                     'relation': adult.relation,
-    #                     'room_type_id': self.hotel_room_type.id,
-    #                     'room_id': self.room_id.id,
-    #                 }
-
-    #                 # Create the adult record
-    #                 self.env['reservation.adult'].sudo().create(adult_line_vals)
-    #         else:
-    #             existing_adult.write({'room_id': self.room_id.id})
-
-    #     # Handle children
-    #     for child in parent_children:
-            
-    #         existing_child = self.env['reservation.child'].search([
-    #             ('reservation_id', '=', new_booking.id),
-    #             ('room_sequence', '=', counter),
-    #             ('first_name', '=', child.first_name),
-    #             ('last_name', '=', child.last_name)
-    #         ])
-
-    #         if not existing_child:
-    #             # Prepare child record values
-    #             for i in range(parent_booking.child_count):
-    #                 child_line_vals = {
-    #                     'reservation_id': new_booking.id,
-    #                     'room_sequence': counter,
-    #                     'first_name': child.first_name,
-    #                     'last_name': child.last_name,
-    #                     'profile': adult.profile,
-    #                     'nationality': adult.nationality.id if adult.nationality else False,
-    #                     'birth_date': adult.birth_date,
-    #                     'passport_number': adult.passport_number,
-    #                     'id_number': adult.id_number,
-    #                     'visa_number': adult.visa_number,
-    #                     'id_type': adult.id_type,
-    #                     'phone_number': adult.phone_number,
-    #                     'relation': adult.relation,
-    #                     'room_type_id': self.hotel_room_type.id,
-    #                     'room_id': self.room_id.id,
-    #                 }
-
-    #                 # Create the child record
-    #                 self.env['reservation.child'].sudo().create(child_line_vals)
-    #                 # _logger.info(f"Created new child record for booking: {new_booking.id}, Room Sequence: {counter}")
-    #         else:
-    #             existing_child.write({'room_id': self.room_id.id})
-
-    #     # Handle infants
-    #     for infant in parent_infants:
-    #         # existing_infant = None
-    #         # if len(child_bookings>0):
-    #         existing_infant = self.env['reservation.infant'].search([
-    #             ('reservation_id', '=', new_booking.id),
-    #             ('room_sequence', '=', counter),
-    #             ('first_name', '=', infant.first_name),
-    #             ('last_name', '=', infant.last_name)
-    #         ])
-
-    #         if not existing_infant:
-    #             for i in range(parent_booking.infant_count):
-    #                 infant_line_vals = {
-    #                     'reservation_id': new_booking.id,
-    #                     'room_sequence': counter,
-    #                     'first_name': infant.first_name,
-    #                     'last_name': infant.last_name,
-    #                     'profile': infant.profile,
-    #                     'nationality': infant.nationality.id if infant.nationality else False,
-    #                     'birth_date': infant.birth_date,
-    #                     'passport_number': infant.passport_number,
-    #                     'id_number': infant.id_number,
-    #                     'visa_number': infant.visa_number,
-    #                     'id_type': infant.id_type,
-    #                     'phone_number': infant.phone_number,
-    #                     'relation': infant.relation,
-    #                     'room_type_id': self.hotel_room_type.id,
-    #                     'room_id': self.room_id.id,
-    #                 }
-    #                 self.env['reservation.infant'].sudo().create(infant_line_vals)
-    #                 _logger.info(f"Created new infant record for booking: {parent_booking.id}, Room Sequence: {counter}")
-    #         else:
-    #             existing_infant.write({'room_id': self.room_id.id})
     
-
-    def _create_child_booking_sql(
-        self,
-        parent_booking,               # browse record of room.booking
-        counter,                      # int  -> room_sequence / counter
-        room_id,                      # int  -> chosen room_id
-        hotel_room_type_id,           # int  -> room_type id
-    ):
-        """
-        Wrapper around the DB function create_child_booking().
-        Returns an `room.booking` browse record for the new booking.
-        """
-        self.env.cr.execute(
-            "SELECT create_child_booking(%s, %s, %s, %s)",
-            (
-                parent_booking.id,     # p_parent_booking_id
-                counter,               # p_counter
-                room_id,               # p_room_id
-                hotel_room_type_id,    # p_hotel_room_type_id
-            ),
-        )
-        # fetch the RETURN value
-        new_booking_id = self.env.cr.fetchone()[0]
-        return self.env['room.booking'].browse(new_booking_id)
-
     #Working
     def write(self, vals):
+        _logger.info("Write method called with vals: %s", vals)
+        if 'state' in vals and 'state_' not in vals:
+            vals['state_'] = vals.pop('state')
+        python_fields = {'state_', 'room_id'}
+        # If we're not touching those, do one SQL UPDATE and return
+        if not (set(vals) & python_fields):
+            cols = ', '.join(f"{col} = %s" for col in vals)
+            params = list(vals.values()) + [tuple(self.ids)]
+            self.env.cr.execute(
+                f"UPDATE room_booking_line SET {cols} WHERE id IN %s",
+                params
+            )
+            return True
         record_to_delete, records_to_update, parent_bookings_to_update = [], [], []
         processed_parent_bookings = set()
         for record in self:
@@ -947,11 +800,8 @@ class RoomBookingLine(models.Model):
 
             if 'room_id' in vals and 'id' not in vals:
                 room_id = vals.get('room_id')
-                _logger.info("room_id line 966",room_id)
                 new_room_id = vals['room_id']
-                _logger.info("new_room_id line 968",new_room_id)
                 counter = vals.get('counter')
-                _logger.info("counter line 970",counter)
                 old_room_id = record.room_id
                 # _logger.info("477",old_room_id.id)
                 if room_id:
@@ -1011,9 +861,9 @@ class RoomBookingLine(models.Model):
                     continue
 
                 # Ensure the booking is confirmed before assigning a room
-                if parent_booking.state != 'confirmed' and len(parent_booking.room_line_ids) > 1:
-                    raise UserError(
-                        "Please confirm the booking before assigning a room.")
+                if parent_booking.state == 'not_confirmed' and len(parent_booking.room_line_ids) >= 1:
+                    raise UserError(_(
+                        "Please confirm the booking before assigning a room."))
 
                 # Move to 'block' state if only one entry exists
                 if len(parent_booking.room_line_ids) == 1:
@@ -1073,17 +923,23 @@ class RoomBookingLine(models.Model):
                             _logger.info(f"Updated parent booking {parent_booking.id}, {self.counter} with the last pending room assignment.")
                             self.update_adult_record(parent_booking.id,self.counter)
                         else:
-
+                            room_count = 10
                             # _logger.info("this creates the final booking here", len(booking_line_records), record.is_unassigned)
+                            room_rate = parent_booking.rate_code.id
+                            meal_rate = parent_booking.meal_pattern.id
+                            parent_booking_ids = parent_booking.id
+                            print(f"Parent Booking ID: {parent_booking_ids}")
+                            print(f"Room Rate: {room_rate}, Meal Rate: {meal_rate}")
+                            print(f"TOTAL FORECAST: {parent_booking.total_total_forecast}")
                             new_booking_vals = {
-                                'parent_booking_id': parent_booking.id,
+                                'parent_booking_id': parent_booking_ids,
                                 'parent_booking_name': parent_booking.name,
                                 'partner_id': parent_booking.partner_id.id,
                                 'nationality': parent_booking.nationality.id,
                                 'source_of_business': parent_booking.source_of_business.id,
-                                'meal_pattern': parent_booking.meal_pattern.id,
+                                'meal_pattern': meal_rate,
                                 'market_segment': parent_booking.market_segment.id,
-                                'rate_code': parent_booking.rate_code.id,
+                                'rate_code': room_rate,
                                 'reference_contact_': parent_booking.reference_contact_,
                                 # 'hotel_room_type': parent_booking.hotel_room_type.id,
                                 'hotel_room_type': record.hotel_room_type.id,
@@ -1147,44 +1003,47 @@ class RoomBookingLine(models.Model):
                                 'meal_is_percentage':parent_booking.meal_is_percentage,
                                 'payment_type': parent_booking.payment_type,
                                 # 'is_room_line_readonly': True,
+                                'rate_forecast_ids': [(0, 0, {
+                                    'date': fc.date,
+                                    'rate': fc.rate / room_count,
+                                    'meals': fc.meals / room_count,
+                                    'packages': fc.packages / room_count,
+                                    'fixed_post': fc.fixed_post / room_count,
+                                    'total': fc.total / room_count,  # Divide the total by room_count
+                                    'before_discount': fc.before_discount / room_count,
+                                }) for fc in parent_booking.rate_forecast_ids],
                             }
-
-                            # # new_booking_vals['adult_ids'] = adult_lines + child_lines
-                            # new_booking_vals['adult_ids'] = adult_lines
 
                             # Create the new child booking
                             new_id_booking =self.env['room.booking'].create(new_booking_vals)
                             _logger.info(f"New child booking created with ID: {new_id_booking.id}")
-                            
-                              # Ensure 'counter' field exists in 'room.booking'
 
+                            # Fetch the required fields
+                            total_forecast_ = new_id_booking.total_total_forecast
+                            no_of_nights_ = new_id_booking.no_of_nights
+
+                            # Optionally, log the values or store them in variables
+                            rate_forecast_total = total_forecast_ / no_of_nights_ if no_of_nights_ else 0
+
+                            # Fetch the related rate_forecast_ids
+                            rate_forecast_lines = new_id_booking.rate_forecast_ids
+
+                            # Loop through each related rate_forecast record and update the total field
+                            for rate_forecast in rate_forecast_lines:
+                                rate_forecast.write({
+                                    'total': rate_forecast_total,
+                                })
+                                _logger.info(f"Updated rate_forecast ID {rate_forecast.id} with total: {rate_forecast_total}")
+
+
+                            
                             # Search for room.booking.line records with the same counter
                             lines_to_delete = self.env['room.booking.line'].search([('counter', '=', self.counter),  ('booking_id', '=', parent_booking.id)])
                             _logger.info(f"Lines to delete: {lines_to_delete}")
                             record_to_delete.append(lines_to_delete)
                             # Delete the records
                             
-                            # if counter is None:
-                            #     counter = 1  # or some default fallback
                             self.create_adult_record(parent_booking,new_id_booking, self.counter)
-                            # self.env.cr.execute(
-                            #     """
-                            #     SELECT create_adult_record(
-                            #         %s,  -- parent_booking_id
-                            #         %s,  -- new_booking_id
-                            #         %s,  -- counter (room_sequence)
-                            #         %s,  -- room_id
-                            #         %s   -- hotel_room_type_id
-                            #     )
-                            #     """,
-                            #     (
-                            #         parent_booking.id,
-                            #         new_id_booking.id,
-                            #         self.counter,
-                            #         room_id,                    # ensure this is the correct room_id integer
-                            #         record.hotel_room_type.id,  # the hotel_room_type id from your loop
-                            #     )
-                            # )
                             _logger.info(f"Adult record created for counter {self.counter}")
 
                         # Mark the unassigned line as processed
@@ -1412,22 +1271,55 @@ class RoomBookingLine(models.Model):
                     })
                     child_booking.sudo().unlink()
 
+    # def unlink(self):
+    #     """Handle deletion of room booking lines."""
+    #     for record in self:
+    #         if record.booking_id and not record.booking_id.parent_booking_id:
+    #             # Set state to cancel before deletion
+    #             record.write({'state': 'cancel'})
+    #             self._delete_child_booking_records(
+    #                 record.counter, record.booking_id)
+
+    #             # Update parent booking state if needed
+    #             remaining_lines = record.booking_id.room_line_ids - record
+    #             if not remaining_lines:
+    #                 record.booking_id.write({
+    #                     'state': 'cancel'
+    #                 })
+
+    #     return super(RoomBookingLine, self).unlink()
+
     def unlink(self):
-        """Handle deletion of room booking lines."""
-        for record in self:
-            if record.booking_id and not record.booking_id.parent_booking_id:
-                # Set state to cancel before deletion
-                record.write({'state': 'cancel'})
-                self._delete_child_booking_records(
-                    record.counter, record.booking_id)
+        # 1) Only consider “root” lines (no parent_booking_id)
+        roots = self.filtered(lambda r: r.booking_id and not r.booking_id.parent_booking_id)
+        root_ids = roots.ids
+        if root_ids:
+            # 2) Batch-cancel all of them in one SQL UPDATE
+            self.env.cr.execute(
+                "UPDATE room_booking_line SET state_ = %s WHERE id IN %s",
+                ('cancel', tuple(root_ids))
+            )
 
-                # Update parent booking state if needed
-                remaining_lines = record.booking_id.room_line_ids - record
-                if not remaining_lines:
-                    record.booking_id.write({
-                        'state': 'cancel'
-                    })
+            # 3) Call your child-booking cleanup exactly once per (booking, counter)
+            pairs = {(r.booking_id.id, r.counter) for r in roots}
+            LineModel = self.env['room.booking.line']
+            for booking_id, counter in pairs:
+                booking = self.env['room.booking'].browse(booking_id)
+                LineModel._delete_child_booking_records(counter, booking)
 
+            # 4) Find which parent bookings have *only* these lines
+            booking_ids = {r.booking_id.id for r in roots}
+            to_cancel = []
+            for bid in booking_ids:
+                booking = self.env['room.booking'].browse(bid)
+                # if all its current line-ids are in root_ids, they’ll be gone
+                if set(booking.room_line_ids.ids) <= set(root_ids):
+                    to_cancel.append(bid)
+            if to_cancel:
+                # batch-cancel those parent bookings
+                self.env['room.booking'].browse(to_cancel).write({'state': 'cancel'})
+
+        # 5) Finally remove *all* the lines (roots + any children)
         return super(RoomBookingLine, self).unlink()
 
     room_forecast_ids = fields.Many2many(

@@ -18,3 +18,6 @@
     max-width:66px;
 }
 
+.dropdown-item.o_menu_item:has(.fa.fa-trash-o) {
+    display: none;
+}

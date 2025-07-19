@@ -9,6 +9,17 @@ class HotelService(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = 'id desc'
 
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     name = fields.Char(string=_("Service"), help="Name of the service",
                        required=True,tracking=True, translate=True)
     unit_price = fields.Float(string="Price", help="Price of the service",

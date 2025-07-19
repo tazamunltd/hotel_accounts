@@ -114,6 +114,27 @@
         </field>
     </record>
 
+     <record id="action_delete_hotel_amenity" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="hotel_management_odoo.model_hotel_amenity" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="hotel_management_odoo.model_hotel_amenity" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_hotel_amenity" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="hotel_management_odoo.model_hotel_amenity" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="hotel_management_odoo.model_hotel_amenity" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
     <!--    Amenity Menu Action-->
     <record id="hotel_amenity_action" model="ir.actions.act_window">
         <field name="name">Amenity</field>

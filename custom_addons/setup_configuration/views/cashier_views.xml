@@ -201,6 +201,28 @@
         </field>
     </record>
 
+    <record id="action_delete_department_category" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="setup_configuration.model_department_category" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_department_category" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_department_category" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="setup_configuration.model_department_category" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_department_category" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
+
 
     <!-- Form View for Department Code(old) -->
     <!-- <record id="view_department_code_form" model="ir.ui.view">
@@ -627,6 +649,30 @@
         </field>
     </record>
 
+    <record id="action_delete_department_code" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="setup_configuration.model_department_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_department_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_department_code" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="setup_configuration.model_department_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_department_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
+
+
+
 
     <!-- Form View for Posting Item -->
     <!-- <record id="view_posting_item_form" model="ir.ui.view">
@@ -868,6 +914,11 @@
                                                     class="form-label small">Entry Require
                                                     Authorization</label>
                                             </div>
+
+                                            <div class="form-group mb-1">
+                                                <label for="product_id" class="form-label small">Sales Product</label>
+                                                <field name="product_id" class="form-control form-control-sm" placeholder="Select Product"/>
+                                            </div>
                                             <!-- <div class="form-group mb-1">
                                                 <label for="user_sort" class="form-label small">User
     Sort</label>
@@ -1026,6 +1077,28 @@
             </search>
         </field>
     </record>
+
+    <record id="action_delete_posting_item" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="setup_configuration.model_posting_item" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_posting_item" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_posting_item" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="setup_configuration.model_posting_item" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_posting_item" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
 
 
     <!-- Form View for Dummy Room Code(old) -->
@@ -1227,6 +1300,28 @@
         </field>
     </record>
 
+    <record id="action_delete_dummy_room_code" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="setup_configuration.model_dummy_room_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_dummy_room_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_dummy_room_code" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="setup_configuration.model_dummy_room_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_dummy_room_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
+
     <!-- Form View for Currency Code -->
     <!-- <record id="view_currency_code_form" model="ir.ui.view">
         <field name="name">currency.code.form</field>
@@ -1385,6 +1480,30 @@
         </field>
     </record>
 
+     <record id="action_delete_currency_code" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="setup_configuration.model_currency_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_currency_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_currency_code" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="setup_configuration.model_currency_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_currency_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
+
+
+
     <!-- Form View for Budget Entry(old) -->
     <!-- <record id="view_budget_entry_form" model="ir.ui.view">
         <field name="name">budget.entry.form</field>
@@ -1523,6 +1642,28 @@
             </tree>
         </field>
     </record>
+
+    <record id="action_delete_budget_entry" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="setup_configuration.model_budget_entry" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_budget_entry" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_budget_entry" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="setup_configuration.model_budget_entry" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_budget_entry" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
 
     <!-- Form View for Cash Box Code -->
     <!-- <record id="view_cash_box_code_form" model="ir.ui.view">
@@ -1737,5 +1878,27 @@
             </tree>
         </field>
     </record>
+
+    <record id="action_delete_cash_box_code" model="ir.actions.server">
+        <field name="name">Delete</field>
+        <field name="model_id" ref="setup_configuration.model_cash_box_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_delete_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_cash_box_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+    <record id="action_unarchieve_cash_box_code" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="setup_configuration.model_cash_box_code" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchieve_record()
+        </field>
+        <field name="binding_model_id" ref="setup_configuration.model_cash_box_code" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
 
 </odoo>

@@ -6,6 +6,16 @@ class DepartmentCategory(models.Model):
     _description = 'Department Category'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
 
     _rec_name = 'category'
     category = fields.Char(string=_("Category"), required=True,tracking=True, translate=True)
@@ -19,6 +29,16 @@ class DepartmentCode(models.Model):
     _name = 'department.code'
     _description = 'Department Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     _rec_name = 'department'
     department = fields.Char(string=_("Department"), required=True,tracking=True, translate=True)
@@ -168,7 +188,39 @@ class PostingItem(models.Model):
     _description = 'Posting Item'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+
+
     _rec_name = 'item_code'
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        BookingPostingItem = self.env['room.booking.posting.item']
+        for record in self:
+            # Search for a linked posting item where the booking is in 'block' or 'check_in'
+            linked_items = BookingPostingItem.search([
+                ('posting_item_id', '=', record.id),
+                ('booking_id.state', 'in', ['block', 'check_in'])
+            ], limit=1)
+
+            if linked_items:
+                booking = linked_items.booking_id
+                raise ValidationError(
+                    "You cannot delete the Posting Item '%s' because it is used in booking '%s' in '%s' state." %
+                    (record.item_code, booking.name, booking.state)
+                )
+
+            else:# If safe, archive
+                record.active = False
+
+    # def action_delete_record(self):
+    #     for record in self:
+    #         record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     item_code = fields.Char(string=_("Item"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
@@ -217,6 +269,13 @@ class PostingItem(models.Model):
 
     taxes = fields.Many2many('account.tax', string="Taxes",tracking=True)
 
+    product_id = fields.Many2one(
+        'product.product',
+        string="Sales Product",
+        tracking=True,
+        help="Select a product from Sales module"
+    )
+
 class PostingItemAddition(models.Model):
     _name = 'posting.item.addition'
     _description = 'Posting Item Addition'
@@ -239,6 +298,16 @@ class DummyRoomCode(models.Model):
     _name = 'dummy.room.code'
     _description = 'Dummy Room Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     room_number = fields.Char(string=_("Room Number"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
@@ -263,6 +332,16 @@ class CurrencyCode(models.Model):
     _description = 'Currency Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     currency = fields.Char(string=_("Currency Code"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
@@ -282,6 +361,16 @@ class BudgetEntry(models.Model):
     _name = 'budget.entry'
     _description = 'Budget Entry'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     month = fields.Date(string="Month", required=True,tracking=True)
     rooms = fields.Integer(string="Rooms", default=0,tracking=True)
@@ -313,6 +402,16 @@ class CashBoxCode(models.Model):
     _name = 'cash.box.code'
     _description = 'Cash Box Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)

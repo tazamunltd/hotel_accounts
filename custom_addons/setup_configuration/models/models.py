@@ -54,6 +54,17 @@ class RateCategory(models.Model):
     _description = 'Rate Category'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     _rec_name = 'category'
     category = fields.Char(string=_('Category'), required=True, tracking=True, translate=True)
     description = fields.Char(string=_('Description'),
@@ -72,6 +83,35 @@ class RateCode(models.Model):
         'rate.detail', 'rate_code_id', string="Rate Details")
 
     _rec_name = 'code'
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        RoomBooking = self.env['room.booking']
+        for record in self:
+            # Search for room bookings linked to this meal pattern and check if they are in 'block' or 'check_in' state
+            booking = RoomBooking.search([
+                ('rate_code', '=', record.id),
+                ('state', 'in', ['block', 'check_in'])
+            ], limit=1)
+            
+            if booking:
+                raise ValidationError(
+                    "You cannot delete the Rate Code '%s' because it is associated with bookings: '%s' in the following states: '%s'." %
+                    (record.code, booking.name, booking.state)
+                )
+            else:
+                # If no conflicting bookings, archive the meal pattern (deactivate it)
+                record.active = False
+
+    # def action_delete_record(self):
+    #     for record in self:
+    #         record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     code = fields.Char(string=_('Rate Code'), required=True, tracking=True, translate=True)
     description = fields.Char(string=_('Description'),
@@ -184,6 +224,16 @@ class RateDetail(models.Model):
 
     _rec_name = 'rate_code_id'
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     def write(self, values):
         super(RateDetail, self).write(values)
         bookings = self.env['room.booking'].search([
@@ -279,8 +329,7 @@ class RateDetail(models.Model):
                     raise ValidationError(_(
                         "The From Date cannot be earlier than the system date set in the company."))
             if record.to_date <= record.from_date:
-                raise ValidationError(
-                    "The 'To Date' must be greater than the 'From Date'.")
+                raise ValidationError(_("The To Date must be greater than the From Date."))
 
             # Search for overlapping records
             overlapping_records = self.search([
@@ -2052,6 +2101,16 @@ class RatePromotion(models.Model):
     valid_from = fields.Date(string="Validity Period From", tracking=True)
     valid_to = fields.Date(string="Validity Period To", tracking=True)
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
 
 class MarketCategory(models.Model):
     _name = 'market.category'
@@ -2060,6 +2119,16 @@ class MarketCategory(models.Model):
 
     # category = fields.Many2one(
     #     'rate.category', string='Category', tracking=True)
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
     _rec_name = "market_category"
     market_category = fields.Char(
         string=_('Category'), required=True, tracking=True, translate=True)
@@ -2072,6 +2141,17 @@ class MarketSegment(models.Model):
     _name = 'market.segment'
     _description = 'Market Segment'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     _rec_name = 'market_segment'
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
@@ -2089,6 +2169,16 @@ class SourceOfBusiness(models.Model):
     _name = 'source.business'
     _description = 'Source of Business'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     _rec_name = 'source'
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
@@ -2116,6 +2206,17 @@ class CountryRegion(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'Region'
 
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     country_ids = fields.Many2many(
         'res.country', string="Countries", required=True, tracking=True)
     Region = fields.Char(string=_("Region"), tracking=True, required=True, translate=True)
@@ -2128,6 +2229,16 @@ class ReservationStatusCode(models.Model):
     _description = 'Reservation Status Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'reservation'
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     reservation = fields.Char(
         string=_("Reservation Type"), required=True, tracking=True, translate=True)
@@ -2202,6 +2313,16 @@ class CancellationCode(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'code'
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     code = fields.Char(string=_("Code"), required=True, tracking=True, translate=True)
     description = fields.Char(string=_("Description"), tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"), tracking=True, translate=True)
@@ -2214,6 +2335,16 @@ class CountryCode(models.Model):
     _description = 'Country Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'country_id'
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     country_id = fields.Many2one(
         'res.country', string="Country", required=True, tracking=True)

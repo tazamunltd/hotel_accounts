@@ -291,13 +291,15 @@ action = {
                     <button name="action_confirm" string="UnBlock" class="btn-primary" type="object" invisible="state != 'block'
                             or is_checkin_in_past
                             or hide_confirm_button
-                            or hide_buttons_front_desk" />
+                            or hide_buttons_front_desk" 
+                            confirm="Are you sure you want to Unblock this booking?"/>
 
                     <!-- Confirm button: Visible when state is 'not_confirmed','no_show','waiting' -->
                     <button name="action_confirm" string="Confirm" class="btn-primary" type="object" invisible="state not in ('not_confirmed','no_show','waiting')
                             or is_checkin_in_past
                             or hide_confirm_button
-                            or hide_buttons_front_desk" />
+                            or hide_buttons_front_desk"
+                            confirm="Are you sure you want to confirm this booking?" />
 
 
                     <!-- Cancel Button: Visible when state is 'Not Confirmed', 'Confirmed', or
@@ -405,17 +407,17 @@ action = {
                                     <field name="all_rooms_assigned" />
                                     <field name="previous_room_count" />
                                     <field name="allow_profile_change"
-                                        readonly="state in ('check_out', 'no_show')" />
+                                        readonly="state in ('check_out', 'no_show','cancel')" />
                                     <field name="need_service"
-                                        readonly="state in ('check_out', 'no_show')" />
+                                        readonly="state in ('check_out', 'no_show','cancel')" />
                                     <field name="need_fleet"
-                                        readonly="state in ('check_out', 'no_show')" />
+                                        readonly="state in ('check_out', 'no_show','cancel')" />
                                     <field name="need_food"
-                                        readonly="state in ('check_out', 'no_show')" />
+                                        readonly="state in ('check_out', 'no_show','cancel')" />
                                     <field name="need_event"
-                                        readonly="state in ('check_out', 'no_show')" />
+                                        readonly="state in ('check_out', 'no_show','cancel')" />
                                     <field name="is_vip"
-                                        readonly="state in ('check_out', 'no_show')" />
+                                        readonly="state in ('check_out', 'no_show','cancel')" />
                                     <field name="is_offline_search" />
                                     
                                 </div>
@@ -437,7 +439,7 @@ action = {
                                                 <label for="group_booking" class="form-label">Group
                                                     Booking</label>
                                                 <field name="group_booking"
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     class="form-control"
                                                     placeholder="Select Group" />
                                                 <!-- anywhere inside your <form> -->
@@ -456,7 +458,7 @@ action = {
                                                     of Business</label>
                                                 <field name="source_of_business"
                                                     domain="[('obsolete', '=', False)]"
-                                                    readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
+                                                    readonly="state in ('check_out', 'no_show','cancel') or (group_booking and allow_profile_change == False)"
                                                     force_save="1" class="form-control"
                                                     placeholder="Select Source of Business" />
                                             </div>
@@ -465,7 +467,7 @@ action = {
                                                     Segment</label>
                                                 <field name="market_segment" class="form-control"
                                                     domain="[('obsolete', '=', False)]"
-                                                    readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
+                                                    readonly="state in ('check_out', 'no_show','cancel') or (group_booking and allow_profile_change == False)"
                                                     force_save="1"
                                                     placeholder=" Select Market Segment" />
                                             </div>
@@ -491,7 +493,7 @@ action = {
                                         <div class="card-body p-2">
                                             <div class="form-group mb-1">
                                                 <field name="is_agent" 
-                                                       readonly="state in ('check_out', 'no_show')"/>
+                                                       readonly="state in ('check_out', 'no_show','cancel')"/>
                                                     
                                                 <label for="is_agent" class="form-label small">Is
                                                     Company</label>
@@ -499,7 +501,7 @@ action = {
                                             <div class="form-group mb-1">
                                                 <label for="partner_id" class="form-label small mb-0">Contact</label>
                                                 <field name="partner_id"
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     domain="[('is_company', '=', is_agent), ('user_ids', '=', False), ('id', 'not in', company_ids_)]"
                                                     class="form-control form-control-sm"
                                                     placeholder=" Select Contact"
@@ -510,26 +512,26 @@ action = {
                                                 <label for="nationality"
                                                     class="form-label small mb-0">Nationality</label>
                                                 <field name="nationality"
-                                                    readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
+                                                    readonly="state in ('check_out', 'no_show','cancel') or (group_booking and allow_profile_change == False)"
                                                     force_save="1"
                                                     class="form-control form-control-sm"
                                                     placeholder="Select Nationality" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="reference_contact_"
-                                                    readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
+                                                    readonly="state in ('check_out', 'no_show','cancel') or (group_booking and allow_profile_change == False)"
                                                     class="form-label small mb-0">Reference Contact</label>
                                             </div>
                                             <div class="form-control form-control-sm">
                                                 <field name="reference_contact_"
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     placeholder="Enter Reference Contact" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <label for="rate_code" class="form-label small">Rate
                                                     Code</label>
                                                 <field name="rate_code"
-                                                    readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
+                                                    readonly="state in ('check_out', 'no_show','cancel') or (group_booking and allow_profile_change == False)"
                                                     force_save="1"
                                                     class="form-control form-control-sm"
                                                     placeholder="Select Rate Code" />
@@ -538,7 +540,7 @@ action = {
                                                 <label for="meal_pattern" class="form-label small">Meal
                                                     Pattern</label>
                                                 <field name="meal_pattern"
-                                                    readonly="state in ('check_out', 'no_show') or (group_booking and allow_profile_change == False)"
+                                                    readonly="state in ('check_out', 'no_show','cancel') or (group_booking and allow_profile_change == False)"
                                                     force_save="1"
                                                     class="form-control form-control-sm"
                                                     placeholder="Select Meal Pattern" />
@@ -561,7 +563,7 @@ action = {
                                                     <label for="room_count" class="form-label small">
                                                         Rooms</label>
                                                     <field name="room_count"
-                                                        readonly="state in ('block', 'check_in','check_out','no_show')"
+                                                        readonly="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         force_save="1"
                                                         class="form-control form-control-sm"
                                                         placeholder="Select Room" />
@@ -572,7 +574,7 @@ action = {
                                                     <label for="checkin_date"
                                                         class="form-label small">Check-in Date</label>
                                                     <field name="checkin_date"
-                                                        readonly="state in ('check_in','check_out','no_show')"
+                                                        readonly="state in ('check_in','check_out','no_show','cancel')"
                                                         force_save="1"
                                                         class="form-control form-control-sm"
                                                         placeholder="Select Check-in Date" />
@@ -581,7 +583,7 @@ action = {
                                                     <label for="adult_count"
                                                         class="form-label small">Adults</label>
                                                     <field name="adult_count"
-                                                        readonly="state in ('block', 'check_in','check_out','no_show')"
+                                                        readonly="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         force_save="1"
                                                         class="form-control form-control-sm"
                                                         placeholder="Enter Adults" />
@@ -590,7 +592,7 @@ action = {
                                                     <label for="checkout_date"
                                                         class="form-label small">Check-out Date</label>
                                                     <field name="checkout_date"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         placeholder="Select Check-out Date" />
                                                 </div>
@@ -598,7 +600,7 @@ action = {
                                                     <label for="child_count"
                                                         class="form-label small">Children</label>
                                                     <field name="child_count"
-                                                        readonly="state in ('block', 'check_in','check_out','no_show')"
+                                                        readonly="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         force_save="1"
                                                         class="form-control form-control-sm"
                                                         placeholder="Enter Children" />
@@ -607,7 +609,7 @@ action = {
                                                     <label for="no_of_nights"
                                                         class="form-label small">No. of Nights</label>
                                                     <field name="no_of_nights"
-                                                        readonly="state in ('check_out','no_show')"
+                                                        readonly="state in ('check_out','no_show','cancel')"
                                                         force_save="1"
                                                         class="form-control form-control-sm"
                                                         placeholder="Enter No.of Nights" />
@@ -616,7 +618,7 @@ action = {
                                                     <label for="infant_count"
                                                         class="form-label small">Infants</label>
                                                     <field name="infant_count"
-                                                        readonly="state in ('block', 'check_in','check_out','no_show')"
+                                                        readonly="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         placeholder="Enter Infants" />
                                                 </div>
@@ -624,7 +626,7 @@ action = {
                                                     <label for="hotel_room_type"
                                                         class="form-label small">Room Type</label>
                                                     <field name="hotel_room_type"
-                                                        readonly="state in ('block', 'check_in','check_out','no_show')"
+                                                        readonly="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         placeholder="Select Room Type" />
                                                 </div>
@@ -633,11 +635,11 @@ action = {
                                             <div class="d-flex justify-content-center mt-2">
                                                 <div class="btn-group flex-wrap" role="group">
                                                     <button name="action_clear_rooms" type="object"
-                                                        invisible="state in ('block', 'check_in','check_out','no_show')"
+                                                        invisible="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         string="Clear All"
                                                         class="btn btn-outline-secondary btn-sm me-1 mb-1" />
                                                     <button name="action_search_rooms" type="object"
-                                                        invisible="state in ('block', 'check_in','check_out','no_show')"
+                                                        invisible="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         string="Search"
                                                         class="btn btn-outline-primary btn-sm me-1 mb-1" 
                                                         context="{
@@ -646,11 +648,11 @@ action = {
                                                             'object_button_name':    'action_search_rooms'                                                              
                                                         }"/>
                                                     <button name="action_split_rooms" type="object"
-                                                        invisible="state in ('block', 'check_in','check_out','no_show')"
+                                                        invisible="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         string="Split All"
                                                         class="btn btn-outline-warning btn-sm me-1 mb-1" />
                                                     <button name="action_assign_all_rooms"
-                                                        invisible="state in ('block', 'check_in','check_out','no_show')"
+                                                        invisible="state in ('block', 'check_in','check_out','no_show','cancel')"
                                                         type="object" string="Auto Room Assignment"
                                                         class="btn btn-success btn-sm mb-1" />
                                                 </div>
@@ -659,7 +661,7 @@ action = {
                                                 <label for="notes" class="form-label small">Notes</label>
                                                 <field name="notes"
                                                         widget="text"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                     class="form-control form-control-sm"
                                                     placeholder="Enter notes" />
                                             </div>
@@ -667,7 +669,7 @@ action = {
                                                 <label for="special_request" class="form-label small">Special Request</label>
                                                 <field name="special_request"
                                                         widget="text"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                     class="form-control form-control-sm"
                                                     placeholder="Enter Text" />
                                             </div>
@@ -693,7 +695,7 @@ action = {
                                                 <!-- Use Room Price -->
                                                 <div class="form-group col-6 mb-1">
                                                     <field name="use_price" string="Use Room Price"
-                                                        readonly="state in ('check_out', 'no_show', 'check_out')"
+                                                        readonly="state in ('check_out', 'no_show', 'check_out','cancel')"
                                                         force_save="1"
                                                         style="height: 24px; padding: 2px 6px;" />
                                                     <label for="use_price" class="form-label small">Use
@@ -706,7 +708,7 @@ action = {
                                                     <label for="room_price" class="form-label small">Room
                                                         Price</label>
                                                     <field name="room_price" string="Room Price"
-                                                        readonly="state in ('check_out', 'no_show', 'check_out')"
+                                                        readonly="state in ('check_out', 'no_show', 'check_out','cancel')"
                                                         class="form-control form-control-sm"
                                                         force_save="1"
                                                         style="height: 24px; padding: 2px 6px;" />
@@ -719,7 +721,7 @@ action = {
                                                     <label for="room_discount"
                                                         class="form-label small">Discount
                                                         (Percentage)</label>
-                                                    <field name="room_discount" widget="percentage" readonly="state in ('check_out', 'no_show')"
+                                                    <field name="room_discount" widget="percentage" readonly="state in ('check_out', 'no_show','cancel')"
                                                         digits="[16,2]"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
@@ -741,7 +743,7 @@ action = {
                                                     invisible="room_is_percentage == True or use_price == False">
                                                     <field name="room_is_amount"
                                                         string="Room Discount As Amount"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                         force_save="1"
                                                         style="height: 24px; padding: 2px 6px;" />
                                                     <label for="room_is_amount"
@@ -753,7 +755,7 @@ action = {
                                                     invisible="room_is_amount == True or use_price == False">
                                                     <field name="room_is_percentage"
                                                         string="Room Discount As Percentage"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                         force_save="1"
                                                         style="height: 24px; padding: 2px 6px;" />
                                                     <label for="room_is_percentage"
@@ -768,7 +770,7 @@ action = {
                                                     <field name="room_amount_selection"
                                                         string="Discount Type"
                                                         widget="radio"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         force_save="1"
                                                         />
@@ -789,7 +791,7 @@ action = {
                                             <div class="row">
                                                 <div class="form-group col-6 mb-1">
                                                     <field name="use_meal_price"
-                                                            readonly="state in ('check_out', 'no_show')" 
+                                                            readonly="state in ('check_out', 'no_show','cancel')" 
                                                             force_save="1" />
                                                     <label for="use_meal_price"
                                                         class="form-label small">use_priceMeal Price</label>
@@ -799,7 +801,7 @@ action = {
                                                     <label for="meal_price" class="form-label small">Meal
                                                         Price</label>
                                                     <field name="meal_price"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
@@ -808,7 +810,7 @@ action = {
                                                     <label for="meal_child_price"
                                                         class="form-label small">Child Meal Price</label>
                                                     <field name="meal_child_price"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
@@ -817,7 +819,7 @@ action = {
                                                     <label for="meal_discount"
                                                         class="form-label small">Meal Discount
                                                         (Percentage)</label>
-                                                    <field name="meal_discount" widget="percentage" readonly="state in ('check_out', 'no_show')"
+                                                    <field name="meal_discount" widget="percentage" readonly="state in ('check_out', 'no_show','cancel')"
                                                         digits="[16,2]"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
@@ -827,13 +829,13 @@ action = {
                                                     <label for="meal_discount"
                                                         class="form-label small">Meal Discount
                                                         (Amount)</label>
-                                                    <field name="meal_discount" digits="[16,2]" readonly="state in ('check_out', 'no_show')"
+                                                    <field name="meal_discount" digits="[16,2]" readonly="state in ('check_out', 'no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
                                                 <div class="form-group col-6 mb-1"
                                                     invisible="meal_is_percentage == True or use_meal_price == False">
-                                                    <field name="meal_is_amount"  readonly="state in ('check_out', 'no_show')" force_save="1" />
+                                                    <field name="meal_is_amount"  readonly="state in ('check_out', 'no_show','cancel')" force_save="1" />
                                                     <label for="meal_is_amount" 
                                                         class="form-label small">Is Amount</label>
                                                 </div>
@@ -850,7 +852,7 @@ action = {
                                                     <field name="meal_amount_selection"
                                                         string="Discount Type"
                                                         widget="radio"
-                                                        readonly="state in ('check_out', 'no_show')"
+                                                        readonly="state in ('check_out', 'no_show','cancel')"
                                                         class="form-control form-control-sm"
                                                         force_save="1" />
                                                 </div>
@@ -871,7 +873,7 @@ action = {
                                                 <label for="payment_type" class="form-label small">Payment
                                                     Type</label>
                                                 <field name="payment_type" widget="radio"
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     class="form-control form-control-sm"
                                                     style="padding: 2px 6px;" />
                                             </div>
@@ -888,7 +890,7 @@ action = {
                                         <div class="card-body p-2">
                                             <div class="form-group mb-1">
                                                 <field name="vip" 
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     force_save="1" />
                                                 <label for="vip" class="form-label small">VIP</label>
                                             </div>
@@ -896,13 +898,13 @@ action = {
                                                 <label for="vip_code" class="form-label small">VIP
                                                     Code</label>
                                                 <field name="vip_code"
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     class="form-control form-control-sm"
                                                     domain="[('obsolete', '=', False)]"
                                                     force_save="1" />
                                             </div>
                                             <div class="form-group mb-1">
-                                                <field name="complementary" readonly="state in ('check_out', 'no_show')" force_save="1" />
+                                                <field name="complementary" readonly="state in ('check_out', 'no_show','cancel')" force_save="1" />
                                                 <label for="complementary" class="form-label small">
                                                     Complementary</label>
                                             </div>
@@ -911,14 +913,14 @@ action = {
                                                 <label for="complementary_codes"
                                                     class="form-label small">Complementary Codes</label>
                                                 <field name="complementary_codes" 
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     domain="[('obsolete', '=', False)]"
                                                     class="form-control form-control-sm"
                                                     force_save="1" />
                                             </div>
                                             <div class="form-group mb-1">
                                                 <field name="house_use" 
-                                                    readonly="state in ('check_out', 'no_show')" 
+                                                    readonly="state in ('check_out', 'no_show','cancel')" 
                                                     force_save="1" />
                                                 <label for="house_use" class="form-label small">House
                                                     Use</label>
@@ -928,7 +930,7 @@ action = {
                                                 <label for="house_use_codes"
                                                     class="form-label small">House Use Codes</label>
                                                 <field name="house_use_codes"
-                                                    readonly="state in ('check_out', 'no_show')"
+                                                    readonly="state in ('check_out', 'no_show','cancel')"
                                                     domain="[('obsolete', '=', False)]"
                                                     class="form-control form-control-sm"
                                                     force_save="1" />
@@ -942,7 +944,7 @@ action = {
 
                         <page string="Adults">
                             <field name="adult_ids"
-                                readonly="state in ('check_out', 'no_show')"
+                                readonly="state in ('check_out', 'no_show','cancel')"
                                 options="{'invisible': [('adult_count', '=', 0)]}">
                                 <tree string="Adults" editable="top" create="false">
                                     <field name="room_sequence" />
@@ -965,7 +967,7 @@ action = {
                         </page>
                         <page string="Children">
                             <field name="child_ids"
-                                readonly="state in ('check_out', 'no_show')"
+                                readonly="state in ('check_out', 'no_show','cancel')"
                                 options="{'invisible': [('child_count', '=', 0)]}">
                                 <tree string="Children" editable="top" create="false">
                                     <field name="room_sequence" />
@@ -988,7 +990,7 @@ action = {
                         </page>
                         <page string="Infant">
                             <field name="infant_ids"
-                                readonly="state in ('check_out', 'no_show')"
+                                readonly="state in ('check_out', 'no_show','cancel')"
                                 options="{'invisible': [('infant_count', '=', 0)]}">
                                 <tree string="Infant" editable="top" create="false">
                                     <field name="room_sequence" />
@@ -1038,7 +1040,7 @@ action = {
 
                     <notebook>
                         <page name="search_result" string="Search Result">
-                            <field name="availability_results" invisible="state in ('confirmed', 'block', 'check_in', 'check_out')">
+                            <field name="availability_results" invisible="state in ('confirmed', 'block', 'check_in', 'check_out','cancel')">
                                 <tree string="Room Availability Results" editable="true"
                                     no_create="1" no_create_edit="1">
                                     <field name="company_id" optional='show' />
@@ -1059,19 +1061,19 @@ action = {
                                 <field name="start_line" string="From Record"
                                     placeholder="Enter Start Line"
                                     class="input-field"
-                                    invisible="state in ('check_in', 'check_out')" />
+                                    invisible="state in ('check_in', 'check_out','cancel')" />
                                 <field name="end_line" string="To Record"
                                     placeholder="Enter End Line"
                                     class="input-field"
-                                    invisible="state in ('check_in', 'check_out')" />
+                                    invisible="state in ('check_in', 'check_out','cancel')" />
                                 <button name="action_delete_lines" type="object"
                                     string="Delete Records" class="btn btn-primary"
-                                    invisible="state in ('check_in', 'check_out')" />
+                                    invisible="state in ('check_in', 'check_out','cancel')" />
                             </group>
                             <field name="total_people" invisible="1" />
                             <field name="is_room_line_readonly" invisible="1" />
                             <field name="room_line_ids" colspan="4" string="Room Lines"
-                                readonly="state in ('check_out', 'no_show') or is_room_line_readonly"
+                                readonly="state in ('check_out', 'no_show','cancel') or is_room_line_readonly"
                                 context="{'default_checkin_date':checkin_date, 'default_checkout_date':checkout_date, 'default_uom_qty':duration, 'default_hotel_room_type': hotel_room_type}">
                                 <tree editable="bottom" create="false" delete="false">
                                     <field name="sequence" readonly="1" />
@@ -1091,8 +1093,8 @@ action = {
                                 </tree>
                             </field>
                             <group colspan="2" class="oe_subtotal_footer oe_right">
-                                <field name="amount_untaxed_room" sum="Untaxed amount for Room"
-                                    widget="monetary" />
+                                <!-- <field name="amount_untaxed_room" sum="Untaxed amount for Room"
+                                    widget="monetary" /> -->
                                 <field name="amount_untaxed_food" sum="Untaxed amount for Food"
                                     widget="monetary" invisible="need_food == False" />
                                 <field name="amount_untaxed_service"
@@ -1102,11 +1104,11 @@ action = {
                                     widget="monetary" invisible="need_fleet == False" />
                                 <field name="amount_untaxed_event" sum="Untaxed amount for Event"
                                     widget="monetary" invisible="need_event == False" />
-                                <field name="amount_untaxed" sum="Untaxed amount" widget="monetary" />
-                                <field name="amount_tax" widget="monetary" />
-                                <label for="amount_total" />
-                                <field name="amount_total" nolabel="1" sum="Total amount"
-                                    widget="monetary" />
+                                <!-- <field name="amount_untaxed" sum="Untaxed amount" widget="monetary" /> -->
+                                <!-- <field name="amount_tax" widget="monetary" /> -->
+                                <!-- <label for="amount_total" /> -->
+                                <!-- <field name="amount_total" nolabel="1" sum="Total amount"
+                                    widget="monetary" /> -->
                             </group>
                             <div class="oe_clear" />
                         </page>
@@ -1272,6 +1274,17 @@ action = {
         </field>
     </record>
 
+    <record id="action_unarchive_room_booking" model="ir.actions.server">
+        <field name="name">Unarchive</field>
+        <field name="model_id" ref="hotel_management_odoo.model_room_booking" />
+        <field name="state">code</field>
+        <field name="code">
+            records.action_unarchive_record()
+        </field>
+        <field name="binding_model_id" ref="hotel_management_odoo.model_room_booking" />
+        <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
+    </record>
+
     <!-- <record id="action_report_consolidated_rc_group" model="ir.actions.server">
         <field name="name">Generate Group RC Report</field>
         <field name="model_id" ref="model_room_booking" />
@@ -1333,13 +1346,15 @@ action = {
             <tree js_class="reservation_dashboard_list" default_order="id desc">
                 <header>
                     <button name="action_confirm_booking" string="Confirm" type="object"
-                        class="btn-primary" />
+                        class="btn-primary"
+                        confirm="Are you sure you want to confirm this booking?" />
                     <button name="action_cancel_booking" string="Cancel" type="object"
                         class="btn-danger" />
                     <button name="action_checkin_booking" string="Check-in" type="object"
                         class="btn-primary" />
                     <button name="action_checkout_booking" string="Check-out" type="object"
-                        class="btn-primary" />
+                        class="btn-primary"
+                        confirm="Are you sure you want to check-out this booking?" />
                     <button name="action_no_show_tree" string="No Show" class="btn-danger"
                         type="object" />
                     <button name="%(action_open_room_booking_update_wizard)d" 
@@ -1423,8 +1438,8 @@ action = {
                         <tree editable="bottom">
                             <field name="partner_company_id" readonly="1"/>
                             <field name="rate_code"/>
-                            <!-- <field name="rate_code" domain="[('company_id', '=', partner_company_id)]"/> -->
-                            <!-- <field name="meal_pattern" domain="[('company_id', '=', partner_company_id)]"/> -->
+                                <!-- <field name="rate_code" domain="[('company_id', '=', partner_company_id)]"/> -->
+                                <!-- <field name="meal_pattern" domain="[('company_id', '=', partner_company_id)]"/> -->
                             <field name="meal_pattern"/>
                         </tree>
                     </field>
@@ -1603,7 +1618,7 @@ action = {
                     <field name="total_room_count"/> <!-- Conditional -->
                     <field name="age_threshold" string="Number of children "/> <!-- Conditional -->
                     <field name="overbooking_allowed"/> <!-- Conditional -->
-                    
+
                     <!-- <field name="image" widget="image" class="oe_avatar"/> -->
                 </group>
             </form>
@@ -1754,6 +1769,7 @@ action = {
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">room.booking</field>
         <field name="view_mode">tree,kanban,pivot,graph,calendar,form</field>
+        <field name="limit">200</field>
         <field name="domain">[('show_in_tree', '=', True)]</field>
     </record>
 

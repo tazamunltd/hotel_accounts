@@ -4,6 +4,15 @@ class DynamicSelection(models.Model):
     _name = 'dynamic.selection'
     _description = 'Dynamic Selection for Floor, Hotel, Block'
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
     name = fields.Char(string='Location Type Name', required=True)
 
 class MaintenanceRequest(models.Model):

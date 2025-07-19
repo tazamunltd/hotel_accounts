@@ -1,9 +1,14 @@
 /** @odoo-module **/
 
 import { useService } from "@web/core/utils/hooks";
-import { Component, useState, onWillStart, onMounted, onWillUnmount } from "@odoo/owl";
+import {
+  Component,
+  useState,
+  onWillStart,
+  onMounted,
+  onWillUnmount,
+} from "@odoo/owl";
 import { useBus } from "@web/core/utils/hooks";
-
 
 export class ReservationDashBoard extends Component {
   setup() {
@@ -40,17 +45,17 @@ export class ReservationDashBoard extends Component {
     // onWillStart(async () => {
     //   await this.fetchDashboardData();
     // });
-     onWillStart(async () => {
-       const data = await this.orm.call("room.booking", "retrieve_dashboard");
+    onWillStart(async () => {
+      const data = await this.orm.call("room.booking", "retrieve_dashboard");
 
-       // Make sure selectedIds exists in data
-       Object.assign(this.dashboardData, data);
+      // Make sure selectedIds exists in data
+      Object.assign(this.dashboardData, data);
 
-       // Ensure selectedIds is an array
-       if (!Array.isArray(this.dashboardData.selectedIds)) {
-         this.dashboardData.selectedIds = [];
-       }
-     });
+      // Ensure selectedIds is an array
+      if (!Array.isArray(this.dashboardData.selectedIds)) {
+        this.dashboardData.selectedIds = [];
+      }
+    });
 
     onMounted(() => {
       this.monitorTreeViewSelection();
@@ -221,73 +226,277 @@ export class ReservationDashBoard extends Component {
   /**
    * Select all child bookings for a given parent
    */
+  //  selectChildBookings(parentName) {
+  //    if (this.parentChildMap.has(parentName)) {
+  //
+  //
+  //      const childBookings = this.parentChildMap.get(parentName);
+  //
+  //      childBookings.forEach((childName) => {
+  //        // Find the row and checkbox for each child
+  //        const childRow = Array.from(
+  //          document.querySelectorAll("tr.o_data_row")
+  //        ).find((row) => {
+  //          const nameCell = row.querySelector('td[name="name"]');
+  //          return nameCell && nameCell.textContent.trim() === childName;
+  //        });
+  //
+  //        if (childRow) {
+  //          const childCheckbox = childRow.querySelector(
+  //            ".o_list_record_selector input[type='checkbox']"
+  //          );
+  //          if (childCheckbox && !childCheckbox.checked) {
+  //            childCheckbox.checked = true;
+  //
+  //            // Dispatch a change event
+  //            const event = new Event("change", { bubbles: true });
+  //            childCheckbox.dispatchEvent(event);
+  //
+  //
+  //          }
+  //        }
+  //      });
+  //    }
+  //  }
+  //
+  //  /**
+  //   * Deselect all child bookings for a given parent
+  //   */
+  //  deselectChildBookings(parentName) {
+  //    if (this.parentChildMap.has(parentName)) {
+  //
+  //
+  //      const childBookings = this.parentChildMap.get(parentName);
+  //
+  //      childBookings.forEach((childName) => {
+  //        // Find the row and checkbox for each child
+  //        const childRow = Array.from(
+  //          document.querySelectorAll("tr.o_data_row")
+  //        ).find((row) => {
+  //          const nameCell = row.querySelector('td[name="name"]');
+  //          return nameCell && nameCell.textContent.trim() === childName;
+  //        });
+  //
+  //        if (childRow) {
+  //          const childCheckbox = childRow.querySelector(
+  //            ".o_list_record_selector input[type='checkbox']"
+  //          );
+  //          if (childCheckbox && childCheckbox.checked) {
+  //            childCheckbox.checked = false;
+  //
+  //            // Dispatch a change event
+  //            const event = new Event("change", { bubbles: true });
+  //            childCheckbox.dispatchEvent(event);
+  //
+  //
+  //          }
+  //        }
+  //      });
+  //    }
+  //  }
+
+  //    selectChildBookings(parentName) {
+  //      if (this.parentChildMap.has(parentName)) {
+  //        const childBookings = this.parentChildMap.get(parentName);
+  //
+  //        const checkboxesToUpdate = []; // Array to collect checkboxes that need updating
+  //
+  //        childBookings.forEach((childName) => {
+  //          const childRow = Array.from(
+  //            document.querySelectorAll("tr.o_data_row")
+  //          ).find((row) => {
+  //            const nameCell = row.querySelector('td[name="name"]');
+  //            return nameCell && nameCell.textContent.trim() === childName;
+  //          });
+  //
+  //          if (childRow) {
+  //            const childCheckbox = childRow.querySelector(
+  //              ".o_list_record_selector input[type='checkbox']"
+  //            );
+  //            if (childCheckbox && !childCheckbox.checked) {
+  //              checkboxesToUpdate.push(childCheckbox);
+  //            }
+  //          }
+  //        });
+  //
+  //        // Now, update all checkboxes at once
+  //        checkboxesToUpdate.forEach((checkbox) => {
+  //          checkbox.checked = true;
+  //          // Dispatch the change event only once for the batch of checkboxes
+  //          const event = new Event("change", { bubbles: true });
+  //          checkbox.dispatchEvent(event);
+  //        });
+  //      }
+  //    }
+  //
+  //    deselectChildBookings(parentName) {
+  //      if (this.parentChildMap.has(parentName)) {
+  //        const childBookings = this.parentChildMap.get(parentName);
+  //
+  //        const checkboxesToUpdate = []; // Array to collect checkboxes that need updating
+  //
+  //        childBookings.forEach((childName) => {
+  //          const childRow = Array.from(
+  //            document.querySelectorAll("tr.o_data_row")
+  //          ).find((row) => {
+  //            const nameCell = row.querySelector('td[name="name"]');
+  //            return nameCell && nameCell.textContent.trim() === childName;
+  //          });
+  //
+  //          if (childRow) {
+  //            const childCheckbox = childRow.querySelector(
+  //              ".o_list_record_selector input[type='checkbox']"
+  //            );
+  //            if (childCheckbox && childCheckbox.checked) {
+  //              checkboxesToUpdate.push(childCheckbox);
+  //            }
+  //          }
+  //        });
+  //
+  //        // Now, update all checkboxes at once
+  //        checkboxesToUpdate.forEach((checkbox) => {
+  //          checkbox.checked = false;
+  //          // Dispatch the change event only once for the batch of checkboxes
+  //          const event = new Event("change", { bubbles: true });
+  //          checkbox.dispatchEvent(event);
+  //        });
+  //      }
+  //    }
+
   selectChildBookings(parentName) {
     if (this.parentChildMap.has(parentName)) {
-      
-
       const childBookings = this.parentChildMap.get(parentName);
 
-      childBookings.forEach((childName) => {
-        // Find the row and checkbox for each child
-        const childRow = Array.from(
-          document.querySelectorAll("tr.o_data_row")
-        ).find((row) => {
-          const nameCell = row.querySelector('td[name="name"]');
-          return nameCell && nameCell.textContent.trim() === childName;
+      // Show loading message to the user
+      this.showLoadingMessage(
+        `Processing child bookings for parent "${parentName}". This may take a while...`
+      );
+
+      // Process in batches
+      const batchSize = 20; // Set a batch size
+      let batchStartIndex = 0;
+
+      const processNextBatch = () => {
+        const batch = childBookings.slice(
+          batchStartIndex,
+          batchStartIndex + batchSize
+        );
+        batch.forEach((childName) => {
+          const childRow = Array.from(
+            document.querySelectorAll("tr.o_data_row")
+          ).find((row) => {
+            const nameCell = row.querySelector('td[name="name"]');
+            return nameCell && nameCell.textContent.trim() === childName;
+          });
+
+          if (childRow) {
+            const childCheckbox = childRow.querySelector(
+              ".o_list_record_selector input[type='checkbox']"
+            );
+            if (childCheckbox && !childCheckbox.checked) {
+              childCheckbox.checked = true;
+              const event = new Event("change", { bubbles: true });
+              childCheckbox.dispatchEvent(event);
+            }
+          }
         });
 
-        if (childRow) {
-          const childCheckbox = childRow.querySelector(
-            ".o_list_record_selector input[type='checkbox']"
+        batchStartIndex += batchSize;
+        if (batchStartIndex < childBookings.length) {
+          // Continue processing the next batch
+          setTimeout(processNextBatch, 100); // 100ms delay between batches
+        } else {
+          // All bookings processed
+          this.hideLoadingMessage();
+          this.showSuccessMessage(
+            `Processed all ${childBookings.length} child bookings.`
           );
-          if (childCheckbox && !childCheckbox.checked) {
-            childCheckbox.checked = true;
-
-            // Dispatch a change event
-            const event = new Event("change", { bubbles: true });
-            childCheckbox.dispatchEvent(event);
-
-            
-          }
         }
-      });
+      };
+
+      // Start processing batches
+      processNextBatch();
     }
   }
 
-  /**
-   * Deselect all child bookings for a given parent
-   */
   deselectChildBookings(parentName) {
     if (this.parentChildMap.has(parentName)) {
-      
-
       const childBookings = this.parentChildMap.get(parentName);
 
-      childBookings.forEach((childName) => {
-        // Find the row and checkbox for each child
-        const childRow = Array.from(
-          document.querySelectorAll("tr.o_data_row")
-        ).find((row) => {
-          const nameCell = row.querySelector('td[name="name"]');
-          return nameCell && nameCell.textContent.trim() === childName;
+      // Show loading message to the user
+      this.showLoadingMessage(
+        `Deselecting child bookings for parent "${parentName}". Please wait...`
+      );
+
+      // Process in batches
+      const batchSize = 20; // Set a batch size
+      let batchStartIndex = 0;
+
+      const processNextBatch = () => {
+        const batch = childBookings.slice(
+          batchStartIndex,
+          batchStartIndex + batchSize
+        );
+        batch.forEach((childName) => {
+          const childRow = Array.from(
+            document.querySelectorAll("tr.o_data_row")
+          ).find((row) => {
+            const nameCell = row.querySelector('td[name="name"]');
+            return nameCell && nameCell.textContent.trim() === childName;
+          });
+
+          if (childRow) {
+            const childCheckbox = childRow.querySelector(
+              ".o_list_record_selector input[type='checkbox']"
+            );
+            if (childCheckbox && childCheckbox.checked) {
+              childCheckbox.checked = false;
+              const event = new Event("change", { bubbles: true });
+              childCheckbox.dispatchEvent(event);
+            }
+          }
         });
 
-        if (childRow) {
-          const childCheckbox = childRow.querySelector(
-            ".o_list_record_selector input[type='checkbox']"
+        batchStartIndex += batchSize;
+        if (batchStartIndex < childBookings.length) {
+          // Continue processing the next batch
+          setTimeout(processNextBatch, 100); // 100ms delay between batches
+        } else {
+          // All bookings deselected
+          this.hideLoadingMessage();
+          this.showSuccessMessage(
+            `Deselected all ${childBookings.length} child bookings.`
           );
-          if (childCheckbox && childCheckbox.checked) {
-            childCheckbox.checked = false;
-
-            // Dispatch a change event
-            const event = new Event("change", { bubbles: true });
-            childCheckbox.dispatchEvent(event);
-
-            
-          }
         }
-      });
+      };
+
+      // Start processing batches
+      processNextBatch();
     }
+  }
+
+  // Method to show the loading message
+  showLoadingMessage(message) {
+    console.log(message);
+    // Optionally display a loading spinner or modal
+    // Example: this.loadingMessage = message;
+    // Implement a UI element to show the loading message
+  }
+
+  // Method to hide the loading message
+  hideLoadingMessage() {
+    console.log("Processing complete, hiding loading message.");
+    // Hide the loading spinner or modal
+    // Example: this.loadingMessage = null;
+    // Implement the logic to hide the loading message
+  }
+
+  // Method to show success message after completion
+  showSuccessMessage(message) {
+    console.log(message);
+    // Optionally show a success message (toast, modal, etc.)
+    // Example: alert(message);
+    // Implement the UI logic for displaying the success message
   }
 
   addToSelected(bookingName) {
@@ -307,7 +516,6 @@ export class ReservationDashBoard extends Component {
 
     // If a parent is unchecked, remove all child bookings
     if (this.parentChildMap.has(parentBookingName)) {
-      
       this.parentChildMap
         .get(parentBookingName)
         .forEach(({ checkbox: childCheckbox, row: childRow }) => {
@@ -331,7 +539,6 @@ export class ReservationDashBoard extends Component {
           }
         });
     }
-
   }
 
   handleCheckboxChange(checkbox) {
@@ -356,7 +563,7 @@ export class ReservationDashBoard extends Component {
 
       // If it's a parent row, uncheck all its children
       if (this.parentChildMap.has(bookingName)) {
-        // console.log(Unchecking children for parent: ${bookingName});
+        //         console.log(Unchecking children for parent: ${bookingName});
         this.parentChildMap
           .get(bookingName)
           .forEach(({ checkbox: childCheckbox, row: childRow }) => {
@@ -382,7 +589,6 @@ export class ReservationDashBoard extends Component {
           });
       }
     }
-
   }
 
   /**

@@ -11913,3 +11913,309 @@ msgstr "تعليقات الضيف.تعليقات الضيف"
 #, python-format
 msgid "The From Date cannot be earlier than the system date set in the company."
 msgstr "لا يمكن أن يكون تاريخ البداية أقدم من تاريخ النظام المُحدد في الشركة"
+
+#. module: setup_configuration
+#: code:addons/setup_configuration/models/models.py:0
+#, python-format
+msgid "The To Date must be greater than the From Date."
+msgstr "يجب أن يكون تاريخ النهاية بعد تاريخ البداية."
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_posting_item
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_posting_item
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_dummy_room_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_dummy_room_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_currency_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_currency_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_budget_entry
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_budget_entry
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_cash_box_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_cash_box_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_department_category
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_department_category
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_department_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_department_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_room_type
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_room_type
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_meal_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_meal_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_meal_code_sub_type
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_meal_code_sub_type
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_application_room_type
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_application_room_type
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_meal_pattern
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_meal_pattern
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_meal_pattern_sub_type
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_meal_pattern_sub_type
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_complimentary_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_complimentary_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_out_of_order_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_out_of_order_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_room_on_hold_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_room_on_hold_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_vip_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_vip_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_house_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_house_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_telephone_extension
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_telephone_extension
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_rate_category
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_rate_category
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_rate_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_rate_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_rate_detail
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_rate_detail
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_rate_promotion
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_rate_promotion
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_market_category
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_market_category
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_market_segment
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_market_segment
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_source_business
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_source_business
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_reservation_status_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_reservation_status_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_cancellation_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_cancellation_code
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_country_region
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_country_region
+msgid "Delete"
+msgstr "حذف"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_unarchieve_country_code
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: setup_configuration
+#: model:ir.actions.server,name:setup_configuration.action_delete_country_code
+msgid "Delete"
+msgstr "حذف"

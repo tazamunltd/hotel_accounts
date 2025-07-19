@@ -2,6 +2,8 @@ from ast import pattern
 from email.policy import default
 import random, string
 from itertools import groupby
+from odoo.tools.translate import _
+from odoo import api, fields, models, _
 
 from decorator import append
 
@@ -2407,8 +2409,10 @@ class WebAppController(http.Controller):
         RIGHT_ARABIC_X = RIGHT_VALUE_X + 100 
         
 
-        str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
-        str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
+        # str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
+        str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d') if booking.checkin_date else ""
+        # str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
+        str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d') if booking.checkout_date else ""
         # line_height = 20
         pax_count = booking.adult_count + booking.child_count + booking.infant_count
         booking_type = "Company" if booking.is_agent else "Individual"
@@ -2518,18 +2522,43 @@ class WebAppController(http.Controller):
         else:
             nationality = self.get_country_translation(nationality)  # Call function for translation
 
+        if booking.is_agent and booking.group_booking:
+            full_label    = "Group Name:"
+            full_value    = booking.group_booking.group_name
+            # full_label_ar = "اسم المجموعة:"
+        else:
+            full_label    = "Full Name:"
+            full_value    = booking.partner_id.name
+            # full_label_ar = "اسم النزيل:
 
+        if booking.is_agent:
+            if booking.group_booking:
+                full_label = "Group Name:"
+                full_value = booking.group_booking.group_name
+            else:
+                full_label = "Full Name:"
+                full_value = ""               # no group → leave it blank
+        else:
+            full_label = "Full Name:"
+            full_value = booking.partner_id.name
+
+        if booking.is_agent:
+            # when is_agent, partner_id is itself the company
+            company_value = booking.partner_id.name
+        else:
+            # when not agent, just show “Individual”
+            company_value = "Individual"
 
                
         guest_details = [
             ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:           ", 
-             "Full Name:", f"{booking.partner_id.name}", "اسم النزيل:                  "),
+             "Full Name:", f"{self._truncate_text_(full_value)}", "اسم النزيل:                  "),
 
             ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:           ", 
-            "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                         "),
+             "Company:", self._truncate_text_(company_value), "ﺷَﺮِﻛَﺔ:                         "),
 
             ("Arrival (Hijri):", checkin_hijri_str, "تاريخ الوصول (هجري):", 
-            "Nationality:", nationality, "الجنسية:                      "),  # Nationality translated correctly
+            "Nationality:", self._truncate_text_(nationality), "الجنسية:                      "),  # Nationality translated correctly
 
             ("Departure (Hijri):", checkout_hijri_str, "تاريخ المغادرة (هجري):", 
             "Mobile No:", f"{booking.partner_id.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:                  "),
@@ -2541,12 +2570,12 @@ class WebAppController(http.Controller):
             "ID No:", "", "رقم الهوية:                   "),
 
             ("Room Type:", f"{booking.room_type_display}", "نوع الغرفة:               ", 
-            "No. of pax:", f"{booking.adult_count}", "عدد الأفراد:                  "),
+            "No. of pax:", f"{booking.adult_count * booking.room_count}", "عدد الأفراد:                  "),
 
-            ("Rate Code:", f"{display_rate_code}", "رمز السعر:               ", 
+            ("Rate Code:", f"{self._truncate_text_(display_rate_code)}", "رمز السعر:               ", 
             "No. of child:", f"{booking.child_count}", "عدد الأطفال:                 "),
 
-            ("Meal Pattern:", f"{display_meal_code}", "نظام الوجبات:            ", 
+            ("Meal Pattern:", f"{self._truncate_text_(display_meal_code)}", "نظام الوجبات:            ", 
             "No. of infants:", f"{booking.infant_count}", "عدد الرضع:                   "),
 
             ("Room Disc:", f"{room_discount}", "خصم الغرفة:              ", 
@@ -2564,7 +2593,7 @@ class WebAppController(http.Controller):
             c.drawString(RIGHT_LABEL_X, y_position, r_label)
 
             # For "Full Name" or "Nationality", call self.draw_arabic_text_left instead of drawString
-            if r_label in ("Full Name:", "Nationality:", "Mobile No:"):
+            if r_label in ("Full Name:", "Nationality:", "Mobile No:", "Company:"):
                 self.draw_arabic_text_left(c, RIGHT_VALUE_X, y_position, r_value)
             else:
                 c.drawString(RIGHT_VALUE_X, y_position, r_value)
@@ -2598,7 +2627,7 @@ class WebAppController(http.Controller):
         # Payment Details
 
         payment_details = [
-            ("Payment Method:", f"{pay_type}", "نظام الدفع:                ", 
+            ("Payment Method:", f"{self._truncate_text_(pay_type)}", "نظام الدفع:                ", 
              "Room Rate(Avg):", f"{avg_rate}", "متوسط سعر الغرفة اليومي:"),
             ("VAT:", f"{get_total_vat}", "القيمة المضافة:            ",
              "Meals Rate(Avg):", f"{avg_meals}", "متوسط سعر الوجبات اليومي:"),
@@ -3702,6 +3731,16 @@ class WebAppController(http.Controller):
             return status_map_ar.get(status_code, "غير متوفر")  
         else:
             return status_map_en.get(status_code, "N/A")
+
+    def _truncate_text_(self, text, max_length=27):
+        """
+        Truncate the given text to max_length characters,
+        appending '..' if it was longer.
+        """
+        if not text:
+            return ''
+        return text if len(text) <= max_length else text[:max_length] + '..'
+
         
 
     @http.route('/generate_rc/bookings_pdf', type='http', auth='user') 
@@ -3853,15 +3892,22 @@ class WebAppController(http.Controller):
             if room_type not in room_types:
                 room_types.append(room_type)
 
-            room_data.setdefault(room_type, {'Rooms': 0, 'PAX': 0, 'Price': 0})
-            room_data[room_type]['Rooms'] += gb.room_count           or 0
-            room_data[room_type]['PAX']   += gb.adult_count          or 0
-            room_data[room_type]['Price'] += gb.total_rate_forecast  or 0
+            if gb.state in ['not_confirmed', 'confirmed']:
+                room_data.setdefault(room_type, {'Rooms': 0, 'PAX': 0, 'Price': 0})
+                room_data[room_type]['Rooms'] += gb.room_count           or 0
+                room_data[room_type]['PAX']   += (gb.adult_count * gb.room_count) or 0
+                room_data[room_type]['Price'] += gb.total_rate_forecast  or 0
+            else:
+                room_data.setdefault(room_type, {'Rooms': 0, 'PAX': 0, 'Price': 0})
+                room_data[room_type]['Rooms'] += gb.room_count           or 0
+                room_data[room_type]['PAX']   += gb.adult_count or 0
+                room_data[room_type]['Price'] += gb.total_rate_after_discount or 0
 
             
             
             adult_count = gb.adult_count or 0
             child_count = gb.child_count or 0
+            room_count = gb.room_count or 0
             
             if gb.meal_pattern:
                 for line in gb.meal_pattern.meals_list_ids:
@@ -3876,9 +3922,12 @@ class WebAppController(http.Controller):
 
                         if meal_name not in meal_data:
                             meal_data[meal_name] = {'PAX': 0, 'Price': 0.0}
-
-                        meal_data[meal_name]['PAX'] += adult_count 
-                        meal_data[meal_name]['Price'] += total_price
+                        if gb.state in ['not_confirmed', 'confirmed']:
+                            meal_data[meal_name]['PAX'] += adult_count * room_count 
+                            meal_data[meal_name]['Price'] += total_price
+                        else:
+                            meal_data[meal_name]['PAX'] += adult_count 
+                            meal_data[meal_name]['Price'] += total_price   
                     
         meal_patterns = sorted(list(meal_patterns_set)) or ['N/A']
 
@@ -3953,7 +4002,10 @@ class WebAppController(http.Controller):
                 total_vat += booking_.total_vat or 0
                 total_total_municipality_tax += booking_.total_municipality_tax or 0
 
-                total_pax += booking_.adult_count or 0
+                if booking_.state in ['not_confirmed', 'confirmed']:
+                    total_pax += (booking_.adult_count * booking_.room_count) or 0
+                else:
+                    total_pax += booking_.adult_count or 0
                 # total_nights += booking_.no_of_nights or 0
                 
                 get_discount_room = booking_.room_discount or 0
@@ -4115,7 +4167,7 @@ class WebAppController(http.Controller):
             "تاريخ الوصول:  ",
 
             "Group Name:",
-            f"{booking.group_name or self.get_arabic_text('N/A')}",
+            f"{self._truncate_text_(booking.group_name) or self.get_arabic_text('N/A')}",
             "اسم المجموعة:       "),
 
             ("Departure Date:",
@@ -4123,7 +4175,7 @@ class WebAppController(http.Controller):
             "تاريخ المغادرة: ",
 
             "Company Name:",
-            f"{booking.company.name if booking.is_grp_company else 'Individual'}" +
+            f"{self._truncate_text_(booking.company.name) if booking.is_grp_company else 'Individual'}" +
             (" " if booking.is_grp_company else ""),
             "اسم الشركة:          "),
 
@@ -4133,7 +4185,7 @@ class WebAppController(http.Controller):
             "عدد الليالي:     ",
 
             "Nationality:",
-            nationality,
+            self._truncate_text_(nationality),
             "جنسية المجموعة:    "),
 
             ("No. of Rooms:",
@@ -4155,16 +4207,16 @@ class WebAppController(http.Controller):
 
             ("Rate Code:",
             #  f"{booking.rate_code.code or self.get_arabic_text('N/A')}",
-            f"{rate_code_trans}",
+            f"{self._truncate_text_(rate_code_trans)}",
             "كود التعاقد:     ",
 
             # 3) Use the status_label from above:
             "Status:",
-            status_label,
+            self._truncate_text_(status_label),
             "حالة الحجز:           "),
 
             ("Meal Pattern:",
-             f"{meal_pattern_trans}",
+             f"{self._truncate_text_(meal_pattern_trans)}",
             "نظام الوجبات:  ",
 
             # 4) Use the booking’s create_date for “Date Created.”
@@ -4225,7 +4277,7 @@ class WebAppController(http.Controller):
         # print(pay_type, 'line 4171',dict(booking.fields_get()['payment_type']['selection']))
         payment_details = [
             ("Total VAT:", f"{report_data.get('total_vat', 0.0)}", "القيمة المضافة:",
-              "Payment Method:", f"{pay_type or 'N/A'}", "نظام الدفع:            "),
+              "Payment Method:", f"{self._truncate_text_(pay_type) or 'N/A'}", "نظام الدفع:            "),
 
             ("Total Municipality:", f"{report_data.get('total_municipality_tax', 0.0)}", "رسوم البلدية:   ", 
              "Daily Room Rate:", f"{report_data['avg_rate']}", "سعر الغرفة اليومي: "),
@@ -4612,13 +4664,36 @@ class WebAppController(http.Controller):
 
         non_deletable = records - deletable
 
+        # if non_deletable:
+        #     raise ValidationError(
+        #         "You can only delete bookings in the following states: Cancel, No Show, or Not Confirmed.\n\n"
+        #         "The following bookings are in invalid states:\n" +
+        #         "\n".join(f"Booking ID: {rec.id}, State: {rec.state}" for rec in non_deletable)
+        #     )
         if non_deletable:
-            raise ValidationError(
-                "You can only delete bookings in the following states: Cancel, No Show, or Not Confirmed.\n\n"
-                "The following bookings are in invalid states:\n" +
-                "\n".join(f"Booking ID: {rec.id}, State: {rec.state}" for rec in non_deletable)
+            # 1) map raw states to translatable labels
+            state_labels = {
+                'cancel':      _('Cancel'),
+                'no_show':     _('No Show'),
+                'not_confirmed': _('Not Confirmed'),
+                'block':       _('Block'),
+                'check_out':   _('Check Out'),
+                # …add any other states your model uses…
+            }
+            # 2) build one big string of lines, each using the same msgid
+            invalid_lines = '\n'.join(
+                _("Booking ID: %s, State: %s") % (
+                    rec.id,
+                    state_labels.get(rec.state, rec.state)
+                )
+                for rec in non_deletable
             )
-        
+            # 3) inject into the single-msgid header
+            msg = _(
+                "You can only delete bookings in the following states: Cancel, No Show, or Not Confirmed.\n\n"
+                "The following bookings are in invalid states:\n%s"
+            ) % invalid_lines
+            raise ValidationError(msg)
 
         # ✅ Soft delete instead of unlink
         records.write({'active': False})
@@ -4641,13 +4716,11 @@ class WebAppController(http.Controller):
         bookings = (env_booking.browse(booking_ids_list).filtered(lambda b:b.company_id.id == current_company_id and not b.parent_booking_name))
         missing_group = bookings.filtered(lambda b: not b.group_booking)
         if missing_group:
-            raise ValidationError(
-                "Please select a “Group Booking” for every booking before you print "
-                "the Guest-Main report.")
+            raise ValidationError(_("Please select a Group Booking for every booking before you print the Guest-Main report."))
 
         if not bookings:
-            raise ValidationError(
-                "You can generate the Guest‑Main report only for PARENT bookings.")
+            raise ValidationError(_("You can generate the Guest‑Main report only for PARENT bookings.")
+                )
             # return request.not_found()
 
         # If there's only one booking, return a single PDF
@@ -4997,8 +5070,10 @@ class WebAppController(http.Controller):
         RIGHT_VALUE_X = RIGHT_LABEL_X + 90
         # Keep Arabic close to the value
         RIGHT_ARABIC_X = RIGHT_VALUE_X + 95 
-        str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
-        str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
+        # str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkin_date else ""
+        str_checkin_date = booking.checkin_date.strftime('%Y-%m-%d') if booking.checkin_date else ""
+        # str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d %H:%M:%S') if booking.checkout_date else ""
+        str_checkout_date = booking.checkout_date.strftime('%Y-%m-%d') if booking.checkout_date else ""
         # line_height = 20
         pax_count = booking.adult_count  # + booking.child_count
         # booking_type = "Company" if booking.is_agent else "Individual"
@@ -5057,12 +5132,18 @@ class WebAppController(http.Controller):
             total_adult_count if total_adult_count is not None
             else booking.adult_count
         )
-
-            table_row = [[
-                room_type_name,
-                total_room_count,
-                total_adult_count
-            ]]
+            if booking.state in ['not_confirmed', 'confirmed']:
+                table_row = [[
+                    room_type_name,
+                    total_room_count,
+                    total_adult_count * total_room_count
+                ]]
+            else:
+                table_row = [[
+                    room_type_name,
+                    total_room_count,
+                    total_adult_count 
+                ]]
 
 
             rate_list = [line.rate for line in booking.rate_forecast_ids]
@@ -5197,17 +5278,17 @@ class WebAppController(http.Controller):
         guest_details = [
             ("Arrival Date:", f"{str_checkin_date}", "تاريخ الوصول:           ",
             #  "Full Name:", f"{booking.partner_id.name}", "اسم النزيل:                 "),
-             "Full Name:", f"{full_name}", "اسم النزيل:                 "),
+             "Full Name:", f"{self._truncate_text_(full_name)}", "اسم النزيل:                 "),
             ("Departure Date:", f"{str_checkout_date}", "تاريخ المغادرة:          ",
-              "Company:", booking_type, "ﺷَﺮِﻛَﺔ:                        "),
+              "Company:", self._truncate_text_(booking_type), "ﺷَﺮِﻛَﺔ:                        "),
             ("Arrival (Hijri):", checkin_hijri_str, "تاريخ الوصول (هجري):", "Nationality:",
-             nationality, "الجنسية:                     "),
+             self._truncate_text_(nationality), "الجنسية:                     "),
             ("Departure (Hijri):", checkout_hijri_str, "تاريخ المغادرة (هجري):", "Mobile No:",
              f"{booking.partner_id.mobile or self.get_arabic_text('N/A')}", "رقم الجوال:                 "),
 
-            ("Rate Code:", f"{display_rate_code}", "رمز السعر:               ", "No. of child:",
+            ("Rate Code:", f"{self._truncate_text_(display_rate_code)}", "رمز السعر:               ", "No. of child:",
              f"{total_child_count}", "عدد الأطفال:                "),
-            ("Meal Pattern:", f"{display_meal_code}", "نظام الوجبات:           ", "No. of infants:",
+            ("Meal Pattern:", f"{self._truncate_text_(display_meal_code)}", "نظام الوجبات:           ", "No. of infants:",
              f"{total_infant_count}", "عدد الرضع:                  ") ,
             # ("Room Rate Avg:", f"{avg_rate}", "متوسط سعر الغرفة اليومي:             ",
             ("Room Rate Avg:", f"{avg_rate}", "متوسط سعر الغرفة اليومي:             ",
@@ -5320,7 +5401,7 @@ class WebAppController(http.Controller):
             ("VAT ID:", "", "الرقم الضريبي:          ", "Total Packages:", f"{total_package_forecast}", "إجمالي الحزم:               "),
             ("Remaining:", "", "المبلغ المتبقي:          ",
              "Payments:", "", "المبلغ المدفوع:              "),
-            ("Payment Method:", f"{pay_type}", "نظام الدفع:              ", "Total Amount:", f"{total_amount}",
+            ("Payment Method:", f"{self._truncate_text_(pay_type)}", "نظام الدفع:              ", "Total Amount:", f"{total_amount}",
              "المبلغ الإجمالي:             ")
 
         ]

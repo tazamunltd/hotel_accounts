@@ -194,10 +194,15 @@ inventory AS (
     SELECT
         hi.company_id,
 	 	hi.room_type AS hi_room_type_id,
-        SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count,
+--         SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count,
+		COUNT(DISTINCT hr.id)                 AS total_room_count,   -- count active rooms
         SUM(COALESCE(hi.overbooking_rooms, 0)) AS overbooking_rooms,
         BOOL_OR(COALESCE(hi.overbooking_allowed, false)) AS overbooking_allowed
     FROM hotel_inventory hi
+        JOIN hotel_room hr
+      ON hr.company_id    = hi.company_id
+     AND hr.room_type_name = hi.room_type
+     AND hr.active = TRUE
     GROUP BY hi.company_id , hi.room_type
 ),
 
@@ -309,6 +314,7 @@ out_of_order AS (
     JOIN hotel_room hr
     ON hr.id = ooo.room_number
     AND hr.room_type_name = lls.room_type_id
+    AND hr.active = TRUE
     GROUP BY 
 	 lls.report_date,
         lls.system_date,

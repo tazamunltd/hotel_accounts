@@ -13,3 +13,40 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: hms_api
+#: code:addons/hms_api/controllers/hms_contollers.py:0
+msgid "You can generate the Guest‑Main report only for PARENT bookings."
+msgstr "طلب غير صالح يمكنك إنشاء تقرير النزيل الرئيسي فقط للحجوزات الرئيسية."
+
+#. module: hms_api
+#: code:addons/hms_api/controllers/hms_contollers.py:0
+msgid "Booking ID: %s, State: %s"
+msgstr "رقم الحجز: %s، الحالة: «%s»"
+
+#. module: hms_api
+#: code:addons/hms_api/controllers/hms_contollers.py:0
+msgid "Block"
+msgstr "مخصص"
+
+#. module: hms_api
+#: code:addons/hms_api/controllers/hms_contollers.py:0
+msgid "You can only delete bookings in the following states: Cancel, No Show, or Not Confirmed.\n\nThe following bookings are in invalid states:\n%s"
+msgstr "يمكنك حذف الحجوزات التي حالتها فقط: «مُلْغى»، «عدم حضور»، أو «غير مؤكد».\n\nالحجوزات التالية في حالات غير صالحة للحذف:\n%s"
+
+#. module: hms_api
+#: code:addons/hms_api/controllers/hms_contollers.py:0
+msgid "Please select a Group Booking for every booking before you print the Guest-Main report."
+msgstr "طلب غير صالح يرجى تحديد حجز جماعي لكل حجز قبل طباعة تقرير النزيل الرئيسي."
+
+#. module: hms_api
+#: code:addons/hms_api/controllers/hms_contollers.py:0
+msgid "Bad Request"
+msgstr "طلب غير صالح"
+
+
+
+
+
+
+

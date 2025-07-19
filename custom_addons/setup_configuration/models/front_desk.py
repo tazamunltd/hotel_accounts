@@ -3,6 +3,16 @@ from odoo.exceptions import ValidationError
 
 class ApplicationRoomType(models.Model):
     _name = 'application.room.type'
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
     
     name = fields.Char(string="Application Room Type", required=True, tracking=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
@@ -13,7 +23,18 @@ class RoomType(models.Model):
     _description = 'Room Type'
     _rec_name = 'room_type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
     
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True, readonly=True)
     room_type = fields.Char(string=_("Hotel Room Type"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"),tracking=True, translate=True)
@@ -93,6 +114,16 @@ class RoomSpecification(models.Model):
 class MealSubType(models.Model):
     _name = 'meal.code.sub.type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
     name = fields.Char(string="Main Meal Code", required=True, tracking=True)
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
 
@@ -102,6 +133,16 @@ class MealCode(models.Model):
     _description = 'Meal Code'
     _rec_name = 'meal_code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
 
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
@@ -146,6 +187,16 @@ class MealCode(models.Model):
 class MealPatternSubType(models.Model):
     _name = 'meal.pattern.sub.type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
     name = fields.Char(string="Main Meal Pattern", required=True, tracking=True)
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
 
@@ -154,7 +205,38 @@ class MealPattern(models.Model):
     _description = 'Meal Pattern'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+
     _rec_name = 'meal_pattern'
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        RoomBooking = self.env['room.booking']
+        for record in self:
+            # Search for room bookings linked to this meal pattern and check if they are in 'block' or 'check_in' state
+            booking = RoomBooking.search([
+                ('meal_pattern', '=', record.id),
+                ('state', 'in', ['block', 'check_in'])
+            ], limit=1) 
+            
+            if booking:
+                raise ValidationError(
+                    "You cannot delete the Meal Pattern '%s' because it is associated with bookings: '%s' in the following states: '%s'." %
+                    (record.meal_pattern, booking.name, booking.state)
+                )
+            else:
+                # If no conflicting bookings, archive the meal pattern (deactivate it)
+                record.active = False
+
+
+
+    # def action_delete_record(self):
+    #     for record in self:
+    #         record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
     meal_pattern = fields.Char(string=_("Meal Pattern"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
@@ -237,6 +319,16 @@ class ComplimentaryCode(models.Model):
     _description = 'Complimentary Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     _rec_name = 'code'
     code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
@@ -259,6 +351,16 @@ class OutOfOrderCode(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'code'
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
     abbreviation = fields.Char(string=_("Abbreviation"),tracking=True, translate=True)
@@ -272,6 +374,16 @@ class RoomOnHoldCode(models.Model):
     _description = 'Room on Hold Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'code'
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
     description = fields.Char(string=_("Description"), required=True,tracking=True, translate=True)
@@ -287,6 +399,16 @@ class VipCode(models.Model):
     _description = 'VIP Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     _rec_name = 'code'
     code = fields.Char(string=_("Code"), required=True, tracking=True)
     description = fields.Char(string=_("Description"),  translate=True, required=True, tracking=True)
@@ -299,6 +421,16 @@ class HouseCode(models.Model):
     _name = 'house.code'
     _description = 'House Code'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     _rec_name = 'code'
     code = fields.Char(string=_("Code"), required=True,tracking=True, translate=True)
@@ -401,6 +533,16 @@ class TelephoneExtension(models.Model):
     _name = 'telephone.extension'
     _description = 'Telephone Extension'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
 
     extension_number = fields.Char(string=_("Telephone Extension"), required=True,tracking=True, translate=True)
     room_number = fields.Char(string=_("Room Number"), required=True,tracking=True, translate=True)

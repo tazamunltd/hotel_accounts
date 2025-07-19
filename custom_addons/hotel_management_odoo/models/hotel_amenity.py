@@ -9,6 +9,17 @@ class HotelAmenity(models.Model):
     _inherit = 'mail.thread'
     _order = 'id desc'
 
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    def action_delete_record(self):
+        for record in self:
+            record.active = False
+    
+    def action_unarchieve_record(self):
+        for record in self:
+            record.active = True
+
     company_id = fields.Many2one('res.company', string="Hotel",
                                  help="Choose the Hotel",
                                  index=True,

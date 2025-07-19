@@ -32,511 +32,11 @@ class RoomBooking(models.Model):
     _order = 'create_date desc'
     _description = "Waiting List Room Availability"
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    
-    def action_unarchive_record(self):
-        for record in self:
-            record.active = True
+
+
     
     previous_room_count = fields.Integer(string='Previous Room Count')
 
-    # @api.model
-    # def check_extended_room_conflicts(self, booking_id, new_checkout_str):
-    #     booking = self.browse(booking_id)
-
-    #     try:
-    #         # First try the datetime format
-    #         try:
-    #             new_checkout_date = datetime.strptime(new_checkout_str, "%d/%m/%Y %H:%M:%S")
-    #         except ValueError:
-    #             # If that fails, try just the date format
-    #             new_checkout_date = datetime.strptime(new_checkout_str, "%d/%m/%Y")
-                
-    #     except Exception as e:
-    #         print(f"❌ Date parsing failed for '{new_checkout_str}': {e}")
-    #         return {'has_conflict': False, 'conflicted_rooms': []}
-
-    #     print(f"\n✅ Booking ID: {booking_id}")
-    #     print(f"🟢 New Checkout Date from JS: {new_checkout_date}")
-    #     print(f"🟡 Original Check-in Date: {booking.checkin_date}")
-
-    #     conflict_rooms = []
-    #     for line in booking.room_line_ids:
-    #         if not line.room_id:
-    #             print("⚠️ Skipping line without room_id")
-    #             continue
-
-    #         print(f"\n🔍 Checking Room: {line.room_id.display_name}")
-    #         print(f"Line ID: {line.id}, Room ID: {line.room_id.id}, State: {line.state_}")
-    #         print(f"Line Check-in: {line.checkin_date}, Line Checkout: {line.checkout_date}")
-
-    #         domain = [
-    #             ('room_id', '=', line.room_id.id),
-    #             ('id', '!=', line.id),
-    #             ('state_', 'in', ['block', 'check_in']),
-    #             ('checkin_date', '<=', new_checkout_date),  # booking started before or at new checkout
-    #             ('checkout_date', '>=', new_checkout_date),  # booking ends after new checkout
-    #         ]
-    #         # domain = [
-    #         #     ('room_id', '=', line.room_id.id),
-    #         #     ('id', '!=', line.id),
-    #         #     ('state_', 'in', ['block', 'check_in']),
-    #         #     '|',
-    #         #         '&', ('checkin_date', '<', new_checkout_date),
-    #         #              ('checkout_date', '>', booking.checkin_date),
-    #         #         '&', ('checkin_date', '>=', booking.checkin_date),
-    #         #              ('checkin_date', '<', new_checkout_date),
-    #         # ]
-
-    #         overlap = self.env['room.booking.line'].search_count(domain)
-    #         print(f"❗ Overlapping Bookings: {overlap}")
-
-    #         if overlap:
-    #             conflict_rooms.append(line.room_id.display_name)
-
-    #     print(f"\n🚨 Conflicted Rooms: {conflict_rooms}")
-    #     return {
-    #         'has_conflict': bool(conflict_rooms),
-    #         'conflicted_rooms': conflict_rooms,
-    #     }
-
-    
-    @api.model
-    def check_extended_room_conflicts(self, booking_id, new_checkout_str):
-        booking = self.browse(booking_id)
-        try:
-            try:
-                new_checkout_date = datetime.strptime(new_checkout_str, "%d/%m/%Y %H:%M:%S")
-            except ValueError:
-                new_checkout_date = datetime.strptime(new_checkout_str, "%d/%m/%Y %H:%M")
-        except Exception as e:
-            print(f"❌ Date parsing failed for '{new_checkout_str}': {e}")
-            return {'has_conflict': False, 'conflicted_rooms': []}
-
-        print(f"\n✅ Booking ID: {booking_id}")
-        print(f"🟢 New Checkout Date from JS: {new_checkout_date}")
-        print(f"🟡 Original Check-in Date: {booking.checkin_date}")
-
-        conflict_rooms = []
-        for line in booking.room_line_ids:
-            if not line.room_id:
-                print("⚠ Skipping line without room_id")
-                continue
-
-            print(f"\n🔍 Checking Room: {line.room_id.display_name}")
-            print(f"Line ID: {line.id}, Room ID: {line.room_id.id}, State: {line.state_}")
-            print(f"Line Check-in: {line.checkin_date}, Line Checkout: {line.checkout_date}")
-
-            domain = [
-                ('room_id', '=', line.room_id.id),
-                ('id', '!=', line.id),
-                ('state_', 'in', ['block', 'check_in']),
-                ('checkin_date', '<=', new_checkout_date),  # booking started before or at new checkout
-                ('checkout_date', '>=', booking.checkin_date),  # booking ends after new checkout
-            ]
-            # domain = [
-            #     ('room_id', '=', line.room_id.id),
-            #     ('id', '!=', line.id),
-            #     ('state_', 'in', ['block', 'check_in']),
-            #     '|',
-            #         '&', ('checkin_date', '<', new_checkout_date),
-            #              ('checkout_date', '>', booking.checkin_date),
-            #         '&', ('checkin_date', '>=', booking.checkin_date),
-            #              ('checkin_date', '<', new_checkout_date),
-            # ]
-
-            overlap = self.env['room.booking.line'].search_count(domain)
-            print(f"❗ Overlapping Bookings: {overlap}")
-
-            if overlap:
-                conflict_rooms.append(line.room_id.display_name)
-
-        print(f"\n🚨 Conflicted Rooms: {conflict_rooms}")
-        return {
-            'has_conflict': bool(conflict_rooms),
-            'conflicted_rooms': conflict_rooms,
-        }
-        
-
-    @api.model
-    def check_extended_reservation_conflicts(self, booking_id, new_checkin_str, new_checkout_str):
-        booking = self.browse(booking_id)
-        # parse both dates
-        def _parse(dt_str):
-            for fmt in ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M"):
-                try:
-                    return datetime.strptime(dt_str, fmt)
-                except ValueError:
-                    continue
-            raise ValueError(f"Invalid date format: {dt_str}")
-
-        try:
-            new_ci = _parse(new_checkin_str)
-            new_co = _parse(new_checkout_str)
-        except Exception as e:
-            _logger.error("Failed to parse dates %s, %s: %s", new_checkin_str, new_checkout_str, e)
-            return {'has_conflict': False, 'conflicted_rooms': []}
-
-        # _logger.info("Booking %s: resizing to [%s → %s]", booking_id, new_ci, new_co)
-
-        conflicts = []
-        for line in booking.room_line_ids:
-            if not line.room_id:
-                continue
-
-            # overlap if existing.checkin <= new_co AND existing.checkout >= new_ci
-            domain = [
-                ('room_id', '=', line.room_id.id),
-                ('id', '!=', line.id),
-                ('state_', 'in', ['block', 'check_in']),
-                ('checkin_date', '<=', new_co),
-                ('checkout_date', '>=', new_ci),
-            ]
-            if self.env['room.booking.line'].search_count(domain):
-                conflicts.append(line.room_id.display_name)
-
-        return {
-            'has_conflict': bool(conflicts),
-            'conflicted_rooms': conflicts,
-        }
-
-
-    @api.model
-    def check_block_date_conflicts(self, booking_id, new_date_str, is_checkin=False):
-        booking = self.browse(booking_id)
-        try:
-            try:
-                new_date = datetime.strptime(new_date_str, "%d/%m/%Y %H:%M:%S")
-            except ValueError:
-                new_date = datetime.strptime(new_date_str, "%d/%m/%Y %H:%M")
-        except Exception as e:
-            print(f"❌ Date parsing failed for '{new_date_str}': {e}")
-            return {'has_conflict': False, 'conflicted_rooms': []}
-
-        print(f"\n✅ Block Booking ID: {booking_id}")
-        if is_checkin:
-            print(f"🔵 New Check-in Date from JS: {new_date}")
-            print(f"🟡 Original Checkout Date: {booking.checkout_date}")
-            # When changing check-in date, we need to check for conflicts with the new period
-            start_date = new_date
-            end_date = booking.checkout_date
-        else:
-            print(f"🟢 New Checkout Date from JS: {new_date}")
-            print(f"🟡 Original Check-in Date: {booking.checkin_date}")
-            # When changing checkout date, we need to check for conflicts with the new period
-            start_date = booking.checkin_date
-            end_date = new_date
-            
-        # Make sure we have valid dates for comparison
-        if not start_date or not end_date or start_date >= end_date:
-            print("⚠ Invalid date range: start_date must be before end_date")
-            return {'has_conflict': True, 'conflicted_rooms': ['Invalid date range']}
-
-        conflict_rooms = []
-        for line in booking.room_line_ids:
-            if not line.room_id:
-                print("⚠ Skipping line without room_id")
-                continue
-
-            print(f"\n🔍 Checking Room: {line.room_id.display_name}")
-            print(f"Line ID: {line.id}, Room ID: {line.room_id.id}, State: {line.state_}")
-            print(f"Checking availability between: {start_date} and {end_date}")
-
-            # Check if any bookings overlap with our new date range
-            domain = [
-                ('room_id', '=', line.room_id.id),
-                ('id', '!=', line.id),
-                ('state_', 'in', ['block', 'check_in']),
-                '|',
-                    '&', ('checkin_date', '<', end_date),   # starts before our end
-                         ('checkout_date', '>', start_date), # ends after our start
-                    '&', ('checkin_date', '>=', start_date), # starts during our period
-                         ('checkin_date', '<', end_date),    # but before our end
-            ]
-
-            overlap = self.env['room.booking.line'].search_count(domain)
-            print(f"❗ Overlapping Bookings: {overlap}")
-
-            if overlap:
-                conflict_rooms.append(line.room_id.display_name)
-
-        print(f"\n🚨 Conflicted Rooms: {conflict_rooms}")
-        return {
-            'has_conflict': bool(conflict_rooms),
-            'conflicted_rooms': conflict_rooms,
-        }
-    
-    # @api.onchange('checkout_date')
-    # def _onchange_checkout_date(self):
-    #     """Handle changes to the checkout_date and check for conflicts, 
-    #     only when state is 'block' or 'check_in'."""
-        
-    #     # Only proceed if the state is either 'block' or 'check_in'
-    #     if self.state not in ['block', 'check_in']:
-    #         return  # Do nothing if the state is neither 'block' nor 'check_in'
-
-    #     # Get the new checkout date from the field value
-    #     new_checkout_date = self.checkout_date
-    #     print(f"\n✅ Booking ID: {self.id}")
-    #     print(f"🟢 New Checkout Date from JS: {new_checkout_date}")
-    #     print(f"🟡 Original Check-in Date: {self.checkin_date}")
-
-    #     conflict_rooms = []
-
-    #     # Loop through all room lines
-    #     for line in self.room_line_ids:
-    #         if not line.room_id:
-    #             print("⚠ Skipping line without room_id")
-    #             continue
-            
-    #         print(f"\n🔍 Checking Room: {line.room_id.display_name}")
-    #         print(f"Line ID: {line.id}, Room ID: {line.room_id.id}, State: {line.state_}")
-    #         print(f"Line Check-in: {line.checkin_date}, Line Checkout: {line.checkout_date}")
-
-    #         # Define domain to find conflicts based on room, check-in, and checkout dates
-    #         domain = [
-    #             ('room_id', '=', line.room_id.id),
-    #             # ('id', '!=', line.id),
-    #             ('state_', 'in', ['block', 'check_in']),  # Check for 'block' and 'check_in' states
-    #             ('checkin_date', '<=', new_checkout_date),  # booking started before or at new checkout
-    #             ('checkout_date', '>=', self.checkin_date),  # booking ends after new checkout
-    #         ]
-
-    #         # Search for conflicting bookings
-    #         overlap = self.env['room.booking.line'].search_count(domain)
-    #         print(f"❗ Overlapping Bookings: {overlap}")
-
-    #         if overlap:
-    #             conflict_rooms.append(line.room_id.display_name)
-
-    #     print(f"\n🚨 Conflicted Rooms: {conflict_rooms}")
-        
-    #     # If conflicts are detected, raise a UserError
-    #     if conflict_rooms:
-    #         raise UserError(f"The following rooms {', '.join(conflict_rooms)} have a conflict with the new checkout date")
-        
-    #     # If no conflict, allow the change to proceed
-    #     return True
-    
-    # @api.onchange('checkout_date')
-    def _check_checkout_availability(self, new_checkout_date):
-        # if self.state == 'check_in':
-            # Directly using checkout_date as it is already a datetime object
-            # new_checkout_date = self.checkout_date
-        
-        print(f"\n✅ Booking ID: {self.id}")
-        print(f"🟢 New Checkout Date from JS: {new_checkout_date}")
-        print(f"🟡 Original Check-in Date: {self.checkin_date}")
-
-        conflict_rooms = []
-        for line in self.room_line_ids:
-            if not line.room_id:
-                print("⚠ Skipping line without room_id")
-                continue
-
-            print(f"\n🔍 Checking Room: {line.room_id.display_name}")
-            print(f"Line ID: {line.id}, Room ID: {line.room_id.id}, State: {line.state_}")
-            print(f"Line Check-in: {line.checkin_date}, Line Checkout: {line.checkout_date}")
-
-            domain = [
-                ('room_id', '=', line.room_id.id),
-                ('id', '!=', line.id),
-                ('state_', 'in', ['block', 'check_in']),
-                ('checkin_date', '<=', new_checkout_date),  # booking started before or at new checkout
-                ('checkout_date', '>=', self.checkin_date),  # booking ends after new checkout
-            ]
-
-            overlap = self.env['room.booking.line'].search_count(domain)
-            print(f"❗ Overlapping Bookings: {overlap}")
-
-            if overlap:
-                conflict_rooms.append(line.room_id.display_name)
-                
-
-        print(f"\n🚨 Conflicted Rooms: {conflict_rooms}")
-        if conflict_rooms:
-            
-                
-            
-            raise UserError(f"The following rooms {', '.join(conflict_rooms)} have a conflict with the new checkout date")
-            
-           
-        else:
-            # If no conflict, allow the change to proceed
-            return True
-    
-    def _check_checkin_availability(self, new_checkin_date):
-        print(f"\n✅ Booking ID: {self.id}")
-        print(f"🟢 New Checkout Date from JS: {new_checkin_date}")
-        print(f"🟡 Original Check-in Date: {self.checkout_date}")
-
-        conflict_rooms = []  # List to accumulate conflicting room names
-        for line in self.room_line_ids:
-            if not line.room_id:
-                print("⚠ Skipping line without room_id")
-                continue
-
-            print(f"\n🔍 Checking Room: {line.room_id.display_name}")
-            print(f"Line ID: {line.id}, Room ID: {line.room_id.id}, State: {line.state_}")
-            print(f"Line Check-in: {line.checkin_date}, Line Checkout: {line.checkout_date}")
-
-            domain = [
-                ('checkin_date', '<=', self.checkout_date),  # Existing check-in before or on new checkout
-                ('checkout_date', '>=', new_checkin_date),  # Existing checkout after or on new check-in
-            ]
-
-            # Search for conflicting bookings in room.booking
-            overlap = self.env['room.booking'].search(domain)
-
-            if overlap:
-                # Step 2: If there are overlapping bookings, get the conflicting room IDs from room.booking.line
-                conflicting_room_ids = self.env['room.booking.line'].search([
-                    ('booking_id', 'in', overlap.ids),  # Find lines related to the conflicting bookings
-                    ('id', '!=', line.id)  # Exclude the current line
-                ]).mapped('room_id.id')  # Extract only the room_id IDs from conflicting booking lines
-
-                # Step 3: Compare the room_id of the current booking (line) with the conflicting room_ids
-                if line.room_id.id in conflicting_room_ids:
-                    # Add the conflicting room name to the list
-                    conflict_rooms.append(line.room_id.display_name)
-
-        # If there are any conflicts, raise a UserError with a list of conflicting rooms
-        if conflict_rooms:
-            raise UserError(f"The following rooms {', '.join(conflict_rooms)} have a conflict with the new check-in date.")
-
-            
-        #     domain = [
-        #         ('room_id', '=', line.room_id.id),
-        #         ('id', '!=', line.id),
-        #         ('state_', 'in', ['block', 'check_in']),
-        #         ('checkin_date', '<=', self.checkout_date),
-        #         ('checkout_date', '>=', new_checkin_date),
-                
-        #         # ('checkin_date', '<=', new_checkin_date),  # booking started before or at new checkout
-        #         # ('checkout_date', '>=', self.checkout_date),  # booking ends after new checkout
-        #     ]
-
-        #     overlap = self.env['room.booking.line'].search_count(domain)
-        #     print(f"❗ Overlapping Bookings: {overlap}")
-
-        #     if overlap:
-        #         conflict_rooms.append(line.room_id.display_name)
-
-        # print(f"\n🚨 Conflicted Rooms: {conflict_rooms}")
-        # if conflict_rooms:
-           
-            
-        #     raise UserError(f"The following rooms {', '.join(conflict_rooms)} have a conflict with the new checkin date")
-            
-           
-        # else:
-        #     # If no conflict, allow the change to proceed
-        #     return True
-   
-    
-    
-    def check_confirmed_availability_for_confirmed(self, record_id, new_checkin, new_checkout):
-        # 3) Build parameters for the SQL with the new dates
-        booking = self.browse(record_id)
-        query = booking._get_room_search_query()
-        params = {
-            'company_id': booking.env.company.id,
-            'from_date': new_checkin,
-            'to_date': new_checkout,
-            'room_count': booking.room_count,
-            'room_type_id': booking.hotel_room_type.id if booking.hotel_room_type else None,
-        }
-
-        # 4) Execute the query and fetch the results
-        booking.env.cr.execute(query, params)
-        rooms = booking.env.cr.dictfetchall()
-
-        conflicted = []
-        for r in rooms:
-            # Cast to int to drop ".0"
-            min_free = int(r.get('min_free_to_sell', 0))
-            if booking.room_count > min_free:
-                conflicted.append(r.get('room_type_name') or str(r.get('room_type_id')))
-
-        # Print results for debugging
-        print(f"[RoomSearch] Available rows for Booking {record_id}:")
-        for r in rooms:
-            print("  →", r)
-
-        # Check if there are conflicts
-        if conflicted:
-            print(f"[Conflict] Booking {record_id} requests {booking.room_count} rooms,")
-            print(f"           but min_free_to_sell = {int(rooms[0].get('min_free_to_sell', 0))}  (conflicts: {conflicted})")
-
-            # Raise ValidationError with a custom message
-            raise ValidationError("Rooms are not available for the new check-in and check-out dates.")
-
-        else:
-            print(f"[OK] Booking {record_id} can be accommodated with {booking.room_count} rooms.")
-
-        return {
-            'has_conflict': bool(conflicted),
-            'conflicted_rooms': conflicted,
-        }
-
-    @api.model
-    def check_confirmed_availability_for_date_change(self, record_id, new_checkin, new_checkout):
-        # Only act when the booking is in 'confirmed' state
-        booking = self.browse(record_id)
-        if booking.state != 'confirmed':
-            return {'has_conflict': False, 'conflicted_rooms': []}
-
-        # Print the new dates to stdout
-        print(f"[DateChange] Booking {record_id}: check-in = {new_checkin}, check-out = {new_checkout}")
-
-         # 2) Parse "DD/MM/YYYY HH:MM:SS" into Python dates
-        fmt = '%d/%m/%Y %H:%M:%S'
-        try:
-            dt_checkin  = datetime.strptime(new_checkin, fmt).date()
-            dt_checkout = datetime.strptime(new_checkout, fmt).date()
-        except ValueError:
-            # fallback to stored values if parsing fails
-            dt_checkin, dt_checkout = booking.checkin_date, booking.checkout_date
-
-        # 3) Build params for your SQL with the new dates
-        query = booking._get_room_search_query()
-        params = {
-            'company_id':    booking.env.company.id,
-            'from_date':     dt_checkin,
-            'to_date':       dt_checkout,
-            'room_count':    booking.room_count,
-            'room_type_id':  booking.hotel_room_type.id if booking.hotel_room_type else None,
-        }
-
-        # 4) Execute and fetch
-        booking.env.cr.execute(query, params)
-        rooms = booking.env.cr.dictfetchall()
-
-        conflicted = []
-        for r in rooms:
-            # cast to int to drop ".0"
-            min_free = int(r.get('min_free_to_sell', 0))
-            if booking.room_count > min_free:
-                conflicted.append(r.get('room_type_name') or str(r.get('room_type_id')))
-
-        # print results
-        print(f"[RoomSearch] Available rows for Booking {record_id}:")
-        for r in rooms:
-            print("  →", r)
-        if conflicted:
-            print(f"[Conflict] Booking {record_id} requests {booking.room_count} rooms,")
-            print(f"           but min_free_to_sell = {int(rooms[0].get('min_free_to_sell',0))}  (conflicts: {conflicted})")
-        else:
-            print(f"[OK] Booking {record_id} can be accommodated with {booking.room_count} rooms.")
-
-        return {
-            'has_conflict': bool(conflicted),
-            'conflicted_rooms': conflicted,
-        }
-
-
-    
-    
-    
     @api.onchange('room_count')
     def _onchange_room_count(self):
         print("ON CHAGED CALLED")
@@ -955,250 +455,37 @@ class RoomBooking(models.Model):
                 record.is_checkin_in_past = False
 
 
-    # def move_to_no_show(self):
-    #     company_ids = self.env.cr.execute("SELECT id, system_date FROM res_company")
-    #     company_ids = self.env.cr.fetchall()
-
-    #     for company_id, system_date in company_ids:
-    #         company_env = self.env(context=dict(
-    #             self.env.context,
-    #             allowed_company_ids=[company_id],
-    #             force_company=company_id
-    #         ))
-
-    #         yesterday = datetime.combine((system_date - timedelta(days=1)), time.min).date()
-
-    #         # Use SQL to get relevant booking IDs
-    #         self.env.cr.execute("""
-    #             SELECT id FROM room_booking
-    #             WHERE state IN ('not_confirmed', 'confirmed', 'block')
-    #             AND checkin_date < %s
-    #             AND company_id = %s
-    #         """, (yesterday, company_id))
-    #         booking_ids = [r[0] for r in self.env.cr.fetchall()]
-
-    #         for booking_id in booking_ids:
-    #             try:
-    #                 booking = self.browse(booking_id)
-    #                 booking.with_env(company_env).no_show()
-    #                 print(f"Successfully processed booking ID {booking_id} as 'no_show'.")
-    #             except Exception as e:
-    #                 print(f"Failed to process booking ID {booking_id}: {e}")
-
-    # def move_to_no_show(self):
-    #     company_ids = self.env.cr.execute("SELECT id, system_date FROM res_company")
-    #     company_ids = self.env.cr.fetchall()
-
-    #     for company_id, system_date in company_ids:
-    #         company_env = self.env(context=dict(
-    #             self.env.context,
-    #             allowed_company_ids=[company_id],
-    #             force_company=company_id
-    #         ))
-
-    #         yesterday = datetime.combine((system_date - timedelta(days=1)), time.min).date()
-
-    #         # Use SQL to get relevant booking IDs
-    #         self.env.cr.execute("""
-    #             SELECT id FROM room_booking
-    #             WHERE state IN ('not_confirmed', 'confirmed', 'block')
-    #             AND checkin_date < %s
-    #             AND company_id = %s
-    #         """, (yesterday, company_id))
-    #         booking_ids = [r[0] for r in self.env.cr.fetchall()]
-
-    #         if booking_ids:
-    #             # Mark all found bookings as 'no_show'
-    #             self.env.cr.execute("""
-    #                 UPDATE room_booking
-    #                 SET state = 'no_show'
-    #                 WHERE id = ANY(%s)
-    #             """, (booking_ids,))
-                
-    #             print(f"✅ Marked {len(booking_ids)} bookings as 'no_show' for company {company_id}")
-    #         else:
-    #             print(f"ℹ No eligible bookings found for company {company_id}")
-
-    
-
-    # def move_to_no_show(self):
-    #     company_ids = self.env.cr.execute("SELECT id, system_date FROM res_company")
-    #     company_ids = self.env.cr.fetchall()
-
-    #     for company_id, system_date in company_ids:
-    #         company_env = self.env(context=dict(
-    #             self.env.context,
-    #             allowed_company_ids=[company_id],
-    #             force_company=company_id
-    #         ))
-
-    #         yesterday = datetime.combine((system_date - timedelta(days=1)), time.min).date()
-
-    #         # Use SQL to get relevant booking IDs
-    #         self.env.cr.execute(""" 
-    #             SELECT id FROM room_booking 
-    #             WHERE state IN ('not_confirmed', 'confirmed', 'block') 
-    #             AND checkin_date < %s 
-    #             AND company_id = %s
-    #         """, (yesterday, company_id))
-    #         booking_ids = [r[0] for r in self.env.cr.fetchall()]
-
-    #         # Log the booking IDs for debugging
-    #         _logger.info(f"Found booking IDs: {booking_ids} for company {company_id}")
-
-    #         if booking_ids:
-    #             # Mark all found bookings as 'no_show'
-    #             self.env.cr.execute(""" 
-    #                 UPDATE room_booking 
-    #                 SET state = 'no_show' 
-    #                 WHERE id = ANY(%s)
-    #             """, (booking_ids,))  # Directly pass list (not tuple)
-
-    #             # Get room line IDs associated with the bookings
-    #             self.env.cr.execute(""" 
-    #                 SELECT id, room_id 
-    #                 FROM room_booking_line 
-    #                 WHERE booking_id = ANY(%s)
-    #             """, (booking_ids,))
-    #             room_line_ids = self.env.cr.fetchall()
-
-    #             # Log room line IDs for debugging
-    #             _logger.info(f"Found room line IDs: {room_line_ids} for company {company_id}")
-
-    #             # Now, update the room_booking_line with state_ = 'no_show'
-    #             if room_line_ids:
-    #                 room_line_ids_list = [r[0] for r in room_line_ids]
-    #                 _logger.info(f"Updating room_booking_line for IDs: {room_line_ids_list}")
-
-    #                 self.env.cr.execute(""" 
-    #                     UPDATE room_booking_line 
-    #                     SET room_id = NULL, 
-    #                         state_ = 'no_show' 
-    #                     WHERE id = ANY(%s)
-    #                 """, (room_line_ids_list,))  # Directly pass list (not tuple)
-
-    #             print(f"✅ Marked {len(booking_ids)} bookings as 'no_show' for company {company_id}")
-    #         else:
-    #             print(f"ℹ No eligible bookings found for company {company_id}")
-
     def move_to_no_show(self):
-        # 1) Load every company’s ID and system_date
-        self.env.cr.execute("SELECT id, system_date FROM res_company")
-        companies = self.env.cr.fetchall()  # [(company_id, system_date), ...]
-
-        for company_id, system_date in companies:
-            # scope all subsequent queries to this company
-            company_env = self.with_context(
-                allowed_company_ids=[company_id],
-                force_company=company_id,
-            )
-            cr = company_env.env.cr
-
-            # yesterday (00:00) in that company’s calendar
-            yesterday = datetime.combine(
-                (system_date - timedelta(days=1)),
-                time.min
-            ).date()
-
-            # 2) Find bookings whose checkin_date < yesterday and still open
-            cr.execute("""
-                SELECT id
-                FROM room_booking
-                WHERE state IN ('not_confirmed','confirmed','block')
-                  AND checkin_date::date < %s
-                  AND company_id = %s
-            """, (yesterday, company_id))
-            booking_ids = [row[0] for row in cr.fetchall()]
-            _logger.info("Company %s → booking IDs before %s: %s",
-                         company_id, yesterday, booking_ids)
-
-            if not booking_ids:
-                _logger.info("No bookings to mark no_show for company %s", company_id)
-                continue
-
-            # 3) Mark all those bookings as no_show
-            cr.execute("""
-                UPDATE room_booking
-                SET state = 'no_show'
-                WHERE id = ANY(%s)
-            """, (booking_ids,))
-
-            # 4) Fetch every line on those bookings
-            cr.execute("""
-                SELECT id, room_id
-                FROM room_booking_line
-                WHERE booking_id = ANY(%s)
-            """, (booking_ids,))
-            lines = cr.fetchall()  # list of (line_id, room_id)
-            line_ids = [l[0] for l in lines]
-            _logger.info("Company %s → room lines to clear: %s", company_id, line_ids)
-
-            if line_ids:
-                # 5) Clear the rooms and set state_ = 'no_show'
-                cr.execute("""
-                    UPDATE room_booking_line
-                    SET room_id = NULL,
-                        state_  = 'no_show'
-                    WHERE id = ANY(%s)
-                """, (line_ids,))
-
-                # 6) Insert status-history rows
-                for line_id in line_ids:
-                    cr.execute("""
-                        INSERT INTO room_booking_line_status (
-                            booking_line_id,
-                            create_uid, write_uid,
-                            status,
-                            change_time,
-                            create_date, write_date
-                        ) VALUES (
-                            %s,    -- booking_line_id
-                            %s,    -- create_uid
-                            %s,    -- write_uid
-                            'no_show',
-                            NOW(), -- change_time
-                            NOW(), -- create_date
-                            NOW()  -- write_date
-                        )
-                    """, (line_id, self.env.uid, self.env.uid))
-
-            _logger.info(
-                "✅ Company %s → marked %d bookings & %d lines as no_show",
-                company_id, len(booking_ids), len(line_ids)
-            )
-
-    # working 7/11/2025
-    # def move_to_no_show(self):
-    #     company_ids = self.env['res.company'].search([])
+        company_ids = self.env['res.company'].search([])
     
-    #     for company in company_ids:
-    #         company_env = self.env(context=dict(self.env.context, allowed_company_ids=[company.id], 
-    #                                         force_company=company.id))
+        for company in company_ids:
+            company_env = self.env(context=dict(self.env.context, allowed_company_ids=[company.id], 
+                                            force_company=company.id))
 
 
-    #         # Get the current date and subtract one day to get yesterday's date
-    #         system_date = company.system_date.date()
-    #         yesterday = datetime.combine((system_date - timedelta(days=1)), time.min)
-    #         # print("------->", system_date, yesterday.date(), company, company.id, company_env)
+            # Get the current date and subtract one day to get yesterday's date
+            system_date = company.system_date.date()
+            yesterday = datetime.combine((system_date - timedelta(days=1)), time.min)
+            # print("------->", system_date, yesterday.date(), company, company.id, company_env)
 
-    #         # Find bookings with checkin_date equal to yesterday and in the specified states
-    #         bookings = self.search([
-    #             ('state', 'in', ['not_confirmed', 'confirmed', 'block']),
-    #             ('checkin_date', '<', yesterday.date()),
-    #             ('company_id', '=', company.id)
-    #         ])
-    #         # print("BOOKINGS: ", bookings)
+            # Find bookings with checkin_date equal to yesterday and in the specified states
+            bookings = self.search([
+                ('state', 'in', ['not_confirmed', 'confirmed', 'block']),
+                ('checkin_date', '<', yesterday.date()),
+                ('company_id', '=', company.id)
+            ])
+            # print("BOOKINGS: ", bookings)
 
-    #         # Update the state to 'no_show' using the no_show method
-    #         for booking in bookings:
-    #             try:
-    #                 # Call the no_show method
-    #                 booking.no_show()
-    #                 print(
-    #                     f"Successfully processed booking ID {booking.id} as 'no_show'.")
-    #             except Exception as e:
-    #                 # Log or print the exception to handle any issues
-    #                 print(f"Failed to process booking ID {booking.id}: {e}")
+            # Update the state to 'no_show' using the no_show method
+            for booking in bookings:
+                try:
+                    # Call the no_show method
+                    booking.no_show()
+                    print(
+                        f"Successfully processed booking ID {booking.id} as 'no_show'.")
+                except Exception as e:
+                    # Log or print the exception to handle any issues
+                    print(f"Failed to process booking ID {booking.id}: {e}")
 
             # working
             # def move_to_no_show(self):
@@ -1215,9 +502,9 @@ class RoomBooking(models.Model):
             # print(f"Running cron job: Found {len(bookings)} bookings to update to 'no_show'")
 
             # Update the state to 'no_show'
-            # for booking in bookings:
-            #     booking.write({'state': 'no_show'})
-            #     booking.room_line_ids.write({'state_': 'no_show'})
+            for booking in bookings:
+                booking.write({'state': 'no_show'})
+                booking.room_line_ids.write({'state_': 'no_show'})
 
     # working
     # def move_to_no_show(self):
@@ -1759,11 +1046,10 @@ class RoomBooking(models.Model):
                 tax_obj = self.env['account.tax'].browse(tax['id'])
                 tax_name = tax_obj.with_context(lang='en_US').name.lower().strip()
                 
-                # if 'vat' in tax_name:
-                if 'vat' in tax_name or 'ضريبة القيمة المضافة' in tax_name:
+                if 'vat' in tax_name:
                     rec.room_rate_vat += tax['amount']
                 # if 'muncipality' in tax_name:
-                if 'muncipality' in tax_name or 'municipality' in tax_name or 'muni' in tax_name or 'بلدية' in tax_name or 'رسوم البلدية' in tax_name:
+                if 'muncipality' in tax_name or 'municipality' in tax_name or 'muni' in tax_name:
                     rec.room_rate_municiplaity_tax += tax['amount']
 
             rec.room_rate_untaxed = tax_result['total_excluded']
@@ -2037,9 +1323,9 @@ class RoomBooking(models.Model):
 
                     for tax_line in result['taxes']:
                         tax_obj = rec.env['account.tax'].browse(tax_line['id'])
-                        if 'vat' in tax_obj.name.lower() or 'ضريبة القيمة المضافة' in tax_obj.name.lower():
+                        if 'vat' in tax_obj.name.lower():
                             total_vat += tax_line['amount']
-                        if 'muncipality' in tax_obj.name.lower() or 'municipality' in tax_obj.name.lower() or 'muni' in tax_obj.name.lower() or 'بلدية' in tax_obj.name.lower() or 'رسوم البلدية' in tax_obj.name.lower():
+                        if 'muncipality' in tax_obj.name.lower() or 'municipality' in tax_obj.name.lower() or 'muni' in tax_obj.name.lower():
                             total_municipality += tax_line['amount']
             else:
                 total_untaxed = base_amount
@@ -2093,9 +1379,9 @@ class RoomBooking(models.Model):
                     tax_obj = self.env['account.tax'].browse(tax['id'])
                     tax_name = tax_obj.with_context(lang='en_US').name.lower().strip()
 
-                    if 'vat' in tax_name or 'ضريبة القيمة المضافة' in tax_name:
+                    if 'vat' in tax_name:
                         vat_total += tax['amount']
-                    if 'municipality' in tax_name or 'muncipality' in tax_name or 'muni' in tax_name or 'بلدية' in tax_name or 'رسوم البلدية' in tax_name:
+                    if 'municipality' in tax_name or 'muncipality' in tax_name or 'muni' in tax_name:
                         muni_total += tax['amount']
 
                 untaxed_total += tax_result.get('total_excluded', total_amount)
@@ -2200,13 +1486,6 @@ class RoomBooking(models.Model):
             record.total_fixed_post_after_discount = record.total_fixed_post_forecast 
 
             # -------------------- FINAL TOTAL FORECAST --------------------
-            if record.total_rate_after_discount < 0:
-                record.total_rate_after_discount = 0.0
-            if record.total_meal_after_discount < 0:
-                record.total_meal_after_discount = 0.0
-            if record.total_fixed_post_after_discount < 0:
-                record.total_fixed_post_after_discount = 0.0
-
             record.total_total_forecast = (
                 (record.total_rate_after_discount or 0.0) +
                 (record.total_meal_after_discount or 0.0) +
@@ -3605,6 +2884,7 @@ class RoomBooking(models.Model):
 
                         total = before_discount - get_discount - \
                             room_price_after_discount - meal_price_after_discount
+                        print("LINE 2468", total)
 
 
                     if existing_forecast:
@@ -3859,33 +3139,6 @@ class RoomBooking(models.Model):
 
     search_done = fields.Boolean(string="Search Done", default=False)
 
-    def _check_room_availability(self, checkout_date):
-        query = self._get_room_search_query()
-        # Construct the parameters for the SQL
-        params = {
-            'company_id': self.env.company.id,
-            'from_date': self.checkin_date,
-            'to_date': checkout_date,
-            'room_count': self.room_count,
-            'room_type_id': self.hotel_room_type and self.hotel_room_type.id or None,
-        }
-
-        # Execute the query
-        self.env.cr.execute(query, params)
-        results = self.env.cr.dictfetchall()
-
-        for room in results:
-            if room.get('min_free_to_sell', 0) == 0:
-                # Raise a ValidationError if no rooms are available
-                raise ValidationError(f"No available rooms for {room['room_type_name']} from {self.checkin_date} to {checkout_date}.")
-        
-        if results:
-            print("Available rooms from")
-            for room in results:
-                print("room", room)
-        else:
-            raise ValidationError(f"No available rooms from {self.checkin_date} to {checkout_date}.")
-
 
     def write(self, vals):
         self.check_room_meal_validation(vals, True)
@@ -3908,57 +3161,17 @@ class RoomBooking(models.Model):
                     if field in vals and not vals.get(field):
                         label = field_labels.get(field, field.replace('_', ' ').title())
                         raise ValidationError(_("You cannot remove the field %s after confirmation.") % label)
-        
-        if 'checkout_date' in vals:
-            if self.state in ['check_in', 'block']:
-                new_checkout_date = vals['checkout_date']
-                current_checkout_date = self.checkout_date  # Existing checkout date
-
-                if isinstance(new_checkout_date, str):
-                    new_checkout_date = fields.Date.from_string(new_checkout_date)
-                elif isinstance(new_checkout_date, datetime):
-                    new_checkout_date = new_checkout_date.date()
-                if isinstance(current_checkout_date, datetime):
-                    current_checkout_date = current_checkout_date.date()
-                
+        # for record in self:
+        #     if record.state == 'confirmed':
+        #         protected_fields = [
+        #             'partner_id', 'nationality', 'source_of_business',
+        #             'market_segment', 'rate_code', 'meal_pattern'
+        #         ]
+        #         for field in protected_fields:
+        #             if field in vals and not vals.get(field):
+        #                 raise ValidationError(_("You cannot remove the field %s after confirmation.") % field.replace('_', ' ').title())
 
 
-
-                print('3747', new_checkout_date, current_checkout_date)
-                
-                # Only call the availability check if the new checkout date is later than the current one
-                if new_checkout_date > current_checkout_date:
-                    try:
-                        self._check_checkout_availability(new_checkout_date)
-                    except ValidationError as e:
-                        # Show the error to the user or handle accordingly
-                        raise e
-        # if 'checkout_date' in vals:
-        #     if self.state in ['check_in', 'block']:
-        #         new_checkout_date = vals['checkout_date']
-        #         try:
-        #             self._check_checkout_availability(new_checkout_date)
-        #         except ValidationError as e:
-        #             # Show the error to the user or handle accordingly
-        #             raise e
-            if self.state == 'confirmed':
-                # Call the function for confirmed state
-                new_checkin = vals.get('checkin_date', self.checkin_date)  # Get new check-in date
-                new_checkout = vals['checkout_date']
-                self.check_confirmed_availability_for_confirmed(self.id, new_checkin, new_checkout)
-        if 'checkin_date' in vals:
-            if self.state == 'block':
-                new_checkin_date = vals['checkin_date']
-                try:
-                    self._check_checkin_availability(new_checkin_date)
-                except ValidationError as e:
-                    # Show the error to the user or handle accordingly
-                    raise e
-            if self.state == 'confirmed':
-                # Call the function for confirmed state when checkin_date changes
-                new_checkin = vals['checkin_date']
-                new_checkout = vals.get('checkout_date', self.checkout_date)  # Default to existing checkout_date
-                self.check_confirmed_availability_for_confirmed(self.id, new_checkin, new_checkout)
         if 'company_id' in vals:
             company = self.env['res.company'].browse(vals['company_id'])
             if 'checkin_date' not in vals:  # Only update if not explicitly provided
@@ -3972,9 +3185,8 @@ class RoomBooking(models.Model):
             return res
 
         if 'room_count' in vals and vals['room_count'] <= 0:
-            raise ValidationError(_("Room count cannot be zero or less. Please select at least one room.")
-                )
-                
+            raise ValidationError(
+                "Room count cannot be zero or less. Please select at least one room.")
 
         
         if 'adult_count' in vals and vals['adult_count'] <= 0:
@@ -3993,7 +3205,16 @@ class RoomBooking(models.Model):
         if 'checkout_date' in vals and not vals['checkout_date']:
             raise ValidationError(_("Check-Out Date is required and cannot be empty."))
         
-        
+        # if 'checkin_date' in vals or 'checkout_date' in vals:
+        #     for booking in self:
+        #         updated_checkin_date = vals.get('checkin_date', booking.checkin_date)
+        #         updated_checkout_date = vals.get('checkout_date', booking.checkout_date)
+        #
+        #         # Update the associated room.booking.line records
+        #         booking.room_line_ids.write({
+        #             'checkin_date': updated_checkin_date,
+        #             'checkout_date': updated_checkout_date
+        #         })
         if 'checkin_date' in vals or 'checkout_date' in vals:
             for booking in self:
                 updated_checkin_date = vals.get('checkin_date', booking.checkin_date)
@@ -4020,16 +3241,13 @@ class RoomBooking(models.Model):
                         'checkout_date': updated_checkout_date
                     })
 
-        # if 'checkout_date' in vals:
-        #     if self.state == 'check_in':
-        #         new_checkout_date = vals['checkout_date']
-        #         try:
-        #             self._check_room_availability(new_checkout_date)
-        #         except ValidationError as e:
-        #             # Handle the ValidationError, e.g., show it to the user
-                    # raise e
-
-        
+        # if 'date_order' not in vals:
+        #     system_date = self.env['res.company'].search(
+        #         [], limit=1).system_date
+        #     if system_date:
+        #         vals['date_order'] = system_date
+        # print("in write for testing", vals)
+        # Determine if 'state' is being updated
         state_changed = 'state' in vals and vals['state'] != self.state
 
         # Perform the write operation
@@ -4299,26 +3517,23 @@ class RoomBooking(models.Model):
     
     
 
-    # @api.onchange('checkout_date')
-    # def _onchange_checkout_date(self):
-    #     if self.checkin_date and self.checkout_date:
-    #         if self.checkout_date < self.checkin_date:
-    #             self.checkout_date = self.checkin_date + timedelta(days=1)
-    #             print("Checkout Date: %s", self.checkout_date)
-    #             return {
-    #                 'warning': {
-    #                     'title': _("Invalid Check-Out Date"),
-    #                     'message': _("Check-Out Date cannot be before Check-In Date. It has been reset.")
-    #                 }
-    #             }
-    #         delta = (self.checkout_date - self.checkin_date).days
-    #         self.no_of_nights = delta
-
+    @api.onchange('checkout_date')
+    def _onchange_checkout_date(self):
+        if self.checkin_date and self.checkout_date:
+            if self.checkout_date < self.checkin_date:
+                self.checkout_date = self.checkin_date + timedelta(days=1)
+                print("Checkout Date: %s", self.checkout_date)
+                return {
+                    'warning': {
+                        'title': _("Invalid Check-Out Date"),
+                        'message': _("Check-Out Date cannot be before Check-In Date. It has been reset.")
+                    }
+                }
+            delta = (self.checkout_date - self.checkin_date).days
+            self.no_of_nights = delta
 
     @api.onchange('checkin_date', 'no_of_nights')
     def _onchange_checkin_date_or_no_of_nights(self):
-        if self.state == 'block':
-            return
         if self.checkin_date:
             # Convert current time to user's timezone
             current_time = fields.Datetime.context_timestamp(self, fields.Datetime.now())
@@ -4740,7 +3955,6 @@ class RoomBooking(models.Model):
                 "No bookings were confirmed. Please ensure the state is 'Not Confirmed' or 'No Show' before confirming."
             ))
 
-    
     def action_no_show_tree(self):
         """Convert parent + children *block* bookings to **no_show**
         (only on the check‑in date) and wipe related availability lines."""
@@ -4780,167 +3994,33 @@ class RoomBooking(models.Model):
     # ───────────────────────────────────────────────────────────────
     #  Helper: convert *one* booking to no_show and free its rooms
     # ───────────────────────────────────────────────────────────────
-    # def _to_no_show(self, today):
-    #     self.ensure_one()
-
-    #     # date guard
-    #     # if fields.Date.to_date(self.checkin_date) != today:
-    #     #     raise ValidationError(_(
-    #     #         f"Booking {self.name}: 'No Show' can only be done on the check‑in date."
-    #     #     ))
-    #     if fields.Date.to_date(self.checkin_date) != today:
-    #         raise ValidationError(_(
-    #             "Booking %s: No Show can only be done on the check-in date."
-    #         ) % self.name)
-    #     # ---- 1) Release rooms in lines ----------------------------------
-    #     for line in self.room_line_ids:
-    #         line.room_id = None
-    #         line.state_   = "no_show"
-    #     # self.room_line_ids.unlink()
-
-    #     # ---- 2) Delete availability result rows -------------------------
-    #     avail_recs = self.env["room.availability.result"].search(
-    #         [("room_booking_id", "=", self.id)]
-    #     )
-    #     if avail_recs:
-    #         avail_recs.unlink()
-    #         print("Availability lines removed for booking %s", self.name)
-
-    #     # ---- 3) Switch booking state ------------------------------------
-    #     self.write({"state": "no_show"})
-    #     print("Booking %s → no_show", self.name)
-    #     if self.room_line_ids:
-    #         self.room_line_ids.write({"state_": "no_show"})  # Ensure state_ is updated on all room lines
-    #         print("Room lines updated to 'no_show' for booking %s" % self.name)
-    
-    # def _to_no_show(self, today):
-    #     self.ensure_one()
-
-    #     # Date guard
-    #     if fields.Date.to_date(self.checkin_date) != today:
-    #         raise ValidationError(_(
-    #             "Booking %s: No Show can only be done on the check-in date."
-    #         ) % self.name)
-
-    #     # ---- 1) Release rooms in lines and update state_ in one query ------------------
-    #     if self.room_line_ids:
-    #         room_line_ids = self.room_line_ids.ids  # Get all room_line_ids
-    #         _logger.info("Room line IDs: %s", room_line_ids)  # Log room line IDs for debugging
-
-    #         # Ensure we pass a tuple, even if there is a single ID
-    #         if len(room_line_ids) == 1:
-    #             room_line_ids = [room_line_ids[0]]  # Convert to a list if only one ID, which ensures proper array handling
-
-    #         _logger.info("Executing bulk update for room lines with IDs: %s", room_line_ids)
-            
-    #         # Convert to an array format (use ARRAY[] for PostgreSQL)
-    #         self.env.cr.execute("""
-    #             UPDATE room_booking_line
-    #             SET room_id = NULL, state_ = 'no_show'
-    #             WHERE id = ANY(ARRAY[%s])
-    #         """, (tuple(room_line_ids),))  # Pass as a tuple to ensure proper array handling in SQL
-
-    #     # ---- 2) Delete availability result rows in one query -------------------------
-    #     _logger.info("Deleting availability lines for booking: %s", self.name)
-    #     self.env.cr.execute("""
-    #         DELETE FROM room_availability_result
-    #         WHERE room_booking_id = %s
-    #     """, (self.id,))
-    #     _logger.info("Availability lines removed for booking %s" % self.name)
-
-    #     # ---- 3) Switch booking state using SQL query --------------------------------
-    #     _logger.info("Updating state to 'no_show' for booking %s", self.name)
-    #     self.env.cr.execute("""
-    #         UPDATE room_booking
-    #         SET state = 'no_show'
-    #         WHERE id = %s
-    #     """, (self.id,))
-
-    #     # ---- 4) Ensure room lines are updated to 'no_show' in one query ----------
-    #     if self.room_line_ids:
-    #         _logger.info("Updating room lines state_ to 'no_show' for booking %s", self.name)
-    #         self.env.cr.execute("""
-    #             UPDATE room_booking_line
-    #             SET state_ = 'no_show'
-    #             WHERE booking_id = %s
-    #         """, (self.id,))
-    #         _logger.info("Room lines updated to 'no_show' for booking %s" % self.name)
-    
     def _to_no_show(self, today):
         self.ensure_one()
 
-        # Date guard
+        # date guard
         if fields.Date.to_date(self.checkin_date) != today:
             raise ValidationError(_(
-                "Booking %s: No Show can only be done on the check-in date."
-            ) % self.name)
+                f"Booking {self.name}: 'No Show' can only be done on the check‑in date."
+            ))
 
-        # ---- 1) Release rooms, update state_, insert status history ----------------
-        if self.room_line_ids:
-            room_line_ids = self.room_line_ids.ids
-            _logger.info("Room line IDs to process: %s", room_line_ids)
-
-            # Bulk clear room assignments and set state_
-            self.env.cr.execute(
-                """
-                UPDATE room_booking_line
-                SET room_id = NULL,
-                    state_  = 'no_show'
-                WHERE id = ANY(%s)
-                """,
-                (room_line_ids,)
-            )
-
-            # Insert a no_show entry in the status history for each line
-            for line_id in room_line_ids:
-                self.env.cr.execute(
-                    """
-                    INSERT INTO room_booking_line_status (
-                        booking_line_id,
-                        create_uid, write_uid,
-                        status,
-                        change_time,
-                        create_date, write_date
-                    ) VALUES (%s, %s, %s, 'no_show', NOW(), NOW(), NOW())
-                    """,
-                    (line_id, self.env.uid, self.env.uid)
-                )
+        # ---- 1) Release rooms in lines ----------------------------------
+        for line in self.room_line_ids:
+            line.room_id = None
+            line.state   = "no_show"
+        # self.room_line_ids.unlink()
 
         # ---- 2) Delete availability result rows -------------------------
-        _logger.info("Deleting availability lines for booking: %s", self.name)
-        self.env.cr.execute(
-            """
-            DELETE FROM room_availability_result
-            WHERE room_booking_id = %s
-            """,
-            (self.id,)
+        avail_recs = self.env["room.availability.result"].search(
+            [("room_booking_id", "=", self.id)]
         )
+        if avail_recs:
+            avail_recs.unlink()
+            print("Availability lines removed for booking %s", self.name)
 
         # ---- 3) Switch booking state ------------------------------------
-        _logger.info("Updating state to 'no_show' for booking %s", self.name)
-        self.env.cr.execute(
-            """
-            UPDATE room_booking
-            SET state = 'no_show'
-            WHERE id = %s
-            """,
-            (self.id,)
-        )
-
-        # ---- 4) Ensure room lines are flagged no_show -------------------
-        # (if any slipped through)
-        if self.room_line_ids:
-            _logger.info("Re-flagging room lines for booking %s", self.name)
-            self.env.cr.execute(
-                """
-                UPDATE room_booking_line
-                SET state_ = 'no_show'
-                WHERE booking_id = %s
-                """,
-                (self.id,)
-            )
-            _logger.info("Room lines updated to 'no_show' for booking %s", self.name)
-
+        self.write({"state": "no_show"})
+        print("Booking %s → no_show", self.name)
+    
 
     # def action_no_show_tree(self):
     #     # current_date = fields.Date.context_today(self)
@@ -5103,127 +4183,51 @@ class RoomBooking(models.Model):
     #     }
 
 
-    # def action_cancel_booking(self):
-    #     # 1) sanity checks
-    #     states = self.mapped('state')
-    #     if len(set(states)) > 1:
-    #         raise ValidationError(_("Please select records with the same state."))
-    #     allowed = {'not_confirmed', 'confirmed', 'waiting'}
-    #     bad = self.filtered(lambda b: b.state not in allowed)
-    #     if bad:
-    #         state_translation = {
-    #         'cancel': 'مُلْغى',
-    #         'check_out': 'مغادرة',
-    #         'check_in': 'وصول',
-    #         'confirmed': 'مؤكد',
-    #         'not_confirmed': 'غير مؤكد',
-    #         'waiting': 'في الانتظار',
-    #         'block': 'مخصص',
-    #         'no_show': 'عدم الحضور',
-    #     }
-    #         state_arabic = state_translation.get(bad[0].state, bad[0].state)
-    #         raise ValidationError(
-    #             _("You cannot cancel bookings in state %s.") % state_arabic)
-
-    #     # 2) for each booking in the selection...
-    #     for booking in self:
-    #         # 2a) if it's a parent, cancel its children too
-    #         children = self.search([
-    #             ('parent_booking_name', '=', booking.name),
-    #             ('state', 'in', list(allowed))
-    #         ])
-    #         if children:
-    #             children.write({'state': 'cancel'})
-    #             # free up rooms on those children
-    #             for line in children.mapped('room_line_ids'):
-    #                 line.room_id.write({
-    #                     'status': 'available',
-    #                     'is_room_avail': True,
-    #                 })
-
-    #         # 2b) now cancel the booking itself
-    #         booking.write({'state': 'cancel'})
-    #         for line in booking.room_line_ids:
-    #             line.room_id.write({
-    #                 'status': 'available',
-    #                 'is_room_avail': True,
-    #             })
-
-    #     # 3) commit & refresh dashboard
-    #     self.env.cr.commit()
-    #     data = self.retrieve_dashboard()
-
-    #     return {
-    #         'type': 'ir.actions.client',
-    #         'tag': 'display_notification',
-    #         'params': {
-    #             'type': 'success',
-    #             'message': _("Booking(s) cancelled successfully!"),
-    #             'next': {'type': 'ir.actions.act_window_close'},
-    #             'dashboard_data': data,
-    #         }
-    #     }
-
     def action_cancel_booking(self):
-        # 1) Sanity checks
+        # 1) sanity checks
         states = self.mapped('state')
         if len(set(states)) > 1:
-            raise ValidationError(_("Please select records with the same state."))
+            raise ValidationError("Please select records with the same state.")
         allowed = {'not_confirmed', 'confirmed', 'waiting'}
         bad = self.filtered(lambda b: b.state not in allowed)
         if bad:
             state_translation = {
-                'cancel': 'مُلْغى',
-                'check_out': 'مغادرة',
-                'check_in': 'وصول',
-                'confirmed': 'مؤكد',
-                'not_confirmed': 'غير مؤكد',
-                'waiting': 'في الانتظار',
-                'block': 'مخصص',
-                'no_show': 'عدم الحضور',
-            }
+            'cancel': 'مُلْغى',
+            'check_out': 'مغادرة',
+            'check_in': 'وصول',
+            'confirmed': 'مؤكد',
+            'not_confirmed': 'غير مؤكد',
+            'waiting': 'في الانتظار',
+        }
             state_arabic = state_translation.get(bad[0].state, bad[0].state)
             raise ValidationError(
                 _("You cannot cancel bookings in state %s.") % state_arabic)
 
-        # 2) For each booking in the selection...
+        # 2) for each booking in the selection...
         for booking in self:
-            # 2a) If it's a parent, cancel its children too
+            # 2a) if it's a parent, cancel its children too
             children = self.search([
                 ('parent_booking_name', '=', booking.name),
                 ('state', 'in', list(allowed))
             ])
             if children:
                 children.write({'state': 'cancel'})
-                # Free up rooms on those children
+                # free up rooms on those children
                 for line in children.mapped('room_line_ids'):
                     line.room_id.write({
                         'status': 'available',
                         'is_room_avail': True,
                     })
-                # Set 'state_' to 'cancel' for room booking lines of children
-                self.env.cr.execute("""
-                    UPDATE room_booking_line
-                    SET state_ = 'cancel'
-                    WHERE booking_id IN %s
-                """, (tuple(children.ids),))
 
-            # 2b) Now cancel the booking itself
+            # 2b) now cancel the booking itself
             booking.write({'state': 'cancel'})
             for line in booking.room_line_ids:
                 line.room_id.write({
                     'status': 'available',
                     'is_room_avail': True,
                 })
-            
-            # Set 'state_' to 'cancel' for room booking lines of the current booking
-            self.env.cr.execute("""
-                UPDATE room_booking_line
-                SET state_ = 'cancel'
-                WHERE booking_id = %s
-            """, (booking.id,))
 
-        # 3) Commit & refresh dashboard
+        # 3) commit & refresh dashboard
         self.env.cr.commit()
         data = self.retrieve_dashboard()
 
@@ -5232,12 +4236,11 @@ class RoomBooking(models.Model):
             'tag': 'display_notification',
             'params': {
                 'type': 'success',
-                'message': _("Booking(s) cancelled successfully!"),
+                'message': "Booking(s) cancelled successfully!",
                 'next': {'type': 'ir.actions.act_window_close'},
                 'dashboard_data': data,
             }
         }
-
 
     def action_checkin_booking(self):
         # today = datetime.now().date()
@@ -5470,22 +4473,26 @@ class RoomBooking(models.Model):
             }
         }
 
-
     def action_checkout_booking(self):
         today = self.env.company.system_date.date()
         all_bookings = self
 
+        # Filter eligible bookings with 1 or fewer room lines
         eligible_bookings = all_bookings.filtered(lambda b: len(b.room_line_ids) <= 1)
 
         for booking in eligible_bookings:
             if booking.state != 'check_in':
-                raise ValidationError(_("All selected bookings must be in the check_in state."))
+                raise ValidationError(
+                    _("All selected bookings must be in the check_in state to proceed with check-out.")
+                )
 
+        # Check for future checkout dates
         future_bookings = eligible_bookings.filtered(
             lambda b: b.checkout_date and fields.Date.to_date(b.checkout_date) > today
         )
 
         if future_bookings:
+            # Trigger Early Checkout Wizard
             return {
                 'type': 'ir.actions.act_window',
                 'res_model': 'confirm.early.checkout.wizard',
@@ -5495,97 +4502,14 @@ class RoomBooking(models.Model):
                     'default_booking_ids': future_bookings.mapped('id'),
                 }
             }
-
-        current_time = datetime.now().time()
+        current_time = datetime.now().time()  # Get the current system time
         current_datetime = datetime.combine(today, current_time)
-
-        cr = self.env.cr
-        booking_ids = []
-        room_line_ids = []
-        move_vals_list = []
-        move_map = {}  # booking.id → account.move
-
-        line_vals = []
-
+        # Direct checkout for bookings without future checkout dates
         for booking in eligible_bookings:
-            booking_ids.append(booking.id)
-            room_line_ids.extend(booking.room_line_ids.ids)
-
-            # Meal & rate info
-            posting_item_meal, _1, _2, _3 = booking.get_meal_rates(booking.meal_pattern.id)
-            _a, _b, _c, posting_item_rate, line_posting_items = booking.get_all_prices(booking.checkin_date, booking)
-
-            forecast_lines = [line for line in booking.rate_forecast_ids if line.date == today]
-            if not forecast_lines:
-                continue  # skip if no forecast lines
-
-            move_vals_list.append({
-                'move_type': 'out_invoice',
-                'invoice_date': today,
-                'partner_id': booking.partner_id.id,
-                'ref': booking.name,
-                'hotel_booking_id': booking.id,
-                'group_booking_name': booking.group_booking.name if booking.group_booking else '',
-                'parent_booking_name': booking.parent_booking_name or '',
-                'room_numbers': booking.room_ids_display or '',
-            })
-
-        # 1️⃣ Create all invoices in one go
-        created_moves = self.env['account.move'].create(move_vals_list)
-
-        # 2️⃣ Map invoices to bookings
-        for booking, move in zip(eligible_bookings, created_moves):
-            move_map[booking.id] = move
-
-        # 3️⃣ Collect all invoice lines in one list
-        for booking in eligible_bookings:
-            move = move_map.get(booking.id)
-            if not move:
-                continue
-
-            posting_item_meal, _1, _2, _3 = booking.get_meal_rates(booking.meal_pattern.id)
-            _a, _b, _c, posting_item_rate, line_posting_items = booking.get_all_prices(booking.checkin_date, booking)
-
-            for line in booking.rate_forecast_ids.filtered(lambda l: l.date == today):
-                if line.rate and line.rate > 0:
-                    line_vals.append({
-                        'posting_item_id': posting_item_rate,
-                        'posting_description': 'Rate',
-                        'posting_default_value': line.rate,
-                        'move_id': move.id,
-                    })
-                if line.meals and line.meals > 0:
-                    line_vals.append({
-                        'posting_item_id': posting_item_meal,
-                        'posting_description': 'Meal',
-                        'posting_default_value': line.meals,
-                        'move_id': move.id,
-                    })
-                if line.packages and line.packages > 0:
-                    line_vals.append({
-                        'posting_item_id': line_posting_items[-1],
-                        'posting_description': 'Package',
-                        'posting_default_value': line.packages,
-                        'move_id': move.id,
-                    })
-
-        # 4️⃣ Create all invoice lines in one go
-        if line_vals:
-            self.env['account.move.line'].create(line_vals)
-
-        # 5️⃣ Fast SQL updates for booking state and invoice button
-        cr.execute("""
-            UPDATE room_booking
-            SET invoice_status = 'invoiced', state = 'check_out', checkout_date = %s, invoice_button_visible = TRUE
-            WHERE id IN %s
-        """, (current_datetime, tuple(booking_ids)))
-
-        if room_line_ids:
-            cr.execute("""
-                UPDATE room_booking_line
-                SET state_ = 'check_out'
-                WHERE id IN %s
-            """, (tuple(room_line_ids),))
+            booking._create_invoice()  # Call the invoice creation method
+            booking.write({'invoice_status': "invoiced", 'state': "check_out","checkout_date": current_datetime})
+            booking.room_line_ids.write({"state_": "check_out"})
+            booking.invoice_button_visible = True
 
         return {
             'type': 'ir.actions.client',
@@ -5596,55 +4520,6 @@ class RoomBooking(models.Model):
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }
-
-
-    # def action_checkout_booking(self):
-    #     today = self.env.company.system_date.date()
-    #     all_bookings = self
-
-    #     # Filter eligible bookings with 1 or fewer room lines
-    #     eligible_bookings = all_bookings.filtered(lambda b: len(b.room_line_ids) <= 1)
-
-    #     for booking in eligible_bookings:
-    #         if booking.state != 'check_in':
-    #             raise ValidationError(
-    #                 _("All selected bookings must be in the check_in state to proceed with check-out.")
-    #             )
-
-    #     # Check for future checkout dates
-    #     future_bookings = eligible_bookings.filtered(
-    #         lambda b: b.checkout_date and fields.Date.to_date(b.checkout_date) > today
-    #     )
-
-    #     if future_bookings:
-    #         # Trigger Early Checkout Wizard
-    #         return {
-    #             'type': 'ir.actions.act_window',
-    #             'res_model': 'confirm.early.checkout.wizard',
-    #             'view_mode': 'form',
-    #             'target': 'new',
-    #             'context': {
-    #                 'default_booking_ids': future_bookings.mapped('id'),
-    #             }
-    #         }
-    #     current_time = datetime.now().time()  # Get the current system time
-    #     current_datetime = datetime.combine(today, current_time)
-    #     # Direct checkout for bookings without future checkout dates
-    #     for booking in eligible_bookings:
-    #         booking._create_invoice()  # Call the invoice creation method
-    #         booking.write({'invoice_status': "invoiced", 'state': "check_out","checkout_date": current_datetime})
-    #         booking.room_line_ids.write({"state_": "check_out"})
-    #         booking.invoice_button_visible = True
-
-    #     return {
-    #         'type': 'ir.actions.client',
-    #         'tag': 'display_notification',
-    #         'params': {
-    #             'type': 'success',
-    #             'message': _("Booking Checked Out Successfully!"),
-    #             'next': {'type': 'ir.actions.act_window_close'},
-    #         }
-    #     }
 
 
     # def action_checkout_booking(self):
@@ -6048,14 +4923,47 @@ class RoomBooking(models.Model):
 
     room_type_name = fields.Many2one('room.type', string='Room Type Name')
 
+    # def action_unconfirm(self):
+    #     self.ensure_one()
+    #     self.action_clear_rooms()
+    #     """Set the booking back to 'not_confirmed' state from 'confirmed' or 'block'"""
+    #     for recor d in self:
+    #         if record.state in ['block', 'confirmed', 'waiting', 'cancel']:
+    #             record.state = 'not_confirmed'
     def action_unconfirm(self):
-        self.ensure_one()
-        self.action_clear_rooms()
-        """Set the booking back to 'not_confirmed' state from 'confirmed' or 'block'"""
-        for record in self:
-            if record.state in ['block', 'confirmed', 'waiting', 'cancel']:
-                record.state = 'not_confirmed'
+        # 1) Gather all related records once
+        room_lines = self.mapped('room_line_ids')
+        adults = self.mapped('adult_ids')
+        children = self.mapped('child_ids')
+        infants = self.mapped('infant_ids')
+        booking_ids = self.ids
 
+        # 2) Unlink in bulk instead of per-booking
+        if room_lines:
+            room_lines.unlink()
+        if adults:
+            adults.unlink()
+        if children:
+            children.unlink()
+        if infants:
+            infants.unlink()
+        # reset fixed-post items in one write
+        self.write({'posting_item_ids': [(5, 0, 0)]})
+
+        # 3) Bulk-remove forecasts & availability results
+        self.env['room.rate.forecast'].search([
+            ('room_booking_id', 'in', booking_ids)
+        ]).unlink()
+        self.env['room.availability.result'].search([
+            ('room_booking_id', 'in', booking_ids)
+        ]).unlink()
+
+        # 4) Single write to reset state on all applicable bookings
+        to_reset = self.filtered(lambda b: b.state in ['block', 'confirmed', 'waiting', 'cancel'])
+        if to_reset:
+            to_reset.write({'state': 'not_confirmed'})
+
+        return True
     def _open_confirm_wizard(self, title, message, block_line=False):
         self.ensure_one()
         return {
@@ -6074,9 +4982,8 @@ class RoomBooking(models.Model):
 
     def action_confirm(self):
         # today = datetime.now().date()
-        bookings = self.sudo()
         today = self.env.company.system_date.date()
-        for record in bookings:
+        for record in self:
             if record.checkin_date and record.checkin_date.date() < today:
                 raise ValidationError(
                     _("You cannot confirm a booking with a check-in date in the past."))
@@ -6108,7 +5015,8 @@ class RoomBooking(models.Model):
                 record.action_split_rooms()
 
             # 4) Check if there is any line in block state
-            block_line = record.room_line_ids.filtered(lambda l: l.state_ == 'block')
+            block_line = record.room_line_ids.filtered(
+                lambda l: l.state_ == 'block')
             # if block_line:
             if record.state == 'block' or block_line:
                 return record._open_confirm_wizard(
@@ -6138,17 +5046,7 @@ class RoomBooking(models.Model):
             for search_result in record.availability_results:
                 search_result.available_rooms -= search_result.rooms_reserved
 
-        # return True
-        return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'type': 'success',
-                    'message': _("Booking(s) confirmed successfully!"),
-                    'next': {'type': 'ir.actions.act_window_close'},
-                    # 'dashboard_data': dashboard_data,
-                },
-            }
+        return True
 
     
     def action_waiting(self):
@@ -6163,273 +5061,56 @@ class RoomBooking(models.Model):
                     "You have to Search room first then you can Send to Waiting List.")
             record.state = 'waiting'
 
-    # def no_show(self):
-    #     current_date = self.env.company.system_date.date()
-
-    #     for record in self:
-    #         checkin_date = record.checkin_date.date()
-    #         if checkin_date != current_date:
-    #             raise UserError(_("The No Show action can only be performed on the current check-in date."))
-
-    #         booking_id = record.id
-    #         parent_booking_id = record.parent_booking_id.id if record.parent_booking_id else record.id
-
-    #         # Get room line IDs with SQL
-    #         self.env.cr.execute("""
-    #             SELECT id, room_id, COALESCE(room_count, 1)
-    #             FROM room_booking_line
-    #             WHERE booking_id = %s
-    #         """, (booking_id,))
-    #         room_lines = self.env.cr.fetchall()
-
-    #         # Get availability record
-    #         self.env.cr.execute("""
-    #             SELECT id, available_rooms, rooms_reserved
-    #             FROM room_availability_result
-    #             WHERE room_booking_id = %s
-    #             LIMIT 1
-    #         """, (parent_booking_id,))
-    #         availability = self.env.cr.fetchone()
-
-    #         if availability:
-    #             availability_id, available_rooms, rooms_reserved = availability
-
-    #             total_reserved = 0
-    #             room_line_ids = []
-
-    #             for line_id, room_id, reserved in room_lines:
-    #                 if room_id:
-    #                     total_reserved += reserved
-    #                     room_line_ids.append(line_id)
-    #                     print("Processing Room Line ID:", line_id)
-
-    #             # Update availability counts
-    #             self.env.cr.execute("""
-    #                 UPDATE room_availability_result
-    #                 SET available_rooms = available_rooms + %s,
-    #                     rooms_reserved = rooms_reserved - %s
-    #                 WHERE id = %s
-    #             """, (total_reserved, total_reserved, availability_id))
-
-    #             # Clear room assignment in batch
-    #             if room_line_ids:
-    #                 self.env.cr.execute("""
-    #                     UPDATE room_booking_line
-    #                     SET room_id = NULL,
-    #                         state = 'no_show'
-    #                     WHERE id = ANY(%s)
-    #                 """, (room_line_ids,))
-
-    #         # Finally update booking state
-    #         self.env.cr.execute("""
-    #             UPDATE room_booking
-    #             SET state = 'no_show'
-    #             WHERE id = %s
-    #         """, (booking_id,))
-
-    # def no_show(self):
-    #     current_date = self.env.company.system_date.date()
-
-    #     for record in self:
-    #         checkin_date = record.checkin_date.date()
-    #         if checkin_date != current_date:
-    #             raise UserError(_("The No Show action can only be performed on the current check-in date."))
-
-    #         booking_id = record.id
-    #         parent_booking_id = record.parent_booking_id.id if record.parent_booking_id else record.id
-
-    #         # Get room line IDs with SQL
-    #         self.env.cr.execute("""
-    #             SELECT id, room_id
-    #             FROM room_booking_line
-    #             WHERE booking_id = %s
-    #         """, (booking_id,))
-    #         room_lines = self.env.cr.fetchall()
-
-    #         # Get availability record
-    #         self.env.cr.execute("""
-    #             SELECT id, available_rooms, rooms_reserved
-    #             FROM room_availability_result
-    #             WHERE room_booking_id = %s
-    #             LIMIT 1
-    #         """, (parent_booking_id,))
-    #         availability = self.env.cr.fetchone()
-
-    #         if availability:
-    #             availability_id, available_rooms, rooms_reserved = availability
-
-    #             total_reserved = 0
-    #             room_line_ids = []
-
-    #             for line_id, room_id in room_lines:
-    #                 if room_id:
-    #                     reserved = 1  # since room_count column doesn't exist
-    #                     total_reserved += reserved
-    #                     room_line_ids.append(line_id)
-    #                     print("Processing Room Line ID:", line_id)
-
-    #             # Update availability counts
-    #             self.env.cr.execute("""
-    #                 UPDATE room_availability_result
-    #                 SET available_rooms = available_rooms + %s,
-    #                     rooms_reserved = rooms_reserved - %s
-    #                 WHERE id = %s
-    #             """, (total_reserved, total_reserved, availability_id))
-
-    #             # Clear room assignment in batch
-    #             if room_line_ids:
-    #                 self.env.cr.execute("""
-    #                     UPDATE room_booking_line
-    #                     SET room_id = NULL,
-    #                         state_ = 'no_show'
-    #                     WHERE id = ANY(%s)
-    #                 """, (room_line_ids,))
-
-    #         # Finally update booking state
-    #         self.env.cr.execute("""
-    #             UPDATE room_booking
-    #             SET state = 'no_show'
-    #             WHERE id = %s
-    #         """, (booking_id,))
-
-
-
-    def no_show(self):
-        """Mark today’s booking as no-show, clear rooms, adjust availability,
-        and record a no_show status in room_booking_line_status."""
-        # get today’s date from your company’s timezone setting
-        current_date = self.env.company.system_date.date()
-
-        for booking in self:
-            # 1) Only allow if checkin_date is today
-            if booking.checkin_date.date() != current_date:
-                raise UserError(
-                    _("The No Show action can only be performed on the current check-in date."))
-
-            booking_id = booking.id
-            parent_id = booking.parent_booking_id.id if booking.parent_booking_id else booking_id
-
-            # 2) Load all lines for this booking
-            self.env.cr.execute("""
-                SELECT id, room_id
-                FROM room_booking_line
-                WHERE booking_id = %s
-                FOR UPDATE
-            """, (booking_id,))
-            room_lines = self.env.cr.fetchall()  # [(line_id, room_id), ...]
-
-            # 3) Load availability
-            self.env.cr.execute("""
-                SELECT id, available_rooms, rooms_reserved
-                FROM room_availability_result
-                WHERE room_booking_id = %s
-                LIMIT 1
-                FOR UPDATE
-            """, (parent_id,))
-            avail = self.env.cr.fetchone()
-
-            # 4) If availability exists, adjust counts
-            if avail:
-                avail_id, avail_rooms, reserved_rooms = avail
-                # count only those lines that had a room assigned
-                total = sum(1 for _, room in room_lines if room)
-                if total > 0:
-                    self.env.cr.execute("""
-                        UPDATE room_availability_result
-                        SET
-                          available_rooms = available_rooms + %s,
-                          rooms_reserved   = rooms_reserved - %s
-                        WHERE id = %s
-                    """, (total, total, avail_id))
-
-            # 5) Clear each line, mark no-show, and insert status history
-            for line_id, room in room_lines:
-                # clear room_id & state_
-                self.env.cr.execute("""
-                    UPDATE room_booking_line
-                    SET
-                      room_id = NULL,
-                      state_  = 'no_show'
-                    WHERE id = %s
-                """, (line_id,))
-
-                # insert a record into your status history table
-                self.env.cr.execute("""
-                    INSERT INTO room_booking_line_status (
-                      booking_line_id,
-                      create_uid, write_uid,
-                      status,
-                      change_time,
-                      create_date, write_date
-                    ) VALUES (
-                      %s,    -- booking_line_id
-                      %s,    -- create_uid
-                      %s,    -- write_uid
-                      'no_show',
-                      NOW(), -- change_time
-                      NOW(), -- create_date
-                      NOW()  -- write_date
-                    )
-                """, (line_id, self.env.uid, self.env.uid))
-
-            # 6) Finally, mark the parent booking itself as no_show
-            self.env.cr.execute("""
-                UPDATE room_booking
-                SET state = 'no_show'
-                WHERE id = %s
-            """, (booking_id,))
-
-
     # The above code snippet is a Python method that seems to be part of a larger system or application.
     # Here is a breakdown of what the code is doing:
-    # wokring 7/11/2025
-    # def no_show(self):
-    #     for record in self:
-    #         # Get room lines associated with the booking
-    #         room_lines = self.env['room.booking.line'].search(
-    #             [('booking_id', '=', record.id)])
-    #         # current_date = datetime.now().date()
-    #         current_date = self.env.company.system_date.date()
-    #         checkin_date = record.checkin_date.date()
+    def no_show(self):
+        for record in self:
+            # Get room lines associated with the booking
+            room_lines = self.env['room.booking.line'].search(
+                [('booking_id', '=', record.id)])
+            # current_date = datetime.now().date()
+            current_date = self.env.company.system_date.date()
+            checkin_date = record.checkin_date.date()
 
-    #         # Validate the action date
-    #         if checkin_date != current_date:
-    #             raise UserError(_("The No Show action can only be performed on the current check-in date."))
+            # Validate the action date
+            if checkin_date != current_date:
+                raise UserError(
+                    "The 'No Show' action can only be performed on the current check-in date.")
 
-    #         print("Current Record ID:", record.id)
+            print("Current Record ID:", record.id)
 
-    #         # Get the parent booking ID
-    #         parent_booking_id = record.parent_booking_id.id if record.parent_booking_id else record.id
-    #         print("Parent Booking ID:", parent_booking_id)
+            # Get the parent booking ID
+            parent_booking_id = record.parent_booking_id.id if record.parent_booking_id else record.id
+            print("Parent Booking ID:", parent_booking_id)
 
-    #         # Release rooms and update inventory
-    #         if room_lines:
-    #             for line in room_lines:
-    #                 if line.room_id:
-    #                     print("Processing Room Line ID:", line.id)
+            # Release rooms and update inventory
+            if room_lines:
+                for line in room_lines:
+                    if line.room_id:
+                        print("Processing Room Line ID:", line.id)
 
-    #                     # Update the available rooms count and reduce rooms_reserved count
-    #                     availability_result = self.env['room.availability.result'].search([
-    #                         ('room_booking_id', '=', parent_booking_id)
-    #                     ], limit=1)
+                        # Update the available rooms count and reduce rooms_reserved count
+                        availability_result = self.env['room.availability.result'].search([
+                            ('room_booking_id', '=', parent_booking_id)
+                        ], limit=1)
 
-    #                     print("Availability Result:", availability_result)
+                        print("Availability Result:", availability_result)
 
-    #                     if availability_result:
-    #                         # Use room count from the room line or a calculated value
-    #                         reserved_rooms = line.room_count if hasattr(
-    #                             line, 'room_count') else 1
+                        if availability_result:
+                            # Use room count from the room line or a calculated value
+                            reserved_rooms = line.room_count if hasattr(
+                                line, 'room_count') else 1
 
-    #                         # Increase available_rooms and decrease rooms_reserved
-    #                         availability_result.available_rooms += reserved_rooms
-    #                         availability_result.rooms_reserved -= reserved_rooms
+                            # Increase available_rooms and decrease rooms_reserved
+                            availability_result.available_rooms += reserved_rooms
+                            availability_result.rooms_reserved -= reserved_rooms
 
-    #                     # Clear the room assignment
-    #                     line.room_id = None
-    #                     line.state = 'no_show'
+                        # Clear the room assignment
+                        line.room_id = None
+                        line.state = 'no_show'
 
-    #         # Update the booking state
-    #         record.state = 'no_show'
+            # Update the booking state
+            record.state = 'no_show'
 
     #     def no_show(self):
     #         for record in self:
@@ -7161,7 +5842,7 @@ class RoomBooking(models.Model):
         ('credit_limit', 'Credit Limit (C/L)'),
         ('credit_card', 'Credit Card'),
         ('other', 'Other Payment')
-    ], string='Payment Type', required=True)
+    ], string='Payment Type')
 
     def unlink(self):
         for rec in self:
@@ -7197,8 +5878,8 @@ class RoomBooking(models.Model):
                 vals_list['checkin_date'] = company.system_date
 
         if 'room_count' in vals_list and vals_list['room_count'] <= 0:
-            raise ValidationError(_("Room count cannot be zero or less. Please select at least one room.")
-                )
+            raise ValidationError(
+                "Room count cannot be zero or less. Please select at least one room.")
 
         if 'adult_count' in vals_list and vals_list['adult_count'] <= 0:
             raise ValidationError(
@@ -7572,207 +6253,49 @@ class RoomBooking(models.Model):
             }
         raise ValidationError(_("Please Enter Room Details"))
 
-    # def action_cancel(self):
-    #     for record in self:
-    #         # Determine the parent booking ID or fallback to the current record ID
-    #         parent_booking_id = record.parent_booking_id.id if record.parent_booking_id else record.id
-
-    #         # Retrieve room lines for the booking
-    #         room_lines = self.env['room.booking.line'].search(
-    #             [('booking_id', '=', record.id)])
-    #         if room_lines:
-    #             # Set room lines state to 'cancel'
-    #             room_lines.write({'state_': 'cancel'})
-
-    #             for line in room_lines:
-    #                 if line.room_id:
-    #                     print("Processing Room Line ID:", line.id)
-
-    #                     # Retrieve all availability results linked to the parent booking
-    #                     availability_results = self.env['room.availability.result'].search([
-    #                         ('room_booking_id', '=', parent_booking_id)
-    #                     ])
-
-    #                     for availability_result in availability_results:
-    #                         print("Availability Result:", availability_result)
-
-    #                         # Use a fixed count of 1 for each line or determine from another field if available
-    #                         reserved_rooms = 1
-
-    #                         # Debug print to verify the reserved rooms count
-    #                         print(f"Reserved Rooms Count: {reserved_rooms}")
-
-    #                         # Safeguard to prevent negative available rooms
-    #                         if availability_result.rooms_reserved >= reserved_rooms:
-    #                             availability_result.available_rooms += reserved_rooms
-    #                             availability_result.rooms_reserved -= reserved_rooms
-    #                         else:
-    #                             print(
-    #                                 "Warning: Attempt to reduce more rooms than reserved.")
-    #                             availability_result.available_rooms += availability_result.rooms_reserved
-    #                             availability_result.rooms_reserved = 0
-
-    #         # Update the booking state to 'cancel'
-    #         record.write({'state': 'cancel'})
-    #         print(f"Booking ID {record.id} has been canceled.")
-
-
-    # def action_cancel(self):
-    #     for record in self:
-    #         # Determine the parent booking ID or fallback to the current record ID
-    #         parent_booking_id = record.parent_booking_id.id if record.parent_booking_id else record.id
-
-    #         # Retrieve room lines for the booking (SQL query for batch processing)
-    #         self.env.cr.execute("""
-    #             SELECT id
-    #             FROM room_booking_line
-    #             WHERE booking_id = %s
-    #         """, (record.id,))
-    #         room_line_ids = [line[0] for line in self.env.cr.fetchall()]  # Extract the room line IDs
-
-    #         if room_line_ids:
-    #             # Set room lines state to 'cancel' in one query (using array format for PostgreSQL)
-    #             _logger.info("Executing bulk update for room lines with IDs: %s", room_line_ids)
-    #             self.env.cr.execute("""
-    #                 UPDATE room_booking_line
-    #                 SET state_ = 'cancel'
-    #                 WHERE id = ANY(ARRAY[%s])
-    #             """, (tuple(room_line_ids),))  # Pass as a tuple to ensure proper array handling in SQL
-
-    #             for line_id in room_line_ids:
-    #                 print(f"Processing Room Line ID: {line_id}")
-
-    #                 # Retrieve all availability results linked to the parent booking
-    #                 self.env.cr.execute("""
-    #                     SELECT id, available_rooms, rooms_reserved
-    #                     FROM room_availability_result
-    #                     WHERE room_booking_id = %s
-    #                 """, (parent_booking_id,))
-    #                 availability_results = self.env.cr.fetchall()
-
-    #                 for availability_result in availability_results:
-    #                     availability_result_id, available_rooms, rooms_reserved = availability_result
-    #                     print(f"Availability Result: {availability_result_id} | Reserved: {rooms_reserved}")
-
-    #                     # Safeguard to prevent negative available rooms
-    #                     reserved_rooms = 1  # Use a fixed count of 1 for each line, or calculate as needed
-    #                     print(f"Reserved Rooms Count: {reserved_rooms}")
-
-    #                     if rooms_reserved >= reserved_rooms:
-    #                         # Update availability
-    #                         self.env.cr.execute("""
-    #                             UPDATE room_availability_result
-    #                             SET available_rooms = available_rooms + %s,
-    #                                 rooms_reserved = rooms_reserved - %s
-    #                             WHERE id = %s
-    #                         """, (reserved_rooms, reserved_rooms, availability_result_id))
-    #                     else:
-    #                         print("Warning: Attempt to reduce more rooms than reserved.")
-    #                         self.env.cr.execute("""
-    #                             UPDATE room_availability_result
-    #                             SET available_rooms = available_rooms + rooms_reserved,
-    #                                 rooms_reserved = 0
-    #                             WHERE id = %s
-    #                         """, (availability_result_id,))
-
-    #         # Update the booking state to 'cancel' using SQL (no ORM write())
-    #         self.env.cr.execute("""
-    #             UPDATE room_booking
-    #             SET state = 'cancel'
-    #             WHERE id = %s
-    #         """, (record.id,))
-    #         _logger.info(f"Booking ID {record.id} has been canceled.")
-    #         print(f"Booking ID {record.id} has been canceled.")
-
     def action_cancel(self):
-        """Cancel a booking, clear room lines, adjust availability, and record cancel status."""
         for record in self:
-            parent_id = record.parent_booking_id.id if record.parent_booking_id else record.id
+            # Determine the parent booking ID or fallback to the current record ID
+            parent_booking_id = record.parent_booking_id.id if record.parent_booking_id else record.id
 
-            # 1) Fetch all room line IDs for this booking
-            self.env.cr.execute(
-                """
-                SELECT id
-                FROM room_booking_line
-                WHERE booking_id = %s
-                """,
-                (record.id,)
-            )
-            room_line_ids = [row[0] for row in self.env.cr.fetchall()]
+            # Retrieve room lines for the booking
+            room_lines = self.env['room.booking.line'].search(
+                [('booking_id', '=', record.id)])
+            if room_lines:
+                # Set room lines state to 'cancel'
+                room_lines.write({'state': 'cancel'})
 
-            if room_line_ids:
-                _logger.info("Cancelling room lines with IDs: %s", room_line_ids)
+                for line in room_lines:
+                    if line.room_id:
+                        print("Processing Room Line ID:", line.id)
 
-                # 2) Bulk update room lines to 'cancel'
-                self.env.cr.execute(
-                    """
-                    UPDATE room_booking_line
-                    SET state_ = 'cancel',
-                        room_id = NULL
-                    WHERE id = ANY(%s)
-                    """,
-                    (room_line_ids,)
-                )
+                        # Retrieve all availability results linked to the parent booking
+                        availability_results = self.env['room.availability.result'].search([
+                            ('room_booking_id', '=', parent_booking_id)
+                        ])
 
-                # 3) Adjust availability and insert status history
-                self.env.cr.execute(
-                    """
-                    SELECT id, available_rooms, rooms_reserved
-                    FROM room_availability_result
-                    WHERE room_booking_id = %s
-                    """,
-                    (parent_id,)
-                )
-                availability_results = self.env.cr.fetchall()
-                for avail_id, avail_rooms, reserved in availability_results:
-                    count = 1
-                    if reserved >= count:
-                        self.env.cr.execute(
-                            """
-                            UPDATE room_availability_result
-                            SET available_rooms = available_rooms + %s,
-                                rooms_reserved   = rooms_reserved - %s
-                            WHERE id = %s
-                            """,
-                            (count, count, avail_id)
-                        )
-                    else:
-                        self.env.cr.execute(
-                            """
-                            UPDATE room_availability_result
-                            SET available_rooms = available_rooms + rooms_reserved,
-                                rooms_reserved   = 0
-                            WHERE id = %s
-                            """,
-                            (avail_id,)
-                        )
+                        for availability_result in availability_results:
+                            print("Availability Result:", availability_result)
 
-                # 4) Insert a cancel entry for each line
-                for line_id in room_line_ids:
-                    self.env.cr.execute(
-                        """
-                        INSERT INTO room_booking_line_status (
-                            booking_line_id,
-                            create_uid, write_uid,
-                            status,
-                            change_time,
-                            create_date, write_date
-                        ) VALUES (%s, %s, %s, 'cancel', NOW(), NOW(), NOW())
-                        """,
-                        (line_id, self.env.uid, self.env.uid)
-                    )
+                            # Use a fixed count of 1 for each line or determine from another field if available
+                            reserved_rooms = 1
 
-            # 5) Finally, cancel the booking record
-            self.env.cr.execute(
-                """
-                UPDATE room_booking
-                SET state = 'cancel'
-                WHERE id = %s
-                """,
-                (record.id,)
-            )
-            _logger.info("Booking ID %s has been canceled.", record.id)
+                            # Debug print to verify the reserved rooms count
+                            print(f"Reserved Rooms Count: {reserved_rooms}")
 
+                            # Safeguard to prevent negative available rooms
+                            if availability_result.rooms_reserved >= reserved_rooms:
+                                availability_result.available_rooms += reserved_rooms
+                                availability_result.rooms_reserved -= reserved_rooms
+                            else:
+                                print(
+                                    "Warning: Attempt to reduce more rooms than reserved.")
+                                availability_result.available_rooms += availability_result.rooms_reserved
+                                availability_result.rooms_reserved = 0
+
+            # Update the booking state to 'cancel'
+            record.write({'state': 'cancel'})
+            print(f"Booking ID {record.id} has been canceled.")
 
     # def action_cancel(self):
     #     for record in self:
@@ -7879,183 +6402,108 @@ class RoomBooking(models.Model):
     #         raise ValidationError(_('Your Invoice is Due for Payment.'))
     #     self.write({"state": "done"})
 
-
     def _create_invoice(self):
-        today = self.env.company.system_date.date()
-        current_time = datetime.now().time()
-        current_datetime = datetime.combine(today, current_time)
-
-        # Get meal and pricing details
-        posting_item_meal, _1, _2, _3 = self.get_meal_rates(self.meal_pattern.id)
+        posting_item_meal, _1, _2, _3 = self.get_meal_rates(
+            self.meal_pattern.id)
+        _logger.info(f"The Posting Item Meal is: {posting_item_meal}")
+        # forecast_date = self.forecast_date  # Assuming this is set in your class
         record = self  # Assuming the current record is used as 'record'
-        meal_price, room_price, package_price, posting_item_value, line_posting_items = self.get_all_prices(record.checkin_date, record)
-
-        _logger.info(f"Meal Posting Item: {posting_item_meal}")
+        meal_price, room_price, package_price, posting_item_value, line_posting_items = self.get_all_prices(
+            record.checkin_date, record)
         _logger.info(f"Rate Posting Item: {posting_item_value}")
+        _logger.info(f"Line Posting Items: {line_posting_items}")
+        # if not self.posting_item_ids:
+        #     raise ValidationError("You cannot proceed with checkout. Please add at least one Posting Item.")
+
+        # today = fields.Date.context_today(self)
+        # today = datetime.now().date()
+        today = self.env.company.system_date.date()
+        current_time = datetime.now().time()  # Get the current system time
+        current_datetime = datetime.combine(today, current_time)  # Combine date and time
+
+        _logger.info(
+            f"Debug: action_checkout called for Booking ID: {self.id}")
+        _logger.info(f"Debug: Today's date = {today}")
+        _logger.info(f"Debug: checkout_date = {self.checkout_date}")
 
         if not self.room_line_ids:
             raise ValidationError(_("Please Enter Room Details"))
-
-        # Filter forecast rates for today
-        filtered_lines = [line for line in self.rate_forecast_ids if line.date == today]
-
-        _logger.info(f"Number of filtered rate_forecast_ids lines = {len(filtered_lines)}")
-
-        # Create Invoice
-        account_move = self.env["account.move"].create({
-            'move_type': 'out_invoice',
-            'invoice_date': today,
-            'partner_id': self.partner_id.id,
-            'ref': self.name,
-            'hotel_booking_id': self.id,
-            'group_booking_name': self.group_booking.name if self.group_booking else '',
-            'parent_booking_name': self.parent_booking_name or '',
-            'room_numbers': self.room_ids_display or '',
-        })
-
-        # Add invoice lines for Rate, Meal, and Package
+        filtered_lines = [
+            line for line in self.rate_forecast_ids if line.date == today]
+        _logger.info(
+            f"Debug: Number of filtered rate_forecast_ids lines = {len(filtered_lines)}")
         for line in filtered_lines:
-            line_data = []
+            _logger.info(f"Rate Forecast Line ID: {line.id}")
+            _logger.info(f" - Room Booking ID: {line.room_booking_id.id}")
+            _logger.info(f" - Forecasted Rate: {line.rate}")
+            _logger.info(f" - Forecast Date: {line.date}")
 
-            # Add Rate Line if applicable
-            if line.rate and line.rate > 0:
-                line_data.append({
-                    'posting_item_id': posting_item_value,
-                    'posting_description': 'Rate',
-                    'posting_default_value': line.rate,
-                    'move_id': account_move.id,
+        booking_list = self._compute_amount_untaxed(True)
+        _logger.info(f"BOOKING LIST {booking_list}")
+        if booking_list:
+            account_move = self.env["account.move"].create([{
+                'move_type': 'out_invoice',
+                'invoice_date': today,
+                'partner_id': self.partner_id.id,
+                'ref': self.name,
+                'hotel_booking_id': self.id,  # Set the current booking
+                # Group Booking Name
+                'group_booking_name': self.group_booking.name if self.group_booking else '',
+                'parent_booking_name': self.parent_booking_name or '',  # Parent Booking Name
+                'room_numbers': self.room_ids_display or '',  # Room Numbers
+            }])
+            for posting_item in self.posting_item_ids:
+                account_move.invoice_line_ids.create({
+                    'posting_item_id': posting_item.posting_item_id.id,  # Posting item
+                    'posting_description': posting_item.description,  # Description
+                    'posting_default_value': posting_item.default_value,  # Default value
+                    'move_id': account_move.id,  # Link to account.move
                 })
+            for line in filtered_lines:
+                line_data = []
 
-            # Add Meal Line if applicable
-            if line.meals and line.meals > 0:
-                line_data.append({
-                    'posting_item_id': posting_item_meal,
-                    'posting_description': 'Meal',
-                    'posting_default_value': line.meals,
-                    'move_id': account_move.id,
-                })
+                # Check and add Rate line if rate is available and greater than 0
+                if line.rate and line.rate > 0:
+                    line_data.append({
+                        'posting_item_id': posting_item_value,  # Posting item for rate
+                        'posting_description': 'Rate',  # Description for rate
+                        # Default value for rate (dynamic)
+                        'posting_default_value': line.rate,
+                        'move_id': account_move.id,
+                        # 'date': line.date,
+                    })
 
-            # Add Package Line if applicable
-            if line.packages and line.packages > 0:
-                line_data.append({
-                    'posting_item_id': line_posting_items[-1],
-                    'posting_description': 'Package',
-                    'posting_default_value': line.packages,
-                    'move_id': account_move.id,
-                })
+                # Check and add Meal line if meals is available and greater than 0
+                if line.meals and line.meals > 0:
+                    line_data.append({
+                        'posting_item_id': posting_item_meal,  # Posting item for meal
+                        'posting_description': 'Meal',  # Description for meal
+                        # Default value for meal (dynamic)
+                        'posting_default_value': line.meals,
+                        'move_id': account_move.id,
+                        # 'date': line.date,
+                    })
 
-            # Create invoice lines
-            if line_data:
-                account_move.invoice_line_ids.create(line_data)
+                # Check and add Package line if packages is available and greater than 0
+                if line.packages and line.packages > 0:
+                    line_data.append({
+                        # Posting item for package
+                        'posting_item_id': line_posting_items[-1],
+                        'posting_description': 'Package',  # Description for package
+                        # Default value for package (dynamic)
+                        'posting_default_value': line.packages,
+                        'move_id': account_move.id,
+                        # 'date': line.date,
+                    })
 
-        # Update status
-        self.write({'invoice_status': "invoiced"})
-        self.write({"state": "check_out"})
-        self.room_line_ids.write({"state_": "check_out"})
-        self.invoice_button_visible = True
+                # Create lines in account.move.line
+                if line_data:
+                    account_move.invoice_line_ids.create(line_data)
 
-    # def _create_invoice(self):
-    #     posting_item_meal, _1, _2, _3 = self.get_meal_rates(
-    #         self.meal_pattern.id)
-    #     _logger.info(f"The Posting Item Meal is: {posting_item_meal}")
-    #     # forecast_date = self.forecast_date  # Assuming this is set in your class
-    #     record = self  # Assuming the current record is used as 'record'
-    #     meal_price, room_price, package_price, posting_item_value, line_posting_items = self.get_all_prices(
-    #         record.checkin_date, record)
-    #     _logger.info(f"Rate Posting Item: {posting_item_value}")
-    #     _logger.info(f"Line Posting Items: {line_posting_items}")
-    #     # if not self.posting_item_ids:
-    #     #     raise ValidationError("You cannot proceed with checkout. Please add at least one Posting Item.")
-
-    #     # today = fields.Date.context_today(self)
-    #     # today = datetime.now().date()
-    #     today = self.env.company.system_date.date()
-    #     current_time = datetime.now().time()  # Get the current system time
-    #     current_datetime = datetime.combine(today, current_time)  # Combine date and time
-
-    #     _logger.info(
-    #         f"Debug: action_checkout called for Booking ID: {self.id}")
-    #     _logger.info(f"Debug: Today's date = {today}")
-    #     _logger.info(f"Debug: checkout_date = {self.checkout_date}")
-
-    #     if not self.room_line_ids:
-    #         raise ValidationError(_("Please Enter Room Details"))
-    #     filtered_lines = [
-    #         line for line in self.rate_forecast_ids if line.date == today]
-    #     _logger.info(
-    #         f"Debug: Number of filtered rate_forecast_ids lines = {len(filtered_lines)}")
-    #     for line in filtered_lines:
-    #         _logger.info(f"Rate Forecast Line ID: {line.id}")
-    #         _logger.info(f" - Room Booking ID: {line.room_booking_id.id}")
-    #         _logger.info(f" - Forecasted Rate: {line.rate}")
-    #         _logger.info(f" - Forecast Date: {line.date}")
-
-    #     booking_list = self._compute_amount_untaxed(True)
-    #     _logger.info(f"BOOKING LIST {booking_list}")
-    #     if booking_list:
-    #         account_move = self.env["account.move"].create([{
-    #             'move_type': 'out_invoice',
-    #             'invoice_date': today,
-    #             'partner_id': self.partner_id.id,
-    #             'ref': self.name,
-    #             'hotel_booking_id': self.id,  # Set the current booking
-    #             # Group Booking Name
-    #             'group_booking_name': self.group_booking.name if self.group_booking else '',
-    #             'parent_booking_name': self.parent_booking_name or '',  # Parent Booking Name
-    #             'room_numbers': self.room_ids_display or '',  # Room Numbers
-    #         }])
-    #         for posting_item in self.posting_item_ids:
-    #             account_move.invoice_line_ids.create({
-    #                 'posting_item_id': posting_item.posting_item_id.id,  # Posting item
-    #                 'posting_description': posting_item.description,  # Description
-    #                 'posting_default_value': posting_item.default_value,  # Default value
-    #                 'move_id': account_move.id,  # Link to account.move
-    #             })
-    #         for line in filtered_lines:
-    #             line_data = []
-
-    #             # Check and add Rate line if rate is available and greater than 0
-    #             if line.rate and line.rate > 0:
-    #                 line_data.append({
-    #                     'posting_item_id': posting_item_value,  # Posting item for rate
-    #                     'posting_description': 'Rate',  # Description for rate
-    #                     # Default value for rate (dynamic)
-    #                     'posting_default_value': line.rate,
-    #                     'move_id': account_move.id,
-    #                     # 'date': line.date,
-    #                 })
-
-    #             # Check and add Meal line if meals is available and greater than 0
-    #             if line.meals and line.meals > 0:
-    #                 line_data.append({
-    #                     'posting_item_id': posting_item_meal,  # Posting item for meal
-    #                     'posting_description': 'Meal',  # Description for meal
-    #                     # Default value for meal (dynamic)
-    #                     'posting_default_value': line.meals,
-    #                     'move_id': account_move.id,
-    #                     # 'date': line.date,
-    #                 })
-
-    #             # Check and add Package line if packages is available and greater than 0
-    #             if line.packages and line.packages > 0:
-    #                 line_data.append({
-    #                     # Posting item for package
-    #                     'posting_item_id': line_posting_items[-1],
-    #                     'posting_description': 'Package',  # Description for package
-    #                     # Default value for package (dynamic)
-    #                     'posting_default_value': line.packages,
-    #                     'move_id': account_move.id,
-    #                     # 'date': line.date,
-    #                 })
-
-    #             # Create lines in account.move.line
-    #             if line_data:
-    #                 account_move.invoice_line_ids.create(line_data)
-
-    #         self.write({'invoice_status': "invoiced"})
-    #         self.write({"state": "check_out"})
-    #         self.room_line_ids.write({"state_": "check_out"})
-    #         self.invoice_button_visible = True
+            self.write({'invoice_status': "invoiced"})
+            self.write({"state": "check_out"})
+            self.room_line_ids.write({"state_": "check_out"})
+            self.invoice_button_visible = True
 
     def action_checkout(self):
         today = self.env.company.system_date.date()
@@ -8333,33 +6781,39 @@ class RoomBooking(models.Model):
             # Return the result
             return result
 
+    
     def _perform_checkin(self):
+        """Helper method to perform check-in and update room availability."""
         parent_booking_id = self.parent_booking_id.id if self.parent_booking_id else self.id
-        cr = self.env.cr
 
-        room_ids = [room.room_id.id for room in self.room_line_ids]
-        room_line_ids = [room.id for room in self.room_line_ids]
+        for room in self.room_line_ids:
+            # Update room status to 'occupied'
+            room.room_id.write({
+                'status': 'occupied',
+            })
+            room.room_id.is_room_avail = False
 
-        if room_ids:
-            cr.execute("""
-                UPDATE hotel_room
-                SET status = 'occupied', is_room_avail = FALSE
-                WHERE id IN %s
-            """, (tuple(room_ids),))
+            # Update the available rooms count and reduce rooms_reserved count
+            # if room.room_id:
+            #     availability_result = self.env['room.availability.result'].search([
+            #         ('room_booking_id', '=', parent_booking_id)
+            #     ], limit=1)
 
-        if room_line_ids:
-            cr.execute("""
-                UPDATE room_booking_line
-                SET state_ = 'check_in'
-                WHERE id IN %s
-            """, (tuple(room_line_ids),))
+            #     print("Availability Result:", availability_result)
 
-        cr.execute("""
-            UPDATE room_booking
-            SET state = 'check_in'
-            WHERE id = %s
-        """, (self.id,))
-        
+            #     if availability_result:
+            #         # Use room count from the room line or a calculated value
+            #         reserved_rooms = room.room_count if hasattr(
+            #             room, 'room_count') else 1
+
+            #         # Increase available_rooms and decrease rooms_reserved
+            #         availability_result.available_rooms -= reserved_rooms
+            #         availability_result.rooms_reserved += reserved_rooms
+
+        # Update the booking state to 'check_in'
+        self.write({"state": "check_in"})
+        self.room_line_ids.write({"state_": "check_in"})
+        # Return success notification
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -8369,47 +6823,6 @@ class RoomBooking(models.Model):
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }
-    # def _perform_checkin(self):
-    #     """Helper method to perform check-in and update room availability."""
-    #     parent_booking_id = self.parent_booking_id.id if self.parent_booking_id else self.id
-
-    #     for room in self.room_line_ids:
-    #         # Update room status to 'occupied'
-    #         room.room_id.write({
-    #             'status': 'occupied',
-    #         })
-    #         room.room_id.is_room_avail = False
-
-    #         # Update the available rooms count and reduce rooms_reserved count
-    #         # if room.room_id:
-    #         #     availability_result = self.env['room.availability.result'].search([
-    #         #         ('room_booking_id', '=', parent_booking_id)
-    #         #     ], limit=1)
-
-    #         #     print("Availability Result:", availability_result)
-
-    #         #     if availability_result:
-    #         #         # Use room count from the room line or a calculated value
-    #         #         reserved_rooms = room.room_count if hasattr(
-    #         #             room, 'room_count') else 1
-
-    #         #         # Increase available_rooms and decrease rooms_reserved
-    #         #         availability_result.available_rooms -= reserved_rooms
-    #         #         availability_result.rooms_reserved += reserved_rooms
-
-    #     # Update the booking state to 'check_in'
-    #     self.write({"state": "check_in"})
-    #     self.room_line_ids.write({"state_": "check_in"})
-    #     # Return success notification
-    #     return {
-    #         'type': 'ir.actions.client',
-    #         'tag': 'display_notification',
-    #         'params': {
-    #             'type': 'success',
-    #             'message': "Booking Checked In Successfully!",
-    #             'next': {'type': 'ir.actions.act_window_close'},
-    #         }
-    #     }
 
     
     def _early_perform_checkin(self):
@@ -8782,7 +7195,7 @@ class RoomBooking(models.Model):
                 # Only disallow negative discounts; no minimum % threshold
                 discount = vals.get('room_discount', record.room_discount)
                 if discount < 0:
-                    raise UserError(_("Room Discount cannot be less than 0."))
+                    raise UserError("Room Discount cannot be less than 0.")
 
                 # # _logger.info(f"TEST {vals.get('room_discount', record.room_discount) * 100}")
                 # if vals.get('room_is_percentage', record.room_is_percentage):
@@ -8811,7 +7224,7 @@ class RoomBooking(models.Model):
                  # Validate meal discount (only non-negative, regardless of percentage flag)
                 meal_discount = vals.get('meal_discount', record.meal_discount)
                 if meal_discount < 0:
-                    raise UserError(_("Meal Discount cannot be less than 0."))
+                    raise UserError("Meal Discount cannot be less than 0.")
 
                 # if vals.get('meal_is_percentage', record.meal_is_percentage):
                 #     if vals.get('meal_discount', record.meal_discount) * 100 < 1:
@@ -8883,7 +7296,7 @@ class RoomBooking(models.Model):
     def _onchange_room_is_percentage(self):
         if self.room_is_percentage:
             if self.room_price == 0:  # Check if room_price is zero
-                raise ValidationError(_("Room price is zero. You cannot select percentage."))
+                raise ValidationError("Room price is zero. You cannot select percentage.")
             self.room_discount = (self.room_discount / self.room_price)
             self.room_is_amount = False
 
@@ -8920,7 +7333,7 @@ class RoomBooking(models.Model):
     def _onchange_meal_is_percentage(self):
         if self.meal_is_percentage:
             if self.meal_price == 0:  # Check if room_price is zero
-                raise ValidationError(_("Meal price is zero. You cannot select percentage."))
+                raise ValidationError("Meal price is zero. You cannot select percentage.")
             self.meal_discount = (self.meal_discount / self.meal_price)
             # if self.meal_discount < 1:
             #     self.meal_discount = 1
@@ -8989,22 +7402,8 @@ class RoomBooking(models.Model):
     #         # self.meal_discount = self.meal_discount / 100
 
     use_price = fields.Boolean(string="Use Price", store=True, tracking=True)
-    use_meal_price = fields.Boolean(string="Use Meal Price", store=True, tracking=True)
-
-    @api.onchange('use_price')
-    def _onchange_use_price(self):
-        if not self.use_price:
-            # Set room_price to 0 when use_price is unchecked
-            self.room_price = 0.00
-            self.room_discount = 0.00
-
-    @api.onchange('use_meal_price')
-    def _onchange_use_meal_price(self):
-        if not self.use_meal_price:
-            # Set meal_price to False when use_meal_price is unchecked
-            self.meal_price = 0.00
-            self.meal_discount = 0.00
-            self.meal_child_price = 0.00
+    use_meal_price = fields.Boolean(
+        string="Use Meal Price", store=True, tracking=True)
 
     # @api.onchange('use_price')
     # def _onchange_use_price(self):
@@ -9850,8 +8249,7 @@ class RoomBooking(models.Model):
                 available_room = self.env['hotel.room'].search([
                     ('company_id', '=', booking.company_id.id),
                     ('room_type_name', '=', booking.hotel_room_type.id),
-                    ('id', 'not in', booked_rooms),
-                    ('active', '=', True)
+                    ('id', 'not in', booked_rooms)
                 ], limit=1)
 
                 
@@ -9864,18 +8262,6 @@ class RoomBooking(models.Model):
                     'room_id': available_room.id,
                     'state_': 'block'
                 })
-
-                for line_id in booking.room_line_ids.ids:
-                    self.env.cr.execute("""
-                        INSERT INTO room_booking_line_status (
-                            booking_line_id,
-                            create_uid, write_uid,
-                            status,
-                            change_time,
-                            create_date, write_date
-                        ) VALUES (%s, %s, %s, %s, NOW(), NOW(), NOW())
-                    """, (line_id, self.env.uid, self.env.uid, 'block'))
-
 
                 # Move parent booking to block
                 booking.write({
@@ -9957,22 +8343,6 @@ class RoomBooking(models.Model):
                     'total_untaxed':          per_unt,
                 })
 
-            all_line_ids = self.env['room.booking.line'].search([
-                ('booking_id', 'in', all_bookings.ids)
-            ]).ids
-
-            _logger.info("Recording history for lines: %s", all_line_ids)
-            for lid in all_line_ids:
-                self.env.cr.execute("""
-                    INSERT INTO room_booking_line_status (
-                        booking_line_id,
-                        create_uid, write_uid,
-                        status,
-                        change_time,
-                        create_date, write_date
-                    ) VALUES (%s, %s, %s, %s, NOW(), NOW(), NOW())
-                """, (lid, self.env.uid, self.env.uid, 'block'))
-
             # 8. Adjust sequence number for future bookings
             self.env.cr.execute("""
                 SELECT MAX(CAST(regexp_replace(name, '.*/', '') AS INT))
@@ -10030,133 +8400,6 @@ class RoomBooking(models.Model):
                 search_results.unlink()
             booking.write({'state': 'not_confirmed'})
 
-    # def action_split_rooms(self):
-    #     for booking in self:
-    #         if booking.state == "no_show":
-    #             return True
-    #         # Retrieve related room.availability.result records
-    #         availability_results = self.env['room.availability.result'].search(
-    #             [('room_booking_id', '=', booking.id)]
-    #         )
-
-
-    #         # Ensure we have availability results to process
-    #         if not availability_results:
-    #             raise ValidationError(_("You have to Search room first then you can split room"))
-
-    #         all_split = all(result.split_flag for result in availability_results)
-    #         if all_split:
-    #             raise ValidationError(_("All rooms have already been split. No new rooms to split."))
-
-    #         room_line_vals = []
-    #         counter = 1
-    #         adult_inserts = []
-    #         child_inserts = []
-    #         infant_inserts = []
-    #         max_counter = max(booking.room_line_ids.mapped(
-    #             'counter') or [0])  # Use 0 if no lines exist
-    #         counter = max_counter + 1  # Start from the next counter value
-
-    #         partner_name = booking.partner_id.name or ""
-    #         name_parts = partner_name.split()  # Split the name by spaces
-    #         # first_name = name_parts[0] if len(name_parts) > 0 else ""
-    #         # last_name = name_parts[1] if len(name_parts) > 1 else ""
-    #         # Assign first and last names
-    #         first_name = name_parts[0] if name_parts else ""  # First part as first_name
-    #         last_name = name_parts[-1] if len(name_parts) > 1 else ""  # Last part as last_name
-
-    #         # Loop through each availability result and process room lines
-    #         for result in availability_results:
-    #             # Check if this record has already been split
-    #             if result.split_flag:
-    #                 continue  # Skip this record if already split
-
-    #             rooms_reserved_count = int(result.rooms_reserved) if isinstance(
-    #                 result.rooms_reserved, str) else result.rooms_reserved
-
-    #             # Create room lines
-    #             for _ in range(rooms_reserved_count):
-    #                 new_booking_line = {
-    #                     'room_id': False,  # Room can be assigned later
-    #                     'checkin_date': booking.checkin_date,
-    #                     'checkout_date': booking.checkout_date,
-    #                     'uom_qty': 1,
-    #                     'adult_count': booking.adult_count,
-    #                     'child_count': booking.child_count,
-    #                     'infant_count': booking.infant_count,
-    #                     'hotel_room_type': result.room_type.id,
-    #                     'counter': counter,
-    #                 }
-    #                 counter += 1
-    #                 room_line_vals.append((0, 0, new_booking_line))
-
-    #             # Append new adult records for this room
-    #             total_adults_needed = rooms_reserved_count * booking.adult_count
-    #             for _ in range(total_adults_needed):
-    #                 adult_inserts.append((
-    #                     booking.id,
-    #                     result.room_type.id,
-    #                     first_name, last_name, '', '', '', '', '', '', '', '', '',  # Empty fields
-    #                 ))
-
-    #             # Append new child records for this room
-    #             total_children_needed = rooms_reserved_count * booking.child_count
-    #             for _ in range(total_children_needed):
-    #                 child_inserts.append((
-    #                     booking.id,
-    #                     result.room_type.id,
-    #                     '', '', '', '', '', '', '', '', '', '', '',  # Empty fields
-    #                 ))
-
-    #             # Append new infant records for this room
-    #             total_infants_needed = rooms_reserved_count * booking.infant_count
-    #             for _ in range(total_infants_needed):
-    #                 infant_inserts.append((
-    #                     booking.id,
-    #                     result.room_type.id,
-    #                     '', '', '', '', '', '', '', '', '', '', '',  # Empty fields
-    #                 ))
-
-    #             # Mark this record as split
-    #             result.split_flag = True
-
-    #         # Perform bulk insert for adults
-    #         if adult_inserts:
-    #             insert_query_adults = """
-    #                 INSERT INTO reservation_adult (
-    #                     reservation_id, room_type_id, first_name, last_name, profile, nationality,
-    #                     passport_number, id_number, visa_number, id_type, phone_number, relation, create_date
-    #                 ) VALUES %s
-    #             """
-    #             self._bulk_insert(insert_query_adults, adult_inserts)
-
-    #         # Perform bulk insert for children
-    #         if child_inserts:
-    #             insert_query_children = """
-    #                 INSERT INTO reservation_child (
-    #                     reservation_id, room_type_id, first_name, last_name, profile, nationality,
-    #                     passport_number, id_number, visa_number, id_type, phone_number, relation, create_date
-    #                 ) VALUES %s
-    #             """
-    #             self._bulk_insert(insert_query_children, child_inserts)
-
-    #         # Perform bulk insert for infants
-    #         if infant_inserts:
-    #             self._bulk_insert("""
-    #                 INSERT INTO reservation_infant (
-    #                     reservation_id, room_type_id, first_name, last_name, profile, nationality,
-    #                     passport_number, id_number, visa_number, id_type, phone_number, relation, create_date
-    #                 ) VALUES %s
-    #             """, infant_inserts)
-
-    #         # Write room lines to the booking's room_line_ids
-    #         if room_line_vals:
-    #             booking.write({'room_line_ids': room_line_vals})
-
-    #         self._update_adults_with_assigned_rooms_split_rooms(
-    #             booking, max_counter)
-
-
     def action_split_rooms(self):
         for booking in self:
             if booking.state == "no_show":
@@ -10202,7 +8445,7 @@ class RoomBooking(models.Model):
                     result.rooms_reserved, str) else result.rooms_reserved
 
                 # Create room lines
-                for i in range(rooms_reserved_count):
+                for _ in range(rooms_reserved_count):
                     new_booking_line = {
                         'room_id': False,  # Room can be assigned later
                         'checkin_date': booking.checkin_date,
@@ -10219,7 +8462,7 @@ class RoomBooking(models.Model):
 
                 # Append new adult records for this room
                 total_adults_needed = rooms_reserved_count * booking.adult_count
-                for j in range(total_adults_needed):
+                for _ in range(total_adults_needed):
                     adult_inserts.append((
                         booking.id,
                         result.room_type.id,
@@ -10228,7 +8471,7 @@ class RoomBooking(models.Model):
 
                 # Append new child records for this room
                 total_children_needed = rooms_reserved_count * booking.child_count
-                for k in range(total_children_needed):
+                for _ in range(total_children_needed):
                     child_inserts.append((
                         booking.id,
                         result.room_type.id,
@@ -10237,7 +8480,7 @@ class RoomBooking(models.Model):
 
                 # Append new infant records for this room
                 total_infants_needed = rooms_reserved_count * booking.infant_count
-                for l in range(total_infants_needed):
+                for _ in range(total_infants_needed):
                     infant_inserts.append((
                         booking.id,
                         result.room_type.id,
@@ -10409,32 +8652,44 @@ class RoomBooking(models.Model):
             ctr += 1
 
     def _get_room_search_query(self):
+        """
+        Get the room search query template that filters rooms based on availability.
+        Only returns rooms where free-to-sell quantity >= requested room count
+        across the entire date range.
+        
+        Returns:
+            str: SQL query for room search with availability calculations
+            
+        Modified: 2025-01-09T12:52:13+05:00
+        """
         return """
         WITH RECURSIVE
-    parameters AS (
-        SELECT
-            %(from_date)s::date AS from_date,
-            %(to_date)s::date AS to_date
-            ),
-    company_ids AS (
-        select CAST(%(company_id)s AS INTEGER) as company_id
-    ),
-    system_date_company AS (
-        SELECT
-            id AS company_id,
-            system_date::date AS system_date,
-            create_date::date AS create_date
-        FROM res_company rc
-        WHERE rc.id IN (SELECT company_id FROM company_ids)
-    ),
-    date_series AS (
-        SELECT generate_series(
-            (SELECT MIN(system_date) FROM system_date_company),
-            (SELECT to_date FROM parameters),
-            INTERVAL '1 day'
-        )::date AS report_date
-    ),
-    base_data AS (
+parameters AS (
+    SELECT
+		%(from_date)s::date AS from_date,
+        %(to_date)s::date AS to_date
+		),
+company_ids AS (
+    select CAST(%(company_id)s AS INTEGER) as company_id
+),
+system_date_company AS (
+    SELECT 
+        id AS company_id, 
+        system_date::date AS system_date,
+        create_date::date AS create_date
+    FROM res_company rc 
+    WHERE rc.id IN (SELECT company_id FROM company_ids)
+),
+-- 2. Generate report dates from the earliest system_date to the specified to_date
+date_series AS (
+    SELECT generate_series(
+        (SELECT MIN(system_date) FROM system_date_company), 
+        (SELECT to_date FROM parameters),
+        INTERVAL '1 day'
+    )::date AS report_date
+),
+-- 3. Base data & Latest status per booking line
+base_data AS (
         SELECT
             rb.id AS booking_id,
             rb.parent_booking_id,
@@ -10452,357 +8707,357 @@ class RoomBooking(models.Model):
         FROM room_booking rb
         JOIN room_booking_line rbl ON rb.id = rbl.booking_id
         LEFT JOIN room_booking_line_status rbls ON rbl.id = rbls.booking_line_id
-        WHERE rb.company_id IN (SELECT company_id FROM company_ids)
-          AND rb.active = TRUE
-    ),
-    latest_line_status AS (
-        SELECT DISTINCT ON (bd.booking_line_id, ds.report_date)
-            bd.booking_line_id,
-            ds.report_date,
-            bd.checkin_date,
-            bd.checkout_date,
-            bd.company_id,
-            bd.room_type_id,
-            bd.status AS final_status,
-            bd.change_time,
-            bd.house_use,
-            bd.complementary
-        FROM base_data bd
-        JOIN date_series ds
-          ON ds.report_date BETWEEN bd.checkin_date AND bd.checkout_date
-        WHERE bd.change_time::date <= ds.report_date
-        ORDER BY bd.booking_line_id, ds.report_date DESC, bd.change_time DESC NULLS LAST
-    ),
-    system_date_in_house AS (
-        SELECT
-            sdc.system_date AS report_date,
-            sdc.company_id,
-            lls.room_type_id,
-            COUNT(DISTINCT lls.booking_line_id) AS in_house_count
-        FROM latest_line_status lls
-        JOIN system_date_company sdc ON sdc.company_id = lls.company_id
-        WHERE lls.final_status = 'check_in'
-          AND sdc.system_date BETWEEN lls.checkin_date AND lls.checkout_date
-        GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
-    ),
-    system_date_expected_arrivals AS (
-        SELECT
-            sdc.system_date AS report_date,
-            sdc.company_id,
-            lls.room_type_id,
-            COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
-        FROM latest_line_status lls
-        JOIN system_date_company sdc ON sdc.company_id = lls.company_id
-        WHERE lls.checkin_date = sdc.system_date
-          AND lls.final_status IN ('confirmed','block')
-        GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
-    ),
-    system_date_expected_departures AS (
-        SELECT
-            sdc.system_date AS report_date,
-            sdc.company_id,
-            lls.room_type_id,
-            COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
-        FROM latest_line_status lls
-        JOIN system_date_company sdc ON sdc.company_id = lls.company_id
-        WHERE lls.checkout_date = sdc.system_date
-          AND lls.final_status IN ('check_in','confirmed','block')
-        GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
-    ),
-    system_date_base AS (
-        SELECT
-            sdc.system_date AS report_date,
-            sdc.company_id,
-            rt.id AS room_type_id,
-            COALESCE(sdih.in_house_count, 0) AS in_house,
-            COALESCE(sdea.expected_arrivals_count, 0) AS expected_arrivals,
-            COALESCE(sded.expected_departures_count, 0) AS expected_departures,
-            (COALESCE(sdih.in_house_count, 0)
-             + COALESCE(sdea.expected_arrivals_count, 0)
-             - COALESCE(sded.expected_departures_count, 0)) AS expected_in_house
-        FROM system_date_company sdc
-        CROSS JOIN room_type rt
-        LEFT JOIN system_date_in_house sdih
-          ON sdih.company_id = sdc.company_id
-         AND sdih.room_type_id = rt.id
-         AND sdih.report_date = sdc.system_date
-        LEFT JOIN system_date_expected_arrivals sdea
-          ON sdea.company_id = sdc.company_id
-         AND sdea.room_type_id = rt.id
-         AND sdea.report_date = sdc.system_date
-        LEFT JOIN system_date_expected_departures sded
-          ON sded.company_id = sdc.company_id
-         AND sded.room_type_id = rt.id
-         AND sded.report_date = sdc.system_date
-    ),
-    expected_arrivals AS (
-        SELECT
-            lls.report_date,
-            lls.company_id,
-            lls.room_type_id,
-            COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
-        FROM latest_line_status lls
-        WHERE lls.checkin_date = lls.report_date
-          AND lls.final_status IN ('confirmed','block')
-        GROUP BY lls.report_date, lls.company_id, lls.room_type_id
-    ),
-    expected_departures AS (
-        SELECT
-            lls.report_date,
-            lls.company_id,
-            lls.room_type_id,
-            COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
-        FROM latest_line_status lls
-        WHERE lls.checkout_date = lls.report_date
-          AND lls.final_status IN ('check_in','confirmed','block')
-        GROUP BY lls.report_date, lls.company_id, lls.room_type_id
-    ),
-    recursive_in_house AS (
-        SELECT
-            sdb.report_date,
-            sdb.company_id,
-            sdb.room_type_id,
-            sdb.in_house,
-            sdb.expected_in_house
-        FROM system_date_base sdb
-      UNION ALL
-        SELECT
-            ds.report_date,
-            r.company_id,
-            r.room_type_id,
-            r.expected_in_house AS in_house,
-            (r.expected_in_house
-             + COALESCE(ea.expected_arrivals_count,0)
-             - COALESCE(ed.expected_departures_count,0)) AS expected_in_house
-        FROM recursive_in_house r
-        JOIN date_series ds
-          ON ds.report_date = r.report_date + INTERVAL '1 day'
-        LEFT JOIN expected_arrivals ea
-          ON ea.report_date = ds.report_date
-         AND ea.company_id = r.company_id
-         AND ea.room_type_id = r.room_type_id
-        LEFT JOIN expected_departures ed
-          ON ed.report_date = ds.report_date
-         AND ed.company_id = r.company_id
-         AND ed.room_type_id = r.room_type_id
-    ),
-    recursive_in_house_distinct AS (
-        SELECT
-            report_date,
-            company_id,
-            room_type_id,
-            MAX(in_house) AS in_house,
-            MAX(expected_in_house) AS expected_in_house
-        FROM recursive_in_house
-        GROUP BY report_date, company_id, room_type_id
-    ),
-    house_use_cte AS (
-        SELECT
-            lls.report_date,
-            lls.company_id,
-            lls.room_type_id,
-            COUNT(DISTINCT lls.booking_line_id) AS house_use_count
-        FROM latest_line_status lls
-        WHERE lls.house_use = TRUE
-          AND lls.final_status IN ('check_in','check_out')
-          AND lls.report_date BETWEEN lls.checkin_date AND lls.checkout_date
-        GROUP BY lls.report_date, lls.company_id, lls.room_type_id
-    ),
-    complementary_use_cte AS (
-        SELECT
-            lls.report_date,
-            lls.company_id,
-            lls.room_type_id,
-            COUNT(DISTINCT lls.booking_line_id) AS complementary_use_count
-        FROM latest_line_status lls
-        WHERE lls.complementary = TRUE
-          AND lls.final_status IN ('check_in','check_out')
-          AND lls.report_date BETWEEN lls.checkin_date AND lls.checkout_date
-        GROUP BY lls.report_date, lls.company_id, lls.room_type_id
-    ),
-    inventory AS (
-        SELECT
-            hi.company_id,
-            hi.room_type AS room_type_id,
-            COUNT(DISTINCT hr.id) AS total_room_count,
-            SUM(COALESCE(hi.overbooking_rooms,0)) AS overbooking_rooms,
-            BOOL_OR(COALESCE(hi.overbooking_allowed,false)) AS overbooking_allowed
-        FROM hotel_inventory hi
-        JOIN hotel_room hr
-          ON hr.company_id = hi.company_id
-         AND hr.room_type_name = hi.room_type
-         AND hr.active = TRUE
-        GROUP BY hi.company_id, hi.room_type
-    ),
-    out_of_order AS (
-        SELECT
-            rt.id AS room_type_id,
-            hr.company_id,
-            ds.report_date,
-            COUNT(DISTINCT hr.id) AS out_of_order_count
-        FROM date_series ds
-        JOIN out_of_order_management_fron_desk ooo
-          ON ds.report_date BETWEEN ooo.from_date AND ooo.to_date
-        JOIN hotel_room hr
-          ON hr.id = ooo.room_number
-         AND hr.active = TRUE
-        JOIN room_type rt
-          ON hr.room_type_name = rt.id
-        GROUP BY rt.id, hr.company_id, ds.report_date
-    ),
-    rooms_on_hold AS (
-        SELECT
-            rt.id AS room_type_id,
-            hr.company_id,
-            ds.report_date,
-            COUNT(DISTINCT hr.id) AS rooms_on_hold_count
-        FROM date_series ds
-        JOIN rooms_on_hold_management_front_desk roh
-          ON ds.report_date BETWEEN roh.from_date AND roh.to_date
-        JOIN hotel_room hr
-          ON hr.id = roh.room_number
-         AND hr.active = TRUE
-        JOIN room_type rt
-          ON hr.room_type_name = rt.id
-        GROUP BY rt.id, hr.company_id, ds.report_date
-    ),
-    out_of_service AS (
-        SELECT
-            rt.id AS room_type_id,
-            hr.company_id,
-            ds.report_date,
-            COUNT(DISTINCT hr.id) AS out_of_service_count
-        FROM date_series ds
-        JOIN housekeeping_management hm
-          ON hm.out_of_service = TRUE
-         AND (hm.repair_ends_by IS NULL OR ds.report_date <= hm.repair_ends_by)
-        JOIN hotel_room hr
-          ON hr.room_type_name = hm.room_type
-         AND hr.active = TRUE
-        JOIN room_type rt
-          ON hr.room_type_name = rt.id
-        GROUP BY rt.id, hr.company_id, ds.report_date
-    ),
-    final_report AS (
-        SELECT
-            ds.report_date,
-            rc.id AS company_id,
-            rc.name AS company_name,
-            rt.id AS room_type_id,
-            COALESCE(jsonb_extract_path_text(rt.room_type::jsonb,'en_US'),'N/A') AS room_type_name,
-            COALESCE(inv.total_room_count,0) AS total_rooms,
-            COALESCE(inv.overbooking_rooms,0) AS overbooking_rooms,
-            COALESCE(inv.overbooking_allowed,false) AS overbooking_allowed,
-            COALESCE(ooo.out_of_order_count,0) AS out_of_order,
-            COALESCE(roh.rooms_on_hold_count,0) AS rooms_on_hold,
-            COALESCE(oos.out_of_service_count,0) AS out_of_service,
-            COALESCE(ea.expected_arrivals_count,0) AS expected_arrivals,
-            COALESCE(ed.expected_departures_count,0) AS expected_departures,
-            COALESCE(hc.house_use_count,0) AS house_use_count,
-            COALESCE(cc.complementary_use_count,0) AS complementary_use_count,
-            (COALESCE(inv.total_room_count,0)
-             - COALESCE(ooo.out_of_order_count,0)
-             - COALESCE(roh.rooms_on_hold_count,0)) AS available_rooms,
-            COALESCE((
-                SELECT in_house_count
-                FROM system_date_in_house sdi
-                WHERE sdi.company_id = rc.id
-                  AND sdi.room_type_id = rt.id
-                  AND sdi.report_date = ds.report_date
-            ),0) AS in_house
-        FROM date_series ds
-        LEFT JOIN res_company rc
-          ON rc.id IN (SELECT company_id FROM company_ids)
-        CROSS JOIN room_type rt
-        INNER JOIN inventory inv
-          ON inv.company_id = rc.id AND inv.room_type_id = rt.id
-        LEFT JOIN out_of_order ooo
-          ON ooo.company_id = rc.id AND ooo.room_type_id = rt.id AND ooo.report_date = ds.report_date
-        LEFT JOIN rooms_on_hold roh
-          ON roh.company_id = rc.id AND roh.room_type_id = rt.id AND roh.report_date = ds.report_date
-        LEFT JOIN out_of_service oos
-          ON oos.company_id = rc.id AND oos.room_type_id = rt.id AND oos.report_date = ds.report_date
-        LEFT JOIN expected_arrivals ea
-          ON ea.company_id = rc.id AND ea.room_type_id = rt.id AND ea.report_date = ds.report_date
-        LEFT JOIN expected_departures ed
-          ON ed.company_id = rc.id AND ed.room_type_id = rt.id AND ed.report_date = ds.report_date
-        LEFT JOIN house_use_cte hc
-          ON hc.company_id = rc.id AND hc.room_type_id = rt.id AND hc.report_date = ds.report_date
-        LEFT JOIN complementary_use_cte cc
-          ON cc.company_id = rc.id AND cc.room_type_id = rt.id AND cc.report_date = ds.report_date
-        LEFT JOIN system_date_company sdc
-          ON sdc.company_id = rc.id
-        WHERE ds.report_date >= (SELECT from_date FROM parameters)
-    ),
-    final_output AS (
-        SELECT
-            fr.report_date,
-            fr.company_id,
-            fr.company_name,
-            fr.room_type_id,
-            fr.room_type_name,
-            SUM(fr.total_rooms) AS total_rooms,
-            BOOL_OR(fr.overbooking_allowed) AS any_overbooking_allowed,
-            SUM(fr.overbooking_rooms) AS total_overbooking_rooms,
-            SUM(fr.out_of_order) AS out_of_order,
-            SUM(fr.rooms_on_hold) AS rooms_on_hold,
-            SUM(fr.out_of_service) AS out_of_service,
-            SUM(fr.expected_arrivals) AS expected_arrivals,
-            SUM(fr.expected_departures) AS expected_departures,
-            SUM(fr.house_use_count) AS house_use_count,
-            SUM(fr.complementary_use_count) AS complementary_use_count,
-            SUM(fr.available_rooms) AS available_rooms,
-            rih.in_house AS in_house,
-            GREATEST(rih.expected_in_house, 0) AS expected_in_house,
-            CASE
-                WHEN BOOL_OR(fr.overbooking_allowed) THEN
-                    CASE
-                        WHEN SUM(fr.available_rooms) < 0
-                            OR SUM(fr.overbooking_rooms) < 0
-                            OR GREATEST(rih.expected_in_house, 0) < 0 THEN 0
-                        ELSE GREATEST(
-                            0,
-                            SUM(fr.available_rooms)
-                            + SUM(fr.overbooking_rooms)
-                            - GREATEST(rih.expected_in_house, 0)
-                        )
-                    END
-                ELSE
-                    CASE
-                        WHEN SUM(fr.available_rooms) < 0 THEN 0
-                        ELSE GREATEST(
-                            0,
-                            SUM(fr.available_rooms)
-                            - GREATEST(rih.expected_in_house, 0)
-                        )
-                    END
-            END AS free_to_sell,
-            GREATEST(
-                0,
-                GREATEST(rih.expected_in_house, 0)
-                - SUM(fr.available_rooms)
-            ) AS over_booked
-        FROM final_report fr
-        JOIN recursive_in_house_distinct rih
-          ON fr.report_date = rih.report_date
-         AND fr.company_id = rih.company_id
-         AND fr.room_type_id = rih.room_type_id
-        WHERE fr.report_date >= (SELECT from_date FROM parameters)
-        GROUP BY
-            fr.report_date,
-            fr.company_id,
-            fr.company_name,
-            fr.room_type_id,
-            fr.room_type_name,
-            rih.in_house,
-            GREATEST(rih.expected_in_house, 0)
-        ORDER BY
-            fr.report_date,
-            fr.company_name,
-            fr.room_type_name
-    )
+        WHERE rb.company_id IN (SELECT company_id FROM company_ids) and rb.active = true
 
+),
+latest_line_status AS (
+    SELECT DISTINCT ON (bd.booking_line_id, ds.report_date)
+           bd.booking_line_id,
+           ds.report_date,
+           bd.checkin_date,
+           bd.checkout_date,
+           bd.company_id,
+           bd.room_type_id,
+           bd.status AS final_status,
+           bd.change_time,
+           bd.house_use,
+           bd.complementary
+    FROM base_data bd
+    JOIN date_series ds 
+      ON ds.report_date BETWEEN bd.checkin_date AND bd.checkout_date
+    WHERE bd.change_time::date <= ds.report_date
+    ORDER BY
+       bd.booking_line_id,
+       ds.report_date DESC,
+       bd.change_time DESC NULLS LAST
+)
+	-- select * from latest_line_status;
+	,
+-- 4. Compute the system date metrics (anchor values)
+-- Actual in_house on system_date (using check_in status)
+system_date_in_house AS (
     SELECT
+        sdc.system_date AS report_date,
+        sdc.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS in_house_count
+    FROM latest_line_status lls
+    JOIN system_date_company sdc ON sdc.company_id = lls.company_id
+    WHERE lls.final_status = 'check_in'
+      AND sdc.system_date BETWEEN lls.checkin_date AND lls.checkout_date
+    GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
+),
+-- Expected arrivals on system_date: bookings where checkin_date equals system_date and status is confirmed or block
+system_date_expected_arrivals AS (
+    SELECT
+        sdc.system_date AS report_date,
+        sdc.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
+    FROM latest_line_status lls
+    JOIN system_date_company sdc ON sdc.company_id = lls.company_id
+    WHERE lls.checkin_date = sdc.system_date
+      AND lls.final_status IN ('confirmed', 'block')
+    GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
+),
+-- Expected departures on system_date: bookings where checkout_date equals system_date and status in (check_in, confirmed, block)
+system_date_expected_departures AS (
+    SELECT
+        sdc.system_date AS report_date,
+        sdc.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
+    FROM latest_line_status lls
+    JOIN system_date_company sdc ON sdc.company_id = lls.company_id
+    WHERE lls.checkout_date = sdc.system_date
+      AND lls.final_status IN ('check_in', 'confirmed', 'block')
+    GROUP BY sdc.system_date, sdc.company_id, lls.room_type_id
+),
+-- Compute the anchor expected_in_house on the system_date using the formula:
+-- expected_in_house = in_house (from check_in) + expected arrivals – expected departures
+system_date_base AS (
+  SELECT
+    sdc.system_date AS report_date,
+    sdc.company_id,
+    rt.id AS room_type_id,
+    COALESCE(sdih.in_house_count, 0) AS in_house,
+    COALESCE(sdea.expected_arrivals_count, 0) AS expected_arrivals,
+    COALESCE(sded.expected_departures_count, 0) AS expected_departures,
+    (COALESCE(sdih.in_house_count, 0)
+     + COALESCE(sdea.expected_arrivals_count, 0)
+     - COALESCE(sded.expected_departures_count, 0)) AS expected_in_house
+  FROM system_date_company sdc
+  CROSS JOIN room_type rt
+  LEFT JOIN system_date_in_house sdih 
+         ON sdih.company_id = sdc.company_id 
+         AND sdih.room_type_id = rt.id 
+         AND sdih.report_date = sdc.system_date
+  LEFT JOIN system_date_expected_arrivals sdea 
+         ON sdea.company_id = sdc.company_id 
+         AND sdea.room_type_id = rt.id 
+         AND sdea.report_date = sdc.system_date
+  LEFT JOIN system_date_expected_departures sded 
+         ON sded.company_id = sdc.company_id 
+         AND sded.room_type_id = rt.id 
+         AND sded.report_date = sdc.system_date
+),
+-- 5. For subsequent dates, calculate expected arrivals and departures per report_date
+expected_arrivals AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_arrivals_count
+    FROM latest_line_status lls
+    WHERE lls.checkin_date = lls.report_date
+      AND lls.final_status IN ('confirmed','block')
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+expected_departures AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS expected_departures_count
+    FROM latest_line_status lls
+    WHERE lls.checkout_date = lls.report_date
+      AND lls.final_status IN ('check_in','confirmed','block')
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+-- 6. Recursive Calculation for in_house and expected_in_house
+-- For days after the system date, set:
+--   new in_house = previous day's expected_in_house (i.e. yesterday’s expected in_house)
+--   new expected_in_house = new in_house + (today's expected arrivals) - (today's expected departures)
+recursive_in_house AS (
+    -- Anchor row: system_date_base values
+    SELECT 
+        sdb.report_date,
+        sdb.company_id,
+        sdb.room_type_id,
+        sdb.in_house,
+        sdb.expected_in_house
+    FROM system_date_base sdb
+    UNION ALL
+    -- Recursive step: for each subsequent day
+    SELECT
+        ds.report_date,
+        r.company_id,
+        r.room_type_id,
+        r.expected_in_house AS in_house,  -- new in_house equals previous expected_in_house
+        (r.expected_in_house + COALESCE(ea.expected_arrivals_count, 0)
+                              - COALESCE(ed.expected_departures_count, 0)) AS expected_in_house
+    FROM recursive_in_house r
+    JOIN date_series ds 
+         ON ds.report_date = r.report_date + INTERVAL '1 day'
+    LEFT JOIN expected_arrivals ea 
+         ON ea.report_date = ds.report_date 
+         AND ea.company_id = r.company_id 
+         AND ea.room_type_id = r.room_type_id
+    LEFT JOIN expected_departures ed 
+         ON ed.report_date = ds.report_date 
+         AND ed.company_id = r.company_id 
+         AND ed.room_type_id = r.room_type_id
+),
+recursive_in_house_distinct AS (
+  SELECT
+    report_date,
+    company_id,
+    room_type_id,
+    MAX(in_house) AS in_house,
+    MAX(expected_in_house) AS expected_in_house
+  FROM recursive_in_house
+  GROUP BY report_date, company_id, room_type_id
+),
+-- 7. Additional Metrics (house use, complementary use, inventory, out_of_order, rooms on hold, out_of_service)
+house_use_cte AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS house_use_count
+    FROM latest_line_status lls
+    WHERE lls.house_use = TRUE
+      AND lls.final_status IN ('check_in', 'check_out')
+      AND lls.report_date BETWEEN lls.checkin_date AND lls.checkout_date
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+complementary_use_cte AS (
+    SELECT
+        lls.report_date,
+        lls.company_id,
+        lls.room_type_id,
+        COUNT(DISTINCT lls.booking_line_id) AS complementary_use_count
+    FROM latest_line_status lls
+    WHERE lls.complementary = TRUE
+      AND lls.final_status IN ('check_in', 'check_out')
+      AND lls.report_date BETWEEN lls.checkin_date AND lls.checkout_date
+    GROUP BY lls.report_date, lls.company_id, lls.room_type_id
+),
+inventory AS (
+    SELECT
+        hi.company_id,
+        hi.room_type AS room_type_id,
+        SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count,
+        SUM(COALESCE(hi.overbooking_rooms, 0)) AS overbooking_rooms,
+        BOOL_OR(COALESCE(hi.overbooking_allowed, false)) AS overbooking_allowed
+    FROM hotel_inventory hi
+    GROUP BY hi.company_id, hi.room_type
+),
+out_of_order AS (
+    SELECT
+        rt.id AS room_type_id,
+        hr.company_id,
+        ds.report_date,
+        COUNT(DISTINCT hr.id) AS out_of_order_count
+    FROM date_series ds
+    JOIN out_of_order_management_fron_desk ooo
+      ON ds.report_date BETWEEN ooo.from_date AND ooo.to_date
+    JOIN hotel_room hr
+      ON hr.id = ooo.room_number
+    JOIN room_type rt
+      ON hr.room_type_name = rt.id
+    GROUP BY rt.id, hr.company_id, ds.report_date
+),
+rooms_on_hold AS (
+    SELECT
+        rt.id AS room_type_id,
+        hr.company_id,
+        ds.report_date,
+        COUNT(DISTINCT hr.id) AS rooms_on_hold_count
+    FROM date_series ds
+    JOIN rooms_on_hold_management_front_desk roh
+      ON ds.report_date BETWEEN roh.from_date AND roh.to_date
+    JOIN hotel_room hr
+      ON hr.id = roh.room_number
+    JOIN room_type rt
+      ON hr.room_type_name = rt.id
+    GROUP BY rt.id, hr.company_id, ds.report_date
+),
+out_of_service AS (
+    SELECT
+        rt.id AS room_type_id,
+        hr.company_id,
+        ds.report_date,
+        COUNT(DISTINCT hr.id) AS out_of_service_count
+    FROM date_series ds
+    JOIN housekeeping_management hm
+      ON hm.out_of_service = TRUE
+      AND (hm.repair_ends_by IS NULL OR ds.report_date <= hm.repair_ends_by)
+    JOIN hotel_room hr
+      ON hr.room_type_name = hm.room_type
+    JOIN room_type rt
+      ON hr.room_type_name = rt.id
+    GROUP BY rt.id, hr.company_id, ds.report_date
+),
+-- 8. Final Report (metrics aggregated per report_date, company and room type)
+final_report AS (
+    SELECT
+        ds.report_date,
+        rc.id AS company_id,
+        rc.name AS company_name,
+        rt.id AS room_type_id,
+        COALESCE(jsonb_extract_path_text(rt.room_type::jsonb, 'en_US'),'N/A') AS room_type_name,
+        COALESCE(inv.total_room_count, 0) AS total_rooms,
+        COALESCE(inv.overbooking_rooms, 0) AS overbooking_rooms,
+        COALESCE(inv.overbooking_allowed, false) AS overbooking_allowed,
+        COALESCE(ooo.out_of_order_count, 0) AS out_of_order,
+        COALESCE(roh.rooms_on_hold_count, 0) AS rooms_on_hold,
+        COALESCE(oos.out_of_service_count, 0) AS out_of_service,
+        COALESCE(ea.expected_arrivals_count, 0) AS expected_arrivals,
+        COALESCE(ed.expected_departures_count, 0) AS expected_departures,
+        COALESCE(hc.house_use_count, 0) AS house_use_count,
+        COALESCE(cc.complementary_use_count, 0) AS complementary_use_count,
+        (COALESCE(inv.total_room_count, 0)
+         - COALESCE(ooo.out_of_order_count, 0)
+         - COALESCE(roh.rooms_on_hold_count, 0)) AS available_rooms,
+        COALESCE((
+          SELECT in_house_count 
+          FROM system_date_in_house sdi 
+          WHERE sdi.company_id = rc.id 
+            AND sdi.room_type_id = rt.id 
+            AND sdi.report_date = ds.report_date
+        ), 0) AS in_house
+    FROM date_series ds
+    LEFT JOIN res_company rc
+         ON rc.id IN (SELECT company_id FROM company_ids)
+    CROSS JOIN room_type rt
+    INNER JOIN inventory inv
+         ON inv.company_id = rc.id AND inv.room_type_id = rt.id
+    LEFT JOIN out_of_order ooo
+         ON ooo.company_id = rc.id AND ooo.room_type_id = rt.id AND ooo.report_date = ds.report_date
+    LEFT JOIN rooms_on_hold roh
+         ON roh.company_id = rc.id AND roh.room_type_id = rt.id AND roh.report_date = ds.report_date
+    LEFT JOIN out_of_service oos
+         ON oos.company_id = rc.id AND oos.room_type_id = rt.id AND oos.report_date = ds.report_date
+    LEFT JOIN expected_arrivals ea
+         ON ea.company_id = rc.id AND ea.room_type_id = rt.id AND ea.report_date = ds.report_date
+    LEFT JOIN expected_departures ed
+         ON ed.company_id = rc.id AND ed.room_type_id = rt.id AND ed.report_date = ds.report_date
+    LEFT JOIN house_use_cte hc
+         ON hc.company_id = rc.id AND hc.room_type_id = rt.id AND hc.report_date = ds.report_date
+    LEFT JOIN complementary_use_cte cc
+         ON cc.company_id = rc.id AND cc.room_type_id = rt.id AND cc.report_date = ds.report_date
+    LEFT JOIN system_date_company sdc
+         ON sdc.company_id = rc.id
+    WHERE ds.report_date >= (SELECT from_date FROM parameters)
+),
+-- 9. Final Output: Join recursive in_house values with aggregated metrics
+final_output AS (
+    SELECT
+      fr.report_date,
+      fr.company_id,
+      fr.company_name,
+      fr.room_type_id,
+      fr.room_type_name,
+      SUM(fr.total_rooms) AS total_rooms,
+      BOOL_OR(fr.overbooking_allowed) AS any_overbooking_allowed,
+      SUM(fr.overbooking_rooms) AS total_overbooking_rooms,
+      SUM(fr.out_of_order) AS out_of_order,
+      SUM(fr.rooms_on_hold) AS rooms_on_hold,
+      SUM(fr.out_of_service) AS out_of_service,
+      SUM(fr.expected_arrivals) AS expected_arrivals,
+      SUM(fr.expected_departures) AS expected_departures,
+      SUM(fr.house_use_count) AS house_use_count,
+      SUM(fr.complementary_use_count) AS complementary_use_count,
+      SUM(fr.available_rooms) AS available_rooms,
+      rih.in_house AS in_house,
+      rih.expected_in_house AS expected_in_house,
+      CASE 
+        WHEN BOOL_OR(fr.overbooking_allowed) THEN
+          CASE
+            WHEN SUM(fr.available_rooms) < 0 
+              OR SUM(fr.overbooking_rooms) < 0 
+              OR rih.expected_in_house < 0 THEN 0
+            ELSE GREATEST(0, SUM(fr.available_rooms) + SUM(fr.overbooking_rooms) - rih.expected_in_house)
+          END
+        ELSE
+          CASE
+            WHEN SUM(fr.available_rooms) < 0 THEN 0
+            ELSE GREATEST(0, SUM(fr.available_rooms) - rih.expected_in_house)
+          END
+      END AS free_to_sell,
+      GREATEST(0, rih.expected_in_house - SUM(fr.available_rooms)) AS over_booked
+    FROM final_report fr
+    JOIN recursive_in_house_distinct rih
+      ON fr.report_date = rih.report_date
+     AND fr.company_id = rih.company_id
+     AND fr.room_type_id = rih.room_type_id
+    WHERE fr.report_date >= (SELECT from_date FROM parameters)
+    GROUP BY
+      fr.report_date,
+      fr.company_id,
+      fr.company_name,
+      fr.room_type_id,
+      fr.room_type_name,
+      rih.in_house,
+      rih.expected_in_house
+    ORDER BY
+      fr.report_date,
+      fr.company_name,
+      fr.room_type_name
+)
+
+SELECT
         room_type_id,
         room_type_name,
         company_id,
@@ -10811,12 +9066,11 @@ class RoomBooking(models.Model):
         total_rooms,
         any_overbooking_allowed AS has_overbooking,
         total_overbooking_rooms
-        FROM final_output
-        WHERE (%(room_type_id)s IS NULL OR room_type_id = %(room_type_id)s)
-        GROUP BY room_type_id, room_type_name, company_id, company_name, total_rooms, any_overbooking_allowed, total_overbooking_rooms;
-            """
-        
-    
+    FROM final_output
+    WHERE (%(room_type_id)s IS NULL OR room_type_id = %(room_type_id)s)
+    GROUP BY room_type_id, room_type_name, company_id, company_name, total_rooms, any_overbooking_allowed, total_overbooking_rooms;
+        """
+
     
     search_performed = fields.Boolean(default=False)
 
@@ -10825,195 +9079,90 @@ class RoomBooking(models.Model):
     #     if self.state == "confirmed":
     #         self.search_performed = False
 
-    # def action_search_rooms(self):
-    #     self.ensure_one()
-    #     self.action_clear_rooms()
-    #     self._get_forecast_rates()
-    #     query = self._get_room_search_query()
-
-    #     # Construct the parameters for the SQL
-    #     params = {
-    #         'company_id': self.env.company.id,
-    #         'from_date': self.checkin_date,
-    #         'to_date': self.checkout_date,
-    #         'room_count': self.room_count,
-    #         'room_type_id': self.hotel_room_type and self.hotel_room_type.id or None,
-    #     }
-
-    #     # Execute the query
-    #     self.env.cr.execute(query, params)
-    #     results = self.env.cr.dictfetchall()
-
-    #     # If there are no results, trigger the waiting list wizard (total_available_rooms = 0)
-    #     if not results:
-    #         wizard_result = self._trigger_waiting_list_wizard(
-    #             self.room_count,
-    #             0,
-    #             self.hotel_room_type.id
-    #         )
-    #         # Return a tuple with 0 available rooms and the wizard action
-    #         return (0, [wizard_result])
-
-    #     # If a specific room type is selected, filter the results
-    #     if self.hotel_room_type:
-    #         filtered_results = [res for res in results if res['room_type_id'] == self.hotel_room_type.id]
-
-    #         # If the filtered list is empty, trigger waiting list wizard (availability = 0)
-    #         if not filtered_results:
-    #             wizard_result = self._trigger_waiting_list_wizard(
-    #                 self.room_count,
-    #                 0,
-    #                 self.hotel_room_type.id
-    #             )
-    #             return (0, [wizard_result])
-
-    #         selected_result = filtered_results[0]
-    #         available_rooms = selected_result['min_free_to_sell']
-
-    #         # If the requested room count exceeds available rooms, trigger the waiting list wizard
-    #         if self.room_count > available_rooms:
-    #             return self._trigger_waiting_list_wizard(
-    #                 self.room_count,
-    #                 int(available_rooms),
-    #                 self.hotel_room_type.id
-    #             )
-    #     else:
-    #         # If no specific room type is selected, choose the room type with maximum available rooms
-    #         best_result = max(results, key=lambda x: x['min_free_to_sell'])
-    #         filtered_results = [best_result]
-
-    #     # Build result lines for available rooms
-    #     result_lines = []
-    #     for res in filtered_results:
-    #         if not isinstance(res, dict):
-    #             raise ValueError(f"Expected a dictionary, but got: {res}")
-
-    #         available_rooms = res['min_free_to_sell']
-    #         # Only add lines if there is at least one available room
-    #         if available_rooms > 0:
-    #             result_lines.append((0, 0, {
-    #                 'company_id': res['company_id'],
-    #                 'room_type': res['room_type_id'],
-    #                 'rooms_reserved': self.room_count,
-    #                 'available_rooms': available_rooms,
-    #                 'pax': self.adult_count,
-    #             }))
-
-    #     # Write the result lines back to the record
-    #     self.write({'availability_results': result_lines})
-    #     # self.with_context(ignore_search_guard=True).write({'availability_results': result_lines})
-
-   
-   
-    # # 2nd write sets the flag
-    #     # self.write({'search_performed': True})
-
-    #     return results
-
-    
     def action_search_rooms(self):
         self.ensure_one()
-        original_state = self.state
-
-        # ── 1) If we're already confirmed, wipe out the old split so we can re-split ──
-        if original_state == 'confirmed':
-            # reset split flags so action_split_rooms will run again
-            self.availability_results.write({'split_flag': False})
-            # drop all existing room lines & passenger records
-            self.write({
-                'room_line_ids': [(5, 0, 0)],
-                'adult_ids':     [(5, 0, 0)],
-                'child_ids':     [(5, 0, 0)],
-                'infant_ids':    [(5, 0, 0)],
-            })
-
-        # ── 2) Clear any old availability and run your forecast & SQL ──
         self.action_clear_rooms()
         self._get_forecast_rates()
         query = self._get_room_search_query()
+
+        # Construct the parameters for the SQL
         params = {
-            'company_id':    self.env.company.id,
-            'from_date':     self.checkin_date,
-            'to_date':       self.checkout_date,
-            'room_count':    self.room_count,
-            'room_type_id':  self.hotel_room_type.id if self.hotel_room_type else None,
+            'company_id': self.env.company.id,
+            'from_date': self.checkin_date,
+            'to_date': self.checkout_date,
+            'room_count': self.room_count,
+            'room_type_id': self.hotel_room_type and self.hotel_room_type.id or None,
         }
+
+        # Execute the query
         self.env.cr.execute(query, params)
         results = self.env.cr.dictfetchall()
 
-        # ── 3) Handle “no rooms” exactly as before ──
+        # If there are no results, trigger the waiting list wizard (total_available_rooms = 0)
         if not results:
-            wizard = self._trigger_waiting_list_wizard(
-                self.room_count, 0,
-                self.hotel_room_type.id if self.hotel_room_type else None
+            wizard_result = self._trigger_waiting_list_wizard(
+                self.room_count,
+                0,
+                self.hotel_room_type.id
             )
-            # restore confirmed state before returning
-            if original_state == 'confirmed':
-                super(self.__class__, self).write({'state': 'confirmed'})
-            return (0, [wizard])
+            # Return a tuple with 0 available rooms and the wizard action
+            return (0, [wizard_result])
 
-        # ── 4) Filter by room_type or pick best ──
+        # If a specific room type is selected, filter the results
         if self.hotel_room_type:
-            # only keep rows matching the selected type
-            filtered_results = [
-                r for r in results
-                if r['room_type_id'] == self.hotel_room_type.id
-            ]
-            # none of that type left?
-            if not filtered_results:
-                wizard = self._trigger_waiting_list_wizard(
-                    self.room_count, 0, self.hotel_room_type.id
-                )
-                if original_state == 'confirmed':
-                    super(self._class_, self).write({'state': 'confirmed'})
-                return (0, [wizard])
+            filtered_results = [res for res in results if res['room_type_id'] == self.hotel_room_type.id]
 
-            # first matching result
-            selected = filtered_results[0]
-            available = selected['min_free_to_sell']
-            # over-booked?
-            if self.room_count > available:
+            # If the filtered list is empty, trigger waiting list wizard (availability = 0)
+            if not filtered_results:
+                wizard_result = self._trigger_waiting_list_wizard(
+                    self.room_count,
+                    0,
+                    self.hotel_room_type.id
+                )
+                return (0, [wizard_result])
+
+            selected_result = filtered_results[0]
+            available_rooms = selected_result['min_free_to_sell']
+
+            # If the requested room count exceeds available rooms, trigger the waiting list wizard
+            if self.room_count > available_rooms:
                 return self._trigger_waiting_list_wizard(
-                    self.room_count, int(available), self.hotel_room_type.id
+                    self.room_count,
+                    int(available_rooms),
+                    self.hotel_room_type.id
                 )
         else:
-            # pick the type with max availability
-            best = max(results, key=lambda x: x['min_free_to_sell'])
-            filtered_results = [best]
-        # if self.hotel_room_type:
-        #     results = [r for r in results if r['room_type_id'] == self.hotel_room_type.id]
-        #     if not results:
-        #         wizard = self._trigger_waiting_list_wizard(
-        #             self.room_count, 0, self.hotel_room_type.id
-        #         )
-        #         if original_state == 'confirmed':
-        #             super(self.__class__, self).write({'state': 'confirmed'})
-        #         return (0, [wizard])
-        # else:
-        #     results = [max(results, key=lambda x: x['min_free_to_sell'])]
+            # If no specific room type is selected, choose the room type with maximum available rooms
+            best_result = max(results, key=lambda x: x['min_free_to_sell'])
+            filtered_results = [best_result]
 
-        # ── 5) Build new availability_results for the current room_count ──
-        lines = []
-        for r in results:
-            if r['min_free_to_sell'] > 0:
-                lines.append((0, 0, {
-                    'company_id':      r['company_id'],
-                    'room_type':       r['room_type_id'],
-                    'rooms_reserved':  self.room_count,
-                    'available_rooms': r['min_free_to_sell'],
-                    'pax':             self.adult_count,
+        # Build result lines for available rooms
+        result_lines = []
+        for res in filtered_results:
+            if not isinstance(res, dict):
+                raise ValueError(f"Expected a dictionary, but got: {res}")
+
+            available_rooms = res['min_free_to_sell']
+            # Only add lines if there is at least one available room
+            if available_rooms > 0:
+                result_lines.append((0, 0, {
+                    'company_id': res['company_id'],
+                    'room_type': res['room_type_id'],
+                    'rooms_reserved': self.room_count,
+                    'available_rooms': available_rooms,
+                    'pax': self.adult_count,
                 }))
-        self.write({'availability_results': lines})
 
-        # ── 6) If we were originally confirmed, fire off the split again ──
-        if original_state == 'confirmed':
-            # this will recreate room_line_ids + adult_ids/child_ids/infant_ids
-            self.action_split_rooms()
-            # and then put us back in confirmed
-            super(self.__class__, self).write({'state': 'confirmed'})
+        # Write the result lines back to the record
+        self.write({'availability_results': result_lines})
+        # self.with_context(ignore_search_guard=True).write({'availability_results': result_lines})
+
+   
+   
+    # 2nd write sets the flag
+        # self.write({'search_performed': True})
 
         return results
-
 
     
     room_count_tree = fields.Integer(
@@ -12123,139 +10272,38 @@ class BookingCheckinWizard(models.TransientModel):
         'room.booking', string='Booking', required=True)
 
     
+
     def action_confirm_checkin(self):
-        """Batch check-in for eligible bookings with early check-in room availability check"""
         today = self.env.company.system_date.date()
-        current_time = datetime.now().time()
-        checkin_datetime = datetime.combine(today, current_time)
-
-        eligible_bookings = self.booking_ids.filtered(lambda b: len(b.room_line_ids) <= 1)
-
-        booking_ids = []
-        room_line_ids = []
-        room_ids = []
-
-        for booking in eligible_bookings:
-            # Early check-in check
-            print("\n--- Checking Booking:", booking.name, "---")
-            print("Original Check-in Date:", booking.checkin_date)
-            print("Today:", today)
-            print("Checkout Date:", booking.checkout_date)
-            print("Room Type ID:", booking.hotel_room_type.id if booking.hotel_room_type else None)
-            print("Room Count:", booking.room_count)
-
-            if booking.checkin_date and booking.checkin_date.date() > today:
-                
-                early_checkin_total_room_count = sum(
-                    b.room_count for b in eligible_bookings
-                    if b.checkin_date and b.checkin_date.date() > today
-                )
-
-                print("Total Early Check-in Room Count:", early_checkin_total_room_count)
-
-
-                # Get query & params
-                query = booking._get_room_search_query()
-                params = {
-                    'company_id': booking.env.company.id,
-                    'from_date': today,
-                    'to_date': booking.checkout_date,
-                    'room_count': early_checkin_total_room_count,
-                    'room_type_id': booking.hotel_room_type.id if booking.hotel_room_type else None,
+        get_current_time = datetime.now().time()
+        checkin_datetime = datetime.combine(today, get_current_time)
+        
+        # Track successful and failed bookings
+        successful_bookings = []
+        
+        for booking in self.booking_ids:
+            # Skip if the booking has more than one room line
+            if len(booking.room_line_ids) > 1:
+                continue
+            
+            # Set the check-in date and perform the check-in
+            booking.checkin_date = checkin_datetime
+            booking._perform_checkin()
+            successful_bookings.append(booking)
+            
+        
+        # Prepare notification message
+        if successful_bookings:
+            message = f"Booking Checked In Successfully!"
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'type': 'success',
+                    'message': message,
+                    'next': {'type': 'ir.actions.act_window_close'}
                 }
-
-                
-                print("SQL Params:", params)
-
-                # Execute and fetch
-                booking.env.cr.execute(query, params)
-                available_rooms = booking.env.cr.dictfetchall()
-
-                print("Available Rooms Returned:", available_rooms)
-                
-                if not available_rooms:
-                    raise ValidationError(f"No availability info found for booking: {booking.name}")
-
-                min_free_to_sell = available_rooms[0].get('min_free_to_sell', 0.0)
-                print("Free to Sell:", min_free_to_sell)
-
-                if min_free_to_sell < booking.room_count:
-                    raise ValidationError(f"Only {min_free_to_sell} rooms are available for early check-in for booking: {booking.name}, but {early_checkin_total_room_count} required.")
-
-            # Proceed with check-in updates
-            booking_ids.append(booking.id)
-            for line in booking.room_line_ids:
-                room_line_ids.append(line.id)
-                room_ids.append(line.room_id.id)
-
-        cr = self.env.cr
-
-        # Step 1: Update hotel_room
-        if room_ids:
-            cr.execute("""
-                UPDATE hotel_room
-                SET status = 'occupied', is_room_avail = FALSE
-                WHERE id IN %s
-            """, (tuple(room_ids),))
-
-        # Step 2: Update room_booking_line
-        if room_line_ids:
-            cr.execute("""
-                UPDATE room_booking_line
-                SET state_ = 'check_in'
-                WHERE id IN %s
-            """, (tuple(room_line_ids),))
-
-        # Step 3: Update room_booking
-        if booking_ids:
-            cr.execute("""
-                UPDATE room_booking
-                SET state = 'check_in',
-                    checkin_date = %s
-                WHERE id IN %s
-            """, (checkin_datetime, tuple(booking_ids)))
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'type': 'success',
-                'message': "Booking Checked In Successfully!",
-                'next': {'type': 'ir.actions.act_window_close'},
             }
-        }
-
-    # def action_confirm_checkin(self):
-    #     today = self.env.company.system_date.date()
-    #     get_current_time = datetime.now().time()
-    #     checkin_datetime = datetime.combine(today, get_current_time)
-        
-    #     # Track successful and failed bookings
-    #     successful_bookings = []
-        
-    #     for booking in self.booking_ids:
-    #         # Skip if the booking has more than one room line
-    #         if len(booking.room_line_ids) > 1:
-    #             continue
-            
-    #         # Set the check-in date and perform the check-in
-    #         booking.checkin_date = checkin_datetime
-    #         booking._perform_checkin()
-    #         successful_bookings.append(booking)
-            
-        
-    #     # Prepare notification message
-    #     if successful_bookings:
-    #         message = f"Booking Checked In Successfully!"
-    #         return {
-    #             'type': 'ir.actions.client',
-    #             'tag': 'display_notification',
-    #             'params': {
-    #                 'type': 'success',
-    #                 'message': message,
-    #                 'next': {'type': 'ir.actions.act_window_close'}
-    #             }
-    #         }
 
 
     @api.model
@@ -12365,103 +10413,19 @@ class ConfirmEarlyCheckoutWizard(models.TransientModel):
         return res
 
     def action_confirm_checkout(self):
-        """Optimized early checkout wizard: replicates functionality of action_checkout_booking with SQL for speed."""
+        """Set checkout_date to today and proceed with check-out for all selected bookings"""
+        # today = fields.Date.context_today(self)
+        # today = datetime.now()
         today = self.env.company.system_date.date()
-        current_time = datetime.now().time()
-        current_datetime = datetime.combine(today, current_time)
-
-        booking_ids = []
-        room_line_ids = []
-        move_vals_list = []
-        move_map = {}  # booking.id → account.move
-        line_vals = []
-
-        eligible_bookings = self.booking_ids.filtered(lambda b: len(b.room_line_ids) <= 1)
-
-        # Step 1: Pre-filter bookings with forecast lines and collect invoice data
-        for booking in eligible_bookings:
-            forecast_lines = [line for line in booking.rate_forecast_ids if line.date == today]
-            if not forecast_lines:
+        for booking in self.booking_ids:
+            if len(booking.room_line_ids) > 1:
                 continue
+                # raise ValidationError(_("This booking has multiple room lines and cannot be checked out through early checkout."))
 
-            # Collect move/invoice header values
-            posting_item_meal, __a, __b, __c = booking.get_meal_rates(booking.meal_pattern.id)
-            __x, __y, __z, posting_item_rate, line_posting_items = booking.get_all_prices(booking.checkin_date, booking)
-            move_vals_list.append({
-                'move_type': 'out_invoice',
-                'invoice_date': today,
-                'partner_id': booking.partner_id.id,
-                'ref': booking.name,
-                'hotel_booking_id': booking.id,
-                'group_booking_name': booking.group_booking.name if booking.group_booking else '',
-                'parent_booking_name': booking.parent_booking_name or '',
-                'room_numbers': booking.room_ids_display or '',
-            })
+            booking.checkout_date = today
+            booking._perform_checkout()
+            booking._create_invoice()  # Only create invoice if confirmed
 
-            booking_ids.append(booking.id)
-            room_line_ids.extend(booking.room_line_ids.ids)
-
-        # Step 2: Bulk create all invoices
-        created_moves = self.env['account.move'].create(move_vals_list)
-
-        # Step 3: Map invoices back to bookings
-        for booking, move in zip(eligible_bookings, created_moves):
-            move_map[booking.id] = move
-
-        # Step 4: Generate invoice lines
-        for booking in eligible_bookings:
-            move = move_map.get(booking.id)
-            if not move:
-                continue
-
-            posting_item_meal, __a, __b, __c = booking.get_meal_rates(booking.meal_pattern.id)
-            __x, __y, __z, posting_item_rate, line_posting_items = booking.get_all_prices(booking.checkin_date, booking)
-            for line in booking.rate_forecast_ids.filtered(lambda l: l.date == today):
-                if line.rate and line.rate > 0:
-                    line_vals.append({
-                        'posting_item_id': posting_item_rate,
-                        'posting_description': 'Rate',
-                        'posting_default_value': line.rate,
-                        'move_id': move.id,
-                    })
-                if line.meals and line.meals > 0:
-                    line_vals.append({
-                        'posting_item_id': posting_item_meal,
-                        'posting_description': 'Meal',
-                        'posting_default_value': line.meals,
-                        'move_id': move.id,
-                    })
-                if line.packages and line.packages > 0:
-                    line_vals.append({
-                        'posting_item_id': line_posting_items[-1],
-                        'posting_description': 'Package',
-                        'posting_default_value': line.packages,
-                        'move_id': move.id,
-                    })
-
-        # Step 5: Bulk create invoice lines
-        if line_vals:
-            self.env['account.move.line'].create(line_vals)
-
-        # Step 6: Bulk SQL update for checkout_date, state, invoice status
-        if booking_ids:
-            self.env.cr.execute("""
-                UPDATE room_booking
-                SET checkout_date = %s,
-                    state = 'check_out',
-                    invoice_status = 'invoiced',
-                    invoice_button_visible = TRUE
-                WHERE id IN %s
-            """, (current_datetime, tuple(booking_ids)))
-
-        if room_line_ids:
-            self.env.cr.execute("""
-                UPDATE room_booking_line
-                SET state_ = 'check_out'
-                WHERE id IN %s
-            """, (tuple(room_line_ids),))
-
-        # Final confirmation notification
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -12471,30 +10435,6 @@ class ConfirmEarlyCheckoutWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.act_window_close'},
             }
         }
-
-    # def action_confirm_checkout(self):
-    #     """Set checkout_date to today and proceed with check-out for all selected bookings"""
-    #     # today = fields.Date.context_today(self)
-    #     # today = datetime.now()
-    #     today = self.env.company.system_date.date()
-    #     for booking in self.booking_ids:
-    #         if len(booking.room_line_ids) > 1:
-    #             continue
-    #             # raise ValidationError(_("This booking has multiple room lines and cannot be checked out through early checkout."))
-
-    #         booking.checkout_date = today
-    #         booking._perform_checkout()
-    #         booking._create_invoice()  # Only create invoice if confirmed
-
-    #     return {
-    #         'type': 'ir.actions.client',
-    #         'tag': 'display_notification',
-    #         'params': {
-    #             'type': 'success',
-    #             'message': _("Booking Checked Out Successfully!"),
-    #             'next': {'type': 'ir.actions.act_window_close'},
-    #         }
-    #     }
 
     def action_cancel(self):
         """ Action to cancel the check-in """
@@ -12818,50 +10758,7 @@ class RoomBookingUpdateWizard(models.TransientModel):
     market_segment = fields.Many2one('market.segment', string='Market Segment')
     readonly_market_segment = fields.Boolean(string="Lock Market Segment", default=False)
 
-    room_booking_id = fields.Many2one('room.booking', string="Booking")
-
     rate_code = fields.Many2one('rate.code', string='Rate Code')
-
-    
-
-    @api.onchange('rate_code', 'checkin_date', 'checkout_date')
-    def _onchange_rate_code(self):
-
-        active_ids = self.env.context.get('active_ids', [])
-        if not active_ids:
-            print("No active_ids in context.")
-            return
-
-        first_booking = self.env['room.booking'].browse(active_ids[0])
-        if not first_booking.exists():
-            print("Booking not found for active_id.")
-            return
-
-        current_state = first_booking.state
-        # print("Room booking state: %s", current_state)
-
-        if current_state == 'check_in':
-            self.checkin_date = first_booking.checkin_date
-
-        
-        if self.rate_code and self.checkin_date and self.checkout_date:
-            rate_details = self.env['rate.detail'].search([
-                ('rate_code_id', '=', self.rate_code.id),
-                ('from_date', '<=', self.checkin_date),
-                ('to_date', '>=', self.checkout_date)
-            ], limit=1)
-
-            if not rate_details:
-                warning = {
-                    'warning': {
-                        'title': _('Invalid Rate Code'),
-                        'message': _('The selected rate code "%s" is expired or not valid for the selected dates. Please choose another rate code.') % self.rate_code.code,
-                    }
-                }
-                # Clear the invalid rate_code
-                self.rate_code = False
-                return warning
-
     readonly_rate_code = fields.Boolean(string="Lock Rate Code", default=False)
 
     nationality = fields.Many2one('res.country', string='Nationality')
@@ -12967,7 +10864,7 @@ class RoomBookingUpdateWizard(models.TransientModel):
         booking = bookings[0]
         query_template = booking._get_room_search_query()
         # hotel_room_type_id = booking.room_line_ids.mapped('hotel_room_type').id if booking.room_line_ids else None
-        hotel_room_type_id = self.room_type.id if self.room_type else None
+        hotel_room_type_id = self.room_type.id
         # Build your parameter dictionary
         query_params = {
             'company_id': self.env.company.id,
@@ -13301,21 +11198,69 @@ class ConfirmBookingWizard(models.TransientModel):
     #     self.line_id.state_ = 'confirmed'
     #     return {'type': 'ir.actions.act_window_close'}
 
+    # def action_confirm(self):
+    #     """YES button: if the line is in 'block' state,
+    #        set room_id to False and change state to 'confirmed'."""
+    #     if self.line_id and self.line_id.state_ == 'block':
+    #         self.line_id.room_id = False
+    #         self.line_id.state_ = 'confirmed'
+    #
+    #     if self.booking_id and self.booking_id.state == 'block':
+    #         self.booking_id.state = 'confirmed'
+    #         # Also clear room_id for all related room lines
+    #         for line in self.booking_id.room_line_ids:
+    #             line.room_id = False
+    #             line.state_ = 'confirmed'
+    #
+    #     return {'type': 'ir.actions.act_window_close'}
+
     def action_confirm(self):
-        """YES button: if the line is in 'block' state,
-           set room_id to False and change state to 'confirmed'."""
-        if self.line_id and self.line_id.state_ == 'block':
-            self.line_id.room_id = False
-            self.line_id.state_ = 'confirmed'
-        
-        if self.booking_id and self.booking_id.state == 'block':
-            self.booking_id.state = 'confirmed'
-            # Also clear room_id for all related room lines
-            for line in self.booking_id.room_line_ids:
-                line.room_id = False
-                line.state_ = 'confirmed'
-                
-        return {'type': 'ir.actions.act_window_close'}
+        today = fields.Date.context_today(self)
+
+        # 1) Prevent confirming past‐date bookings
+        bad = self.filtered(lambda b: b.checkin_date and b.checkin_date < today)
+        if bad:
+            names = ', '.join(bad.mapped('name'))
+            raise ValidationError(_("Cannot confirm bookings with check-in before today: %s") % names)
+
+        # 2) Ensure mandatory fields are filled
+        required = [
+            ('partner_id', _('Contact')),
+            ('nationality', _('Nationality')),
+            ('source_of_business', _('Source of Business')),
+            ('market_segment', _('Market Segment')),
+            ('rate_code', _('Rate Code')),
+            ('meal_pattern', _('Meal Pattern')),
+        ]
+        for field_name, label in required:
+            missing = self.filtered(lambda b: not getattr(b, field_name))
+            if missing:
+                names = ', '.join(missing.mapped('name'))
+                raise ValidationError(_("%s is required on: %s") % (label, names))
+
+        # 3) Split room lines in one batch
+        to_split = self.filtered(lambda b: not b.room_line_ids)
+        if to_split:
+            to_split.action_split_rooms()
+
+        # 4) Bulk-decrement availability in SQL
+        if self:
+            self.env.cr.execute("""
+                UPDATE room_availability_result
+                SET available_rooms = available_rooms - rooms_reserved,
+                    rooms_reserved   = 0
+                WHERE room_booking_id = ANY(%s)
+            """, (tuple(self.ids),))
+
+        # 5) Confirm all eligible bookings at once
+        eligible = self.filtered(lambda b: not b.room_line_ids.filtered(lambda l: l.state_ == 'block'))
+        if eligible:
+            eligible.write({'state': 'confirmed'})
+
+        # 6) One final cache flush (if needed)
+        self.env.invalidate_all()
+
+        return True
 
     def action_block(self):
         # self.line_id.state_ = 'block'

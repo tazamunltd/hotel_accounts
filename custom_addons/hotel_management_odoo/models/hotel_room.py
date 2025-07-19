@@ -1,6 +1,6 @@
 
 from odoo import api, fields, models, tools, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 
 class HotelRoom(models.Model):
@@ -8,6 +8,46 @@ class HotelRoom(models.Model):
     _name = 'hotel.room'
     _description = 'Rooms'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    active = fields.Boolean(default=True, tracking=True)
+
+    # def action_archive_record(self):
+    #     for record in self:
+    #         record.active = False
+    
+    def action_archive_record(self, state_filter=None):
+        for record in self:
+            # Set default state filter if none is passed (e.g., ['block', 'check_in'])
+            if not state_filter:
+                state_filter = ['block', 'check_in']
+
+            # Check if the current room is in any of the given states in any booking
+            query = """
+                SELECT rb.name, rb.state
+                FROM room_booking rb
+                JOIN room_booking_line rbl ON rb.id = rbl.booking_id
+                WHERE rbl.room_id = %s
+                AND rb.state = ANY(%s)  -- Use dynamic states
+                AND rb.active = TRUE  -- Ensure that the booking is active
+                LIMIT 1
+            """
+
+            self.env.cr.execute(query, (record.id, state_filter))
+            result = self.env.cr.fetchone()
+
+            # If a booking is found (result will contain booking name and state)
+            if result:
+                booking_name = result[0]  # Extract booking name from result
+                booking_state = result[1]  # Extract booking state from result
+                raise UserError(
+                    f"The room {record.name} cannot be archived as it is in a '{booking_state}' state for booking: {booking_name}.")
+            else:
+                # Set the room as inactive if no such booking exists
+                record.active = False
+
+    def action_unarchive_record(self):
+        for record in self:
+            record.active = True
 
     housekeeping_status = fields.Many2one(
         'housekeeping.status', string="HouseKeeping Status", tracking=True)
@@ -67,11 +107,10 @@ class HotelRoom(models.Model):
             if existing:
                 return {
                     'warning': {
-                        'title': "Duplicate Room",
-                        'message': (
-                            f"The Room '{self.name}' with Room Type '{self.room_type_name.room_type}' "
-                            f"already exists for this Hotel."
-                        )
+                        'title': _("Duplicate Room"),
+                        'message': _(
+                            "The Room '%s' with Room Type '%s' already exists for this Hotel."
+                        ) % (self.name, self.room_type_name.room_type)
                     }
                 }
 
@@ -158,7 +197,7 @@ class HotelRoom(models.Model):
                                  default=lambda self: self.env.company, required=True, tracking=True)
 
     fsm_location = fields.Many2one(
-        'fsm.location', string='Location', required=True, tracking=True)
+        'fsm.location', string='Location', required=True, tracking=True,  domain=[('active', '=', True)])
     # @api.onchange('fsm_location')
     # def _onchange_fsm_location(self):
     #     if self.fsm_location:
@@ -224,6 +263,8 @@ class HotelRoom(models.Model):
 
     checkin_date = fields.Datetime(string='Check-In Date')
     checkout_date = fields.Datetime(string='Check-Out Date')
+
+   
 
 
 class HouseKeepingStatus(models.Model):

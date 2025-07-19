@@ -407,10 +407,14 @@ inventory AS (
     SELECT
         hi.company_id,
         hi.room_type AS room_type_id,
-        SUM(COALESCE(hi.total_room_count, 0)) AS total_room_count,
+        COUNT(DISTINCT hr.id) AS total_room_count,
         SUM(COALESCE(hi.overbooking_rooms, 0)) AS overbooking_rooms,
         BOOL_OR(COALESCE(hi.overbooking_allowed, false)) AS overbooking_allowed
     FROM hotel_inventory hi
+    JOIN hotel_room hr
+      ON hr.company_id    = hi.company_id
+     AND hr.room_type_name = hi.room_type
+     AND hr.active = TRUE
     GROUP BY hi.company_id, hi.room_type
 ),
 out_of_order AS (
@@ -424,6 +428,7 @@ out_of_order AS (
       ON ds.report_date BETWEEN ooo.from_date AND ooo.to_date
     JOIN hotel_room hr
       ON hr.id = ooo.room_number
+      AND hr.active = TRUE
     JOIN room_type rt
       ON hr.room_type_name = rt.id
     GROUP BY rt.id, hr.company_id, ds.report_date
@@ -439,6 +444,7 @@ rooms_on_hold AS (
       ON ds.report_date BETWEEN roh.from_date AND roh.to_date
     JOIN hotel_room hr
       ON hr.id = roh.room_number
+      AND hr.active = TRUE
     JOIN room_type rt
       ON hr.room_type_name = rt.id
     GROUP BY rt.id, hr.company_id, ds.report_date
@@ -455,6 +461,7 @@ out_of_service AS (
       AND (hm.repair_ends_by IS NULL OR ds.report_date <= hm.repair_ends_by)
     JOIN hotel_room hr
       ON hr.room_type_name = hm.room_type
+      AND hr.active = TRUE
     JOIN room_type rt
       ON hr.room_type_name = rt.id
     GROUP BY rt.id, hr.company_id, ds.report_date

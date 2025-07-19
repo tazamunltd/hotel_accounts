@@ -805,6 +805,7 @@ msgstr "هل ترغب في البحث عن الغرف حسب العدد؟"
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/room_type_change_validation.js:0
 #, python-format
 msgid "Yes, search rooms!"
 msgstr "نعم، ابحث عن الغرف!"
@@ -850,7 +851,7 @@ msgstr "يرجى تصحيح ما يلي: رمز الاستخدام الداخل�
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 #, python-format
 msgid "Search Room is empty. Please search for available rooms before confirming."
-msgstr "لا توجد غرف في نتائج البحث. الرجاء البحث عن غرف متاحة قبل المتابعة"
+msgstr "حقل البحث عن الغرف فارغ. يرجى البحث عن الغرف المتاحة قبل التأكيد."
 
 
 #. module: hotel_management_odoo
@@ -1036,7 +1037,7 @@ msgstr "تطبيق"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Are you sure you want to block this booking?"
-msgstr "هل أنت متأكد من أنك تريد تخصيص هذا الحجز؟"
+msgstr "هل أنت متأكد أنك تريد تخصيص هذا الحجز؟"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -1046,7 +1047,7 @@ msgstr "هل أنت متأكد من أنك تريد إلغاء هذا الحجز
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_confirm_early_checkout_wizard
 msgid "Are you sure you want to check out early?"
-msgstr "هل أنت متأكد من أنك تريد تسجيل المغادرة مبكرًا؟"
+msgstr "هل أنت متأكد أنك تريد تسجيل المغادرة مبكرًا؟"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_confirm_booking_wizard_form
@@ -1056,17 +1057,22 @@ msgstr "سيتم تحرير رقم الغرفة. هل ترغب في المتاب
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Are you sure you want to check-in this booking?"
-msgstr "هل أنت متأكد من أنك تريد تسجيل دخول هذا الحجز؟"
+msgstr "هل أنت متأكد أنك تريد تسجيل الوصول لهذا الحجز؟"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Are you sure you want to check-out this booking?"
-msgstr "هل أنت متأكد من أنك تريد تسجيل مغادرة هذا الحجز؟"
+msgstr "هل أنت متأكد أنك تريد تسجيل مغادرة هذا الحجز؟"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Are you sure you want to check-out this booking?"
+msgstr "هل أنت متأكد أنك تريد تسجيل مغادرة هذا الحجز؟"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "Are you sure you want to no show this booking?"
-msgstr "هل أنت متأكد من أنك تريد اعتبار هذا الحجز \"عدم حضور\"؟"
+msgstr "هل أنت متأكد أنك تريد تحويل حالة هذا الحجز إلى «عدم الحضور»؟"
 
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
@@ -3479,8 +3485,8 @@ msgstr "الليلة الأولى"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__first_visit
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
-msgid "First Visit"
-msgstr "الزيارة الأولى"
+msgid "First Arrive"
+msgstr "أول وصول"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_rate_forecast__fixed_post
@@ -3768,6 +3774,11 @@ msgstr "إنشاء تقرير مجموعة RC"
 #: model:ir.actions.server,name:hotel_management_odoo.action_report_consolidated_rc
 msgid "Generate RC Report"
 msgstr "إنشاء تقرير RC"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_report_rc_guest_group_main
+msgid "Generate Group RC Guest Report Main"
+msgstr "إنشاء تقرير RC النزيل الرئيسي لمجموعة"
 
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__total_total_forecast
@@ -5120,8 +5131,8 @@ msgstr "آخر تحديث في"
 #. module: hotel_management_odoo
 #: model:ir.model.fields,field_description:hotel_management_odoo.field_group_booking__last_visit
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.view_group_booking_form
-msgid "Last Visit"
-msgstr "آخر زيارة"
+msgid "Last Departure"
+msgstr "آخر مغادرة"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -8670,7 +8681,7 @@ msgstr "تاريخ النظام الحالي والوقت."
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 #, python-format
 msgid "The field 'Market Segment' is required for record '%s'. Please fill it before confirming."
-msgstr "الحقل \"قطاع التسويق\" مطلوب للسجل \"%s\". يرجى تعبئته قبل التأكيد."
+msgstr "الحقل \"%s\" مطلوب. يرجى تعبئته قبل التأكيد."
 
 #. module: hotel_management_odoo
 #. odoo-python
@@ -8880,7 +8891,7 @@ msgstr "إلى فاتورة"
 #. module: hotel_management_odoo
 #: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
 msgid "To Record"
-msgstr "لتسجيل"
+msgstr "إلى السجل"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
@@ -9452,6 +9463,9 @@ msgstr "هل ترغب في البحث عن الغرف حسب العدد؟"
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/room_type_change_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/checkin_date_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/checkout_date_validation.js:0
 #, python-format
 msgid "Are you sure?"
 msgstr "هل أنت متأكد؟"
@@ -9464,13 +9478,47 @@ msgstr "نعم، ابحث عن الغرف!"
 #. module: hotel_management_odoo
 #. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/room_type_change_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/checkin_date_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/checkout_date_validation.js:0
 #, python-format
 msgid "Yes, search rooms!"
 msgstr "نعم، ابحث عن الغرف!"
 
 #. module: hotel_management_odoo
 #. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/checkin_date_validation.js:0
+#, python-format
+msgid "Do you want to search rooms for check-in date \"%s\"?"
+msgstr "هل ترغب في البحث عن غرف لتاريخ تسجيل الوصول \"%s\"؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/checkout_date_validation.js:0
+#, python-format
+msgid "Do you want to search rooms for check-out date \"%s\"?"
+msgstr "هل تريد البحث عن غرف لتاريخ تسجيل الخروج \"%s\"؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_type_change_validation.js:0
+#, python-format
+msgid "Do you want to search rooms for room type \"%s\"?"
+msgstr "هل ترغب في البحث عن غرف للأنواع التالية: \"%s\"؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
 #: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#, python-format
+msgid "Do you want to search rooms for count %(count)s?"
+msgstr "هل ترغب في البحث عن عدد %(count)s غرفة؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/room_booking_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/room_type_change_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/checkin_date_validation.js:0
+#: code:addons/hotel_management_odoo/static/src/js/checkout_date_validation.js:0
 #, python-format
 msgid "Cancel"
 msgstr "إلغاء!"
@@ -9896,7 +9944,7 @@ msgstr "رمز السعر المحدد %s منتهي الصلاحية. يرجى 
 #. module: hotel_management_odoo
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 msgid "The field Contact is required. Please fill it before confirming."
-msgstr "الحقل جهة الاتصال مطلوب. يرجى تعبئته قبل التأكيد."
+msgstr "الحقل العميل مطلوب. يرجى تعبئته قبل التأكيد"
 
 #. module: hotel_management_odoo
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
@@ -9906,17 +9954,22 @@ msgstr "الحقل الجنسية مطلوب. يرجى تعبئته قبل ال�
 #. module: hotel_management_odoo
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 msgid "The field Source of Business is required. Please fill it before confirming."
-msgstr "الحقل مصدر الحجز مطلوب. يرجى تعبئته قبل التأكيد"
+msgstr "الحقل مصدر المبيعات مطلوب. يرجى تعبئته قبل التأكيد."
 
 #. module: hotel_management_odoo
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 msgid "The field Market Segment is required. Please fill it before confirming."
-msgstr "الحقل القطاع السوقي مطلوب. يرجى تعبئته قبل التأكيد."
+msgstr "الحقل قطاع التسويق مطلوب. يرجى تعبئته قبل التأكيد."
 
 #. module: hotel_management_odoo
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 msgid "The field Meal Pattern is required. Please fill it before confirming."
 msgstr "الحقل نمط الوجبات مطلوب. يرجى تعبئته قبل التأكيد."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "The field Rate Code is required. Please fill it before confirming."
+msgstr "الحقل رمز السعر مطلوب. يرجى تعبئته قبل التأكيد."
 
 #. module: hotel_management_odoo
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
@@ -9947,5 +10000,279 @@ msgstr ""
 "هل ترغب في إرسال هذا الحجز إلى <strong>قائمة الانتظار</strong>؟"
 "</div>"
 
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Room Price must be greater than 0 when Use Price is selected!"
+msgstr "يجب أن يكون سعر الغرفة أكبر من 0 عند تفعيل خيار «استخدام سعر الغرفة»!"
 
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Meal Price must be greater than 0 when Use Meal Price is selected!"
+msgstr "يجب أن يكون سعر الوجبة أكبر من 0 عند تفعيل خيار «استخدام سعر الوجبة»!"
 
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Please correct the following:"
+msgstr "يرجى تصحيح ما يلي:"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "All selected bookings must be in the block state to proceed with check-in."
+msgstr "يجب أن تكون جميع الحجوزات المحددة في حالة «مخصص» للتمكن من متابعة تسجيل الدخول."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "All selected bookings must be in the check_in state to proceed with check-out."
+msgstr "يجب أن تكون جميع الحجوزات المحددة في حالة «وصول» للتمكن من متابعة إجراءات تسجيل الخروج."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Please select only records in the Not Confirmed or No Show state to confirm."
+msgstr "يرجى تحديد السجلات التي حالتها «غير مؤكد» أو «عدم حضور» فقط لإتمام عملية التأكيد."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "You cannot cancel bookings in state %s."
+msgstr "لا يمكن إلغاء الحجوزات التي حالتها %s."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "You cannot cancel bookings in state cancel"
+msgstr "لا يمكن إلغاء الحجوزات التي حالتها «مُلْغى» بالفعل."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Payment must be between 1 and 100."
+msgstr "يجب أن يكون الحد الأدنى للدفع بين 1 و 100."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Star Rating must be between 1 and 5."
+msgstr "يجب أن يكون التصنيف بالنجوم بين 1 و 5."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Starting Price Cannot be less than 1"
+msgstr "لا يمكن أن يكون سعر البدء أقل من 1."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Booking must be Confirmed first."
+msgstr "يجب تأكيد الحجز أولًا"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "You have to Search room first then you can split room"
+msgstr "يجب عليك أولاً البحث عن الغرفة، ثم يمكنك تقسيم الغرفة"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/hotel_room.py:0
+msgid "Duplicate Room"
+msgstr "غرفة مكررة"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/hotel_room.py:0
+msgid "The Room '%s' with Room Type '%s' already exists for this Hotel."
+msgstr "الغرفة %s من نوع %s موجودة بالفعل لهذا الفندق."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Booking Checked Out Successfully!"
+msgstr "تم تسجيل مغادرة الحجز بنجاح!"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "You have to Search room first then you can split room"
+msgstr "يجب عليك أولاً البحث عن الغرفة، ثم يمكنك تقسيم الغرفة"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/delete_with_notification.js:0
+#, python-format
+msgid "Reservation(s) deleted successfully!"
+msgstr "تم حذف الحجز/الحجوزات بنجاح!"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Room Discount cannot be less than 0."
+msgstr "لا يمكن أن يكون خصم الغرفة أقل من 0"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Meal Discount cannot be less than 0."
+msgstr "لا يمكن أن يكون خصم الوجبة أقل من 0"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "You have to search rooms first before splitting them"
+msgstr "يجب عليك البحث عن الغرف أولاً قبل تقسيمها"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "All rooms have already been split. No new rooms to split."
+msgstr "تم تقسيم جميع الغرف. لا توجد غرف جديدة للتقسيم."
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "Booking %s: No Show can only be done on the check-in date."
+msgstr "الحجز %s: لا يمكن تحويل الحالة إلى عدم الحضور إلا في تاريخ تسجيل الوصول فقط"
+
+#. module: hotel_management_odoo
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+msgid "The No Show action can only be performed on the current check-in date."
+msgstr "يمكن تنفيذ إجراء «عدم الحضور» فقط في تاريخ تسجيل الدخول الحالي."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Booking(s) cancelled successfully!"
+msgstr "تم إلغاء الحجز/الحجوزات بنجاح!"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "You cannot check-in a booking with a check-in date in the past."
+msgstr "لا يمكن تسجيل وصول حجز بتاريخ تسجيل وصول في الماضي."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Room price is zero. You cannot select percentage."
+msgstr "سعر الغرفة يساوي صفر. لا يمكنك اختيار النسبة المئوية."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Meal price is zero. You cannot select percentage."
+msgstr "سعر الوجبة يساوي صفر. لا يمكنك اختيار النسبة المئوية."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "You can only delete bookings in the following states: Cancel, No Show, or Not Confirmed.\nThe following bookings are in invalid states:\n%s"
+msgstr "يمكنك حذف الحجوزات التي حالتها فقط: «مُلْغى»، «عدم حضور»، أو «غير مؤكد».\nالحجوزات التالية في حالات غير صالحة للحذف:\n%s"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Are you sure you want to Unblock this booking?"
+msgstr "هل أنت متأكد أنك تريد إلغاء تخصيص هذا الحجز؟"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_form
+msgid "Are you sure you want to confirm this booking?"
+msgstr "هل أنت متأكد أنك تريد تأكيد هذا الحجز؟"
+
+#. module: hotel_management_odoo
+#: model_terms:ir.ui.view,arch_db:hotel_management_odoo.room_booking_view_tree
+msgid "Are you sure you want to confirm this booking?"
+msgstr "هل أنت متأكد أنك تريد تأكيد هذا الحجز؟"
+
+#. module: hotel_management_odoo
+#. odoo-javascript
+#: code:addons/hotel_management_odoo/static/src/js/checkin_date_validation.js:0
+#, python-format
+msgid "Check-in date should not be less than system date"
+msgstr "يجب ألا يكون تاريخ تسجيل الوصول سابقًا لتاريخ النظام."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Room count cannot be zero or less. Please select at least one room."
+msgstr "لا يمكن أن يكون عدد الغرف صفرًا أو أقل. يرجى اختيار غرفة واحدة على الأقل."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Please select records with the same state."
+msgstr "يرجى تحديد سجلات لها نفس الحالة."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Booking(s) confirmed successfully!"
+msgstr "تم تأكيد الحجز/الحجوزات بنجاح!"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking_line.py:0
+#, python-format
+msgid "Please confirm the booking before assigning a room."
+msgstr "يرجى تأكيد الحجز قبل تخصيص غرفة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_unarchive_room_booking
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_delete_room_booking
+msgid "Delete"
+msgstr "حذف"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_unarchive_hotel_room
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_archive_hotel_room
+msgid "Delete"
+msgstr "حذف"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_unarchieve_hotel_room
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_delete_hotel_room
+msgid "Delete"
+msgstr "حذف"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_unarchieve_hotel_amenity
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_delete_hotel_amenity
+msgid "Delete"
+msgstr "حذف"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_unarchieve_dynamic_selection
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_delete_dynamic_selection
+msgid "Delete"
+msgstr "حذف"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_unarchieve_hotel_service
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: hotel_management_odoo
+#: model:ir.actions.server,name:hotel_management_odoo.action_delete_hotel_service
+msgid "Delete"
+msgstr "حذف"
+
+#. module: fieldservice
+#: model:ir.actions.server,name:fieldservice.action_unarchive_fsm_location
+msgid "Unarchive"
+msgstr "إلغاء الأرشفة"
+
+#. module: fieldservice
+#: model:ir.actions.server,name:fieldservice.action_delete_fsm_location
+msgid "Delete"
+msgstr "حذف"
