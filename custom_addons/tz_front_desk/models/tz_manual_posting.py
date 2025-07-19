@@ -64,36 +64,6 @@ class TzHotelManualPosting(models.Model):
     group_booking_id = fields.Many2one('group.booking', compute='_compute_type_fields', store=True)
     dummy_id = fields.Many2one('tz.dummy.group', compute='_compute_type_fields', store=True)
 
-    # booking_id = fields.Many2one(
-    #     'room.booking',
-    #     string="Room Booking",
-    #     domain=lambda self: [('state', 'in', ['confirmed', 'no_show', 'block', 'check_in'])]
-    # )
-    #
-    # room_id = fields.Many2one(
-    #     'hotel.room',
-    #     string="Room",
-    #     domain="[('id', 'in', unavailable_room_ids)]"
-    # )
-    #
-    unavailable_room_ids = fields.Many2many(
-        comodel_name='hotel.room',
-        compute='_compute_unavailable_rooms',
-        store=False,
-    )
-    #
-    # group_booking_id = fields.Many2one(
-    #     'group.booking',
-    #     string="Group",
-    #     domain="[('status_code', '=', 'confirmed'), ('has_master_folio', '=', True)]"
-    # )
-    #
-    # dummy_id = fields.Many2one(
-    #     'tz.dummy.group',
-    #     string="Dummy",
-    #     domain="[('obsolete', '=', False)]"
-    # )
-
     debit_amount = fields.Float(
         string="Debit",
         tracking=True,
@@ -134,7 +104,8 @@ class TzHotelManualPosting(models.Model):
         compute='_compute_booking_info',
         store=True
     )
-    folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True, store=True)
+    # folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True, store=True)
+    folio_id = fields.Many2one('tz.master.folio', compute='_compute_folio_id', store=True)
 
     source_type = fields.Selection(
         [('auto', 'Auto'), ('manual', 'Manual')],
@@ -170,19 +141,21 @@ class TzHotelManualPosting(models.Model):
         ('line_section', "Section"),
         ('line_note', "Note")], string="Display Type")
 
-    # temp field for creating odoo payment
-    odoo_payment = fields.Boolean()
+    payment_group = fields.Selection(related='item_id.main_department.payment_group', string="Payment Group",
+                                     store=True, readonly=True)
+    adjustment = fields.Selection(related='item_id.main_department.adjustment', string="Adjustment", store=True,
+                                  readonly=True)
+    payment_id = fields.Many2one('account.payment', string="Payment #", index=True, store=True)
+    master_id = fields.Many2one('tz.manual.posting', string="Master #", index=True)
 
     @api.onchange('type_id')
     def _onchange_type_id(self):
         for record in self:
             if record.type_id:
-                # Update the fields with values from the selected type_id
                 record.booking_id = record.type_id.booking_id
                 record.room_id = record.type_id.room_id
                 record.group_booking_id = record.type_id.group_booking_id
                 record.dummy_id = record.type_id.dummy_id
-                record.folio_id = record._get_master_folio_for_dummy(record.dummy_id.id)
 
     @api.depends('type_id')
     def _compute_type_fields(self):
@@ -192,21 +165,20 @@ class TzHotelManualPosting(models.Model):
                 record.room_id = record.type_id.room_id
                 record.group_booking_id = record.type_id.group_booking_id
                 record.dummy_id = record.type_id.dummy_id
-                record.folio_id = record._get_master_folio_for_dummy(record.dummy_id.id)
             else:
                 record.booking_id = False
                 record.room_id = False
                 record.group_booking_id = False
                 record.dummy_id = False
 
-    @api.model
-    def default_get(self, fields_list):
-        res = super(TzHotelManualPosting, self).default_get(fields_list)
-        unavailable_rooms = self.env['room.booking.line'].search([
-            ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show']),
-        ]).mapped('room_id.id')
-        res['unavailable_room_ids'] = [(6, 0, unavailable_rooms)]
-        return res
+    # @api.model
+    # def default_get(self, fields_list):
+    #     res = super(TzHotelManualPosting, self).default_get(fields_list)
+    #     unavailable_rooms = self.env['room.booking.line'].search([
+    #         ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show']),
+    #     ]).mapped('room_id.id')
+    #     res['unavailable_room_ids'] = [(6, 0, unavailable_rooms)]
+    #     return res
 
     @api.model
     def create(self, vals):
@@ -231,25 +203,17 @@ class TzHotelManualPosting(models.Model):
             vals[
                 'name'] = f"{company.name}/{self.env['ir.sequence'].with_company(company).next_by_code('tz.manual.posting') or '00001'}"
 
-        record = super(TzHotelManualPosting, self).create(vals)
+        record = super().create(vals)
 
         if self._context.get('manual_creation'):
-            if vals.get('group_booking_id', False):
-                vals['room_id'] = self._get_master_room_id(vals['group_booking_id'])
+            record.source_type = 'manual'
 
-            folio = False
-            if record.room_id:
-                folio = self._create_master_folio(record.room_id.id)
-            elif record.dummy_id:
-                folio = record._get_master_folio_for_dummy(record.dummy_id.id)
+            if vals.get('group_booking_id'):
+                record.room_id = self._get_master_room_id(vals['group_booking_id'])
 
-            if folio:
-                record.folio_id = folio
+            # No folio_id here — moved to computed field
 
-        if vals.get('odoo_payment'):
-            record.create_account_payment()
-
-        vals['source_type'] = 'manual'
+            record._handle_cash_payment(item_id=vals.get('item_id'))
 
         if record.item_id:
             record.compute_manual_taxes()
@@ -261,26 +225,26 @@ class TzHotelManualPosting(models.Model):
         group_id = vals.get('group_booking_id', self.group_booking_id.id)
         dummy_id = vals.get('dummy_id', self.dummy_id.id)
 
-        self.env['tz.hotel.checkout']._check_suspended_manual_posting(room_id=room_id, group_id=group_id, dummy_id=dummy_id)
+        self.env['tz.hotel.checkout']._check_suspended_manual_posting(
+            room_id=room_id, group_id=group_id, dummy_id=dummy_id)
 
         if 'booking_id' in vals:
             booking = self.env['room.booking'].browse(vals['booking_id'])
             if booking.state == 'cancel':
                 raise ValidationError("You cannot update manual posting to link to a canceled booking.")
 
-        if vals.get('odoo_payment'):
-            for record in self:
-                record.create_account_payment()
+        res = super().write(vals)
 
-        return super().write(vals)
-
-    # @api.depends_context('room_id')
-    def _compute_unavailable_rooms(self):
         for rec in self:
-            unavailable_rooms = self.env['room.booking.line'].search([
-                ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show']),
-            ]).mapped('room_id.id')
-            rec.unavailable_room_ids = [(6, 0, unavailable_rooms)]
+            rec._handle_cash_payment(item_id=vals.get('item_id'))
+
+            # 🔁 Sync credit_amount to children if updated
+            if 'credit_amount' in vals and not rec.master_id:
+                children = self.search([('master_id', '=', rec.id)])
+                for child in children:
+                    child.write({'debit_amount': rec.credit_amount})
+
+        return res
 
     @api.depends('debit_amount', 'credit_amount', 'quantity')
     def _compute_total(self):
@@ -378,10 +342,10 @@ class TzHotelManualPosting(models.Model):
         for record in self:
             record.price = record.debit_amount or record.credit_amount
 
-    @api.onchange('booking_id', 'room_id', 'group_booking_id')
+    @api.onchange('booking_id', 'room_id', 'group_booking_id', 'dummy_id')
     def _onchange_booking_room_or_group(self):
-        """Automatically find and suggest folio when booking, room or group changes"""
-        if self.booking_id or self.room_id or self.group_booking_id:
+        """Automatically find and suggest folio when booking, room, group, or dummy changes"""
+        if self.booking_id or self.room_id or self.group_booking_id or self.dummy_id:
             self.folio_id = False
             domain = []
             if self.booking_id:
@@ -390,16 +354,18 @@ class TzHotelManualPosting(models.Model):
                 domain.append(('room_id', '=', self.room_id.id))
             if self.group_booking_id:
                 domain.append(('group_id', '=', self.group_booking_id.id))
+            if self.dummy_id:
+                domain.append(('dummy_id', '=', self.dummy_id.id))
 
             if self.room_id and self.group_booking_id:
                 folio = self.env['tz.master.folio'].search([
                     '|',
                     ('room_id', '=', self.room_id.id),
-                    ('group_id', '=', self.group_booking_id.id)
+                    ('group_id', '=', self.group_booking_id.id),
+                    ('dummy_id', '=', self.dummy_id.id) if self.dummy_id else ()
                 ], limit=1, order='create_date DESC')
             elif domain:
                 folio = self.env['tz.master.folio'].search(domain, limit=1, order='create_date DESC')
-                # raise UserError(folio)
             else:
                 folio = False
             self.folio_id = folio
@@ -422,7 +388,7 @@ class TzHotelManualPosting(models.Model):
             self.description = False
             # self.taxes = False
 
-    def _create_master_folio(self, room_id):
+    def _get_or_create_master_folio(self, room_id):
         """
         Create master folio for manual posting when none exists
         Returns folio ID or raises exception
@@ -480,7 +446,7 @@ class TzHotelManualPosting(models.Model):
     @api.depends('item_id.default_sign')
     def _compute_sign(self):
         for rec in self:
-            if rec.item_id.default_sign == 'debit' or rec.item_id.default_sign == 'credit':
+            if not rec.sign and (rec.item_id.default_sign == 'debit' or rec.item_id.default_sign == 'credit'):
                 rec.sign = rec.item_id.default_sign
 
     def compute_manual_taxes(self):
@@ -611,38 +577,37 @@ class TzHotelManualPosting(models.Model):
         system_date = self.env.company.system_date.date()
         yesterday = system_date - timedelta(days=1)
 
+        to_delete = self.browse()
+
         for record in self:
             if record.state == 'posted':
                 raise UserError(_("You cannot delete a record that is posted."))
             if record.date == yesterday:
                 raise UserError(_("You cannot delete a record from yesterday's date."))
 
-        # Store context values before deletion
-        records_context = [(rec.folio_id, rec.company_id, rec.date) for rec in self]
+            # Delete children if this is a master
+            child_records = self.search([('master_id', '=', record.id)])
+            to_delete |= child_records
 
-        # Proceed with standard deletion
-        res = super(TzHotelManualPosting, self).unlink()
+            # Delete master if this is a child
+            if record.master_id and record.master_id not in self:
+                to_delete |= record.master_id
 
-        # Now update each affected folio after deletion
+        to_delete |= self
+        to_delete = to_delete.sorted(lambda r: r.master_id and 0 or 1)  # Delete children first
+
+        records_context = [(r.folio_id, r.company_id, r.date) for r in to_delete]
+
+        res = super(TzHotelManualPosting, to_delete).unlink()
+
         for folio, company, date in records_context:
-            # Use sudo if needed to bypass access rules
-            relevant_postings = self.sudo().search([
-                ('folio_id', '=', folio.id),
-                ('company_id', '=', company.id),
-                ('date', '=', date),
-            ])
-
-            # Use a dummy record to call your existing method
-            # if relevant_postings:
-            #     relevant_postings.update_folio_debit_credit_and_taxes()
-            # else:
-            #     # No remaining postings — reset values to zero
-            #     folio.sudo().write({
-            #         'total_debit': 0.0,
-            #         'total_credit': 0.0,
-            #         'value_added_tax': 0.0,
-            #         'municipality_tax': 0.0,
-            #     })
+            if folio:
+                relevant_postings = self.sudo().search([
+                    ('folio_id', '=', folio.id),
+                    ('company_id', '=', company.id),
+                    ('date', '=', date),
+                ])
+                # Optionally: update folio totals or triggers
 
         return res
 
@@ -677,7 +642,35 @@ class TzHotelManualPosting(models.Model):
             price_subtotal=self.price_subtotal,
         )
 
-    def create_account_payment(self):
+    def create_account_payment(self, payment_type='inbound'):
+        journal = self.env['account.journal'].search([('type', '=', 'bank')], limit=1)
+        payment_method_line = self.env['account.payment.method.line'].search([
+            ('journal_id', '=', journal.id),
+            ('payment_type', '=', payment_type)
+        ], limit=1)
+
+        if not payment_method_line:
+            raise UserError("No suitable payment method line found for the selected journal.")
+
+        for record in self:
+            payment_vals = {
+                'partner_id': record.partner_id.id,
+                'folio_id': record.folio_id.id,
+                'amount': record.price_total,
+                'date': record.date,
+                'currency_id': record.currency_id.id,
+                'company_id': record.company_id.id,
+                'payment_type': payment_type,
+                'partner_type': 'customer',
+                'journal_id': journal.id,
+                'payment_method_line_id': payment_method_line.id,
+            }
+
+            payment = self.env['account.payment'].create(payment_vals)
+            record.payment_id = payment.id
+            # payment.action_post()
+
+    def create_account_paymentX(self):
         for record in self:
             journal = self.env['account.journal'].search([('type', '=', 'bank')], limit=1)
 
@@ -705,13 +698,51 @@ class TzHotelManualPosting(models.Model):
             }
 
             payment = self.env['account.payment'].create(payment_vals)
+            self.write({'payment_id': payment.id})
             # payment.action_post()
 
+    def _show_notification(self, message, type_):
+        """Helper for showing notifications"""
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': type_,
+                'message': message,
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
+        }
 
+    @api.model
+    def _update_child_postings(self, master_record):
+        children = self.search([('master_id', '=', master_record.id)])
+        for child in children:
+            child.write({'debit_amount': master_record.credit_amount})
 
+    @api.depends('room_id', 'dummy_id')
+    def _compute_folio_id(self):
+        for rec in self:
+            if rec.dummy_id:
+                rec.folio_id = rec._get_master_folio_for_dummy(rec.dummy_id.id)
+            elif rec.room_id:
+                rec.folio_id = rec._get_or_create_master_folio(rec.room_id.id)
+            else:
+                rec.folio_id = False
 
+    def _handle_cash_payment(self, item_id=None):
+        for rec in self:
+            item = self.env['posting.item'].browse(item_id) if item_id else rec.item_id
+            if not item or not item.exists():
+                continue  # Defensive check
 
+            department = item.main_department
+            if department and department.payment_group == 'payment_cash':
+                if not rec.payment_id:
+                    payment_type = 'inbound' if rec.sign == 'credit' else 'outbound'
+                    rec.create_account_payment(payment_type=payment_type)
 
-
-
+                    rec._show_notification(
+                        message="Manual posting created with Cash Payment",
+                        type_='success'
+                    )
 

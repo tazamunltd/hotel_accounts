@@ -12,6 +12,7 @@
                 <field name="description"/>
                 <field name="price" widget="monetary"/>
                 <field name="quantity"/>
+                <field name="sign"/>
                 <field name="total"/>
                 <field name="source_type" widget="badge" decoration-danger="source_type == 'auto'"
                        decoration-info="source_type == 'manual'"/>
@@ -23,6 +24,95 @@
     </record>
 
     <record id="tz_view_manual_posting_form" model="ir.ui.view">
+        <field name="name">tz.manual.posting.form</field>
+        <field name="model">tz.manual.posting</field>
+        <field name="arch" type="xml">
+            <form string="Manual Posting">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="item_id" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                             <field name="master_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="type_id" string="Room" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                        </group>
+                    </group>
+                    <hr invisible="not item_id"/>
+                    <group invisible="not item_id">
+                        <group>
+                            <field name="debit_amount" invisible="sign != 'debit'" string="Price"
+                                   force_save="1" readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="credit_amount" invisible="sign != 'credit'" string="Price"
+                                   force_save="1" readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="quantity" readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="total" readonly="1"/>
+                            <field name="description" force_save="1"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="payment_group"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="sign" widget="radio" options="{'horizontal': True}"
+                                   readonly="not item_id or not item_id.allow_change_sign or source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="taxes" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="voucher_number"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="adjustment"/>
+                        </group>
+                    </group>
+                    <hr invisible="not type_id"/>
+                    <group invisible="not type_id">
+                        <group>
+                            <field name="booking_id" force_save="1" readonly="1"/>
+                            <field name="room_id" force_save="1" invisible="1"/>
+                            <field name="folio_id" force_save="1" readonly="1"/>
+                            <field name="payment_id" force_save="1" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="group_booking_id" force_save="1" invisible="1"/>
+                            <field name="dummy_id" force_save="1" invisible="1"/>
+                            <field name="partner_id" force_save="1"/>
+                            <field name="reference_contact_"/>
+                        </group>
+                    </group>
+                    <hr/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="date" readonly="1"/>
+                            <field name="source_type" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook invisible="not item_id">
+                        <page string="Details">
+                            <field name="tax_ids" readonly="1">
+                                <tree>
+                                    <field name="description"/>
+                                    <field name="price"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!--<record id="tz_view_manual_posting_form" model="ir.ui.view">
         <field name="name">tz.manual.posting.form</field>
         <field name="model">tz.manual.posting</field>
         <field name="arch" type="xml">
@@ -52,6 +142,7 @@
                             <field name="total" readonly="1"/>
                             <field name="description" force_save="1"
                                    readonly="source_type == 'auto' or state == 'posted'"/>
+                            <field name="payment_group"/>
                         </group>
                         <group>
                             <field name="currency_id" options="{'no_create': True}"
@@ -60,20 +151,21 @@
                                    readonly="not item_id or not item_id.allow_change_sign or source_type == 'auto' or state == 'posted'"/>
                             <field name="taxes" widget="many2many_tags" options="{'no_create': True}"/>
                             <field name="voucher_number" readonly="source_type == 'auto' or state == 'posted'"/>
-
+                            <field name="adjustment"/>
                         </group>
                     </group>
                     <hr invisible="not type_id"/>
                     <group invisible="not type_id">
                         <group>
                             <field name="booking_id" force_save="1" readonly="1"/>
-                            <field name="room_id" force_save="1" readonly="1"/>
-                            <field name="unavailable_room_ids" invisible="1"/>
+                            <field name="room_id" force_save="1" invisible="1"/>
+&lt;!&ndash;                            <field name="unavailable_room_ids" invisible="1"/>&ndash;&gt;
                             <field name="folio_id" force_save="1" readonly="1"/>
+                            <field name="payment_id" force_save="1" readonly="1"/>
                         </group>
                         <group>
-                            <field name="group_booking_id" force_save="1" readonly="1"/>
-                            <field name="dummy_id" force_save="1" readonly="1"/>
+                            <field name="group_booking_id" force_save="1" invisible="1"/>
+                            <field name="dummy_id" force_save="1" invisible="1"/>
                             <field name="partner_id" force_save="1"/>
                             <field name="reference_contact_"/>
                         </group>
@@ -84,8 +176,11 @@
                             <field name="name"/>
                             <field name="company_id" readonly="1"/>
                             <field name="date" readonly="1"/>
-                            <field name="odoo_payment"/>
                             <field name="source_type" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="type_id" string="Room" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted'"/>
                         </group>
                     </group>
 
@@ -107,7 +202,7 @@
                 </div>
             </form>
         </field>
-    </record>
+    </record>-->
 
     <record id="tz_manual_posting_view_search" model="ir.ui.view">
         <field name="name">manual.posting.search</field>
@@ -177,21 +272,21 @@
     </record>
 
     <record id="view_manual_posting_type_search" model="ir.ui.view">
-    <field name="name">tz.manual.posting.type.search</field>
-    <field name="model">tz.manual.posting.type</field>
-    <field name="arch" type="xml">
-        <search>
-            <field name="name" string="All"/>
-            <field name="partner_id"/>
-            <field name="room_id"/>
-            <field name="booking_id"/>
-            <field name="group_booking_id"/>
-            <field name="dummy_id"/>
-            <field name="company_id"/>
-            <!-- Fixed filter using the correct context variable -->
-            <filter string="Current Company" name="current_company" domain="[('company_id','=', company_id)]"/>
-        </search>
-    </field>
-</record>
+        <field name="name">tz.manual.posting.type.search</field>
+        <field name="model">tz.manual.posting.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="All"/>
+                <field name="partner_id"/>
+                <field name="room_id"/>
+                <field name="booking_id"/>
+                <field name="group_booking_id"/>
+                <field name="dummy_id"/>
+                <field name="company_id"/>
+                <!-- Fixed filter using the correct context variable -->
+                <filter string="Current Company" name="current_company" domain="[('company_id','=', company_id)]"/>
+            </search>
+        </field>
+    </record>
 
 </odoo>
