@@ -27,6 +27,7 @@ class RoomBooking(models.Model):
     def _compute_unavailable_rooms(self):
         for booking in self:
             unavailable_rooms = self.env['room.booking.line'].search([
+                ('current_company_id', '=', booking.company_id.id),
                 ('state_', 'in', ['confirmed', 'block', 'check_in']),
             ]).mapped('room_id.id')
             booking.unavailable_room_ids = unavailable_rooms
@@ -34,7 +35,9 @@ class RoomBooking(models.Model):
     @api.model
     def default_get(self, fields_list):
         res = super(RoomBooking, self).default_get(fields_list)
+        current_company = self.env.company
         unavailable_rooms = self.env['room.booking.line'].search([
+            ('current_company_id', '=', current_company.id),
             ('state_', 'in', ['confirmed', 'block', 'check_in']),
         ]).mapped('room_id.id')
         res['unavailable_room_ids'] = [(6, 0, unavailable_rooms)]
