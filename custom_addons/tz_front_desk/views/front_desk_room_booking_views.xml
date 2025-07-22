@@ -438,14 +438,23 @@
                                             </div>
                                             <hr/>
 
-                                            <div class="col-md-12">
-                                                <div class="form-group">
-                                                    <label for="companions" class="form-label small"/>
-                                                </div>
-                                                <div class="form-control form-control-sm">
-                                                    <field name="companions" widget="many2many_tags"
-                                                           domain="[('is_company', '=', is_agent), ('user_ids', '=', False), ('id', 'not in', company_ids_)]"
-                                                           readonly="state in ('check_out')"/>
+                                            <div class="col-lg-2 col-md-4 col-sm-12">
+                                                <div class="card mb-2 shadow-sm">
+                                                    <div class="card-header py-1 px-2">
+                                                        <i class="fa fa-money"></i>
+                                                        <span class="fw-bold">Payment Details</span>
+                                                    </div>
+                                                    <div class="card-body p-2">
+                                                        <div class="form-group mb-1">
+                                                            <label for="payment_type" class="form-label small">Payment
+                                                                Type
+                                                            </label>
+                                                            <field name="payment_type" widget="radio"
+                                                                   readonly="state in ('check_out', 'no_show','cancel')"
+                                                                   class="form-control form-control-sm"
+                                                                   style="padding: 2px 6px;"/>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

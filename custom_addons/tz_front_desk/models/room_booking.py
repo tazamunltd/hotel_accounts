@@ -369,7 +369,6 @@ class RoomBooking(models.Model):
         self.env['tz.manual.posting.type'].generate_manual_postings()
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
-        hotel_check_out.sync_from_view()
 
         return result
 
@@ -380,7 +379,6 @@ class RoomBooking(models.Model):
         # Refresh the SQL View and Sync data
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
-        hotel_check_out.sync_from_view()
 
         return result
 

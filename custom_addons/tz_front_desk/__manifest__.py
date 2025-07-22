@@ -51,18 +51,15 @@
         'security/ir.model.access.csv',
         'security/ir_records.xml',
         'data/ir_data_sequence.xml',
-        # 'data/cron_job.xml',
         'views/front_desk_room_booking_views.xml',
         'views/tz_manual_posting_views.xml',
         'views/tz_master_folio_views.xml',
         'views/tz_dummy_group_views.xml',
-        'views/tz_checkout_views.xml',
         'views/tz_hotel_checkout_views.xml',
 
         'wizard/tz_auto_posting_views.xml',
         'wizard/transfer_wizard_views.xml',
         # 'wizard/night_audit_wizard.xml',
-        # 'wizard/tz_generate_checkout_data_views.xml',
         'report/report_master_folio.xml',
     ],
     # 'assets': {

@@ -19,6 +19,7 @@ class TzHotelManualPosting(models.Model):
     _order = 'create_date asc'
     _description = 'Hotel Manual Posting'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'name'
 
     name = fields.Char(
         string="Transaction ID",
@@ -156,6 +157,7 @@ class TzHotelManualPosting(models.Model):
                 record.room_id = record.type_id.room_id
                 record.group_booking_id = record.type_id.group_booking_id
                 record.dummy_id = record.type_id.dummy_id
+                # record.folio_id = record.type_id.folio_id
 
     @api.depends('type_id')
     def _compute_type_fields(self):
@@ -274,17 +276,16 @@ class TzHotelManualPosting(models.Model):
                 running_balance += line.debit_without_vat - line.credit_without_vat
                 line.formula_balance = running_balance
 
-    @api.depends('booking_id', 'room_id', 'group_booking_id')
+    @api.depends('booking_id', 'room_id', 'group_booking_id', 'dummy_id')
     def _compute_booking_info(self):
         for record in self:
             partner_id = False
             reference_contact_ = False
 
-            # Priority 1: If booking_id is set, use its values
             if record.booking_id:
                 partner_id = record.booking_id.partner_id
                 reference_contact_ = record.booking_id.reference_contact_
-            # Priority 2: If room_id is set, look for active booking line
+
             elif record.room_id:
                 booking_line = self.env['room.booking.line'].search([
                     ('room_id', '=', record.room_id.id),
@@ -294,10 +295,13 @@ class TzHotelManualPosting(models.Model):
                 if booking_line and booking_line.booking_id:
                     partner_id = booking_line.booking_id.partner_id
                     reference_contact_ = booking_line.booking_id.reference_contact_
-            # Priority 3: If group_booking_id is set, use its values
+
             elif record.group_booking_id:
                 partner_id = record.group_booking_id.partner_id
                 reference_contact_ = record.group_booking_id.reference_contact_
+
+            elif record.dummy_id and record.dummy_id.partner_id:
+                partner_id = record.dummy_id.partner_id
 
             record.partner_id = partner_id
             record.reference_contact_ = reference_contact_
