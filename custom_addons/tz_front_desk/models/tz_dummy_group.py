@@ -18,6 +18,11 @@ class DummyGroup(models.Model):
     company_id = fields.Many2one('res.company', string="Hotel",
                                  index=True,
                                  default=lambda self: self.env.company)
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Guest',
+        domain="[('is_dummy', '=', True)]"
+    )
     abbreviation = fields.Char(string='Abbreviation')
     description = fields.Char(string='Description', required=True)
     reopen = fields.Boolean(string='Open or reopen a group account automatically', default=False, tracking=True)
@@ -48,6 +53,7 @@ class DummyGroup(models.Model):
         folio = master_folio.sudo().create({
             'name': folio_name,
             'dummy_id': self.id,
+            'guest_id': self.partner_id.id,
             'rooming_info': self.description,
             'company_id': company.id,
             'currency_id': company.currency_id.id,
@@ -69,7 +75,6 @@ class DummyGroup(models.Model):
         # Refresh the SQL View and Sync data
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
-        hotel_check_out.sync_from_view()
         self.env['tz.manual.posting.type'].generate_manual_postings()
         return group
 
@@ -104,3 +109,9 @@ class GroupBooking(models.Model):
         ('in', 'In'),
         ('out', 'Out')
     ], string='State', default='in')
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    is_dummy = fields.Boolean()

@@ -12,11 +12,11 @@ class TransferChargeWizard(models.TransientModel):
         required=True,
         domain="[('main_department.adjustment', '=', 'transfer_charge')]"
     )
-    type_id = fields.Many2one('tz.manual.posting.type', string="Type", required=True)
+    type_id = fields.Many2one('tz.manual.posting.type', string="Type", required=True, domain="[('folio_id', '!=', False)]")
     amount = fields.Float(string="Amount", required=True)
     description = fields.Char(string="Description")
     to_description = fields.Char(string="Description")
-    to_type_id = fields.Many2one('tz.manual.posting.type', string="Transfer To Type", required=True)
+    to_type_id = fields.Many2one('tz.manual.posting.type', string="Transfer To Type", required=True, domain="[('folio_id', '!=', False)]")
 
     @api.onchange('type_id')
     def _onchange_type_id(self):
@@ -59,18 +59,6 @@ class TransferChargeWizard(models.TransientModel):
                 target_info = "Unknown target"
 
             record.to_description = _(f"Transfer to {target_info}")
-
-    # @api.onchange('type_id')
-    # def _onchange_type_id(self):
-    #     for record in self:
-    #         if record.type_id:
-    #             record.description = _(f"Transfer from room {record.type_id.room_id.name if record.type_id.room_id else ''}")
-    #
-    # @api.onchange('to_type_id')
-    # def _onchange_to_type_id(self):
-    #     for record in self:
-    #         if record.to_type_id:
-    #             record.to_description = _(f"Transfer to room {record.to_type_id.room_id.name if record.to_type_id.room_id else ''}")
 
     def action_transfer(self):
         self.ensure_one()
@@ -120,12 +108,7 @@ class TransferChargeWizard(models.TransientModel):
             'master_id': credit_posting.id,
         }
 
-        debit_posting = self.env['tz.manual.posting'].create(second_record_vals)
-
-        # raise UserError(str(first_record_vals))
-        # raise UserError(str(second_record_vals))
-
-        # credit_posting.write({'master_id': debit_posting.id})
+        self.env['tz.manual.posting'].create(second_record_vals)
 
         return {
             'type': 'ir.actions.act_window',

@@ -39,13 +39,17 @@
                                                 <field name="name"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label for="company_id" class="form-label"/>
                                             <field name="company_id" readonly="1" class="form-control"/>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label for="start_date" class="form-label"/>
                                             <field name="start_date" readonly="1" class="form-control"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="partner_id" class="form-label"/>
+                                            <field name="partner_id" class="form-control"/>
                                         </div>
                                         <hr/>
                                         <div class="col-md-2">
@@ -123,4 +127,15 @@
     <!-- Menu Item -->
     <menuitem id="menu_dummy_group" name="Dummy Groups" parent="menu_cashier_parent"
               action="tz_action_dummy_group" sequence="6"/>
+
+    <record id="view_partner_form_inherit" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="is_dummy" string="Is Dummy"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

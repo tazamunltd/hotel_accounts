@@ -97,6 +97,7 @@
                             <field name="group_booking_id" readonly="1" invisible="not group_booking_id"/>
                             <field name="dummy_id" readonly="1" invisible="not dummy_id"/>
                             <field name="folio_id" readonly="1"/>
+                            <field name="state" readonly="1"/>
                         </group>
                         <group>
                             <field name="adult_count" readonly="1"/>

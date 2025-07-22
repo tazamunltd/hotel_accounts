@@ -26,6 +26,5 @@
         <field name="view_mode">tree</field>
     </record>
 
-<!--    <menuitem id="menu_tz_checkout" name="Checkouts" parent="menu_cashier_parent" action="action_tz_checkout" sequence="7"/>-->
 </odoo>
 
