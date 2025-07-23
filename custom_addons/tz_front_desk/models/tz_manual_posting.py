@@ -297,8 +297,8 @@ class TzHotelManualPosting(models.Model):
                     reference_contact_ = booking_line.booking_id.reference_contact_
 
             elif record.group_booking_id:
-                partner_id = record.group_booking_id.partner_id
-                reference_contact_ = record.group_booking_id.reference_contact_
+                partner_id = record.group_booking_id.company
+                reference_contact_ = record.group_booking_id.company
 
             elif record.dummy_id and record.dummy_id.partner_id:
                 partner_id = record.dummy_id.partner_id
