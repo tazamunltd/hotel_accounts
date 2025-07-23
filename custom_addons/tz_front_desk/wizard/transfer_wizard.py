@@ -12,11 +12,26 @@ class TransferChargeWizard(models.TransientModel):
         required=True,
         domain="[('main_department.adjustment', '=', 'transfer_charge')]"
     )
-    type_id = fields.Many2one('tz.manual.posting.type', string="Type", required=True, domain="[('folio_id', '!=', False)]")
+    type_id = fields.Many2one(
+        'tz.manual.posting.type',
+        string="Type",
+        required=True,
+        domain="[('folio_id', '!=', False), ('company_id', '=', company_id)]"
+    )
     amount = fields.Float(string="Amount", required=True)
     description = fields.Char(string="Description")
     to_description = fields.Char(string="Description")
-    to_type_id = fields.Many2one('tz.manual.posting.type', string="Transfer To Type", required=True, domain="[('folio_id', '!=', False)]")
+    to_type_id = fields.Many2one(
+        'tz.manual.posting.type',
+        string="Transfer To Type",
+        required=True,
+        domain="[('folio_id', '!=', False), ('company_id', '=', company_id)]"
+    )
+    company_id = fields.Many2one(
+        'res.company',
+        string="Company",
+        default=lambda self: self.env.company
+    )
 
     @api.onchange('type_id')
     def _onchange_type_id(self):
