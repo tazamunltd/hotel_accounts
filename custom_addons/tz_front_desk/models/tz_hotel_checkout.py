@@ -247,14 +247,20 @@ class HotelCheckOut(models.Model):
         def get_folio_id(booking_id=None, room_id=None, group_booking_id=None, dummy_id=None, company_id=None):
             """Helper function to reliably get folio_id from domain parameters"""
             domain = []
+
             if booking_id and room_id:
-                # For regular bookings (room_id + booking_id)
-                domain = ['|', ('room_id', '=', room_id), ('booking_id', '=', booking_id)]
+                # For regular bookings - search folios that have this booking_id in their booking_ids
+                domain = [('booking_ids', '=', booking_id)]
+
+                # Also include room_id in search if needed
+                if room_id:
+                    domain.append(('room_id', '=', room_id))
+
             elif group_booking_id:
-                # For group bookings
+                # For group bookings - use the group_id field
                 domain = [('group_id', '=', group_booking_id)]
             elif dummy_id:
-                # For dummy groups
+                # For dummy groups - use the dummy_id field
                 domain = [('dummy_id', '=', dummy_id)]
 
             if domain and company_id:
@@ -495,107 +501,6 @@ class HotelCheckOut(models.Model):
 
         return True
 
-    # def generate_data(self):
-    #     tools.drop_view_if_exists(self.env.cr, self._table)
-    #     self.env.cr.execute(f"""
-    #             CREATE OR REPLACE VIEW tz_checkout AS (
-    #                 SELECT
-    #                     ROW_NUMBER() OVER () AS id,
-    #                     name,
-    #                     booking_id,
-    #                     room_id,
-    #                     group_booking_id,
-    #                     dummy_id,
-    #                     folio_id,
-    #                     partner_id,
-    #                     checkin_date,
-    #                     checkout_date,
-    #                     adult_count,
-    #                     child_count,
-    #                     infant_count,
-    #                     rate_code,
-    #                     meal_pattern,
-    #                     state,
-    #                     company_id
-    #                 FROM (
-    #                     -- Room Booking block
-    #                     SELECT
-    #                         COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
-    #                         rb.id AS booking_id,
-    #                         hr.id AS room_id,
-    #                         rb.group_booking_id,
-    #                         NULL::integer AS dummy_id,
-    #                         folio.id AS folio_id,
-    #                         rb.partner_id,
-    #                         rb.checkin_date,
-    #                         rb.checkout_date,
-    #                         rb.adult_count::integer,
-    #                         rb.child_count::integer,
-    #                         rb.infant_count::integer,
-    #                         rb.rate_code::varchar,
-    #                         rb.meal_pattern::varchar,
-    #                         rb.state::varchar,
-    #                         rb.company_id
-    #                     FROM room_booking rb
-    #                     JOIN room_booking_line rbl ON rbl.booking_id = rb.id
-    #                     JOIN hotel_room hr ON rbl.room_id = hr.id
-    #                     LEFT JOIN tz_master_folio folio
-    #                         ON folio.room_id = rbl.room_id
-    #                     WHERE rb.state = 'check_in' AND rb.group_booking IS NULL
-    #
-    #                     UNION ALL
-    #
-    #                     -- Group Booking block
-    #                     SELECT
-    #                         COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
-    #                         NULL::integer AS booking_id,
-    #                         NULL::integer AS room_id,
-    #                         gb.id AS group_booking_id,
-    #                         NULL::integer AS dummy_id,
-    #                         folio.id AS folio_id,
-    #                         gb.company AS partner_id,
-    #                         gb.first_visit AS checkin_date,
-    #                         gb.last_visit AS checkout_date,
-    #                         gb.total_adult_count::integer,
-    #                         gb.total_child_count::integer,
-    #                         gb.total_infant_count::integer,
-    #                         gb.rate_code::varchar,
-    #                         gb.group_meal_pattern::varchar,
-    #                         gb.state::varchar,
-    #                         gb.company_id
-    #                     FROM group_booking gb
-    #                     LEFT JOIN tz_master_folio folio
-    #                         ON folio.group_id = gb.id
-    #                     WHERE gb.status_code = 'confirmed'
-    #                       AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in')
-    #
-    #                     UNION ALL
-    #
-    #                     -- Dummy Group block
-    #                     SELECT
-    #                         dg.description::text AS name,
-    #                         NULL::integer AS booking_id,
-    #                         NULL::integer AS room_id,
-    #                         NULL::integer AS group_booking_id,
-    #                         dg.id AS dummy_id,
-    #                         folio.id AS folio_id,
-    #                         dg.partner_id,
-    #                         dg.start_date AS checkin_date,
-    #                         dg.end_date AS checkout_date,
-    #                         NULL::integer AS adult_count,
-    #                         NULL::integer AS child_count,
-    #                         NULL::integer AS infant_count,
-    #                         NULL::varchar AS rate_code,
-    #                         NULL::varchar AS meal_pattern,
-    #                         dg.state::varchar,
-    #                         dg.company_id
-    #                     FROM tz_dummy_group dg
-    #                     LEFT JOIN tz_master_folio folio
-    #                         ON folio.dummy_id = dg.id
-    #                     WHERE dg.obsolete = FALSE
-    #                 ) AS unified
-    #             );
-    #     """)
 
     @api.model
     def sync_from_view(self):
@@ -938,7 +843,7 @@ class HotelCheckOut(models.Model):
         # if not self.partner_id:
         #     raise UserError('The customer/partner is required')
 
-        raise UserError(self.partner_id)
+        # raise UserError(self.partner_id)
 
 
         postings = self.env['tz.manual.posting'].search([
@@ -946,7 +851,7 @@ class HotelCheckOut(models.Model):
             ('partner_id', '=', self.partner_id.id)
         ])
 
-        raise UserError(postings)
+        # raise UserError(postings)
 
         result = {
             'partner': {
@@ -1013,7 +918,7 @@ class HotelCheckOut(models.Model):
         for line in postings:
 
             product = line['item_id'].product_id if line.get('item_id') else False
-            raise UserError(product)
+
             if not product:
                 raise UserError(
                     _('Missing Sales Product for item "%s". Please set a product_id on the Posting Item.') % (

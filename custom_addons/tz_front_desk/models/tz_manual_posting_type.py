@@ -139,14 +139,20 @@ class ManualPostingType(models.Model):
         def get_folio_id(booking_id=None, room_id=None, group_booking_id=None, dummy_id=None, company_id=None):
             """Helper function to reliably get folio_id from domain parameters"""
             domain = []
+
             if booking_id and room_id:
-                # For regular bookings (room_id + booking_id)
-                domain = ['|', ('room_id', '=', room_id), ('booking_id', '=', booking_id)]
+                # For regular bookings - search folios that have this booking_id in their booking_ids
+                domain = [('booking_ids', '=', booking_id)]
+
+                # Also include room_id in search if needed
+                if room_id:
+                    domain.append(('room_id', '=', room_id))
+
             elif group_booking_id:
-                # For group bookings
+                # For group bookings - use the group_id field
                 domain = [('group_id', '=', group_booking_id)]
             elif dummy_id:
-                # For dummy groups
+                # For dummy groups - use the dummy_id field
                 domain = [('dummy_id', '=', dummy_id)]
 
             if domain and company_id:
