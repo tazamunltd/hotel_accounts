@@ -57,7 +57,7 @@ class TzHotelManualPosting(models.Model):
         string="Type",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id)]"
+        domain="[('company_id', '=', company_id)]", ondelete="cascade"
     )
 
     booking_id = fields.Many2one('room.booking', compute='_compute_type_fields', store=True)
