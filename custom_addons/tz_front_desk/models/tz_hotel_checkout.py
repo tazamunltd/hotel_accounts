@@ -140,7 +140,213 @@ class HotelCheckOut(models.Model):
                         room_id,
                         group_booking_id,
                         dummy_id,
-                        folio_id,
+                        folio_id::integer AS folio_id,
+                        partner_id,
+                        checkin_date,
+                        checkout_date,
+                        adult_count,
+                        child_count,
+                        infant_count,
+                        rate_code,
+                        meal_pattern,
+                        state,
+                        company_id
+                    FROM (
+                        -- Room Booking: Only check_in state and no group booking
+                        SELECT
+                            COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
+                            rb.id AS booking_id,
+                            hr.id AS room_id,
+                            rb.group_booking_id,
+                            NULL::integer AS dummy_id,
+                            folio.id AS folio_id,
+                            rb.partner_id,
+                            rb.checkin_date,
+                            rb.checkout_date,
+                            rb.adult_count::integer,
+                            rb.child_count::integer,
+                            rb.infant_count::integer,
+                            rb.rate_code::varchar,
+                            rb.meal_pattern::varchar,
+                            rb.state::varchar,
+                            rb.company_id
+                        FROM room_booking rb
+                        JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+                        JOIN hotel_room hr ON rbl.room_id = hr.id
+                        LEFT JOIN tz_master_folio folio
+                            ON folio.room_id = rbl.room_id
+                        WHERE rb.state = 'check_in' AND rb.group_booking IS NULL
+
+                        UNION ALL
+
+                        -- Group Booking: Only confirmed groups with check_in room bookings
+                        SELECT
+                            COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+                            NULL::integer AS booking_id,
+                            NULL::integer AS room_id,
+                            gb.id AS group_booking_id,
+                            NULL::integer AS dummy_id,
+                            folio.id AS folio_id,
+                            gb.company AS partner_id,
+                            gb.first_visit AS checkin_date,
+                            gb.last_visit AS checkout_date,
+                            gb.total_adult_count::integer,
+                            gb.total_child_count::integer,
+                            gb.total_infant_count::integer,
+                            gb.rate_code::varchar,
+                            gb.group_meal_pattern::varchar,
+                            gb.state::varchar,
+                            gb.company_id
+                        FROM group_booking gb
+                        LEFT JOIN tz_master_folio folio
+                            ON folio.group_id = gb.id
+                        WHERE gb.status_code = 'confirmed'
+                          AND EXISTS (
+                              SELECT 1 FROM room_booking rb 
+                              WHERE rb.group_booking = gb.id AND rb.state = 'check_in'
+                          )
+
+                        UNION ALL
+
+                        -- Dummy Group: Only non-obsolete
+                        SELECT
+                            dg.description::text AS name,
+                            NULL::integer AS booking_id,
+                            NULL::integer AS room_id,
+                            NULL::integer AS group_booking_id,
+                            dg.id AS dummy_id,
+                            folio.id AS folio_id,
+                            dg.partner_id,
+                            dg.start_date AS checkin_date,
+                            dg.end_date AS checkout_date,
+                            NULL::integer AS adult_count,
+                            NULL::integer AS child_count,
+                            NULL::integer AS infant_count,
+                            NULL::varchar AS rate_code,
+                            NULL::varchar AS meal_pattern,
+                            dg.state::varchar,
+                            dg.company_id
+                        FROM tz_dummy_group dg
+                        LEFT JOIN tz_master_folio folio
+                            ON folio.dummy_id = dg.id
+                        WHERE dg.obsolete = FALSE
+                    ) AS unified
+                );
+            """)
+        except Exception as e:
+            raise UserError(f"Failed to create view: {str(e)}")
+
+        # 2. Read from the view
+        try:
+            self.env.cr.execute("SELECT * FROM tz_checkout")
+            results = self.env.cr.dictfetchall()
+        except Exception as e:
+            raise UserError(f"Failed to read from view: {str(e)}")
+
+        # 3. Function to get folio_id from domain
+        def get_folio_id(booking_id=None, room_id=None, group_booking_id=None, dummy_id=None, company_id=None):
+            """Helper function to reliably get folio_id from domain parameters"""
+            domain = []
+            if booking_id and room_id:
+                # For regular bookings (room_id + booking_id)
+                domain = ['|', ('room_id', '=', room_id), ('booking_id', '=', booking_id)]
+            elif group_booking_id:
+                # For group bookings
+                domain = [('group_id', '=', group_booking_id)]
+            elif dummy_id:
+                # For dummy groups
+                domain = [('dummy_id', '=', dummy_id)]
+
+            if domain and company_id:
+                domain.append(('company_id', '=', company_id))
+
+            if domain:
+                folio = self.env['tz.master.folio'].search(domain, limit=1)
+                return folio.id if folio else False
+            return False
+
+        # 4. Process records - create or update
+        for row in results:
+            state = 'In' if row.get('state') == 'check_in' else (row.get('state') or '').capitalize()
+            domain = []
+
+            # Build domain based on record type
+            if row.get('dummy_id'):
+                domain.append(('dummy_id', '=', row['dummy_id']))
+            else:
+                if row.get('booking_id'):
+                    domain.append(('booking_id', '=', row['booking_id']))
+                if row.get('room_id'):
+                    domain.append(('room_id', '=', row['room_id']))
+                if row.get('group_booking_id'):
+                    domain.append(('group_booking_id', '=', row['group_booking_id']))
+
+            # Add company filter
+            if row.get('company_id'):
+                domain.append(('company_id', '=', row['company_id']))
+
+            # Get folio_id - first try from row, then from lookup function
+            folio_id = row.get('folio_id')
+            if not folio_id:
+                folio_id = get_folio_id(
+                    booking_id=row.get('booking_id'),
+                    room_id=row.get('room_id'),
+                    group_booking_id=row.get('group_booking_id'),
+                    dummy_id=row.get('dummy_id'),
+                    company_id=row.get('company_id')
+                )
+
+            # Check if record exists
+            existing = self.search(domain, limit=1)
+
+            if existing:
+                # Update existing record
+                existing.sudo().write({
+                    'folio_id': folio_id,
+                    'partner_id': row.get('partner_id'),
+                    'checkin_date': row.get('checkin_date'),
+                    'checkout_date': row.get('checkout_date'),
+                    'state': state,
+                    # Add other fields you want to update here
+                })
+            else:
+                # Create new record
+                self.sudo().create({
+                    'name': row.get('name'),
+                    'booking_id': row.get('booking_id'),
+                    'room_id': row.get('room_id'),
+                    'group_booking_id': row.get('group_booking_id'),
+                    'dummy_id': row.get('dummy_id'),
+                    'folio_id': folio_id,
+                    'partner_id': row.get('partner_id'),
+                    'checkin_date': row.get('checkin_date'),
+                    'checkout_date': row.get('checkout_date'),
+                    'adult_count': row.get('adult_count') or 0,
+                    'child_count': row.get('child_count') or 0,
+                    'infant_count': row.get('infant_count') or 0,
+                    'rate_code': row.get('rate_code'),
+                    'meal_pattern': row.get('meal_pattern'),
+                    'state': state,
+                    'company_id': row.get('company_id'),
+                })
+
+        return True
+
+    @api.model
+    def generate_dataX(self):
+        # 1. Ensure the view exists
+        try:
+            tools.drop_view_if_exists(self.env.cr, 'tz_checkout')
+            self.env.cr.execute("""
+                CREATE OR REPLACE VIEW tz_checkout AS (    
+                    SELECT
+                        ROW_NUMBER() OVER () AS id,
+                        name,
+                        booking_id,
+                        room_id,
+                        group_booking_id,
+                        dummy_id,
+                        folio_id::integer AS folio_id,
                         partner_id,
                         checkin_date,
                         checkout_date,
@@ -461,8 +667,8 @@ class HotelCheckOut(models.Model):
         for record in self:
             new_value = vals.get('is_cashier_checkout')
             if new_value is not None:  # user is trying to change the field
-                if not record.folio_id:
-                    raise UserError("No Master Folio linked to this checkout.")
+                # if not record.folio_id:
+                #     raise UserError("No Master Folio linked to this checkout.")
 
                 # User wants to check it (True)
                 if new_value and record.folio_id.balance != 0.0:
