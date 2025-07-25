@@ -750,3 +750,5 @@ class TzHotelManualPosting(models.Model):
                         type_='success'
                     )
 
+
+
