@@ -27,7 +27,7 @@
         <field name="name">tz.manual.posting.form</field>
         <field name="model">tz.manual.posting</field>
         <field name="arch" type="xml">
-            <form string="Manual Posting">
+            <form string="Manual Posting" js_class="tz_manual_posting_form">
                 <header>
                     <field name="state" widget="statusbar"/>
                 </header>

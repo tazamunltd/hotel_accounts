@@ -64,7 +64,7 @@
     ],
     # 'assets': {
     #     'web.assets_backend': [
-    #         'tz_front_desk/static/src/js/checkout_company_switcher.js',
+    #         'tz_front_desk/static/src/components/manual_posting_trigger.js',
     #     ],
     # },
 }

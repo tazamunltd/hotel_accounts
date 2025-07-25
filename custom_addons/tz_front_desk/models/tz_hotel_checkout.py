@@ -97,35 +97,6 @@ class HotelCheckOut(models.Model):
                 record.show_re_checkout = False
                 record.show_other_buttons = True
 
-    # def action_generate_checkout(self):
-    #     self.ensure_one()
-    #
-    #     # 1. Fetch all checkout records for the company
-    #     existing_records = self.env['tz.hotel.checkout'].search([
-    #         ('company_id', '=', self.company_id.id)
-    #     ])
-    #
-    #     # 2. Get all current booking IDs from the materialized view or table
-    #     self.env.cr.execute("SELECT booking_id FROM tz_checkout WHERE booking_id IS NOT NULL")
-    #     current_booking_ids = {r[0] for r in self.env.cr.fetchall()}
-    #
-    #     # 3. Filter existing records to those NOT in current booking_ids
-    #     records_to_remove = existing_records.filtered(
-    #         lambda r: r.booking_id not in current_booking_ids
-    #     )
-    #
-    #     # 4. Delete these unmatched records
-    #     records_to_remove.unlink()
-    #
-    #     # Step 2: Rebuild the SQL view with filters
-    #     self.generate_data()
-    #
-    #     # Step 3: Sync from view to hotel checkout table
-    #     self.env['tz.hotel.checkout'].sync_from_view()
-    #
-    #     # Step 4: Redirect to the hotel checkout view
-    #     return self.env.ref('tz_front_desk.action_hotel_checkout').read()[0]
-
     @api.model
     def generate_data(self):
         # 1. Ensure the view exists
@@ -500,7 +471,6 @@ class HotelCheckOut(models.Model):
             self.sudo().create(records_to_create)
 
         return True
-
 
     @api.model
     def sync_from_view(self):
