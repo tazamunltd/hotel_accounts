@@ -361,6 +361,11 @@ class RoomBooking(models.Model):
                 nights = max(rec.no_of_nights, 1)
                 rec.checkout_date = rec.checkin_date + timedelta(days=nights)
 
+    def action_block(self):
+        result = super(RoomBooking, self).action_block()
+        self.env['tz.manual.posting.type'].generate_manual_postings()
+        return result
+
     def action_checkin(self):
         # Call the parent method first
         result = super(RoomBooking, self).action_checkin()
@@ -375,7 +380,7 @@ class RoomBooking(models.Model):
     def action_checkin_booking(self):
         # Call the parent method first
         result = super(RoomBooking, self).action_checkin_booking()
-
+        self.env['tz.manual.posting.type'].generate_manual_postings()
         # Refresh the SQL View and Sync data
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
