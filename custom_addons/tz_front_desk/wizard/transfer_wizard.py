@@ -123,15 +123,24 @@ class TransferChargeWizard(models.TransientModel):
             'master_id': credit_posting.id,
         }
 
-        self.env['tz.manual.posting'].create(second_record_vals)
+        debit_posting = self.env['tz.manual.posting'].create(second_record_vals)
 
         return {
             'type': 'ir.actions.act_window',
+            'name': 'Manual Postings',
             'res_model': 'tz.manual.posting',
             'view_mode': 'tree,form',
-            # 'res_id': credit_posting.id,
             'target': 'current',
+            'domain': [('id', 'in', [credit_posting.id, debit_posting.id])],
         }
+
+        # return {
+        #     'type': 'ir.actions.act_window',
+        #     'res_model': 'tz.manual.posting',
+        #     'view_mode': 'tree,form',
+        #     # 'res_id': credit_posting.id,
+        #     'target': 'current',
+        # }
 
     def _get_master_folio(self, room_id, dummy_id):
         folio_id = self.env['tz.manual.posting']._get_or_create_master_folio(room_id)
