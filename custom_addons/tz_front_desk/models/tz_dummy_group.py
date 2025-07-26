@@ -21,7 +21,7 @@ class DummyGroup(models.Model):
     partner_id = fields.Many2one(
         'res.partner',
         string='Guest',
-        domain="[('is_dummy', '=', True)]"
+        domain="[('is_dummy', '=', True)]", required=True
     )
     abbreviation = fields.Char(string='Abbreviation')
     description = fields.Char(string='Description', required=True)
