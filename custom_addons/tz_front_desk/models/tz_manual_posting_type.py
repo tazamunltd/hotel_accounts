@@ -68,7 +68,7 @@ class ManualPostingType(models.Model):
                     FROM room_booking rb
                     LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
                     LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
-                    WHERE rb.company_id = 9
+                    WHERE rb.company_id = %s
                 
                     UNION ALL
                 
@@ -92,9 +92,9 @@ class ManualPostingType(models.Model):
                     WHERE gb.status_code = 'confirmed'
                       AND gb.id IN (
                           SELECT rb.group_booking FROM room_booking rb
-                          WHERE rb.group_booking IS NOT NULL AND rb.company_id = 9
+                          WHERE rb.group_booking IS NOT NULL AND rb.company_id = %s
                       )
-                      AND gb.company_id = 9
+                      AND gb.company_id = %s
                 
                     UNION ALL
                 
@@ -116,10 +116,10 @@ class ManualPostingType(models.Model):
                         dg.company_id
                     FROM tz_dummy_group dg
                     WHERE dg.obsolete = FALSE
-                      AND dg.company_id = 9
+                      AND dg.company_id = %s
                 ) AS unified
                 );
-            """, (current_company_id, current_company_id, current_company_id))
+            """, (current_company_id, current_company_id, current_company_id, current_company_id))
         except Exception as e:
             raise UserError(f"Failed to create view: {str(e)}")
 
@@ -127,36 +127,30 @@ class ManualPostingType(models.Model):
         try:
             self.env.cr.execute("SELECT * FROM tz_manual_posting_types")
             rows = self.env.cr.dictfetchall()
+            print(rows)
         except Exception as e:
             raise UserError(f"Failed to read from view: {str(e)}")
 
         # 3. Function to get folio_id from domain
         def get_folio_id(booking_id=None, room_id=None, group_booking_id=None, dummy_id=None, company_id=None):
-            """Helper function to reliably get folio_id from domain parameters"""
             domain = []
 
-            if booking_id and room_id:
-                # For regular bookings - search folios that have this booking_id in their booking_ids
-                domain = [('booking_ids', '=', booking_id)]
-
-                # Also include room_id in search if needed
+            if booking_id:
+                domain.append(('booking_ids', '=', booking_id))
                 if room_id:
                     domain.append(('room_id', '=', room_id))
 
             elif group_booking_id:
-                # For group bookings - use the group_id field
                 domain = [('group_id', '=', group_booking_id)]
+
             elif dummy_id:
-                # For dummy groups - use the dummy_id field
                 domain = [('dummy_id', '=', dummy_id)]
 
-            if domain and company_id:
+            if company_id:
                 domain.append(('company_id', '=', company_id))
 
-            if domain:
-                folio = self.env['tz.master.folio'].search(domain, limit=1)
-                return folio.id if folio else False
-            return False
+            folio = self.env['tz.master.folio'].search(domain, limit=1)
+            return folio.id if folio else False
 
         # 4. Process each row - create or update
         for row in rows:
