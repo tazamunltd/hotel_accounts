@@ -571,6 +571,95 @@ class ManualPostingRoom(models.Model):
         self._setup_change_triggers()
 
     def _create_or_replace_view(self):
+        self.env.cr.execute(f"DROP MATERIALIZED VIEW IF EXISTS tz_manual_posting_room CASCADE")
+
+        query = """
+            CREATE MATERIALIZED VIEW IF NOT EXISTS tz_manual_posting_room AS (
+                SELECT
+                    (rb.id * 10 + 1) AS id,
+                    COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
+                    rb.id AS booking_id,
+                    hr.id AS room_id,
+                    rb.group_booking_id,
+                    NULL::integer AS dummy_id,
+                    mf.id AS folio_id,
+                    rb.partner_id,
+                    rb.checkin_date,
+                    rb.checkout_date,
+                    rb.adult_count::integer,
+                    rb.child_count::integer,
+                    rb.infant_count::integer,
+                    rb.rate_code,
+                    rb.meal_pattern,
+                    rb.company_id
+                FROM room_booking rb
+                LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+                LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
+                LEFT JOIN tz_master_folio mf ON mf.room_id = rbl.room_id 
+                WHERE rb.company_id = %s
+                  AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
+
+                UNION ALL
+
+                SELECT
+                    (gb.id * 10 + 2) AS id,
+                    COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+                    (SELECT id FROM room_booking rb2 WHERE rb2.group_booking = gb.id LIMIT 1) AS booking_id,
+                    NULL AS room_id,
+                    gb.id AS group_booking_id,
+                    NULL::integer AS dummy_id,
+                    mf.id AS folio_id,
+                    gb.company,
+                    gb.first_visit,
+                    gb.last_visit,
+                    gb.total_adult_count::integer,
+                    gb.total_child_count::integer,
+                    gb.total_infant_count::integer,
+                    gb.rate_code,
+                    gb.group_meal_pattern,
+                    gb.company_id
+                FROM group_booking gb
+                LEFT JOIN tz_master_folio mf ON mf.group_id = gb.id  
+                WHERE gb.status_code = 'confirmed'
+                  AND gb.id IN (
+                      SELECT rb.group_booking FROM room_booking rb
+                      WHERE rb.group_booking IS NOT NULL AND rb.company_id = %s
+                  )
+                  AND gb.company_id = %s
+
+                UNION ALL
+
+                SELECT
+                    (dg.id * 10 + 3) AS id,
+                    dg.description::text AS name,
+                    NULL AS booking_id,
+                    NULL AS room_id,
+                    NULL AS group_booking_id,
+                    dg.id AS dummy_id,
+                    mf.id AS folio_id,
+                    NULL,
+                    dg.start_date,
+                    dg.end_date,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    dg.company_id
+                FROM tz_dummy_group dg
+                LEFT JOIN tz_master_folio mf ON mf.dummy_id = dg.id  
+                WHERE dg.obsolete = FALSE
+                  AND dg.company_id = %s
+            );
+        """
+        self.env.cr.execute(query, (
+            self.env.company.id,
+            self.env.company.id,
+            self.env.company.id,
+            self.env.company.id
+        ))
+
+    def _create_or_replace_viewX(self):
         """Drop and recreate the materialized view"""
         self.env.cr.execute(f"DROP MATERIALIZED VIEW IF EXISTS tz_manual_posting_room CASCADE")
 
@@ -617,9 +706,9 @@ class ManualPostingRoom(models.Model):
                 LEFT JOIN tz_master_folio mf ON mf.room_id = rbl.room_id 
                 WHERE rb.company_id = %s
                   AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
-            
+
                 UNION ALL
-            
+
                 -- Group bookings: match folio by group_id
                 SELECT
                     COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
@@ -645,9 +734,9 @@ class ManualPostingRoom(models.Model):
                       WHERE rb.group_booking IS NOT NULL AND rb.company_id = %s
                   )
                   AND gb.company_id = %s
-            
+
                 UNION ALL
-            
+
                 -- Dummy groups: match folio by dummy_id
                 SELECT
                     dg.description::text AS name,
