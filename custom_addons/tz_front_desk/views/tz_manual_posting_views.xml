@@ -36,7 +36,7 @@
                         <group>
                             <field name="item_id" options="{'no_create': True}"
                                    readonly="source_type == 'auto' or state == 'posted' or master_id"/>
-                             <field name="master_id" invisible="1"/>
+                            <field name="master_id" invisible="1"/>
                         </group>
                         <group>
                             <field name="type_id" string="Room" options="{'no_create': True,'no_open': True}"
@@ -155,11 +155,11 @@
     <menuitem id="menu_manual_posting" name="Manual Postings" parent="menu_cashier_parent"
               action="tz_action_manual_posting" sequence="3"/>
 
-    <record id="view_manual_posting_type_tree" model="ir.ui.view">
-        <field name="name">tz.manual.posting.type.tree</field>
-        <field name="model">tz.manual.posting.type</field>
+    <record id="view_tz_manual_posting_room_tree" model="ir.ui.view">
+        <field name="name">tz.manual.posting.room.tree</field>
+        <field name="model">tz.manual.posting.room</field>
         <field name="arch" type="xml">
-            <tree string="Manual Posting Types">
+            <tree>
                 <field name="name" string="Room"/>
                 <field name="booking_id"/>
                 <field name="room_id"/>
@@ -173,15 +173,14 @@
                 <field name="infant_count"/>
                 <field name="rate_code"/>
                 <field name="meal_pattern"/>
-                <field name="state"/>
                 <field name="company_id"/>
             </tree>
         </field>
     </record>
 
-    <record id="view_manual_posting_type_search" model="ir.ui.view">
-        <field name="name">tz.manual.posting.type.search</field>
-        <field name="model">tz.manual.posting.type</field>
+    <record id="view_tz_manual_posting_room_search" model="ir.ui.view">
+        <field name="name">tz.manual.posting.room.search</field>
+        <field name="model">tz.manual.posting.room</field>
         <field name="arch" type="xml">
             <search>
                 <field name="name" string="All"/>
@@ -191,7 +190,6 @@
                 <field name="group_booking_id"/>
                 <field name="dummy_id"/>
                 <field name="company_id"/>
-                <!-- Fixed filter using the correct context variable -->
                 <filter string="Current Company" name="current_company" domain="[('company_id','=', company_id)]"/>
             </search>
         </field>

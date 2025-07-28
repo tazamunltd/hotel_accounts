@@ -75,7 +75,7 @@ class DummyGroup(models.Model):
         # Refresh the SQL View and Sync data
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
-        self.env['tz.manual.posting.type'].generate_manual_postings()
+        # self.env['tz.manual.posting.type'].generate_manual_postings()
         return group
 
     def write(self, vals):
@@ -100,15 +100,6 @@ class DummyGroup(models.Model):
                          .next_by_code('tz.dummy.group'))
         default = dict(default or {}, name=name)
         return super().copy(default)
-
-
-class GroupBooking(models.Model):
-    _inherit = 'group.booking'
-
-    state = fields.Selection([
-        ('in', 'In'),
-        ('out', 'Out')
-    ], string='State', default='in')
 
 
 class ResPartner(models.Model):

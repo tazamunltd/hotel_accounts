@@ -331,7 +331,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        self.env['tz.manual.posting.type'].generate_manual_postings()
+        # self.env['tz.manual.posting.type'].generate_manual_postings()
         return self._notify_booking_confirmation(result)
 
     def action_confirm_booking(self):
@@ -340,7 +340,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        self.env['tz.manual.posting.type'].generate_manual_postings()
+        # self.env['tz.manual.posting.type'].generate_manual_postings()
         return self._notify_booking_confirmation(result)
 
     @api.depends('checkin_date', 'checkout_date')
@@ -363,7 +363,7 @@ class RoomBooking(models.Model):
 
     def action_block(self):
         result = super(RoomBooking, self).action_block()
-        self.env['tz.manual.posting.type'].generate_manual_postings()
+        # self.env['tz.manual.posting.type'].generate_manual_postings()
         return result
 
     def action_checkin(self):
@@ -371,7 +371,7 @@ class RoomBooking(models.Model):
         result = super(RoomBooking, self).action_checkin()
 
         # Refresh the SQL View and Sync data
-        self.env['tz.manual.posting.type'].generate_manual_postings()
+        # self.env['tz.manual.posting.type'].generate_manual_postings()
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
 
@@ -380,7 +380,7 @@ class RoomBooking(models.Model):
     def action_checkin_booking(self):
         # Call the parent method first
         result = super(RoomBooking, self).action_checkin_booking()
-        self.env['tz.manual.posting.type'].generate_manual_postings()
+        # self.env['tz.manual.posting.type'].generate_manual_postings()
         # Refresh the SQL View and Sync data
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()

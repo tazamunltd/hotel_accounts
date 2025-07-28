@@ -183,15 +183,15 @@ class AutoPostingWizard(models.TransientModel):
     def _create_posting_line(self, folio, booking_line, item_id, description, amount):
         """Create posting line and return True if created, False if skipped"""
         system_date = self.env.company.system_date.date()
-        """
-        The below to suspended auto posting for rooms only - we did for groups only inside (action_auto_posting)
-        """
+
+        # Check for suspended auto posting
         suspended = self.env['tz.hotel.checkout']._check_suspended_auto_posting(
             room_id=booking_line.room_id.id,
             group_id=folio.group_id.id if folio.group_id else None
         )
         if suspended:
             return False  # Skip if suspended ones
+
         # Check for existing postings first
         existing = self.env['tz.manual.posting'].search([
             ('company_id', '=', booking_line.booking_id.company_id.id),
@@ -205,20 +205,25 @@ class AutoPostingWizard(models.TransientModel):
         if existing:
             return False  # Skip if already exists
 
-        posting_type = self.env['tz.manual.posting.type'].search([
-            ('company_id', '=', booking_line.booking_id.company_id.id),
-            ('group_booking_id', '=',
-             booking_line.booking_id.group_booking.id if booking_line.booking_id.group_booking else False),
-            ('booking_id', '=', booking_line.booking_id.id),
-            ('room_id', '=', booking_line.room_id.id),
-        ], limit=1)
+        # Refresh materialized view to ensure we have latest data
+        self.env['tz.manual.posting.room'].refresh_view()
 
+        # Find matching room in materialized view
+        domain = [
+            ('company_id', '=', booking_line.booking_id.company_id.id),
+            ('booking_id', '=', booking_line.booking_id.id),
+            ('room_id', '=', booking_line.room_id.id)
+        ]
+        if booking_line.booking_id.group_booking:
+            domain.append(('group_booking_id', '=', booking_line.booking_id.group_booking.id))
+
+        posting_room = self.env['tz.manual.posting.room'].search(domain, limit=1)
 
         item = self.env['posting.item'].browse(item_id)
-        # Initialize values dictionary
-        manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
         if item.default_sign == 'main':
             raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
+
+        manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
         vals = {
             'name': manual_posting,
             'date': system_date,
@@ -234,10 +239,69 @@ class AutoPostingWizard(models.TransientModel):
             'total': amount,
             'debit_amount': amount if item.default_sign == 'debit' else 0.0,
             'credit_amount': amount if item.default_sign == 'credit' else 0.0,
-            'type_id': posting_type.id
+            'type_id': posting_room.id  # Now using the room record's ID as type_id
         }
         self.env['tz.manual.posting'].create(vals)
         return True
+
+    # def _create_posting_line(self, folio, booking_line, item_id, description, amount):
+    #     """Create posting line and return True if created, False if skipped"""
+    #     system_date = self.env.company.system_date.date()
+    #     """
+    #     The below to suspended auto posting for rooms only - we did for groups only inside (action_auto_posting)
+    #     """
+    #     suspended = self.env['tz.hotel.checkout']._check_suspended_auto_posting(
+    #         room_id=booking_line.room_id.id,
+    #         group_id=folio.group_id.id if folio.group_id else None
+    #     )
+    #     if suspended:
+    #         return False  # Skip if suspended ones
+    #     # Check for existing postings first
+    #     existing = self.env['tz.manual.posting'].search([
+    #         ('company_id', '=', booking_line.booking_id.company_id.id),
+    #         ('folio_id', '=', folio.id),
+    #         ('item_id', '=', item_id),
+    #         ('room_id', '=', booking_line.room_id.id),
+    #         ('date', '=', system_date),
+    #         ('source_type', '=', 'auto'),
+    #     ], limit=1)
+    #
+    #     if existing:
+    #         return False  # Skip if already exists
+    #
+    #     posting_type = self.env['tz.manual.posting.type'].search([
+    #         ('company_id', '=', booking_line.booking_id.company_id.id),
+    #         ('group_booking_id', '=',
+    #          booking_line.booking_id.group_booking.id if booking_line.booking_id.group_booking else False),
+    #         ('booking_id', '=', booking_line.booking_id.id),
+    #         ('room_id', '=', booking_line.room_id.id),
+    #     ], limit=1)
+    #
+    #
+    #     item = self.env['posting.item'].browse(item_id)
+    #     # Initialize values dictionary
+    #     manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
+    #     if item.default_sign == 'main':
+    #         raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
+    #     vals = {
+    #         'name': manual_posting,
+    #         'date': system_date,
+    #         'folio_id': folio.id,
+    #         'item_id': item_id,
+    #         'description': description,
+    #         'booking_id': booking_line.booking_id.id,
+    #         'room_id': booking_line.room_id.id,
+    #         'group_booking_id': folio.group_id.id if folio.group_id else False,
+    #         'sign': item.default_sign,
+    #         'quantity': 1,
+    #         'source_type': 'auto',
+    #         'total': amount,
+    #         'debit_amount': amount if item.default_sign == 'debit' else 0.0,
+    #         'credit_amount': amount if item.default_sign == 'credit' else 0.0,
+    #         'type_id': posting_type.id
+    #     }
+    #     self.env['tz.manual.posting'].create(vals)
+    #     return True
 
     def _show_notification(self, message, type_):
         """Helper for showing notifications"""
@@ -258,5 +322,10 @@ class RoomRateForecast(models.Model):
         ('draft', 'Draft'),
         ('post', 'Post'),
     ], string='State', default='draft')
+
+    company_id = fields.Many2one('res.company', string="Hotel",
+                                 index=True,
+                                 default=lambda self: self.env.company,
+                                 readonly=True)
 
 
