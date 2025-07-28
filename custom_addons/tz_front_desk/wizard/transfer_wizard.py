@@ -13,19 +13,23 @@ class TransferChargeWizard(models.TransientModel):
         domain="[('main_department.adjustment', '=', 'transfer_charge')]"
     )
     type_id = fields.Many2one(
-        'tz.manual.posting.type',
-        string="Type",
+        'tz.manual.posting.room',
+        string="From Room",
         required=True,
-        domain="[('folio_id', '!=', False), ('company_id', '=', company_id)]"
+        index=True,
+        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
+        ondelete="restrict"
     )
     amount = fields.Float(string="Amount", required=True)
     description = fields.Char(string="Description")
     to_description = fields.Char(string="Description")
     to_type_id = fields.Many2one(
-        'tz.manual.posting.type',
-        string="Transfer To Type",
+        'tz.manual.posting.room',
+        string="To Room",
         required=True,
-        domain="[('folio_id', '!=', False), ('company_id', '=', company_id)]"
+        index=True,
+        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
+        ondelete="restrict"
     )
     company_id = fields.Many2one(
         'res.company',
@@ -101,7 +105,6 @@ class TransferChargeWizard(models.TransientModel):
         }
 
         credit_posting = self.env['tz.manual.posting'].create(first_record_vals)
-
 
         to_folio_id = self._get_master_folio(self.to_type_id.room_id.id, self.to_type_id.dummy_id.id)
 

@@ -53,11 +53,12 @@ class TzHotelManualPosting(models.Model):
     voucher_number = fields.Char(string="Voucher #", index=True, tracking=True)
 
     type_id = fields.Many2one(
-        'tz.manual.posting.type',
-        string="Type",
+        'tz.manual.posting.room',
+        string="Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id)]", ondelete="cascade"
+        domain="[('company_id', '=', company_id)]",
+        ondelete="restrict"
     )
 
     booking_id = fields.Many2one('room.booking', compute='_compute_type_fields', store=True)
@@ -105,8 +106,8 @@ class TzHotelManualPosting(models.Model):
         compute='_compute_booking_info',
         store=True
     )
-    # folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True, store=True)
-    folio_id = fields.Many2one('tz.master.folio', compute='_compute_folio_id', store=True)
+    folio_id = fields.Many2one('tz.master.folio', string="Folio", index=True, store=True)
+    # folio_id = fields.Many2one('tz.master.folio', compute='_compute_folio_id', store=True)
 
     source_type = fields.Selection(
         [('auto', 'Auto'), ('manual', 'Manual')],
@@ -148,6 +149,12 @@ class TzHotelManualPosting(models.Model):
                                   readonly=True)
     payment_id = fields.Many2one('account.payment', string="Payment #", index=True, store=True)
     master_id = fields.Many2one('tz.manual.posting', string="Master #", index=True)
+
+    @api.onchange('company_id')
+    def _onchange_company_refresh_rooms(self):
+        """Refresh room options when company changes"""
+        if self.company_id:
+            self.env['tz.manual.posting.room'].refresh_view()
 
     @api.onchange('type_id')
     def _onchange_type_id(self):
@@ -723,15 +730,15 @@ class TzHotelManualPosting(models.Model):
         for child in children:
             child.write({'debit_amount': master_record.credit_amount})
 
-    @api.depends('room_id', 'dummy_id')
-    def _compute_folio_id(self):
-        for rec in self:
-            if rec.dummy_id:
-                rec.folio_id = rec._get_master_folio_for_dummy(rec.dummy_id.id)
-            elif rec.room_id:
-                rec.folio_id = rec._get_or_create_master_folio(rec.room_id.id)
-            else:
-                rec.folio_id = False
+    # @api.depends('room_id', 'dummy_id')
+    # def _compute_folio_id(self):
+    #     for rec in self:
+    #         if rec.dummy_id:
+    #             rec.folio_id = rec._get_master_folio_for_dummy(rec.dummy_id.id)
+    #         elif rec.room_id:
+    #             rec.folio_id = rec._get_or_create_master_folio(rec.room_id.id)
+    #         else:
+    #             rec.folio_id = False
 
     def _handle_cash_payment(self, item_id=None):
         for rec in self:

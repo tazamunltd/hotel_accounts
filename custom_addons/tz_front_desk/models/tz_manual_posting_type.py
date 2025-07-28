@@ -1,9 +1,550 @@
-from odoo import models, fields, tools, api
+from odoo import models, fields, api, tools, _
 from odoo.exceptions import UserError
+import logging
 
-class ManualPostingType(models.Model):
-    _name = 'tz.manual.posting.type'
-    _description = 'Manual Posting Type'
+_logger = logging.getLogger(__name__)
+
+# class ManualPostingType(models.Model):
+#     _name = 'tz.manual.posting.type'
+#     _description = 'Manual Posting Type'
+#
+#     name = fields.Char(string='Room')
+#     booking_id = fields.Many2one('room.booking', string='Booking')
+#     room_id = fields.Many2one('hotel.room', string='Room')
+#     group_booking_id = fields.Many2one('group.booking', string='Group Booking')
+#     dummy_id = fields.Many2one('tz.dummy.group', string='Dummy')
+#     folio_id = fields.Many2one('tz.master.folio', string="Master Folio")
+#     partner_id = fields.Many2one('res.partner', string='Customer')
+#     checkin_date = fields.Date(string='Check-in')
+#     checkout_date = fields.Date(string='Check-out')
+#     adult_count = fields.Integer(string='Adults')
+#     child_count = fields.Integer(string='Children')
+#     infant_count = fields.Integer(string='Infants')
+#     rate_code = fields.Char(string='Rate Code')
+#     meal_pattern = fields.Char(string='Meal Pattern')
+#     state = fields.Char(string='State')
+#     company_id = fields.Many2one('res.company', string='Company')
+#
+#     @api.model
+#     def generate_manual_postings(self):
+#         current_company_id = self.env.company.id
+#
+#         # 1. Create or replace the SQL view
+#         try:
+#             tools.drop_view_if_exists(self.env.cr, 'tz_manual_posting_types')
+#             self.env.cr.execute("""
+#                 CREATE OR REPLACE VIEW tz_manual_posting_types AS (
+#                     SELECT
+#                         ROW_NUMBER() OVER () AS id,
+#                         name,
+#                         booking_id,
+#                         room_id,
+#                         group_booking_id,
+#                         dummy_id,
+#                         partner_id,
+#                         checkin_date,
+#                         checkout_date,
+#                         adult_count,
+#                         child_count,
+#                         infant_count,
+#                         rate_code,
+#                         meal_pattern,
+#                         state,
+#                         company_id
+#                     FROM (
+#                         -- Individual bookings: state IN (...)
+#                         SELECT
+#                             COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
+#                             rb.id AS booking_id,
+#                             hr.id AS room_id,
+#                             rb.group_booking_id,
+#                             NULL::integer AS dummy_id,
+#                             rb.partner_id,
+#                             rb.checkin_date,
+#                             rb.checkout_date,
+#                             rb.adult_count::integer,
+#                             rb.child_count::integer,
+#                             rb.infant_count::integer,
+#                             rb.rate_code,
+#                             rb.meal_pattern,
+#                             rb.state,
+#                             rb.company_id
+#                         FROM room_booking rb
+#                         LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+#                         LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
+#                         WHERE rb.company_id = %s
+#                           AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
+#
+#                         UNION ALL
+#
+#                         -- Group bookings: state = 'in'
+#                         SELECT
+#                             COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+#                             (SELECT id FROM room_booking rb2 WHERE rb2.group_booking = gb.id LIMIT 1) AS booking_id,
+#                             NULL AS room_id,
+#                             gb.id AS group_booking_id,
+#                             NULL::integer AS dummy_id,
+#                             gb.company,
+#                             gb.first_visit,
+#                             gb.last_visit,
+#                             gb.total_adult_count::integer,
+#                             gb.total_child_count::integer,
+#                             gb.total_infant_count::integer,
+#                             gb.rate_code,
+#                             gb.group_meal_pattern,
+#                             gb.state::varchar,
+#                             gb.company_id
+#                         FROM group_booking gb
+#                         WHERE gb.status_code = 'confirmed'
+#                           AND gb.state = 'in'
+#                           AND gb.id IN (
+#                               SELECT rb.group_booking FROM room_booking rb
+#                               WHERE rb.group_booking IS NOT NULL AND rb.company_id = %s
+#                           )
+#                           AND gb.company_id = %s
+#
+#                         UNION ALL
+#
+#                         -- Dummy groups: state = 'in'
+#                         SELECT
+#                             dg.description::text AS name,
+#                             NULL AS booking_id,
+#                             NULL AS room_id,
+#                             NULL AS group_booking_id,
+#                             dg.id AS dummy_id,
+#                             NULL,
+#                             dg.start_date,
+#                             dg.end_date,
+#                             NULL,
+#                             NULL,
+#                             NULL,
+#                             NULL,
+#                             NULL,
+#                             dg.state,
+#                             dg.company_id
+#                         FROM tz_dummy_group dg
+#                         WHERE dg.obsolete = FALSE
+#                           AND dg.state = 'in'
+#                           AND dg.company_id = %s
+#                     ) AS unified
+#                 );
+#             """, (current_company_id, current_company_id, current_company_id, current_company_id))
+#         except Exception as e:
+#             raise UserError(f"Failed to create view: {str(e)}")
+#
+#         # 2. Read from the view
+#         try:
+#             self.env.cr.execute("SELECT * FROM tz_manual_posting_types")
+#             rows = self.env.cr.dictfetchall()
+#             print(rows)
+#         except Exception as e:
+#             raise UserError(f"Failed to read from view: {str(e)}")
+#
+#         # 3. Function to get folio_id from domain
+#         def get_folio_id(booking_id=None, room_id=None, group_booking_id=None, dummy_id=None, company_id=None):
+#             domain = []
+#
+#             if booking_id:
+#                 domain.append(('booking_ids', '=', booking_id))
+#                 if room_id:
+#                     domain.append(('room_id', '=', room_id))
+#
+#             elif group_booking_id:
+#                 domain = [('group_id', '=', group_booking_id)]
+#
+#             elif dummy_id:
+#                 domain = [('dummy_id', '=', dummy_id)]
+#
+#             if company_id:
+#                 domain.append(('company_id', '=', company_id))
+#
+#             folio = self.env['tz.master.folio'].search(domain, limit=1)
+#             return folio.id if folio else False
+#
+#         # 4. Process each row - create or update
+#         for row in rows:
+#             # Build domain based on the key fields
+#             domain = []
+#             if row.get('booking_id'):
+#                 domain.append(('booking_id', '=', row['booking_id']))
+#             if row.get('room_id'):
+#                 domain.append(('room_id', '=', row['room_id']))
+#             if row.get('group_booking_id'):
+#                 domain.append(('group_booking_id', '=', row['group_booking_id']))
+#             if row.get('dummy_id'):
+#                 domain.append(('dummy_id', '=', row['dummy_id']))
+#
+#             # Add company filter
+#             domain.append(('company_id', '=', current_company_id))
+#
+#             # Get folio_id - first try from row, then from lookup function
+#             folio_id = row.get('folio_id')
+#             if not folio_id:
+#                 folio_id = get_folio_id(
+#                     booking_id=row.get('booking_id'),
+#                     room_id=row.get('room_id'),
+#                     group_booking_id=row.get('group_booking_id'),
+#                     dummy_id=row.get('dummy_id'),
+#                     company_id=current_company_id
+#                 )
+#
+#             # Prepare values for create/update
+#             values = {
+#                 'name': row.get('name'),
+#                 'folio_id': folio_id,  # Use the validated folio_id
+#                 'partner_id': row.get('partner_id'),
+#                 'checkin_date': row.get('checkin_date'),
+#                 'checkout_date': row.get('checkout_date'),
+#                 'adult_count': row.get('adult_count') or 0,
+#                 'child_count': row.get('child_count') or 0,
+#                 'infant_count': row.get('infant_count') or 0,
+#                 'rate_code': row.get('rate_code'),
+#                 'meal_pattern': row.get('meal_pattern'),
+#                 'state': row.get('state'),
+#             }
+#
+#             # Find existing record
+#             existing = self.search(domain, limit=1)
+#
+#             if existing:
+#                 # Update existing record
+#                 existing.write(values)
+#             else:
+#                 # Create new record with all values including the domain fields
+#                 values.update({
+#                     'booking_id': row.get('booking_id'),
+#                     'room_id': row.get('room_id'),
+#                     'group_booking_id': row.get('group_booking_id'),
+#                     'dummy_id': row.get('dummy_id'),
+#                     'company_id': current_company_id,
+#                 })
+#                 self.create(values)
+#
+#         return True
+#
+#     @api.model
+#     def generate_manual_postingsXX(self):
+#         current_company_id = self.env.company.id
+#
+#         # 1. Create or replace the SQL view
+#         try:
+#             tools.drop_view_if_exists(self.env.cr, 'tz_manual_posting_types')
+#             self.env.cr.execute("""
+#                 CREATE OR REPLACE VIEW tz_manual_posting_types AS (
+#                     SELECT
+#                         ROW_NUMBER() OVER () AS id,
+#                         name,
+#                         booking_id,
+#                         room_id,
+#                         group_booking_id,
+#                         dummy_id,
+#                         folio_id,
+#                         partner_id,
+#                         checkin_date,
+#                         checkout_date,
+#                         adult_count,
+#                         child_count,
+#                         infant_count,
+#                         rate_code,
+#                         meal_pattern,
+#                         state,
+#                         company_id
+#                     FROM (
+#                         SELECT
+#                             COALESCE(hr.name ->> 'en_US', rb.name) AS name,
+#                             rb.id AS booking_id,
+#                             hr.id AS room_id,
+#                             NULL::integer AS group_booking_id,
+#                             NULL::integer AS dummy_id,
+#                             folio.id AS folio_id,
+#                             rb.partner_id,
+#                             rb.checkin_date,
+#                             rb.checkout_date,
+#                             rb.adult_count::integer,
+#                             rb.child_count::integer,
+#                             rb.infant_count::integer,
+#                             rb.rate_code::varchar,
+#                             rb.meal_pattern::varchar,
+#                             rb.state::varchar,
+#                             rb.company_id
+#                         FROM room_booking rb
+#                         JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+#                         JOIN hotel_room hr ON rbl.room_id = hr.id
+#                         LEFT JOIN tz_master_folio folio ON folio.room_id = rbl.room_id
+#                         WHERE rb.group_booking IS NULL AND rb.state = 'check_in' AND rb.company_id = %s
+#
+#                         UNION ALL
+#
+#                         SELECT
+#                             COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+#                             NULL::integer AS booking_id,
+#                             NULL::integer AS room_id,
+#                             gb.id AS group_booking_id,
+#                             NULL::integer AS dummy_id,
+#                             folio.id AS folio_id,
+#                             gb.company AS partner_id,
+#                             gb.first_visit AS checkin_date,
+#                             gb.last_visit AS checkout_date,
+#                             gb.total_adult_count::integer,
+#                             gb.total_child_count::integer,
+#                             gb.total_infant_count::integer,
+#                             gb.rate_code::varchar,
+#                             gb.group_meal_pattern::varchar,
+#                             gb.state::varchar,
+#                             gb.company_id
+#                         FROM group_booking gb
+#                         LEFT JOIN tz_master_folio folio ON folio.group_id = gb.id
+#                         WHERE gb.status_code = 'confirmed' AND gb.company_id = %s
+#                           AND EXISTS (
+#                               SELECT 1 FROM room_booking rb
+#                               WHERE rb.group_booking = gb.id AND rb.state = 'check_in'
+#                           )
+#
+#                         UNION ALL
+#
+#                         SELECT
+#                             dg.description::text AS name,
+#                             NULL::integer AS booking_id,
+#                             NULL::integer AS room_id,
+#                             NULL::integer AS group_booking_id,
+#                             dg.id AS dummy_id,
+#                             folio.id AS folio_id,
+#                             dg.partner_id,
+#                             dg.start_date AS checkin_date,
+#                             dg.end_date AS checkout_date,
+#                             NULL::integer AS adult_count,
+#                             NULL::integer AS child_count,
+#                             NULL::integer AS infant_count,
+#                             NULL::varchar AS rate_code,
+#                             NULL::varchar AS meal_pattern,
+#                             dg.state::varchar,
+#                             dg.company_id
+#                         FROM tz_dummy_group dg
+#                         LEFT JOIN tz_master_folio folio ON folio.dummy_id = dg.id
+#                         WHERE dg.obsolete = FALSE AND dg.company_id = %s
+#                     ) AS unified
+#                 );
+#             """, (current_company_id, current_company_id, current_company_id))
+#         except Exception as e:
+#             raise UserError(f"Failed to create view: {str(e)}")
+#
+#         # 2. Read from the view
+#         try:
+#             self.env.cr.execute("SELECT * FROM tz_manual_posting_types")
+#             rows = self.env.cr.dictfetchall()
+#         except Exception as e:
+#             raise UserError(f"Failed to read from view: {str(e)}")
+#
+#         # 3. Process each row - create or update
+#         for row in rows:
+#             # Build domain based on the key fields
+#             domain = [('company_id', '=', current_company_id)]
+#
+#             if row.get('booking_id'):
+#                 domain.append(('booking_id', '=', row['booking_id']))
+#             if row.get('room_id'):
+#                 domain.append(('room_id', '=', row['room_id']))
+#             if row.get('group_booking_id'):
+#                 domain.append(('group_booking_id', '=', row['group_booking_id']))
+#             if row.get('dummy_id'):
+#                 domain.append(('dummy_id', '=', row['dummy_id']))
+#
+#             # Prepare values for create/update
+#             values = {
+#                 'name': row.get('name'),
+#                 'folio_id': row.get('folio_id'),
+#                 'partner_id': row.get('partner_id'),
+#                 'checkin_date': row.get('checkin_date'),
+#                 'checkout_date': row.get('checkout_date'),
+#                 'adult_count': row.get('adult_count') or 0,
+#                 'child_count': row.get('child_count') or 0,
+#                 'infant_count': row.get('infant_count') or 0,
+#                 'rate_code': row.get('rate_code'),
+#                 'meal_pattern': row.get('meal_pattern'),
+#                 'state': row.get('state'),
+#             }
+#
+#             # Find existing record
+#             existing = self.search(domain, limit=1)
+#
+#             if existing:
+#                 # Update existing record
+#                 existing.write(values)
+#             else:
+#                 # Create new record with all values including the domain fields
+#                 values.update({
+#                     'booking_id': row.get('booking_id'),
+#                     'room_id': row.get('room_id'),
+#                     'group_booking_id': row.get('group_booking_id'),
+#                     'dummy_id': row.get('dummy_id'),
+#                     'company_id': current_company_id,
+#                 })
+#                 self.create(values)
+#
+#         return True
+#
+#     @api.model
+#     def generate_manual_postingsX(self):
+#         # 0. First clear existing records to avoid duplicates
+#         # self.search([]).unlink()
+#
+#         # 1. Create the view with optimized queries
+#         try:
+#             tools.drop_view_if_exists(self.env.cr, 'tz_manual_posting_types')
+#             self.env.cr.execute("""
+#                 CREATE OR REPLACE VIEW tz_manual_posting_types AS (
+#                     SELECT
+#                         ROW_NUMBER() OVER () AS id,
+#                         name,
+#                         booking_id,
+#                         room_id,
+#                         group_booking_id,
+#                         dummy_id,
+#                         folio_id,
+#                         partner_id,
+#                         checkin_date,
+#                         checkout_date,
+#                         adult_count,
+#                         child_count,
+#                         infant_count,
+#                         rate_code,
+#                         meal_pattern,
+#                         state,
+#                         company_id
+#                     FROM (
+#                         -- Optimized Room Booking query
+#                         SELECT
+#                             COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
+#                             rb.id AS booking_id,
+#                             hr.id AS room_id,
+#                             rb.group_booking_id,
+#                             NULL::integer AS dummy_id,
+#                             folio.id AS folio_id,
+#                             rb.partner_id,
+#                             rb.checkin_date,
+#                             rb.checkout_date,
+#                             rb.adult_count::integer,
+#                             rb.child_count::integer,
+#                             rb.infant_count::integer,
+#                             rb.rate_code,
+#                             rb.meal_pattern,
+#                             rb.state,
+#                             rb.company_id
+#                         FROM room_booking rb
+#                         LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+#                         LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
+#                         LEFT JOIN tz_master_folio folio ON folio.room_id = rbl.room_id
+#                         WHERE rb.group_booking IS NULL
+#                         AND rb.id IS NOT NULL  -- Ensure we have a booking ID
+#
+#                         UNION ALL
+#
+#                         -- Optimized Group Booking query
+#                         SELECT
+#                             COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+#                             rb.id AS booking_id,  -- Changed from subquery to join
+#                             NULL AS room_id,
+#                             gb.id AS group_booking_id,
+#                             NULL::integer AS dummy_id,
+#                             folio.id AS folio_id,
+#                             gb.company,
+#                             gb.first_visit,
+#                             gb.last_visit,
+#                             gb.total_adult_count::integer,
+#                             gb.total_child_count::integer,
+#                             gb.total_infant_count::integer,
+#                             gb.rate_code,
+#                             gb.group_meal_pattern,
+#                             gb.state::varchar,
+#                             gb.company_id
+#                         FROM group_booking gb
+#                         LEFT JOIN room_booking rb ON rb.group_booking = gb.id AND rb.id IS NOT NULL
+#                         LEFT JOIN tz_master_folio folio ON folio.group_id = gb.id
+#                         WHERE gb.status_code = 'confirmed'
+#                         AND EXISTS (
+#                             SELECT 1 FROM room_booking
+#                             WHERE group_booking = gb.id
+#                         )
+#
+#                         UNION ALL
+#
+#                         -- Dummy Group (already optimized)
+#                         SELECT
+#                             dg.description::text AS name,
+#                             NULL AS booking_id,
+#                             NULL AS room_id,
+#                             NULL AS group_booking_id,
+#                             dg.id AS dummy_id,
+#                             folio.id AS folio_id,
+#                             NULL,
+#                             dg.start_date,
+#                             dg.end_date,
+#                             NULL,
+#                             NULL,
+#                             NULL,
+#                             NULL,
+#                             NULL,
+#                             dg.state,
+#                             dg.company_id
+#                         FROM tz_dummy_group dg
+#                         LEFT JOIN tz_master_folio folio ON folio.dummy_id = dg.id
+#                         WHERE dg.obsolete = FALSE
+#                     ) AS unified
+#                 );
+#             """)
+#         except Exception as e:
+#             raise UserError(f"Failed to create view: {str(e)}")
+#
+#         # 2. Batch read and process records
+#         try:
+#             # Use server-side cursor for large datasets
+#             self.env.cr.execute("SELECT * FROM tz_manual_posting_types")
+#
+#             # Prepare batch create
+#             batch_size = 1000
+#             records_to_create = []
+#
+#             while True:
+#                 rows = self.env.cr.dictfetchmany(batch_size)
+#                 if not rows:
+#                     break
+#
+#                 for row in rows:
+#                     records_to_create.append({
+#                         'name': row.get('name'),
+#                         'booking_id': row.get('booking_id'),
+#                         'room_id': row.get('room_id'),
+#                         'group_booking_id': row.get('group_booking_id'),
+#                         'dummy_id': row.get('dummy_id'),
+#                         'folio_id': row.get('folio_id'),
+#                         'partner_id': row.get('partner_id'),
+#                         'checkin_date': row.get('checkin_date'),
+#                         'checkout_date': row.get('checkout_date'),
+#                         'adult_count': row.get('adult_count'),
+#                         'child_count': row.get('child_count'),
+#                         'infant_count': row.get('infant_count'),
+#                         'rate_code': row.get('rate_code'),
+#                         'meal_pattern': row.get('meal_pattern'),
+#                         'state': row.get('state'),
+#                         'company_id': row.get('company_id'),
+#                     })
+#
+#                 # Batch create records
+#                 if records_to_create:
+#                     self.create(records_to_create)
+#                     records_to_create = []
+#
+#         except Exception as e:
+#             raise UserError(f"Failed to process records: {str(e)}")
+#
+#         return True
+
+
+class ManualPostingRoom(models.Model):
+    _name = 'tz.manual.posting.room'
+    _auto = False  # Critical - prevents Odoo from creating a physical table
+    _description = 'Manual Posting Room'
+    # _rec_name = 'name'
 
     name = fields.Char(string='Room')
     booking_id = fields.Many2one('room.booking', string='Booking')
@@ -19,520 +560,169 @@ class ManualPostingType(models.Model):
     infant_count = fields.Integer(string='Infants')
     rate_code = fields.Char(string='Rate Code')
     meal_pattern = fields.Char(string='Meal Pattern')
-    state = fields.Char(string='State')
+    # state = fields.Char(string='State')
     company_id = fields.Many2one('res.company', string='Company')
 
-    @api.model
-    def generate_manual_postings(self):
-        current_company_id = self.env.company.id
+    def init(self):
+        """Initialize the view during module installation/update"""
+        # First create the view if it doesn't exist
+        self._create_or_replace_view()
+        # Then setup triggers
+        self._setup_change_triggers()
 
-        # 1. Create or replace the SQL view
+    def _create_or_replace_view(self):
+        """Drop and recreate the materialized view"""
+        self.env.cr.execute(f"DROP MATERIALIZED VIEW IF EXISTS tz_manual_posting_room CASCADE")
+
+        query = """
+            CREATE MATERIALIZED VIEW IF NOT EXISTS tz_manual_posting_room AS (
+                SELECT
+                ROW_NUMBER() OVER () AS id,
+                name,
+                booking_id,
+                room_id,
+                group_booking_id,
+                dummy_id,
+                folio_id,
+                partner_id,
+                checkin_date,
+                checkout_date,
+                adult_count,
+                child_count,
+                infant_count,
+                rate_code,
+                meal_pattern,
+                company_id
+            FROM (
+                -- Individual bookings: match folio by room_id
+                SELECT
+                    COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
+                    rb.id AS booking_id,
+                    hr.id AS room_id,
+                    rb.group_booking_id,
+                    NULL::integer AS dummy_id,
+                    mf.id AS folio_id,
+                    rb.partner_id,
+                    rb.checkin_date,
+                    rb.checkout_date,
+                    rb.adult_count::integer,
+                    rb.child_count::integer,
+                    rb.infant_count::integer,
+                    rb.rate_code,
+                    rb.meal_pattern,
+                    rb.company_id
+                FROM room_booking rb
+                LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+                LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
+                LEFT JOIN tz_master_folio mf ON mf.room_id = rbl.room_id 
+                WHERE rb.company_id = %s
+                  AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
+            
+                UNION ALL
+            
+                -- Group bookings: match folio by group_id
+                SELECT
+                    COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+                    (SELECT id FROM room_booking rb2 WHERE rb2.group_booking = gb.id LIMIT 1) AS booking_id,
+                    NULL AS room_id,
+                    gb.id AS group_booking_id,
+                    NULL::integer AS dummy_id,
+                    mf.id AS folio_id,
+                    gb.company,
+                    gb.first_visit,
+                    gb.last_visit,
+                    gb.total_adult_count::integer,
+                    gb.total_child_count::integer,
+                    gb.total_infant_count::integer,
+                    gb.rate_code,
+                    gb.group_meal_pattern,
+                    gb.company_id
+                FROM group_booking gb
+                LEFT JOIN tz_master_folio mf ON mf.group_id = gb.id  
+                WHERE gb.status_code = 'confirmed'
+                  AND gb.id IN (
+                      SELECT rb.group_booking FROM room_booking rb
+                      WHERE rb.group_booking IS NOT NULL AND rb.company_id = %s
+                  )
+                  AND gb.company_id = %s
+            
+                UNION ALL
+            
+                -- Dummy groups: match folio by dummy_id
+                SELECT
+                    dg.description::text AS name,
+                    NULL AS booking_id,
+                    NULL AS room_id,
+                    NULL AS group_booking_id,
+                    dg.id AS dummy_id,
+                    mf.id AS folio_id,
+                    NULL,
+                    dg.start_date,
+                    dg.end_date,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    NULL,
+                    dg.company_id
+                FROM tz_dummy_group dg
+                LEFT JOIN tz_master_folio mf ON mf.dummy_id = dg.id  
+                WHERE dg.obsolete = FALSE
+                  AND dg.company_id = %s
+            ) AS unified
+
+            );
+        """
+        self.env.cr.execute(query, (
+            self.env.company.id,
+            self.env.company.id,
+            self.env.company.id,
+            self.env.company.id
+        ))
+
+    def _setup_change_triggers(self):
+        """Setup automatic refresh triggers on source tables"""
         try:
-            tools.drop_view_if_exists(self.env.cr, 'tz_manual_posting_types')
+            # First create the refresh function if it doesn't exist
             self.env.cr.execute("""
-                CREATE OR REPLACE VIEW tz_manual_posting_types AS (
-                    SELECT
-                        ROW_NUMBER() OVER () AS id,
-                        name,
-                        booking_id,
-                        room_id,
-                        group_booking_id,
-                        dummy_id,
-                        partner_id,
-                        checkin_date,
-                        checkout_date,
-                        adult_count,
-                        child_count,
-                        infant_count,
-                        rate_code,
-                        meal_pattern,
-                        state,
-                        company_id
-                    FROM (
-                        -- Individual bookings: state IN (...)
-                        SELECT
-                            COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
-                            rb.id AS booking_id,
-                            hr.id AS room_id,
-                            rb.group_booking_id,
-                            NULL::integer AS dummy_id,
-                            rb.partner_id,
-                            rb.checkin_date,
-                            rb.checkout_date,
-                            rb.adult_count::integer,
-                            rb.child_count::integer,
-                            rb.infant_count::integer,
-                            rb.rate_code,
-                            rb.meal_pattern,
-                            rb.state,
-                            rb.company_id
-                        FROM room_booking rb
-                        LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
-                        LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
-                        WHERE rb.company_id = %s
-                          AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
-                    
-                        UNION ALL
-                    
-                        -- Group bookings: state = 'in'
-                        SELECT
-                            COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
-                            (SELECT id FROM room_booking rb2 WHERE rb2.group_booking = gb.id LIMIT 1) AS booking_id,
-                            NULL AS room_id,
-                            gb.id AS group_booking_id,
-                            NULL::integer AS dummy_id,
-                            gb.company,
-                            gb.first_visit,
-                            gb.last_visit,
-                            gb.total_adult_count::integer,
-                            gb.total_child_count::integer,
-                            gb.total_infant_count::integer,
-                            gb.rate_code,
-                            gb.group_meal_pattern,
-                            gb.state::varchar,
-                            gb.company_id
-                        FROM group_booking gb
-                        WHERE gb.status_code = 'confirmed'
-                          AND gb.state = 'in'
-                          AND gb.id IN (
-                              SELECT rb.group_booking FROM room_booking rb
-                              WHERE rb.group_booking IS NOT NULL AND rb.company_id = %s
-                          )
-                          AND gb.company_id = %s
-                    
-                        UNION ALL
-                    
-                        -- Dummy groups: state = 'in'
-                        SELECT
-                            dg.description::text AS name,
-                            NULL AS booking_id,
-                            NULL AS room_id,
-                            NULL AS group_booking_id,
-                            dg.id AS dummy_id,
-                            NULL,
-                            dg.start_date,
-                            dg.end_date,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            dg.state,
-                            dg.company_id
-                        FROM tz_dummy_group dg
-                        WHERE dg.obsolete = FALSE
-                          AND dg.state = 'in'
-                          AND dg.company_id = %s
-                    ) AS unified
-                );
-            """, (current_company_id, current_company_id, current_company_id, current_company_id))
-        except Exception as e:
-            raise UserError(f"Failed to create view: {str(e)}")
-
-        # 2. Read from the view
-        try:
-            self.env.cr.execute("SELECT * FROM tz_manual_posting_types")
-            rows = self.env.cr.dictfetchall()
-            print(rows)
-        except Exception as e:
-            raise UserError(f"Failed to read from view: {str(e)}")
-
-        # 3. Function to get folio_id from domain
-        def get_folio_id(booking_id=None, room_id=None, group_booking_id=None, dummy_id=None, company_id=None):
-            domain = []
-
-            if booking_id:
-                domain.append(('booking_ids', '=', booking_id))
-                if room_id:
-                    domain.append(('room_id', '=', room_id))
-
-            elif group_booking_id:
-                domain = [('group_id', '=', group_booking_id)]
-
-            elif dummy_id:
-                domain = [('dummy_id', '=', dummy_id)]
-
-            if company_id:
-                domain.append(('company_id', '=', company_id))
-
-            folio = self.env['tz.master.folio'].search(domain, limit=1)
-            return folio.id if folio else False
-
-        # 4. Process each row - create or update
-        for row in rows:
-            # Build domain based on the key fields
-            domain = []
-            if row.get('booking_id'):
-                domain.append(('booking_id', '=', row['booking_id']))
-            if row.get('room_id'):
-                domain.append(('room_id', '=', row['room_id']))
-            if row.get('group_booking_id'):
-                domain.append(('group_booking_id', '=', row['group_booking_id']))
-            if row.get('dummy_id'):
-                domain.append(('dummy_id', '=', row['dummy_id']))
-
-            # Add company filter
-            domain.append(('company_id', '=', current_company_id))
-
-            # Get folio_id - first try from row, then from lookup function
-            folio_id = row.get('folio_id')
-            if not folio_id:
-                folio_id = get_folio_id(
-                    booking_id=row.get('booking_id'),
-                    room_id=row.get('room_id'),
-                    group_booking_id=row.get('group_booking_id'),
-                    dummy_id=row.get('dummy_id'),
-                    company_id=current_company_id
-                )
-
-            # Prepare values for create/update
-            values = {
-                'name': row.get('name'),
-                'folio_id': folio_id,  # Use the validated folio_id
-                'partner_id': row.get('partner_id'),
-                'checkin_date': row.get('checkin_date'),
-                'checkout_date': row.get('checkout_date'),
-                'adult_count': row.get('adult_count') or 0,
-                'child_count': row.get('child_count') or 0,
-                'infant_count': row.get('infant_count') or 0,
-                'rate_code': row.get('rate_code'),
-                'meal_pattern': row.get('meal_pattern'),
-                'state': row.get('state'),
-            }
-
-            # Find existing record
-            existing = self.search(domain, limit=1)
-
-            if existing:
-                # Update existing record
-                existing.write(values)
-            else:
-                # Create new record with all values including the domain fields
-                values.update({
-                    'booking_id': row.get('booking_id'),
-                    'room_id': row.get('room_id'),
-                    'group_booking_id': row.get('group_booking_id'),
-                    'dummy_id': row.get('dummy_id'),
-                    'company_id': current_company_id,
-                })
-                self.create(values)
-
-        return True
-
-    @api.model
-    def generate_manual_postingsXX(self):
-        current_company_id = self.env.company.id
-
-        # 1. Create or replace the SQL view
-        try:
-            tools.drop_view_if_exists(self.env.cr, 'tz_manual_posting_types')
-            self.env.cr.execute("""
-                CREATE OR REPLACE VIEW tz_manual_posting_types AS (
-                    SELECT
-                        ROW_NUMBER() OVER () AS id,
-                        name,
-                        booking_id,
-                        room_id,
-                        group_booking_id,
-                        dummy_id,
-                        folio_id,
-                        partner_id,
-                        checkin_date,
-                        checkout_date,
-                        adult_count,
-                        child_count,
-                        infant_count,
-                        rate_code,
-                        meal_pattern,
-                        state,
-                        company_id
-                    FROM (
-                        SELECT
-                            COALESCE(hr.name ->> 'en_US', rb.name) AS name,
-                            rb.id AS booking_id,
-                            hr.id AS room_id,
-                            NULL::integer AS group_booking_id,
-                            NULL::integer AS dummy_id,
-                            folio.id AS folio_id,
-                            rb.partner_id,
-                            rb.checkin_date,
-                            rb.checkout_date,
-                            rb.adult_count::integer,
-                            rb.child_count::integer,
-                            rb.infant_count::integer,
-                            rb.rate_code::varchar,
-                            rb.meal_pattern::varchar,
-                            rb.state::varchar,
-                            rb.company_id
-                        FROM room_booking rb
-                        JOIN room_booking_line rbl ON rbl.booking_id = rb.id
-                        JOIN hotel_room hr ON rbl.room_id = hr.id
-                        LEFT JOIN tz_master_folio folio ON folio.room_id = rbl.room_id
-                        WHERE rb.group_booking IS NULL AND rb.state = 'check_in' AND rb.company_id = %s
-
-                        UNION ALL
-
-                        SELECT
-                            COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
-                            NULL::integer AS booking_id,
-                            NULL::integer AS room_id,
-                            gb.id AS group_booking_id,
-                            NULL::integer AS dummy_id,
-                            folio.id AS folio_id,
-                            gb.company AS partner_id,
-                            gb.first_visit AS checkin_date,
-                            gb.last_visit AS checkout_date,
-                            gb.total_adult_count::integer,
-                            gb.total_child_count::integer,
-                            gb.total_infant_count::integer,
-                            gb.rate_code::varchar,
-                            gb.group_meal_pattern::varchar,
-                            gb.state::varchar,
-                            gb.company_id
-                        FROM group_booking gb
-                        LEFT JOIN tz_master_folio folio ON folio.group_id = gb.id
-                        WHERE gb.status_code = 'confirmed' AND gb.company_id = %s
-                          AND EXISTS (
-                              SELECT 1 FROM room_booking rb
-                              WHERE rb.group_booking = gb.id AND rb.state = 'check_in'
-                          )
-
-                        UNION ALL
-
-                        SELECT
-                            dg.description::text AS name,
-                            NULL::integer AS booking_id,
-                            NULL::integer AS room_id,
-                            NULL::integer AS group_booking_id,
-                            dg.id AS dummy_id,
-                            folio.id AS folio_id,
-                            dg.partner_id,
-                            dg.start_date AS checkin_date,
-                            dg.end_date AS checkout_date,
-                            NULL::integer AS adult_count,
-                            NULL::integer AS child_count,
-                            NULL::integer AS infant_count,
-                            NULL::varchar AS rate_code,
-                            NULL::varchar AS meal_pattern,
-                            dg.state::varchar,
-                            dg.company_id
-                        FROM tz_dummy_group dg
-                        LEFT JOIN tz_master_folio folio ON folio.dummy_id = dg.id
-                        WHERE dg.obsolete = FALSE AND dg.company_id = %s
-                    ) AS unified
-                );
-            """, (current_company_id, current_company_id, current_company_id))
-        except Exception as e:
-            raise UserError(f"Failed to create view: {str(e)}")
-
-        # 2. Read from the view
-        try:
-            self.env.cr.execute("SELECT * FROM tz_manual_posting_types")
-            rows = self.env.cr.dictfetchall()
-        except Exception as e:
-            raise UserError(f"Failed to read from view: {str(e)}")
-
-        # 3. Process each row - create or update
-        for row in rows:
-            # Build domain based on the key fields
-            domain = [('company_id', '=', current_company_id)]
-
-            if row.get('booking_id'):
-                domain.append(('booking_id', '=', row['booking_id']))
-            if row.get('room_id'):
-                domain.append(('room_id', '=', row['room_id']))
-            if row.get('group_booking_id'):
-                domain.append(('group_booking_id', '=', row['group_booking_id']))
-            if row.get('dummy_id'):
-                domain.append(('dummy_id', '=', row['dummy_id']))
-
-            # Prepare values for create/update
-            values = {
-                'name': row.get('name'),
-                'folio_id': row.get('folio_id'),
-                'partner_id': row.get('partner_id'),
-                'checkin_date': row.get('checkin_date'),
-                'checkout_date': row.get('checkout_date'),
-                'adult_count': row.get('adult_count') or 0,
-                'child_count': row.get('child_count') or 0,
-                'infant_count': row.get('infant_count') or 0,
-                'rate_code': row.get('rate_code'),
-                'meal_pattern': row.get('meal_pattern'),
-                'state': row.get('state'),
-            }
-
-            # Find existing record
-            existing = self.search(domain, limit=1)
-
-            if existing:
-                # Update existing record
-                existing.write(values)
-            else:
-                # Create new record with all values including the domain fields
-                values.update({
-                    'booking_id': row.get('booking_id'),
-                    'room_id': row.get('room_id'),
-                    'group_booking_id': row.get('group_booking_id'),
-                    'dummy_id': row.get('dummy_id'),
-                    'company_id': current_company_id,
-                })
-                self.create(values)
-
-        return True
-
-    @api.model
-    def generate_manual_postingsX(self):
-        # 0. First clear existing records to avoid duplicates
-        # self.search([]).unlink()
-
-        # 1. Create the view with optimized queries
-        try:
-            tools.drop_view_if_exists(self.env.cr, 'tz_manual_posting_types')
-            self.env.cr.execute("""
-                CREATE OR REPLACE VIEW tz_manual_posting_types AS (
-                    SELECT
-                        ROW_NUMBER() OVER () AS id,
-                        name,
-                        booking_id,
-                        room_id,
-                        group_booking_id,
-                        dummy_id,
-                        folio_id,
-                        partner_id,
-                        checkin_date,
-                        checkout_date,
-                        adult_count,
-                        child_count,
-                        infant_count,
-                        rate_code,
-                        meal_pattern,
-                        state,
-                        company_id
-                    FROM (
-                        -- Optimized Room Booking query
-                        SELECT
-                            COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
-                            rb.id AS booking_id,
-                            hr.id AS room_id,
-                            rb.group_booking_id,
-                            NULL::integer AS dummy_id,
-                            folio.id AS folio_id,
-                            rb.partner_id,
-                            rb.checkin_date,
-                            rb.checkout_date,
-                            rb.adult_count::integer,
-                            rb.child_count::integer,
-                            rb.infant_count::integer,
-                            rb.rate_code,
-                            rb.meal_pattern,
-                            rb.state,
-                            rb.company_id
-                        FROM room_booking rb
-                        LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
-                        LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
-                        LEFT JOIN tz_master_folio folio ON folio.room_id = rbl.room_id
-                        WHERE rb.group_booking IS NULL
-                        AND rb.id IS NOT NULL  -- Ensure we have a booking ID
-
-                        UNION ALL
-
-                        -- Optimized Group Booking query
-                        SELECT
-                            COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
-                            rb.id AS booking_id,  -- Changed from subquery to join
-                            NULL AS room_id,
-                            gb.id AS group_booking_id,
-                            NULL::integer AS dummy_id,
-                            folio.id AS folio_id,
-                            gb.company,
-                            gb.first_visit,
-                            gb.last_visit,
-                            gb.total_adult_count::integer,
-                            gb.total_child_count::integer,
-                            gb.total_infant_count::integer,
-                            gb.rate_code,
-                            gb.group_meal_pattern,
-                            gb.state::varchar,
-                            gb.company_id
-                        FROM group_booking gb
-                        LEFT JOIN room_booking rb ON rb.group_booking = gb.id AND rb.id IS NOT NULL
-                        LEFT JOIN tz_master_folio folio ON folio.group_id = gb.id
-                        WHERE gb.status_code = 'confirmed'
-                        AND EXISTS (
-                            SELECT 1 FROM room_booking
-                            WHERE group_booking = gb.id
-                        )
-
-                        UNION ALL
-
-                        -- Dummy Group (already optimized)
-                        SELECT
-                            dg.description::text AS name,
-                            NULL AS booking_id,
-                            NULL AS room_id,
-                            NULL AS group_booking_id,
-                            dg.id AS dummy_id,
-                            folio.id AS folio_id,
-                            NULL,
-                            dg.start_date,
-                            dg.end_date,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            NULL,
-                            dg.state,
-                            dg.company_id
-                        FROM tz_dummy_group dg
-                        LEFT JOIN tz_master_folio folio ON folio.dummy_id = dg.id
-                        WHERE dg.obsolete = FALSE
-                    ) AS unified
-                );
+                CREATE OR REPLACE FUNCTION tz_refresh_manual_posting_room()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    EXECUTE 'REFRESH MATERIALIZED VIEW tz_manual_posting_room';
+                    RETURN NULL;
+                END;
+                $$ LANGUAGE plpgsql;
             """)
+
+            # Then create triggers on all source tables
+            for table in ['room_booking', 'group_booking', 'tz_dummy_group', 'hotel_room', 'tz_master_folio']:
+                try:
+                    # First drop the trigger if it exists
+                    self.env.cr.execute(f"""
+                        DROP TRIGGER IF EXISTS tz_manual_posting_room_refresh_trigger ON {table};
+                    """)
+                    # Then create the new trigger
+                    self.env.cr.execute(f"""
+                        CREATE TRIGGER tz_manual_posting_room_refresh_trigger
+                        AFTER INSERT OR UPDATE OR DELETE ON {table}
+                        FOR EACH STATEMENT EXECUTE FUNCTION tz_refresh_manual_posting_room();
+                    """)
+                except Exception as trigger_error:
+                    _logger.warning("Failed to create trigger on %s: %s", table, str(trigger_error))
+                    continue
+
+            _logger.info("Successfully created all refresh triggers")
         except Exception as e:
-            raise UserError(f"Failed to create view: {str(e)}")
+            _logger.error("Failed to setup change triggers: %s", str(e))
+            raise UserError(_("Failed to setup automatic refresh triggers. Check logs for details."))
 
-        # 2. Batch read and process records
-        try:
-            # Use server-side cursor for large datasets
-            self.env.cr.execute("SELECT * FROM tz_manual_posting_types")
+    @api.model
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        """Ensure fresh data when dropdown is opened"""
+        self.refresh_view()
+        return super().search_read(domain=domain, fields=fields, offset=offset, limit=limit, order=order)
 
-            # Prepare batch create
-            batch_size = 1000
-            records_to_create = []
-
-            while True:
-                rows = self.env.cr.dictfetchmany(batch_size)
-                if not rows:
-                    break
-
-                for row in rows:
-                    records_to_create.append({
-                        'name': row.get('name'),
-                        'booking_id': row.get('booking_id'),
-                        'room_id': row.get('room_id'),
-                        'group_booking_id': row.get('group_booking_id'),
-                        'dummy_id': row.get('dummy_id'),
-                        'folio_id': row.get('folio_id'),
-                        'partner_id': row.get('partner_id'),
-                        'checkin_date': row.get('checkin_date'),
-                        'checkout_date': row.get('checkout_date'),
-                        'adult_count': row.get('adult_count'),
-                        'child_count': row.get('child_count'),
-                        'infant_count': row.get('infant_count'),
-                        'rate_code': row.get('rate_code'),
-                        'meal_pattern': row.get('meal_pattern'),
-                        'state': row.get('state'),
-                        'company_id': row.get('company_id'),
-                    })
-
-                # Batch create records
-                if records_to_create:
-                    self.create(records_to_create)
-                    records_to_create = []
-
-        except Exception as e:
-            raise UserError(f"Failed to process records: {str(e)}")
-
+    def refresh_view(self):
+        """Public method to manually refresh the view"""
+        self._create_or_replace_view()
         return True
-

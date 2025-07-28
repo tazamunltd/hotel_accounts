@@ -51,7 +51,7 @@
         'security/ir.model.access.csv',
         'security/ir_records.xml',
         'data/ir_data_sequence.xml',
-        'data/cron_job.xml',
+        # 'data/cron_job.xml',
         'views/front_desk_room_booking_views.xml',
         'views/tz_manual_posting_views.xml',
         'views/tz_master_folio_views.xml',
