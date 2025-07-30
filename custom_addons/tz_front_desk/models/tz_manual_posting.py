@@ -53,11 +53,11 @@ class TzHotelManualPosting(models.Model):
     voucher_number = fields.Char(string="Voucher #", index=True, tracking=True)
 
     type_id = fields.Many2one(
-        'tz.manual.posting.room',
+        'tz.manual.posting.type',
         string="Room",
-        required=True,
+        # required=True,
         index=True,
-        domain="[('company_id', '=', company_id)]",
+        domain="[('company_id', '=', company_id), ('state', '=', 'draft')]",
         ondelete="restrict"
     )
 
@@ -158,13 +158,7 @@ class TzHotelManualPosting(models.Model):
 
     @api.onchange('type_id')
     def _onchange_type_id(self):
-        for record in self:
-            if record.type_id:
-                record.booking_id = record.type_id.booking_id
-                record.room_id = record.type_id.room_id
-                record.group_booking_id = record.type_id.group_booking_id
-                record.dummy_id = record.type_id.dummy_id
-                # record.folio_id = record.type_id.folio_id
+        self._compute_type_fields()
 
     @api.depends('type_id')
     def _compute_type_fields(self):
@@ -180,14 +174,16 @@ class TzHotelManualPosting(models.Model):
                 record.group_booking_id = False
                 record.dummy_id = False
 
-    # @api.model
-    # def default_get(self, fields_list):
-    #     res = super(TzHotelManualPosting, self).default_get(fields_list)
-    #     unavailable_rooms = self.env['room.booking.line'].search([
-    #         ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show']),
-    #     ]).mapped('room_id.id')
-    #     res['unavailable_room_ids'] = [(6, 0, unavailable_rooms)]
-    #     return res
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        default_type = self.env['tz.manual.posting.type'].search([
+            ('company_id', '=', self.env.company.id),
+            ('state', '=', 'draft')
+        ], limit=1)
+        if default_type:
+            res['type_id'] = default_type.id
+        return res
 
     @api.model
     def create(self, vals):
@@ -756,6 +752,12 @@ class TzHotelManualPosting(models.Model):
                         message="Manual posting created with Cash Payment",
                         type_='success'
                     )
+
+    def action_refresh_posting_data(self):
+        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.type'].sync_with_materialized_view()
+
+
 
 
 

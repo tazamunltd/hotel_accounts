@@ -5,7 +5,7 @@ class GroupBooking(models.Model):
 
     has_master_folio = fields.Boolean(default=False)
 
-    state = fields.Selection([
-        ('in', 'In'),
-        ('out', 'Out')
-    ], string='State', default='in')
+    # state = fields.Selection([
+    #     ('in', 'In'),
+    #     ('out', 'Out')
+    # ], string='State', default='in')
