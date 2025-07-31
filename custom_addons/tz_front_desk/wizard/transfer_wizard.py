@@ -13,7 +13,7 @@ class TransferChargeWizard(models.TransientModel):
         domain="[('main_department.adjustment', '=', 'transfer_charge')]"
     )
     type_id = fields.Many2one(
-        'tz.manual.posting.room',
+        'tz.manual.posting.type',
         string="From Room",
         required=True,
         index=True,
@@ -24,7 +24,7 @@ class TransferChargeWizard(models.TransientModel):
     description = fields.Char(string="Description")
     to_description = fields.Char(string="Description")
     to_type_id = fields.Many2one(
-        'tz.manual.posting.room',
+        'tz.manual.posting.type',
         string="To Room",
         required=True,
         index=True,

@@ -190,59 +190,67 @@ class AutoPostingWizard(models.TransientModel):
             group_id=folio.group_id.id if folio.group_id else None
         )
         if suspended:
-            return False  # Skip if suspended ones
+            return False
 
         # Check for existing postings first
         existing = self.env['tz.manual.posting'].search([
             ('company_id', '=', booking_line.booking_id.company_id.id),
             ('folio_id', '=', folio.id),
             ('item_id', '=', item_id),
-            ('room_id', '=', booking_line.room_id.id),
             ('date', '=', system_date),
             ('source_type', '=', 'auto'),
         ], limit=1)
 
-        if existing:
-            return False  # Skip if already exists
 
-        # Refresh materialized view to ensure we have latest data
-        self.env['tz.manual.posting.room'].refresh_view()
+        if not existing:
+            # Find the correct posting type
+            posting_type = self.env['tz.manual.posting.type'].search([
+                ('company_id', '=', booking_line.booking_id.company_id.id),
+                ('booking_id', '=', booking_line.booking_id.id),
+                ('room_id', '=', booking_line.room_id.id)
+            ], limit=1)
 
-        # Find matching room in materialized view
-        domain = [
-            ('company_id', '=', booking_line.booking_id.company_id.id),
-            ('booking_id', '=', booking_line.booking_id.id),
-            ('room_id', '=', booking_line.room_id.id)
-        ]
-        if booking_line.booking_id.group_booking:
-            domain.append(('group_booking_id', '=', booking_line.booking_id.group_booking.id))
+            if booking_line.booking_id.group_booking:
+                posting_type = self.env['tz.manual.posting.type'].search([
+                    ('company_id', '=', booking_line.booking_id.company_id.id),
+                    ('group_booking_id', '=', booking_line.booking_id.group_booking.id)
+                ], limit=1)
 
-        posting_room = self.env['tz.manual.posting.room'].search(domain, limit=1)
+            if not posting_type:
+                # Create a new posting type if none exists
+                posting_type = self.env['tz.manual.posting.type'].create({
+                    'company_id': booking_line.booking_id.company_id.id,
+                    'booking_id': booking_line.booking_id.id,
+                    'room_id': booking_line.room_id.id,
+                    'group_booking_id': booking_line.booking_id.group_booking.id if booking_line.booking_id.group_booking else False
+                })
 
-        item = self.env['posting.item'].browse(item_id)
-        if item.default_sign == 'main':
-            raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
+            item = self.env['posting.item'].browse(item_id)
+            if item.default_sign == 'main':
+                raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
 
-        manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
-        vals = {
-            'name': manual_posting,
-            'date': system_date,
-            'folio_id': folio.id,
-            'item_id': item_id,
-            'description': description,
-            'booking_id': booking_line.booking_id.id,
-            'room_id': booking_line.room_id.id,
-            'group_booking_id': folio.group_id.id if folio.group_id else False,
-            'sign': item.default_sign,
-            'quantity': 1,
-            'source_type': 'auto',
-            'total': amount,
-            'debit_amount': amount if item.default_sign == 'debit' else 0.0,
-            'credit_amount': amount if item.default_sign == 'credit' else 0.0,
-            'type_id': posting_room.id  # Now using the room record's ID as type_id
-        }
-        self.env['tz.manual.posting'].create(vals)
-        return True
+            manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
+            vals = {
+                'name': manual_posting,
+                'date': system_date,
+                'folio_id': folio.id,
+                'item_id': item_id,
+                'description': description,
+                'booking_id': booking_line.booking_id.id,
+                'room_id': booking_line.room_id.id,
+                'group_booking_id': folio.group_id.id if folio.group_id else False,
+                'sign': item.default_sign,
+                'quantity': 1,
+                'source_type': 'auto',
+                'total': amount,
+                'debit_amount': amount if item.default_sign == 'debit' else 0.0,
+                'credit_amount': amount if item.default_sign == 'credit' else 0.0,
+                'type_id': posting_type.id  # Now correctly linking to tz.manual.posting.type
+            }
+            self.env['tz.manual.posting'].create(vals)
+            return True
+        return False
+
 
     # def _create_posting_line(self, folio, booking_line, item_id, description, amount):
     #     """Create posting line and return True if created, False if skipped"""
