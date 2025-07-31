@@ -25,6 +25,14 @@ class ManualPostingRoom(models.Model):
     rate_code = fields.Char(string='Rate Code')
     meal_pattern = fields.Char(string='Meal Pattern')
     company_id = fields.Many2one('res.company', string='Company')
+    state = fields.Selection(selection=[
+        ('confirmed', 'Confirmed'),
+        ('no_show', 'No Show'),
+        ('block', 'Block'),
+        ('check_in', 'Check In'),
+        ('dummy', 'Dummy'),
+        ('posted', 'Posted'),
+    ], string='State')
 
     def _create_or_replace_view(self):
         try:
@@ -57,21 +65,22 @@ class ManualPostingRoom(models.Model):
                     rb.rate_code,
                     rb.meal_pattern,
                     rb.company_id,
-                    rb.checkout_date AS last_visit_date,  -- For individual bookings
-                    rb.checkout_date AS end_date  -- For individual bookings
+                    rb.checkout_date AS last_visit_date,
+                    rb.checkout_date AS end_date,
+                    rb.state AS state
                 FROM room_booking rb
                 LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
                 LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
                 LEFT JOIN tz_master_folio mf ON mf.room_id = rbl.room_id 
                 WHERE rb.company_id = %s
                   AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
-
+            
                 UNION ALL
-
+            
                 SELECT
                     (gb.id * 10 + 2) AS id,
                     COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
-                    (SELECT id FROM room_booking rb2 WHERE rb2.group_booking = gb.id LIMIT 1) AS booking_id,
+                    (SELECT id FROM room_booking rb2 WHERE rb2.group_booking = gb.id AND rb2.state != 'check_out' LIMIT 1) AS booking_id,
                     NULL AS room_id,
                     gb.id AS group_booking_id,
                     NULL::integer AS dummy_id,
@@ -85,19 +94,22 @@ class ManualPostingRoom(models.Model):
                     gb.rate_code,
                     gb.group_meal_pattern,
                     gb.company_id,
-                    gb.last_visit AS last_visit_date,  -- For group bookings
-                    gb.last_visit AS end_date  -- For group bookings
+                    gb.last_visit AS last_visit_date,
+                    gb.last_visit AS end_date,
+                    (SELECT rb3.state FROM room_booking rb3 WHERE rb3.group_booking = gb.id AND rb3.state != 'check_out' LIMIT 1) AS state
                 FROM group_booking gb
                 LEFT JOIN tz_master_folio mf ON mf.group_id = gb.id  
                 WHERE gb.status_code = 'confirmed'
                   AND gb.id IN (
                       SELECT rb.group_booking FROM room_booking rb
-                      WHERE rb.group_booking IS NOT NULL AND rb.company_id = %s
+                      WHERE rb.group_booking IS NOT NULL 
+                        AND rb.company_id = %s
+                        AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
                   )
                   AND gb.company_id = %s
-
+            
                 UNION ALL
-
+            
                 SELECT
                     (dg.id * 10 + 3) AS id,
                     dg.description::text AS name,
@@ -115,8 +127,9 @@ class ManualPostingRoom(models.Model):
                     NULL,
                     NULL,
                     dg.company_id,
-                    dg.end_date AS last_visit_date,  -- For dummy groups
-                    dg.end_date AS end_date  -- For dummy groups
+                    dg.end_date AS last_visit_date,
+                    dg.end_date AS end_date,
+                    'dummy' AS state
                 FROM tz_dummy_group dg
                 LEFT JOIN tz_master_folio mf ON mf.dummy_id = dg.id  
                 WHERE dg.obsolete = FALSE
@@ -173,7 +186,7 @@ class ManualPostingType(models.Model):
     _name = 'tz.manual.posting.type'
     _description = 'Manual Posting Type'
 
-    # source_id = fields.Integer(string="Source ID", index=True)
+    source_id = fields.Integer(string="Source ID", index=True)
     name = fields.Char(string='Room')
     booking_id = fields.Many2one('room.booking', string='Booking')
     room_id = fields.Many2one('hotel.room', string='Room')
@@ -190,12 +203,14 @@ class ManualPostingType(models.Model):
     meal_pattern = fields.Char(string='Meal Pattern')
     company_id = fields.Many2one('res.company', string='Company')
 
-    state = fields.Selection(
-        [('draft', 'Draft'), ('posted', 'Posted')],
-        string="State",
-        default='draft',
-        tracking=True
-    )
+    state = fields.Selection(selection=[
+        ('confirmed', 'Confirmed'),
+        ('no_show', 'No Show'),
+        ('block', 'Block'),
+        ('check_in', 'Check In'),
+        ('dummy', 'Dummy'),
+        ('posted', 'Posted'),
+    ], string='State')
 
     def sync_with_materialized_view(self):
         """Sync with the materialized view using ORM."""
@@ -204,19 +219,22 @@ class ManualPostingType(models.Model):
         # Fetch all relevant rows from the materialized view
         view_records = self.env['tz.manual.posting.room'].search([
             ('company_id', '=', company_id),
-            ('booking_id', '!=', False),
         ])
 
+        room_type = self.env['tz.manual.posting.type']
+
         for view in view_records:
+
             domain = [
-                ('room_id', '=', view.room_id.id if view.room_id else False),
-                ('group_booking_id', '=', view.group_booking_id.id if view.group_booking_id else False),
-                ('dummy_id', '=', view.dummy_id.id if view.dummy_id else False),
+                ('source_id', '=', view.id),
+                ('booking_id', '=', view.booking_id.id if view.booking_id else False),
             ]
 
-            existing = self.search(domain, limit=1)
+            existing = room_type.search(domain, limit=1)
+
 
             vals = {
+                'source_id': view.id,
                 'name': view.name,
                 'booking_id': view.booking_id.id,
                 'room_id': view.room_id.id if view.room_id else False,
@@ -232,58 +250,14 @@ class ManualPostingType(models.Model):
                 'rate_code': view.rate_code,
                 'meal_pattern': view.meal_pattern,
                 'company_id': company_id,
+                'state': view.state,
             }
 
             if existing:
                 existing.write(vals)
             else:
-                self.create(vals)
+                room_type.create(vals)
 
         _logger.info("Manual posting type successfully synced with materialized view for company_id %s", company_id)
-
-    def sync_with_materialized_viewX(self):
-        """Sync with the materialized view while maintaining state"""
-        # Upsert records using standard id field
-        query = """
-            INSERT INTO tz_manual_posting_type (
-                id, name, booking_id, room_id, group_booking_id, 
-                dummy_id, folio_id, partner_id, checkin_date, checkout_date,
-                adult_count, child_count, infant_count, rate_code, 
-                meal_pattern, company_id, state
-            )
-            SELECT 
-                id, name, booking_id, room_id, group_booking_id, 
-                dummy_id, folio_id, partner_id, checkin_date, checkout_date,
-                adult_count, child_count, infant_count, rate_code, 
-                meal_pattern, company_id, 'draft'
-            FROM tz_manual_posting_room
-            WHERE company_id = %s
-            ON CONFLICT (id) 
-            DO UPDATE SET
-                name = EXCLUDED.name,
-                booking_id = EXCLUDED.booking_id,
-                room_id = EXCLUDED.room_id,
-                group_booking_id = EXCLUDED.group_booking_id,
-                dummy_id = EXCLUDED.dummy_id,
-                folio_id = EXCLUDED.folio_id,
-                partner_id = EXCLUDED.partner_id,
-                checkin_date = EXCLUDED.checkin_date,
-                checkout_date = EXCLUDED.checkout_date,
-                adult_count = EXCLUDED.adult_count,
-                child_count = EXCLUDED.child_count,
-                infant_count = EXCLUDED.infant_count,
-                rate_code = EXCLUDED.rate_code,
-                meal_pattern = EXCLUDED.meal_pattern,
-                company_id = EXCLUDED.company_id,
-                state = CASE 
-                    WHEN tz_manual_posting_type.state = 'posted' THEN 'posted'
-                    ELSE EXCLUDED.state
-                END
-        """
-        try:
-            self.env.cr.execute(query, (self.env.company.id,))
-        except Exception as e:
-            _logger.error("Failed to sync materialized view: %s", str(e))
-            raise
 
 

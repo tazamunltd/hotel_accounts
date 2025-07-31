@@ -57,7 +57,7 @@ class TzHotelManualPosting(models.Model):
         string="Room",
         # required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('state', '=', 'draft')]",
+        domain="[('company_id', '=', company_id)]",
         ondelete="restrict"
     )
 
@@ -149,12 +149,6 @@ class TzHotelManualPosting(models.Model):
                                   readonly=True)
     payment_id = fields.Many2one('account.payment', string="Payment #", index=True, store=True)
     master_id = fields.Many2one('tz.manual.posting', string="Master #", index=True)
-
-    @api.onchange('company_id')
-    def _onchange_company_refresh_rooms(self):
-        """Refresh room options when company changes"""
-        if self.company_id:
-            self.env['tz.manual.posting.room'].refresh_view()
 
     @api.onchange('type_id')
     def _onchange_type_id(self):
@@ -677,37 +671,6 @@ class TzHotelManualPosting(models.Model):
             record.payment_id = payment.id
             # payment.action_post()
 
-    def create_account_paymentX(self):
-        for record in self:
-            journal = self.env['account.journal'].search([('type', '=', 'bank')], limit=1)
-
-            # Find a payment method line for this journal and payment type
-            payment_method_line = self.env['account.payment.method.line'].search([
-                ('journal_id', '=', journal.id),
-                ('payment_type', '=', 'inbound' if record.debit_amount > 0 else 'outbound')
-            ], limit=1)
-
-            if not payment_method_line:
-                raise UserError("No suitable payment method line found for the selected journal.")
-
-            payment_vals = {
-                'partner_id': record.partner_id.id,
-                'folio_id': record.folio_id.id,
-                'amount': record.price_total,
-                'date': record.date,
-                # 'ref': f'Manual Posting: {record.name} - Booking: {record.booking_id.name if record.booking_id else None}',
-                'currency_id': record.currency_id.id,
-                'company_id': record.company_id.id,
-                'payment_type': 'inbound',
-                'partner_type': 'customer',
-                'journal_id': journal.id,
-                'payment_method_line_id': payment_method_line.id,
-            }
-
-            payment = self.env['account.payment'].create(payment_vals)
-            self.write({'payment_id': payment.id})
-            # payment.action_post()
-
     def _show_notification(self, message, type_):
         """Helper for showing notifications"""
         return {
@@ -726,16 +689,6 @@ class TzHotelManualPosting(models.Model):
         for child in children:
             child.write({'debit_amount': master_record.credit_amount})
 
-    # @api.depends('room_id', 'dummy_id')
-    # def _compute_folio_id(self):
-    #     for rec in self:
-    #         if rec.dummy_id:
-    #             rec.folio_id = rec._get_master_folio_for_dummy(rec.dummy_id.id)
-    #         elif rec.room_id:
-    #             rec.folio_id = rec._get_or_create_master_folio(rec.room_id.id)
-    #         else:
-    #             rec.folio_id = False
-
     def _handle_cash_payment(self, item_id=None):
         for rec in self:
             item = self.env['posting.item'].browse(item_id) if item_id else rec.item_id
@@ -753,9 +706,6 @@ class TzHotelManualPosting(models.Model):
                         type_='success'
                     )
 
-    def action_refresh_posting_data(self):
-        self.env['tz.manual.posting.room']._create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
 
 
 

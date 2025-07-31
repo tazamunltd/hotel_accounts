@@ -41,7 +41,8 @@
     'application': True,
     'version': '0.1',
     'license': 'OEEL-1',
-    'post_init_hook': '_auto_sync_post_init',
+    # 'post_init_hook': '_auto_sync_post_init',
+    'post_init_hook': 'post_init_hook',
 
     # any module necessary for this one to work correctly
     'depends': ['hotel_management_odoo'],

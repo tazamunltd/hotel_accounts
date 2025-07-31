@@ -5,6 +5,136 @@ from datetime import date
 import json
 _logger = logging.getLogger(__name__)
 
+class TzCheckout(models.Model):
+    _name = 'tz.checkout'
+    _description = 'Checkout View Data'
+    _auto = False  # This is a view, not a real table
+
+    name = fields.Char('Room')
+    booking_id = fields.Many2one('room.booking', string='Booking')
+    room_id = fields.Many2one('hotel.room', string='Room')
+    group_booking_id = fields.Many2one('group.booking', string='Group Booking')
+    dummy_id = fields.Many2one('tz.dummy.group', string='Dummy')
+    folio_id = fields.Many2one('tz.master.folio', string="Master Folio")
+    partner_id = fields.Many2one('res.partner', string='Guest')
+    checkin_date = fields.Datetime('Check-in Date')
+    checkout_date = fields.Datetime('Check-out Date')
+    adult_count = fields.Integer('Adults')
+    child_count = fields.Integer('Children')
+    infant_count = fields.Integer('Infants')
+    rate_code = fields.Many2one('rate.code', string='Rate Code')
+    meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern')
+    state = fields.Char('State')
+    company_id = fields.Many2one('res.company', string='Company')
+
+    def init(self):
+        """Initialize the view"""
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        self.env.cr.execute(f"""
+            CREATE OR REPLACE VIEW {self._table} AS (    
+                SELECT
+                    ROW_NUMBER() OVER () AS id,
+                    name,
+                    booking_id,
+                    room_id,
+                    group_booking_id,
+                    dummy_id,
+                    folio_id,
+                    partner_id,
+                    checkin_date,
+                    checkout_date,
+                    adult_count,
+                    child_count,
+                    infant_count,
+                    rate_code,
+                    meal_pattern,
+                    state,
+                    company_id
+                FROM (
+                    -- Your existing view query here
+                    -- Room Booking block
+                    SELECT
+                        COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
+                        rb.id AS booking_id,
+                        hr.id AS room_id,
+                        rb.group_booking_id,
+                        NULL::integer AS dummy_id,
+                        folio.id AS folio_id,
+                        rb.partner_id,
+                        rb.checkin_date,
+                        rb.checkout_date,
+                        rb.adult_count::integer,
+                        rb.child_count::integer,
+                        rb.infant_count::integer,
+                        rb.rate_code::varchar,
+                        rb.meal_pattern::varchar,
+                        rb.state::varchar AS state,
+                        rb.company_id
+                    FROM room_booking rb
+                    JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+                    JOIN hotel_room hr ON rbl.room_id = hr.id
+                    LEFT JOIN tz_master_folio folio
+                        ON folio.room_id = rbl.room_id
+                    WHERE rb.state = 'check_in' 
+                      AND rb.group_booking IS NULL
+                      AND rb.company_id = {self.env.company.id}
+
+                    UNION ALL
+
+                    -- Group Booking block
+                    SELECT
+                        COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+                        NULL::integer AS booking_id,
+                        NULL::integer AS room_id,
+                        gb.id AS group_booking_id,
+                        NULL::integer AS dummy_id,
+                        folio.id AS folio_id,
+                        gb.company AS partner_id,
+                        gb.first_visit AS checkin_date,
+                        gb.last_visit AS checkout_date,
+                        gb.total_adult_count::integer,
+                        gb.total_child_count::integer,
+                        gb.total_infant_count::integer,
+                        gb.rate_code::varchar,
+                        gb.group_meal_pattern::varchar,
+                        gb.status_code::varchar AS state,
+                        gb.company_id
+                    FROM group_booking gb
+                    LEFT JOIN tz_master_folio folio
+                        ON folio.group_id = gb.id
+                    WHERE gb.status_code = 'confirmed'
+                      AND gb.company_id = {self.env.company.id}
+                      AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in' AND rb.company_id = {self.env.company.id})
+
+                    UNION ALL
+
+                    -- Dummy Group block
+                    SELECT
+                        dg.description::text AS name,
+                        NULL::integer AS booking_id,
+                        NULL::integer AS room_id,
+                        NULL::integer AS group_booking_id,
+                        dg.id AS dummy_id,
+                        folio.id AS folio_id,
+                        dg.partner_id,
+                        dg.start_date AS checkin_date,
+                        dg.end_date AS checkout_date,
+                        NULL::integer AS adult_count,
+                        NULL::integer AS child_count,
+                        NULL::integer AS infant_count,
+                        NULL::varchar AS rate_code,
+                        NULL::varchar AS meal_pattern,
+                        dg.state::varchar AS state,
+                        dg.company_id
+                    FROM tz_dummy_group dg
+                    LEFT JOIN tz_master_folio folio
+                        ON folio.dummy_id = dg.id
+                    WHERE dg.obsolete = FALSE
+                      AND dg.company_id = {self.env.company.id}
+                ) AS unified
+            )
+        """)
+
 class HotelCheckOut(models.Model):
     _name = 'tz.hotel.checkout'
     _description = 'Hotel Checkout'
@@ -99,6 +229,116 @@ class HotelCheckOut(models.Model):
 
     @api.model
     def generate_data(self):
+        """Generate checkout data from the view"""
+        # Ensure the view is properly initialized
+        self.env['tz.checkout'].init()
+
+        # Refresh the view data
+        self.env.cr.execute("REFRESH MATERIALIZED VIEW tz_checkout")
+
+        # Get all records from the view
+        view_records = self.env['tz.checkout'].search([])
+
+        if not view_records:
+            raise UserError("No data found in the checkout view")
+
+        # Process the records
+        vals_list = []
+        for rec in view_records:
+            # Check for existing record
+            domain = []
+            if rec.booking_id:
+                domain.append(('booking_id', '=', rec.booking_id.id))
+            elif rec.group_booking_id:
+                domain.append(('group_booking_id', '=', rec.group_booking_id.id))
+            elif rec.dummy_id:
+                domain.append(('dummy_id', '=', rec.dummy_id.id))
+
+            if domain and self.search(domain, limit=1):
+                continue  # Skip existing records
+
+            vals_list.append({
+                'name': rec.name,
+                'booking_id': rec.booking_id.id if rec.booking_id else False,
+                'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
+                'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
+                'room_id': rec.room_id.id if rec.room_id else False,
+                'partner_id': rec.partner_id.id if rec.partner_id else False,
+                'checkin_date': rec.checkin_date,
+                'checkout_date': rec.checkout_date,
+                'adult_count': rec.adult_count or 0,
+                'child_count': rec.child_count or 0,
+                'infant_count': rec.infant_count or 0,
+                'rate_code': rec.rate_code.id if rec.rate_code else False,
+                'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
+                'state': 'In' if rec.state == 'check_in' else rec.state.capitalize(),
+                'company_id': rec.company_id.id if rec.company_id else self.env.company.id,
+                'folio_id': rec.folio_id.id if rec.folio_id else False,
+            })
+
+        if vals_list:
+            return self.create(vals_list)
+        return True
+
+    @api.model
+    def sync_from_view(self):
+        """Sync data from the view to the main model"""
+        # Initialize the view if not already done
+        self.env['tz.checkout'].init()
+
+        # Refresh the view
+        self.env.cr.execute("REFRESH MATERIALIZED VIEW tz_checkout")
+
+        # Get all view records
+        view_records = self.env['tz.checkout'].search([])
+
+        # Process the records
+        created_count = 0
+        for rec in view_records:
+            domain = []
+            if rec.booking_id:
+                domain.append(('booking_id', '=', rec.booking_id.id))
+            elif rec.group_booking_id:
+                domain.append(('group_booking_id', '=', rec.group_booking_id.id))
+            elif rec.dummy_id:
+                domain.append(('dummy_id', '=', rec.dummy_id.id))
+
+            if not domain or self.search(domain, limit=1):
+                continue
+
+            self.create({
+                'name': rec.name,
+                'booking_id': rec.booking_id.id if rec.booking_id else False,
+                'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
+                'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
+                'room_id': rec.room_id.id if rec.room_id else False,
+                'partner_id': rec.partner_id.id if rec.partner_id else False,
+                'checkin_date': rec.checkin_date,
+                'checkout_date': rec.checkout_date,
+                'adult_count': rec.adult_count or 0,
+                'child_count': rec.child_count or 0,
+                'infant_count': rec.infant_count or 0,
+                'rate_code': rec.rate_code.id if rec.rate_code else False,
+                'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
+                'state': 'In' if rec.state == 'check_in' else rec.state.capitalize(),
+                'company_id': rec.company_id.id if rec.company_id else self.env.company.id,
+                'folio_id': rec.folio_id.id if rec.folio_id else False,
+            })
+            created_count += 1
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Sync Completed',
+                'message': f'Synced {created_count} records from view',
+                'sticky': False,
+                'type': 'success',
+            }
+        }
+
+    @api.model
+    def generate_dataX(self):
         # Get current company_id from environment
         company_id = self.env.company.id
 
@@ -222,7 +462,7 @@ class HotelCheckOut(models.Model):
         # [Rest of your existing code...]
 
     @api.model
-    def sync_from_view(self):
+    def sync_from_viewX(self):
         company_id = self.env.company.id
         view_model = self.env['tz.checkout']
         records = view_model.search([])
@@ -313,7 +553,7 @@ class HotelCheckOut(models.Model):
 
     def open_manual_posting(self):
         self.ensure_one()
-        # Search for matching room in the materialized view
+        # Search for matching posting type
         domain = []
         if self.booking_id:
             domain.append(('booking_id', '=', self.booking_id.id))
@@ -324,11 +564,18 @@ class HotelCheckOut(models.Model):
         if self.dummy_id:
             domain.append(('dummy_id', '=', self.dummy_id.id))
 
-        # Refresh view to ensure we have latest data
-        self.env['tz.manual.posting.room'].refresh_view()
+        # Find or create posting type record
+        posting_type = self.env['tz.manual.posting.type'].search(domain, limit=1)
 
-        # Find matching room record
-        posting_room = self.env['tz.manual.posting.room'].search(domain, limit=1)
+        if not posting_type:
+            # Create new posting type if none exists
+            posting_type = self.env['tz.manual.posting.type'].create({
+                'booking_id': self.booking_id.id if self.booking_id else False,
+                'room_id': self.room_id.id if self.room_id else False,
+                'group_booking_id': self.group_booking_id.id if self.group_booking_id else False,
+                'dummy_id': self.dummy_id.id if self.dummy_id else False,
+                'company_id': self.company_id.id
+            })
 
         return {
             'type': 'ir.actions.act_window',
@@ -337,15 +584,15 @@ class HotelCheckOut(models.Model):
             'view_mode': 'tree,form',
             'target': 'current',
             'context': {
-                'default_type_id': posting_room.id if posting_room else False,
-                'search_default_room_id': posting_room.id if posting_room else False,
+                'default_type_id': posting_type.id,
+                'search_default_type_id': posting_type.id,
                 'default_booking_id': self.booking_id.id,
                 'default_room_id': self.room_id.id,
                 'default_group_booking_id': self.group_booking_id.id,
                 'default_dummy_id': self.dummy_id.id,
                 'manual_creation': True
             },
-            'domain': [('room_id', '=', posting_room.id)] if posting_room else []
+            'domain': [('type_id', '=', posting_type.id)]
         }
 
     # def open_manual_posting(self):
@@ -506,20 +753,26 @@ class HotelCheckOut(models.Model):
         if existing:
             return False  # Skip if already exists
 
-        # Refresh materialized view to ensure we have latest data
-        self.env['tz.manual.posting.room'].refresh_view()
+        # Build domain to find matching posting type
+        post_type_domain = [('company_id', '=', checkout.company_id.id)]
 
-        # Build domain to find matching room record
-        post_room_domain = []
         if checkout.group_booking_id:
-            post_room_domain.append(('group_booking_id', '=', checkout.group_booking_id.id))
+            post_type_domain.append(('group_booking_id', '=', checkout.group_booking_id.id))
         else:
-            post_room_domain.append(('room_id', '=', checkout.room_id.id))
+            post_type_domain.append(('room_id', '=', checkout.room_id.id))
+            if checkout.booking_id:
+                post_type_domain.append(('booking_id', '=', checkout.booking_id.id))
 
-        # Add company filter
-        post_room_domain.append(('company_id', '=', checkout.company_id.id))
+        # Find or create posting type
+        posting_type = self.env['tz.manual.posting.type'].search(post_type_domain, limit=1)
 
-        posting_room = self.env['tz.manual.posting.room'].search(post_room_domain, limit=1)
+        if not posting_type:
+            posting_type = self.env['tz.manual.posting.type'].create({
+                'company_id': checkout.company_id.id,
+                'booking_id': checkout.booking_id.id if checkout.booking_id else False,
+                'room_id': checkout.room_id.id if checkout.room_id else False,
+                'group_booking_id': checkout.group_booking_id.id if checkout.group_booking_id else False
+            })
 
         item = self.env['posting.item'].browse(item_id)
         if item.default_sign == 'main':
@@ -541,7 +794,7 @@ class HotelCheckOut(models.Model):
             'total': amount,
             'debit_amount': amount if item.default_sign == 'debit' else 0.0,
             'credit_amount': amount if item.default_sign == 'credit' else 0.0,
-            'type_id': posting_room.id
+            'type_id': posting_type.id  # Linking to posting type instead of posting room
         }
         self.env['tz.manual.posting'].create(vals)
         return True
