@@ -17,7 +17,7 @@ class TransferChargeWizard(models.TransientModel):
         string="From Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
+        # domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
         ondelete="restrict"
     )
     amount = fields.Float(string="Amount", required=True)
@@ -28,7 +28,7 @@ class TransferChargeWizard(models.TransientModel):
         string="To Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
+        # domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
         ondelete="restrict"
     )
     company_id = fields.Many2one(

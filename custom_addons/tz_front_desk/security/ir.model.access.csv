@@ -13,5 +13,4 @@ access_tz_manual_posting_tax_public,access.tz.manual.posting.tax,model_tz_manual
 
 access_tz_hotel_checkout_public,access.tz.hotel.checkout,model_tz_hotel_checkout,,1,1,0,0
 access_transfer_charge_wizard,access.transfer.charge.wizard,model_tz_transfer_charge_wizard,,1,1,1,1
-access_tz_manual_posting_room,tz.manual.posting.room,model_tz_manual_posting_room,,1,1,1,1
 access_tz_manual_posting_type_public,access.tz.manual.posting.type,model_tz_manual_posting_type,,1,1,1,1
