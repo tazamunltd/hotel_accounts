@@ -150,11 +150,11 @@ class TzHotelManualPosting(models.Model):
     payment_id = fields.Many2one('account.payment', string="Payment #", index=True, store=True)
     master_id = fields.Many2one('tz.manual.posting', string="Master #", index=True)
 
-    # @api.onchange('company_id')
-    # def _onchange_company_refresh_rooms(self):
-    #     """Refresh room options when company changes"""
-    #     if self.company_id:
-    #         self.env['tz.manual.posting.room'].refresh_view()
+    @api.onchange('company_id')
+    def _onchange_company_refresh_rooms(self):
+        """Refresh room options when company changes"""
+        if self.company_id:
+            self.env['tz.manual.posting.room'].refresh_view()
 
     @api.onchange('type_id')
     def _onchange_type_id(self):
