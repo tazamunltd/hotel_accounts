@@ -706,6 +706,11 @@ class TzHotelManualPosting(models.Model):
                         type_='success'
                     )
 
+    def temp_func(self):
+        hotel_check_out = self.env['tz.hotel.checkout']
+        hotel_check_out.generate_data()
+        hotel_check_out.sync_from_view()
+
 
 
 
