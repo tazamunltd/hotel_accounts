@@ -172,8 +172,7 @@ class TzHotelManualPosting(models.Model):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         default_type = self.env['tz.manual.posting.type'].search([
-            ('company_id', '=', self.env.company.id),
-            ('state', '=', 'draft')
+            ('company_id', '=', self.env.company.id)
         ], limit=1)
         if default_type:
             res['type_id'] = default_type.id
@@ -706,10 +705,55 @@ class TzHotelManualPosting(models.Model):
                         type_='success'
                     )
 
-    def temp_func(self):
-        hotel_check_out = self.env['tz.hotel.checkout']
-        hotel_check_out.generate_data()
-        hotel_check_out.sync_from_view()
+    def sync_with_materialized_view(self):
+        """Sync with the materialized view using ORM."""
+        company_id = self.env.company.id
+
+        # Fetch all relevant rows from the materialized view
+        view_records = self.env['tz.manual.posting.room'].search([
+            ('company_id', '=', company_id),
+        ])
+
+        room_type = self.env['tz.manual.posting.type']
+
+        raise UserError(view_records)
+
+        for view in view_records:
+
+            domain = [
+                ('source_id', '=', view.id),
+                ('booking_id', '=', view.booking_id.id if view.booking_id else False),
+            ]
+
+            existing = room_type.search(domain, limit=1)
+
+
+            vals = {
+                'source_id': view.id,
+                'name': view.name,
+                'booking_id': view.booking_id.id,
+                'room_id': view.room_id.id if view.room_id else False,
+                'group_booking_id': view.group_booking_id.id if view.group_booking_id else False,
+                'dummy_id': view.dummy_id.id if view.dummy_id else False,
+                'folio_id': view.folio_id.id if view.folio_id else False,
+                'partner_id': view.partner_id.id if view.partner_id else False,
+                'checkin_date': view.checkin_date,
+                'checkout_date': view.checkout_date,
+                'adult_count': view.adult_count,
+                'child_count': view.child_count,
+                'infant_count': view.infant_count,
+                'rate_code': view.rate_code,
+                'meal_pattern': view.meal_pattern,
+                'company_id': company_id,
+                'state': view.state,
+            }
+
+            if existing:
+                existing.write(vals)
+            else:
+                room_type.create(vals)
+
+        _logger.info("Manual posting type successfully synced with materialized view for company_id %s", company_id)
 
 
 

@@ -11,8 +11,8 @@ access_tz_master_folio_report_manager,tz.master.folio.report.manager,model_tz_ma
 access_tz_dummy_group_manager,access.tz.dummy.group.manager,model_tz_dummy_group,,1,1,1,1
 access_tz_manual_posting_tax_public,access.tz.manual.posting.tax,model_tz_manual_posting_tax,,1,1,1,1
 
-access_tz_hotel_checkout_public,access.tz.hotel.checkout,model_tz_hotel_checkout,,1,1,0,0
 access_tz_checkout_user,tz.checkout.user,model_tz_checkout,base.group_user,1,1,1,1
+access_tz_hotel_checkout_public,access.tz.hotel.checkout,model_tz_hotel_checkout,,1,1,0,0
 access_transfer_charge_wizard,access.transfer.charge.wizard,model_tz_transfer_charge_wizard,,1,1,1,1
 access_tz_manual_posting_room,tz.manual.posting.room,model_tz_manual_posting_room,,1,1,1,1
 access_tz_manual_posting_type_public,access.tz.manual.posting.type,model_tz_manual_posting_type,,1,1,1,1

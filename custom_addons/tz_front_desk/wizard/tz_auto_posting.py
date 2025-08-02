@@ -43,6 +43,7 @@ class AutoPostingWizard(models.TransientModel):
 
         # 1. Get all forecasts for system_date
         forecasts = self.env['room.rate.forecast'].search([
+            ('company_id', '=', self.env.company.id),
             ('date', '=', system_date)
         ])
 
@@ -94,6 +95,8 @@ class AutoPostingWizard(models.TransientModel):
             # Check both room and group validity
             if (self.all_rooms or room_valid) or (self.all_groups or group_valid):
                 folio = self._find_existing_folio(booking_line)
+                # raise UserError(folio)
+
                 if folio:
                     records_created = self._create_folio_lines(booking_line, folio, forecast)
                     created_count += records_created
