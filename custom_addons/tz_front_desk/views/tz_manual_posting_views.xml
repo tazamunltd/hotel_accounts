@@ -29,7 +29,7 @@
         <field name="arch" type="xml">
             <form string="Manual Posting">
                 <header>
-                    <button name="temp_func"
+                    <button name="sync_with_materialized_view"
                             string="Test Room Type"
                             type="object"
                             class="btn-primary"/>

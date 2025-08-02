@@ -35,19 +35,14 @@ class ManualPostingRoom(models.Model):
     ], string='State')
 
     def _create_or_replace_view(self):
-        try:
-            self.env.cr.execute("""
-                    SELECT 1 FROM tz_master_folio LIMIT 1
-                """)
-        except Exception:
-            # Table doesn't exist yet, skip view creation for now
-            _logger.warning("tz_master_folio table not found, skipping materialized view creation")
-            return
+        self.env.cr.execute("DROP MATERIALIZED VIEW IF EXISTS tz_manual_posting_room CASCADE")
 
-        self.env.cr.execute(f"DROP MATERIALIZED VIEW IF EXISTS tz_manual_posting_room CASCADE")
+        # Get the company ID first
+        company_id = self.env.company.id
 
-        query = """
-            CREATE MATERIALIZED VIEW IF NOT EXISTS tz_manual_posting_room AS (
+        # Use string formatting to insert the company_id directly into the query
+        query = f"""
+            CREATE MATERIALIZED VIEW tz_manual_posting_room AS (
                 SELECT
                     (rb.id * 10 + 1) AS id,
                     COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
@@ -72,11 +67,11 @@ class ManualPostingRoom(models.Model):
                 LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
                 LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
                 LEFT JOIN tz_master_folio mf ON mf.room_id = rbl.room_id 
-                WHERE rb.company_id = %s
+                WHERE rb.company_id = {company_id}
                   AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
-            
+
                 UNION ALL
-            
+
                 SELECT
                     (gb.id * 10 + 2) AS id,
                     COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
@@ -103,13 +98,13 @@ class ManualPostingRoom(models.Model):
                   AND gb.id IN (
                       SELECT rb.group_booking FROM room_booking rb
                       WHERE rb.group_booking IS NOT NULL 
-                        AND rb.company_id = %s
+                        AND rb.company_id = {company_id}
                         AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
                   )
-                  AND gb.company_id = %s
-            
+                  AND gb.company_id = {company_id}
+
                 UNION ALL
-            
+
                 SELECT
                     (dg.id * 10 + 3) AS id,
                     dg.description::text AS name,
@@ -133,15 +128,14 @@ class ManualPostingRoom(models.Model):
                 FROM tz_dummy_group dg
                 LEFT JOIN tz_master_folio mf ON mf.dummy_id = dg.id  
                 WHERE dg.obsolete = FALSE
-                  AND dg.company_id = %s
-            );
+                  AND dg.company_id = {company_id}
+            )
         """
-        self.env.cr.execute(query, (
-            self.env.company.id,
-            self.env.company.id,
-            self.env.company.id,
-            self.env.company.id
-        ))
+
+        self.env.cr.execute(query)
+
+        # Refresh the view immediately after creation
+        self.env.cr.execute("REFRESH MATERIALIZED VIEW tz_manual_posting_room")
 
     def _setup_change_triggers(self):
         """Setup automatic refresh triggers on source tables"""
