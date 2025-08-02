@@ -171,6 +171,7 @@ class TzHotelManualPosting(models.Model):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
+        self.env['tz.manual.posting.type'].sync_with_materialized_view()
         default_type = self.env['tz.manual.posting.type'].search([
             ('company_id', '=', self.env.company.id)
         ], limit=1)
@@ -716,8 +717,6 @@ class TzHotelManualPosting(models.Model):
 
         room_type = self.env['tz.manual.posting.type']
 
-        raise UserError(view_records)
-
         for view in view_records:
 
             domain = [
@@ -727,6 +726,7 @@ class TzHotelManualPosting(models.Model):
 
             existing = room_type.search(domain, limit=1)
 
+            # raise UserError(existing)
 
             vals = {
                 'source_id': view.id,
