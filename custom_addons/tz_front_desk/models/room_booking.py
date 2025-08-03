@@ -394,10 +394,46 @@ class RoomBooking(models.Model):
 
         return result
 
+    def action_assign_all_rooms(self):
+        res = super().action_assign_all_rooms()
 
+        for booking in self:
+            if booking.group_booking:
+                continue
 
+            # 🔹 1. Update/Create folio for the parent booking
+            parent_folio = self._get_or_create_master_folio(booking)
+            if booking.room_line_ids:
+                parent_room = booking.room_line_ids[0].room_id
+                if parent_folio and parent_room:
+                    parent_folio.sudo().write({'room_id': parent_room.id})
 
+            # 🔹 2. Update/Create folios for each child booking
+            child_bookings = self.search([('parent_booking_id', '=', booking.id)])
+            for child_booking in child_bookings:
+                if not child_booking.group_booking:
+                    child_folio = self._get_or_create_master_folio(child_booking)
+                    child_room = child_booking.room_line_ids and child_booking.room_line_ids[0].room_id
+                    if child_folio and child_room:
+                        child_folio.sudo().write({'room_id': child_room.id})
 
+        return res
+
+    def unlink(self):
+        master_folio = self.env['tz.master.folio']
+        for booking in self:
+            # Only handle non-group bookings
+            if not booking.group_booking:
+                folios = master_folio.sudo().search([
+                    ('booking_ids', 'in', booking.id),
+                    ('state', '=', 'draft'),
+                ])
+                for folio in folios:
+                    folio.sudo().write({'booking_ids': [(3, booking.id)]})  # unlink booking
+                    if not folio.booking_ids:
+                        folio.sudo().unlink()  # delete folio if no bookings left
+
+        return super().unlink()
 
 
 class RoomRateForecast(models.Model):

@@ -12,14 +12,21 @@ class TransferChargeWizard(models.TransientModel):
         required=True,
         domain="[('main_department.adjustment', '=', 'transfer_charge')]"
     )
+    current_date = fields.Date(
+        string="Current Date",
+        compute='_compute_current_date',
+        store=False
+    )
+
     type_id = fields.Many2one(
         'tz.manual.posting.type',
         string="From Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
+        domain="[('company_id', '=', company_id), ('folio_id', '!=', False), ('checkin_date', '=', current_date)]",
         ondelete="restrict"
     )
+
     amount = fields.Float(string="Amount", required=True)
     description = fields.Char(string="Description")
     to_description = fields.Char(string="Description")
@@ -28,7 +35,7 @@ class TransferChargeWizard(models.TransientModel):
         string="To Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]",
+        domain="[('company_id', '=', company_id), ('folio_id', '!=', False), ('checkin_date', '=', current_date)]",
         ondelete="restrict"
     )
     company_id = fields.Many2one(
@@ -36,6 +43,10 @@ class TransferChargeWizard(models.TransientModel):
         string="Company",
         default=lambda self: self.env.company
     )
+
+    def _compute_current_date(self):
+        for record in self:
+            record.current_date = fields.Date.context_today(record)
 
     @api.onchange('type_id')
     def _onchange_type_id(self):

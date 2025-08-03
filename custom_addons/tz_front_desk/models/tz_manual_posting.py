@@ -55,9 +55,9 @@ class TzHotelManualPosting(models.Model):
     type_id = fields.Many2one(
         'tz.manual.posting.type',
         string="Room",
-        # required=True,
+        required=True,
         index=True,
-        domain="[('company_id', '=', company_id)]",
+        domain="[('company_id', '=', company_id), ('checkin_date', '=', date)]",
         ondelete="restrict"
     )
 
