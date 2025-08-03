@@ -95,10 +95,11 @@ class AutoPostingWizard(models.TransientModel):
             # Check both room and group validity
             if (self.all_rooms or room_valid) or (self.all_groups or group_valid):
                 folio = self._find_existing_folio(booking_line)
-
                 if folio:
                     records_created = self._create_folio_lines(booking_line, folio, forecast)
                     created_count += records_created
+
+            # raise UserError()
 
         if created_count > 0:
             return self._show_notification(
@@ -209,7 +210,8 @@ class AutoPostingWizard(models.TransientModel):
             posting_type = self.env['tz.manual.posting.type'].search([
                 ('company_id', '=', booking_line.booking_id.company_id.id),
                 ('booking_id', '=', booking_line.booking_id.id),
-                ('room_id', '=', booking_line.room_id.id)
+                ('room_id', '=', booking_line.room_id.id),
+                ('name', '!=', False),
             ], limit=1)
 
             if booking_line.booking_id.group_booking:
@@ -217,15 +219,6 @@ class AutoPostingWizard(models.TransientModel):
                     ('company_id', '=', booking_line.booking_id.company_id.id),
                     ('group_booking_id', '=', booking_line.booking_id.group_booking.id)
                 ], limit=1)
-
-            if not posting_type:
-                # Create a new posting type if none exists
-                posting_type = self.env['tz.manual.posting.type'].create({
-                    'company_id': booking_line.booking_id.company_id.id,
-                    'booking_id': booking_line.booking_id.id,
-                    'room_id': booking_line.room_id.id,
-                    'group_booking_id': booking_line.booking_id.group_booking.id if booking_line.booking_id.group_booking else False
-                })
 
             item = self.env['posting.item'].browse(item_id)
             if item.default_sign == 'main':

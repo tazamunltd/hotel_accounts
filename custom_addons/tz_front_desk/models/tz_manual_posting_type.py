@@ -193,8 +193,8 @@ class ManualPostingType(models.Model):
     adult_count = fields.Integer(string='Adults')
     child_count = fields.Integer(string='Children')
     infant_count = fields.Integer(string='Infants')
-    rate_code = fields.Char(string='Rate Code')
-    meal_pattern = fields.Char(string='Meal Pattern')
+    rate_code = fields.Many2one('rate.code', string='Rate Code')
+    meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern')
     company_id = fields.Many2one('res.company', string='Company')
 
     state = fields.Selection(selection=[
