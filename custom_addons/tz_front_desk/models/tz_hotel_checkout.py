@@ -525,14 +525,6 @@ class HotelCheckOut(models.Model):
         # Find or create posting type
         posting_type = self.env['tz.manual.posting.type'].search(post_type_domain, limit=1)
 
-        if not posting_type:
-            posting_type = self.env['tz.manual.posting.type'].create({
-                'company_id': checkout.company_id.id,
-                'booking_id': checkout.booking_id.id if checkout.booking_id else False,
-                'room_id': checkout.room_id.id if checkout.room_id else False,
-                'group_booking_id': checkout.group_booking_id.id if checkout.group_booking_id else False
-            })
-
         item = self.env['posting.item'].browse(item_id)
         if item.default_sign == 'main':
             raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
