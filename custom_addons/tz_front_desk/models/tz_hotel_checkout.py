@@ -509,98 +509,40 @@ class HotelCheckOut(models.Model):
             ('source_type', '=', 'auto'),
         ], limit=1)
 
-        if existing:
-            return False  # Skip if already exists
+        if not existing:
+            # Build domain to find matching posting type
+            posting_type = self.env['tz.manual.posting.type'].search([
+                ('company_id', '=', checkout.booking_id.company_id.id),
+                ('booking_id', '=', checkout.booking_id.id),
+                ('room_id', '=', checkout.room_id.id),
+                ('name', '!=', False),
+            ], limit=1)
 
-        # Build domain to find matching posting type
-        post_type_domain = [('company_id', '=', checkout.company_id.id)]
+            item = self.env['posting.item'].browse(item_id)
+            if item.default_sign == 'main':
+                raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
 
-        if checkout.group_booking_id:
-            post_type_domain.append(('group_booking_id', '=', checkout.group_booking_id.id))
-        else:
-            post_type_domain.append(('room_id', '=', checkout.room_id.id))
-            if checkout.booking_id:
-                post_type_domain.append(('booking_id', '=', checkout.booking_id.id))
-
-        # Find or create posting type
-        posting_type = self.env['tz.manual.posting.type'].search(post_type_domain, limit=1)
-
-        item = self.env['posting.item'].browse(item_id)
-        if item.default_sign == 'main':
-            raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
-
-        manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
-        vals = {
-            'name': manual_posting,
-            'date': system_date,
-            'folio_id': folio.id,
-            'item_id': item_id,
-            'description': description,
-            'booking_id': checkout.booking_id.id,
-            'room_id': checkout.room_id.id,
-            'group_booking_id': folio.group_id.id if folio.group_id else False,
-            'sign': item.default_sign,
-            'quantity': 1,
-            'source_type': 'auto',
-            'total': amount,
-            'debit_amount': amount if item.default_sign == 'debit' else 0.0,
-            'credit_amount': amount if item.default_sign == 'credit' else 0.0,
-            'type_id': posting_type.id  # Linking to posting type instead of posting room
-        }
-        self.env['tz.manual.posting'].create(vals)
-        return True
-
-    # def _create_posting_line(self, folio, checkout, item_id, description, amount):
-    #     """Create posting line and return True if created, False if skipped"""
-    #     system_date = self.env.company.system_date.date()
-    #
-    #     # Check for existing postings first
-    #     existing = self.env['tz.manual.posting'].search([
-    #         ('company_id', '=', checkout.company_id.id),
-    #         ('folio_id', '=', folio.id),
-    #         ('item_id', '=', item_id),
-    #         ('room_id', '=', checkout.room_id.id),
-    #         ('date', '=', system_date),
-    #         ('source_type', '=', 'auto'),
-    #     ], limit=1)
-    #
-    #     if existing:
-    #         return False  # Skip if already exists
-    #
-    #     if checkout.group_booking_id:
-    #         post_type_domain = [('group_booking_id', '=', checkout.group_booking_id.id if checkout.group_booking_id else False)]
-    #     else:
-    #         post_type_domain = [
-    #             ('room_id', '=', checkout.room_id.id if checkout.room_id else False)]
-    #
-    #     posting_type = self.env['tz.manual.posting.type'].search(post_type_domain, limit=1)
-    #
-    #     # raise UserError(posting_type)
-    #
-    #     item = self.env['posting.item'].browse(item_id)
-    #     if item.default_sign == 'main':
-    #         raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
-    #
-    #     manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
-    #     vals = {
-    #         'name': manual_posting,
-    #         'date': system_date,
-    #         'folio_id': folio.id,
-    #         'item_id': item_id,
-    #         'description': description,
-    #         'booking_id': checkout.booking_id.id,
-    #         'room_id': checkout.room_id.id,
-    #         'group_booking_id': folio.group_id.id if folio.group_id else False,
-    #         'sign': item.default_sign,
-    #         'quantity': 1,
-    #         'source_type': 'auto',
-    #         'total': amount,
-    #         'debit_amount': amount if item.default_sign == 'debit' else 0.0,
-    #         'credit_amount': amount if item.default_sign == 'credit' else 0.0,
-    #         'type_id': posting_type.id
-    #     }
-    #     self.env['tz.manual.posting'].create(vals)
-    #     return True
+            manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
+            vals = {
+                'name': manual_posting,
+                'date': system_date,
+                'folio_id': folio.id,
+                'item_id': item_id,
+                'description': description,
+                'booking_id': checkout.booking_id.id,
+                'room_id': checkout.room_id.id,
+                'group_booking_id': folio.group_id.id if folio.group_id else False,
+                'sign': item.default_sign,
+                'quantity': 1,
+                'source_type': 'auto',
+                'total': amount,
+                'debit_amount': amount if item.default_sign == 'debit' else 0.0,
+                'credit_amount': amount if item.default_sign == 'credit' else 0.0,
+                'type_id': posting_type.id  # Linking to posting type instead of posting room
+            }
+            self.env['tz.manual.posting'].create(vals)
+            return True
+        return False  # Skip if already exists
 
     def _show_notification(self, message, type_):
         """Helper for showing notifications"""
