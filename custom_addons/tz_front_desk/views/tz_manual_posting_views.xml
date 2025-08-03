@@ -62,8 +62,7 @@
                             <field name="payment_group"/>
                         </group>
                         <group>
-                            <field name="currency_id" options="{'no_create': True}"
-                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="currency_id" readonly="1" force_save="1"/>
                             <field name="sign" widget="radio" options="{'horizontal': True}"
                                    readonly="not item_id or not item_id.allow_change_sign or source_type == 'auto' or state == 'posted' or master_id"/>
                             <field name="taxes" widget="many2many_tags" options="{'no_create': True}"/>
