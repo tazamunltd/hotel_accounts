@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-28 19:39+0000\n"
-"PO-Revision-Date: 2025-05-28 19:39+0000\n"
+"POT-Creation-Date: 2025-08-04 09:46+0000\n"
+"PO-Revision-Date: 2025-08-04 09:46+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -75,6 +75,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid ""
 "<br/>\n"
+"                        <strong>Municipality Tax:</strong>"
+msgstr ""
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
+msgid ""
+"<br/>\n"
 "                        <strong>Room:</strong>"
 msgstr ""
 "<br/>\n"
@@ -126,15 +133,6 @@ msgstr ""
 "                                    <span class=\"fw-bold\">اختيار الغرفة</span>"
 
 #. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
-msgid ""
-"<i class=\"fa fa-calculator m-1\"/>\n"
-"                                    <span class=\"fw-bold\">Financial Details</span>"
-msgstr ""
-"<i class=\"fa fa-calculator m-1\"/>\n"
-"                                    <span class=\"fw-bold\">التفاصيل المالية</span>"
-
-#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid ""
 "<i class=\"fa fa-cog m-1\"/>\n"
@@ -153,15 +151,6 @@ msgstr ""
 "                                                        <span class=\"fw-bold\">تفاصيل أسعار الوجبات</span>"
 
 #. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
-msgid ""
-"<i class=\"fa fa-file-powerpoint-o m-1\"/>\n"
-"                                    <span class=\"fw-bold\">Posting Information</span>"
-msgstr ""
-"<i class=\"fa fa-file-powerpoint-o m-1\"/>\n"
-"                                    <span class=\"fw-bold\">معلومات بند التحميل</span>"
-
-#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
 msgid ""
 "<i class=\"fa fa-money m-1\"/>\n"
@@ -169,6 +158,13 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-money m-1\"/>\n"
 "                                    <span class=\"fw-bold\">الخيارات</span>"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
+msgid ""
+"<i class=\"fa fa-money\"/>\n"
+"                                                        <span class=\"fw-bold\">Payment Details</span>"
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
@@ -208,11 +204,6 @@ msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
-msgid "<strong>Balance:</strong>"
-msgstr ""
-
-#. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid "<strong>Folio:</strong>"
 msgstr "<strong>الفيلو:</strong>"
 
@@ -220,11 +211,6 @@ msgstr "<strong>الفيلو:</strong>"
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid "<strong>Group:</strong>"
 msgstr "<strong>المجموعة:</strong>"
-
-#. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
-msgid "<strong>Municipality Tax:</strong>"
-msgstr "<strong>ضريبة البلدية:</strong>"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
@@ -237,6 +223,11 @@ msgid "<strong>Total Debit:</strong>"
 msgstr "<strong>إجمالي المدين:</strong>"
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
+msgid "<strong>Total:</strong>"
+msgstr ""
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__abbreviation
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_dummy_group_view_search
 msgid "Abbreviation"
@@ -244,6 +235,7 @@ msgstr "اختصار"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_needaction
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_needaction
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_needaction
 msgid "Action Needed"
 msgstr "إجراء مطلوب"
@@ -255,33 +247,51 @@ msgstr "نشط"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_ids
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_ids
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_ids
 msgid "Activities"
 msgstr "الأنشطة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_exception_decoration
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_exception_decoration
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "تزيين استثناء النشاط"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_state
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_state
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_state
 msgid "Activity State"
 msgstr "حالة النشاط"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_type_icon
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_type_icon
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "أيقونة نوع النشاط"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__adjustment
+msgid "Adjustment"
+msgstr ""
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__adult_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__adult_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__adult_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__adult_count
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__adult_count
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "Adults"
 msgstr "بالغين"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_manual_posting_type_search
+msgid "All"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__all_groups
@@ -301,7 +311,9 @@ msgid "All bookings associated with this Master Folio"
 msgstr "جميع الحجوزات المرتبطة بهذا فوليو النزيل"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__amount
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_tax__type__amount
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_transfer_charge_wizard_form
 msgid "Amount"
 msgstr ""
 
@@ -311,7 +323,18 @@ msgid "Amount Selection"
 msgstr "اختيار المبلغ"
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Are you sure you want to check out this room?"
+msgstr ""
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Are you sure you want to re-check out the room?"
+msgstr ""
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_attachment_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_attachment_count
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_attachment_count
 msgid "Attachment Count"
 msgstr "عدد المرفقات"
@@ -325,6 +348,7 @@ msgstr "تلقائي"
 #: model:ir.actions.act_window,name:tz_front_desk.action_auto_posting_wizard
 #: model:ir.ui.menu,name:tz_front_desk.menu_auto_posting
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
 msgid "Auto Posting"
 msgstr "التحميل الالي"
 
@@ -341,17 +365,13 @@ msgstr "الغرف المتاحة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__balance
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__formula_balance
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__balance
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__balance
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
 msgid "Balance"
 msgstr "رصيد الحساب"
-
-#. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
-msgid "Balance:"
-msgstr "الرصيد:"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__bill_number
@@ -361,16 +381,24 @@ msgid "Bill Number"
 msgstr "رقم الفاتورة"
 
 #. module: tz_front_desk
-#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__type__booking
-msgid "Booking"
-msgstr "الحجز"
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__block
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_type__state__block
+msgid "Block"
+msgstr ""
 
 #. module: tz_front_desk
-#. odoo-python
-#: code:addons/tz_front_desk/models/room_booking.py:0
-#, python-format
-msgid "Master folio successfully created."
-msgstr "تم إنشاء فوليو النزيل بنجاح!"
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__booking_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__booking_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__booking_id
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
+msgid "Booking"
+msgstr "حجز الغرفة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__booking_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__booking_id
+msgid "Booking Id"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.actions.act_window,name:tz_front_desk.fd_action_room_booking_list
@@ -379,6 +407,7 @@ msgstr "قائمة الحجوزات"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_transfer_charge_wizard_form
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -391,6 +420,22 @@ msgstr "غرفة نقدي (تحميل الدفع التلقائي)"
 #: model:ir.ui.menu,name:tz_front_desk.menu_cashier_parent
 msgid "Cashier"
 msgstr "الكاشير"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__is_cashier_checkout
+msgid "Cashier C/O"
+msgstr "مغادرة الكاشير"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Cashier Checkout"
+msgstr "مغادرة الكاشير"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__check_in
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_type__state__check_in
+msgid "Check In"
+msgstr "الوصول"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__checkin_date
@@ -408,6 +453,13 @@ msgid "Check Out Date"
 msgstr "تاريخ المغادرة"
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Check Out Room"
+msgstr "مغادرة الغرفة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__checkin_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__checkin_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__check_in
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__check_in
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
@@ -415,6 +467,19 @@ msgid "Check-in"
 msgstr "تسجيل الوصول"
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_hotel_checkout__group_by_category__in_checkout_today
+msgid "Check-in & C/O Today"
+msgstr "الوصول اليوم"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__checkin_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__checkin_date
+msgid "Check-in Date"
+msgstr "تاريخ الوصول"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__checkout_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__checkout_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__check_out
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__check_out
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
@@ -422,11 +487,32 @@ msgid "Check-out"
 msgstr "تسجيل المغادرة"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__checkout_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__checkout_date
+msgid "Check-out Date"
+msgstr "تاريخ الخروج"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_hotel_checkout__group_by_category__in_with_balance
+msgid "Checked-in with Balance"
+msgstr "المقيمين الذين معهم رصيد"
+
+#. module: tz_front_desk
+#: model:ir.actions.act_window,name:tz_front_desk.action_hotel_checkout
+#: model:ir.ui.menu,name:tz_front_desk.menu_hotel_checkout
+msgid "Checkout"
+msgstr "المغادرة"
+
+#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "Child Meal Price"
 msgstr "سعر وجبة الطفل"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__child_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__child_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__child_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__child_count
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__child_count
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "Children"
@@ -438,10 +524,30 @@ msgid "Companions"
 msgstr "المرافقون"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__company_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__company_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__company_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__company_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__company_vat
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__company_vat
 msgid "Company VAT"
 msgstr "ضريبة القيمة المضافة للشركة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__confirmed
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_type__state__confirmed
+msgid "Confirmed"
+msgstr "Confirmed"
+
+#. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_res_partner
+msgid "Contact"
+msgstr "جهة الاتصال"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__reference_contact_
@@ -451,24 +557,30 @@ msgstr "مرجع الاتصال"
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__create_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__create_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__create_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__create_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__create_uid
 msgid "Created by"
 msgstr "أنشئ بواسطة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__create_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__create_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__create_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__create_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__create_date
 msgid "Created on"
 msgstr "أنشئ في"
 
@@ -494,9 +606,28 @@ msgid "Currency"
 msgstr "العملة"
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_manual_posting_type_search
+msgid "Current Company"
+msgstr "الشركة الحالية"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__current_date
+msgid "Current Date"
+msgstr "التاريخ الحالي"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__partner_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__partner_id
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_manual_posting_type_tree
+msgid "Customer"
+msgstr "العميل"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__date
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid "Date"
-msgstr ""
+msgstr "التاريخ"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__date
@@ -529,12 +660,24 @@ msgid "Debit Amount"
 msgstr "المبلغ المدين"
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+msgid "Dep. With Balance"
+msgstr "مغادرون لديهم رصيد"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_hotel_checkout__group_by_category__dep_with_balance
+msgid "Departure with Balance"
+msgstr "مغادرون لديهم رصيد"
+
+#. module: tz_front_desk
 #. odoo-python
 #: code:addons/tz_front_desk/models/tz_manual_posting.py:0
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__description
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__description
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__description
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__item_description
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__description
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__to_description
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 #, python-format
 msgid "Description"
@@ -543,7 +686,7 @@ msgstr "الوصف"
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
 msgid "Details"
-msgstr ""
+msgstr "التفاصيل"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
@@ -556,15 +699,25 @@ msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__display_name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__display_name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__display_name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__display_name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__display_name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__display_name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__display_name
 msgid "Display Name"
 msgstr "اسم العرض"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__display_type
+msgid "Display Type"
+msgstr "نوع العرض"
 
 #. module: tz_front_desk
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__room_rate_forecast__state__draft
@@ -574,8 +727,15 @@ msgid "Draft"
 msgstr "مسودة"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__dummy_list
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__dummy_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__dummy_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__dummy_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__dummy_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__dummy_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__dummy_id
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__dummy
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_type__state__dummy
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 msgid "Dummy"
 msgstr "وهمي"
 
@@ -598,20 +758,36 @@ msgid "Dummy Groups"
 msgstr "المجموعات الوهمية"
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Edit Posting"
+msgstr "تعديل التحميل اليدوي"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__end_date
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+msgid "Expected Dep."
+msgstr "متوقع مغادرة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_hotel_checkout__group_by_category__expected_dep
+msgid "Expected Departure"
+msgstr "المغادرة المتوقعة"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__extra_beds
 msgid "Extra Beds"
 msgstr "أسرة إضافية"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__first_date
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
-msgid "First Date"
-msgstr "التاريخ"
-
-#. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__first_time
-msgid "First Time"
-msgstr "الوقت"
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_manual_posting_type.py:0
+#, python-format
+msgid "Failed to setup automatic refresh triggers. Check logs for details."
+msgstr "تعذّر إعداد مُشغّلات التحديث التلقائي. يُرجى مراجعة السجلات لمزيد من التفاصيل."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__include_fixed
@@ -620,6 +796,7 @@ msgid "Fixed Post"
 msgstr "التحميل الثابت"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_account_payment__folio_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__folio_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__folio_id
 msgid "Folio"
@@ -634,7 +811,7 @@ msgstr "اجمالي الرصيد"
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__name
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__folio_number
 msgid "Folio Number"
-msgstr "رقم الفيلو"
+msgstr "رقم الفوليو"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__folio_total_credit
@@ -648,18 +825,21 @@ msgstr "إجمالي المدين"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_follower_ids
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_follower_ids
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_follower_ids
 msgid "Followers"
 msgstr "المتابعون"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_partner_ids
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_partner_ids
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "المتابعون (شركاء)"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__activity_type_icon
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__activity_type_icon
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "أيقونة Font Awesome مثل fa-tasks"
@@ -672,7 +852,9 @@ msgstr "من مجموعة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__room_from
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__type_id
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_transfer_charge_wizard_form
 msgid "From Room"
 msgstr "من غرفة"
 
@@ -688,15 +870,23 @@ msgid "Front Desk Bookings"
 msgstr "حجوزات الاستقبال"
 
 #. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_tz_checkout
+msgid "FrontDesk Checkout"
+msgstr "المغادرة"
+
+#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
 msgid "Generate Folio Report"
 msgstr "إنشاء تقرير الفيليو"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__group_list
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__amount_total
+msgid "Grand Total"
+msgstr "المجموع الإجمالي"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__group_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__group_id
-#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__type__group
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
 msgid "Group"
@@ -705,13 +895,24 @@ msgstr "مجموعة"
 #. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_group_booking
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__group_booking
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__group_booking_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__group_booking_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__group_booking_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__group_booking_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__group_booking_id
 msgid "Group Booking"
 msgstr "مجموعة الحجز"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_dummy_group_view_search
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
 msgid "Group By"
 msgstr "تجميع حسب"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__group_by_category
+msgid "Group By Category"
+msgstr "تجميع حسب الفئة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__name
@@ -725,15 +926,14 @@ msgid "Group associated with this booking"
 msgstr "المجموعة المرتبطة بهذا الحجز"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__all_group
-msgid "Group or Dummy Group"
-msgstr "مجموعة أو مجموعة وهمية"
-
-#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__partner_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__partner_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__partner_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__partner_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__guest_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__guest_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__guest_id
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
 msgid "Guest"
 msgstr "النزيل"
 
@@ -757,11 +957,13 @@ msgstr "لدى هذا النزيل فوليو"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__has_message
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__has_message
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__has_message
 msgid "Has Message"
 msgstr "لديه رسالة"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_room_rate_forecast__company_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__company_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__company_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__company_id
@@ -772,6 +974,17 @@ msgid "Hotel"
 msgstr "الفندق"
 
 #. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_tz_hotel_checkout
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Hotel Checkout"
+msgstr "مغادرة الفندق"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+msgid "Hotel Checkout Search"
+msgstr "البحث في المغادرة"
+
+#. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_tz_manual_posting
 msgid "Hotel Manual Posting"
 msgstr "ترحيل يدوي للفندق"
@@ -779,34 +992,42 @@ msgstr "ترحيل يدوي للفندق"
 #. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_tz_manual_posting_tax
 msgid "Hotel Manual Posting Tax"
-msgstr ""
+msgstr "Hotel Manual Posting Tax"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__id
 msgid "ID"
 msgstr "المعرف"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_exception_icon
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_exception_icon
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_exception_icon
 msgid "Icon"
 msgstr "أيقونة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__activity_exception_icon
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__activity_exception_icon
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "أيقونة للإشارة إلى نشاط استثنائي."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__message_needaction
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__message_needaction
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "إذا تم تحديده، فإن الرسائل الجديدة تتطلب انتباهك."
@@ -814,15 +1035,32 @@ msgstr "إذا تم تحديده، فإن الرسائل الجديدة تتطل
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__message_has_error
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__message_has_sms_error
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__message_has_error
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__message_has_sms_error
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__message_has_error
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "إذا تم تحديده، فإن بعض الرسائل بها خطأ في التسليم."
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_dummy_group__state__in
+msgid "In"
+msgstr "In"
+
+#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_room_booking_search_inherit
 msgid "In House"
 msgstr "مقيم"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+msgid "In With Balance"
+msgstr "مع الرصيد"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+msgid "In and C/O Today"
+msgstr "دخول وخروج اليوم"
 
 #. module: tz_front_desk
 #: model:ir.actions.act_window,name:tz_front_desk.room_booking_action_tree
@@ -837,12 +1075,34 @@ msgid "Infant"
 msgstr "رضيع"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__infant_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__infant_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__infant_count
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__infant_count
+msgid "Infants"
+msgstr "رضع"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__move_id
+msgid "Invoice #"
+msgstr "الفاتورة #"
+
+#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "Is Amount"
 msgstr "هل هو مبلغ"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_fsm_person__is_dummy
+#: model:ir.model.fields,field_description:tz_front_desk.field_res_partner__is_dummy
+#: model:ir.model.fields,field_description:tz_front_desk.field_res_users__is_dummy
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_partner_form_inherit
+msgid "Is Dummy"
+msgstr "يستخدم للمجموعة الوهمية فقط"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_is_follower
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_is_follower
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_is_follower
 msgid "Is Follower"
 msgstr "متابع"
@@ -859,47 +1119,48 @@ msgstr "هل هي نسبة مئوية؟"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__item_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__item_id
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 msgid "Item"
 msgstr "بند التحميل"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__item_name
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid "Item Code"
 msgstr "كود بند التحميل"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__item_description
-msgid "Item Description"
-msgstr "وصف بند التحميل"
-
-#. module: tz_front_desk
-#: model:ir.model.constraint,message:tz_front_desk.constraint_tz_master_folio_report_unique_item_folio
-msgid "Item per folio must be unique!"
-msgstr "يجب أن يكون بند التحميل لكل ملف فريدًا!"
+#: model:ir.model.fields,help:tz_front_desk.field_tz_master_folio__tax_totals
+msgid "JSON-formatted tax summary"
+msgstr "JSON-formatted tax summary"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__write_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__write_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__write_uid
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__write_uid
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__write_uid
 msgid "Last Updated by"
 msgstr "آخر تحديث بواسطة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__write_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__write_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_availability__write_date
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_room_search__write_date
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__write_date
 msgid "Last Updated on"
 msgstr "آخر تحديث في"
 
@@ -920,12 +1181,28 @@ msgid "Manual Posting"
 msgstr "ترحيل يدوي"
 
 #. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_tz_manual_posting_room
+msgid "Manual Posting Room"
+msgstr "Manual Posting Room"
+
+#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 msgid "Manual Posting Search"
 msgstr "بحث النشر اليدوي"
 
 #. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_tz_manual_posting_type
+msgid "Manual Posting Type"
+msgstr "Manual Posting Type"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_manual_posting_type_tree
+msgid "Manual Posting Types"
+msgstr "انواع الغرف"
+
+#. module: tz_front_desk
 #: model:ir.actions.act_window,name:tz_front_desk.tz_action_manual_posting
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__manual_posting_ids
 #: model:ir.ui.menu,name:tz_front_desk.menu_manual_posting
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_tree
 msgid "Manual Postings"
@@ -941,7 +1218,16 @@ msgid ""
 msgstr "قطاع السوق مطلوب. يرجى تكوين قطاع سوق افتراضي في إعدادات الشركة."
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__master_id
+msgid "Master #"
+msgstr "الرقم #"
+
+#. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_tz_master_folio
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__folio_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__folio_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__folio_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__folio_id
 msgid "Master Folio"
 msgstr "فوليو النزيل"
 
@@ -961,6 +1247,13 @@ msgstr "بحث فوليو النزيل"
 #: model:ir.ui.menu,name:tz_front_desk.menu_master_folio
 msgid "Master Folios"
 msgstr "فوليو النزيل"
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/room_booking.py:0
+#, python-format
+msgid "Master folio successfully created."
+msgstr "تم إنشاء فوليو النزيل بنجاح!"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
@@ -990,6 +1283,14 @@ msgstr ""
 "                                                                    (النسبة المئوية)"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__meal_pattern
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__meal_pattern
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__meal_pattern
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__meal_pattern
+msgid "Meal Pattern"
+msgstr "نظام الوجبات"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__include_meals
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
 msgid "Meals"
@@ -997,20 +1298,36 @@ msgstr "الوجبات"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_has_error
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_has_error
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_has_error
 msgid "Message Delivery error"
 msgstr "خطأ في تسليم الرسالة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_ids
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_ids
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_ids
 msgid "Messages"
 msgstr "الرسائل"
 
 #. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
+#, python-format
+msgid ""
+"Missing Sales Product for item \"%s\". Please set a product_id on the "
+"Posting Item."
+msgstr "بند تحميل"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "More Features"
+msgstr "مزيا اضافية"
+
+#. module: tz_front_desk
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_tax__type__municipality
 msgid "Municipality"
-msgstr ""
+msgstr "البلدية"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__municipality_tax
@@ -1019,12 +1336,8 @@ msgid "Municipality Tax"
 msgstr "ضريبة البلدية"
 
 #. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
-msgid "Municipality Tax:"
-msgstr "ضريبة البلدية:"
-
-#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__my_activity_date_deadline
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__my_activity_date_deadline
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "موعد النشاط الخاص بي"
@@ -1042,26 +1355,54 @@ msgstr "الاستقبال الجديد"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_date_deadline
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_date_deadline
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "موعد النشاط التالي"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_summary
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_summary
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_summary
 msgid "Next Activity Summary"
 msgstr "ملخص النشاط التالي"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_type_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_type_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_type_id
 msgid "Next Activity Type"
 msgstr "نوع النشاط التالي"
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__no_show
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_type__state__no_show
+msgid "No Show"
+msgstr "لا يوجد حضور"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__no_smoking
 msgid "No Smoking"
 msgstr "ممنوع التدخين"
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
+#, python-format
+msgid "No accounting journal with type \"Sale\" defined !"
+msgstr "لا يوجد دفتر محاسبة من النوع "بيع (Sale)" محدد!"
+
+#. module: tz_front_desk
+#: model_terms:ir.actions.act_window,help:tz_front_desk.action_hotel_checkout
+msgid "No checkouts found. Checkouts will be auto-generated from bookings"
+msgstr "لم يتم العثور على بيانات مغادرة. سيتم إنشاء بيانات المغادرة تلقائيًا من الحجوزات."
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
+#, python-format
+msgid "No income account found for this company."
+msgstr "لم يتم العثور على حساب دخل لهذه الشركة."
 
 #. module: tz_front_desk
 #. odoo-python
@@ -1092,7 +1433,13 @@ msgid "No posting item configured for rate code."
 msgstr "لا يوجد بند التحميل مكون لكود التعاقد."
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__display_type__line_note
+msgid "Note"
+msgstr "ملاحظات"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_needaction_counter
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_needaction_counter
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_needaction_counter
 msgid "Number of Actions"
 msgstr "عدد الإجراءات"
@@ -1105,18 +1452,21 @@ msgstr "عدد الليالي"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_has_error_counter
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_has_error_counter
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_has_error_counter
 msgid "Number of errors"
 msgstr "عدد الأخطاء"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__message_needaction_counter
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__message_needaction_counter
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "عدد الرسائل التي تتطلب إجراءً"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__message_has_error_counter
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__message_has_error_counter
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "عدد الرسائل التي بها خطأ في التسليم"
@@ -1133,10 +1483,47 @@ msgid "Open or reopen a group account automatically"
 msgstr "فتح أو إعادة فتح حساب المجموعة تلقائيًا"
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_tax__type__other
+msgid "Other"
+msgstr "آخر"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_dummy_group__state__out
+msgid "Out"
+msgstr "Out"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__include_packages
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
 msgid "Packages"
 msgstr "الباقات"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
+msgid ""
+"Payment\n"
+"                                                                Type"
+msgstr "نوع الدفع"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__payment_id
+msgid "Payment #"
+msgstr "الدفع #"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__payment_group
+msgid "Payment Group"
+msgstr "مجموعة الدفع"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__payment_type
+msgid "Payment Type"
+msgstr "نوع الدفع"
+
+#. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_account_payment
+msgid "Payments"
+msgstr "الدفعات"
 
 #. module: tz_front_desk
 #. odoo-python
@@ -1160,6 +1547,8 @@ msgstr "ترحيل"
 
 #. module: tz_front_desk
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__state__posted
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__posted
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_type__state__posted
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_master_folio__state__posted
 msgid "Posted"
 msgstr "تم الترحيل"
@@ -1168,11 +1557,6 @@ msgstr "تم الترحيل"
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__item_id
 msgid "Posting Item"
 msgstr "بند التحميل"
-
-#. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__manual_posting_ids
-msgid "Posting Lines"
-msgstr "بنود التحميل"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__price
@@ -1197,6 +1581,14 @@ msgid "Quantity"
 msgstr "الكمية"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__rate_code
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__rate_code
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__rate_code
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__rate_code
+msgid "Rate Code"
+msgstr "كود التعاقد"
+
+#. module: tz_front_desk
 #. odoo-python
 #: code:addons/tz_front_desk/models/room_booking.py:0
 #, python-format
@@ -1208,18 +1600,37 @@ msgstr ""
 "إعدادات الشركة"
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Re-Checkout Room"
+msgstr "التراجع عن مغادرة الغرفة"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_user_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__activity_user_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__activity_user_id
 msgid "Responsible User"
 msgstr "المستخدم المسؤول"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__room_list
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__all_name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__room_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__room_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__room_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__type_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__room_id
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__name
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__room_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__room_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__room_id
-#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__type__room
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_tree
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_manual_posting_type_tree
 msgid "Room"
 msgstr "الغرفة"
 
@@ -1243,11 +1654,6 @@ msgid "Room Availability Results"
 msgstr "نتائج توفر الغرف"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__booking_id
-msgid "Room Booking"
-msgstr "حجز الغرفة"
-
-#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid ""
 "Room Discount\n"
@@ -1265,6 +1671,11 @@ msgstr "خصم الغرفة كمبلغ"
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "Room Discount As Percentage"
 msgstr "خصم الغرفة كنسبة مئوية"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Room Number"
+msgstr "رقم الغرفة"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
@@ -1315,14 +1726,30 @@ msgstr "الغرف المحجوزة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__message_has_sms_error
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__message_has_sms_error
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "خطأ في تسليم الرسائل القصيرة"
 
 #. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__display_type__line_section
+msgid "Section"
+msgstr "القسم"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__room_list
 msgid "Select Room"
 msgstr "اختر غرفة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__show_other_buttons
+msgid "Show Other Buttons"
+msgstr "Show Other Buttons"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__show_re_checkout
+msgid "Show Re Checkout"
+msgstr "Show Re Checkout"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__price
@@ -1340,6 +1767,11 @@ msgid "Source"
 msgstr "المصدر"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__source_id
+msgid "Source ID"
+msgstr "Source ID"
+
+#. module: tz_front_desk
 #. odoo-python
 #: code:addons/tz_front_desk/models/room_booking.py:0
 #, python-format
@@ -1349,14 +1781,31 @@ msgid ""
 msgstr "المصدر التجاري مطلوب. يرجى تكوين مصدر افتراضي في إعدادات الشركة."
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__start_date
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_rate_forecast__state
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__state
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__state
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__state
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__state
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__state
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__state
 msgid "State"
 msgstr "الحالة"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__state
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__v_state
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__activity_state
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__activity_state
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__activity_state
 msgid ""
 "Status based on activities\n"
@@ -1375,8 +1824,45 @@ msgid "Suite"
 msgstr "جناح"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__is_suspended_auto_posting
+msgid "Suspended AP"
+msgstr "ايقاف ت.التلقائي"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Suspended Auto Posting"
+msgstr "ايقاف الترحيل التلقائي"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__is_suspended_manual_posting
+msgid "Suspended MP"
+msgstr "ايقاف ت. اليدوي"
+
+#. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
+msgid "Suspended Manual Posting"
+msgstr "ايقاف الترحيل اليدوي"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__tax_amount
+msgid "Tax"
+msgstr "الضريبة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__tax_descriptions
+msgid "Tax Descriptions"
+msgstr "تفاصيل الضريبة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__tax_totals
+msgid "Tax Totals"
+msgstr "إجمالي الضرائب"
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__tax_ids
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__taxes
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__amount_tax
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__taxes_info
 msgid "Taxes"
 msgstr "الضرائب"
 
@@ -1393,6 +1879,8 @@ msgstr ""
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__time
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__time
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__report_time
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.report_master_folio
 msgid "Time"
 msgstr "الوقت"
 
@@ -1404,12 +1892,16 @@ msgstr "إلى المجموعة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__room_to
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_transfer_charge_wizard__to_type_id
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_auto_posting_wizard_form
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_transfer_charge_wizard_form
 msgid "To Room"
 msgstr "إلى الغرفة"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__price_total
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__total
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__amount_total
 msgid "Total"
 msgstr "الإجمالي"
 
@@ -1427,22 +1919,12 @@ msgid "Total Credit"
 msgstr "إجمالي الرصيد الدائن"
 
 #. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
-msgid "Total Credit:"
-msgstr "إجمالي الرصيد الدائن:"
-
-#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__total_debit
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__total_debit
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_master_folio_view_search
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
 msgid "Total Debit"
 msgstr "إجمالي الخصم"
-
-#. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
-msgid "Total Debit:"
-msgstr "إجمالي الخصم:"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__name
@@ -1455,28 +1937,49 @@ msgid "Transactions"
 msgstr "المعاملات"
 
 #. module: tz_front_desk
+#: model:ir.actions.act_window,name:tz_front_desk.action_transfer_charge_wizard
+#: model:ir.ui.menu,name:tz_front_desk.menu_transfer_charge
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_transfer_charge_wizard_form
+msgid "Transfer"
+msgstr "التحويل"
+
+#. module: tz_front_desk
+#: model:ir.model,name:tz_front_desk.model_tz_transfer_charge_wizard
+msgid "Transfer Wizard"
+msgstr "معالج التحويل"
+
+#. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_tz_room_search
 msgid "Transient model for searching hotel rooms"
 msgstr "نموذج مؤقت للبحث عن غرف الفنادق"
 
 #. module: tz_front_desk
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__type
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_tax__type
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_view_manual_posting_form
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 msgid "Type"
 msgstr "النوع"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__activity_exception_decoration
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__activity_exception_decoration
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "نوع النشاط الاستثنائي المسجل."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__unavailable_room_ids
-#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__unavailable_room_ids
 msgid "Unavailable Room"
 msgstr "الغرفة غير متاحة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__price_subtotal
+msgid "Untaxed"
+msgstr "غير خاضع للضريبة"
+
+#. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__amount_untaxed
+msgid "Untaxed Amount"
+msgstr "المبلغ غير الخاضع للضريبة"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
@@ -1504,11 +2007,6 @@ msgid "Value Added Tax"
 msgstr "ضريبة القيمة المضافة"
 
 #. module: tz_front_desk
-#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
-msgid "Value Added Tax:"
-msgstr "ضريبة القيمة المضافة:"
-
-#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__voucher_number
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 msgid "Voucher #"
@@ -1527,15 +2025,24 @@ msgstr "التسكين المباشر"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__website_message_ids
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__website_message_ids
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__website_message_ids
 msgid "Website Messages"
 msgstr "رسائل الموقع"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_dummy_group__website_message_ids
+#: model:ir.model.fields,help:tz_front_desk.field_tz_hotel_checkout__website_message_ids
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__website_message_ids
 msgid "Website communication history"
 msgstr "تاريخ التواصل عبر الموقع"
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_manual_posting.py:0
+#, python-format
+msgid "You cannot delete a record from yesterday's date."
+msgstr "لا يمكنك حذف سجل قديم من تاريخ أمس."
 
 #. module: tz_front_desk
 #. odoo-python
@@ -1545,17 +2052,16 @@ msgid "You cannot delete a record that is posted."
 msgstr "لا يمكنك حذف سجل تم نشره."
 
 #. module: tz_front_desk
+#: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search
+msgid "Zero Balance Dep."
+msgstr "مغادرون رصيدهم صفر"
+
+#. module: tz_front_desk
+#: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_hotel_checkout__group_by_category__dep_zero_balance
+msgid "Zero Balance Departure"
+msgstr "مغادرون رصيدهم صفر"
+
+#. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "use_priceMeal Price"
 msgstr "استخدام سعر الوجبة"
-
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__reference_contact_
-msgid "Contact Reference"
-msgstr "اسم النزيل"
-
-#. module: hotel_management_odoo
-#: model:ir.model.fields,field_description:hotel_management_odoo.field_room_booking__ref_id_bk
-msgid "Ref. ID(booking.com)"
-msgstr "رقم الحجز من Booking"

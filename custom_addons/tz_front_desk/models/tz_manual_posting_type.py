@@ -173,6 +173,11 @@ class ManualPostingRoom(models.Model):
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return True
 
+    def schedule_refresh_materialized_view(self):
+        """Called by scheduled action to refresh the view"""
+        self.env.cr.execute("REFRESH MATERIALIZED VIEW tz_manual_posting_room")
+        self.env.cr.commit()
+
 
 class ManualPostingType(models.Model):
     """Replacement for the cache model with state synchronization"""
