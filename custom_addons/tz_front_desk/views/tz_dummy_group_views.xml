@@ -7,9 +7,11 @@
         <field name="arch" type="xml">
             <tree string="Dummy Groups">
                 <field name="name"/>
-                <!--                <field name="abbreviation"/>-->
                 <field name="description"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
                 <field name="company_id"/>
+                <field name="state"/>
                 <field name="obsolete" widget="boolean" decoration-danger="obsolete == True"/>
             </tree>
         </field>

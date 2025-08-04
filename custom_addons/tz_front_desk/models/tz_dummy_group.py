@@ -29,7 +29,7 @@ class DummyGroup(models.Model):
     auto_payment = fields.Boolean(string='Cash Room – Auto Payment Load', default=False, tracking=True)
     obsolete = fields.Boolean(string='Obsolete', default=False, tracking=True)
     start_date = fields.Datetime(string="Start Date",
-                           default=lambda self: self.env.user.company_id.system_date,
+                           default=lambda self: self.env.company.system_date.replace(hour=0, minute=0, second=0, microsecond=0),
                            required=True, tracking=True)
 
     end_date = fields.Datetime()

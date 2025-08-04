@@ -60,8 +60,6 @@ class ManualPostingRoom(models.Model):
                     rb.rate_code,
                     rb.meal_pattern,
                     rb.company_id,
-                    rb.checkout_date AS last_visit_date,
-                    rb.checkout_date AS end_date,
                     rb.state AS state
                 FROM room_booking rb
                 LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
@@ -81,16 +79,14 @@ class ManualPostingRoom(models.Model):
                     NULL::integer AS dummy_id,
                     mf.id AS folio_id,
                     gb.company,
-                    gb.first_visit,
-                    gb.last_visit,
+                    gb.first_visit AS checkin_date,
+                    gb.last_visit AS checkout_date,
                     gb.total_adult_count::integer,
                     gb.total_child_count::integer,
                     gb.total_infant_count::integer,
                     gb.rate_code,
                     gb.group_meal_pattern,
                     gb.company_id,
-                    gb.last_visit AS last_visit_date,
-                    gb.last_visit AS end_date,
                     (SELECT rb3.state FROM room_booking rb3 WHERE rb3.group_booking = gb.id AND rb3.state != 'check_out' LIMIT 1) AS state
                 FROM group_booking gb
                 LEFT JOIN tz_master_folio mf ON mf.group_id = gb.id  
@@ -113,20 +109,23 @@ class ManualPostingRoom(models.Model):
                     NULL AS group_booking_id,
                     dg.id AS dummy_id,
                     mf.id AS folio_id,
-                    NULL,
-                    dg.start_date,
-                    dg.end_date,
-                    NULL,
-                    NULL,
-                    NULL,
-                    NULL,
-                    NULL,
+                    NULL AS partner_id,
+                    dg.start_date AS checkin_date,
+                    dg.end_date AS checkout_date,
+                    NULL::integer AS adult_count,
+                    NULL::integer AS child_count,
+                    NULL::integer AS infant_count,
+                    NULL AS rate_code,
+                    NULL AS meal_pattern,
                     dg.company_id,
-                    dg.end_date AS last_visit_date,
-                    dg.end_date AS end_date,
                     'dummy' AS state
                 FROM tz_dummy_group dg
-                LEFT JOIN tz_master_folio mf ON mf.dummy_id = dg.id  
+                LEFT JOIN (
+                    SELECT DISTINCT ON (dummy_id) id, dummy_id 
+                    FROM tz_master_folio 
+                    WHERE dummy_id IS NOT NULL
+                    ORDER BY dummy_id, id
+                ) mf ON mf.dummy_id = dg.id
                 WHERE dg.obsolete = FALSE
                   AND dg.company_id = {company_id}
             )
