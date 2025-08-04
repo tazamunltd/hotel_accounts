@@ -225,6 +225,51 @@ class HotelCheckOut(models.Model):
         company_id = self.env.company.id
         view_model = self.env['tz.checkout']
         records = view_model.search([])
+
+        for rec in records:
+            domain = []
+            if rec.booking_id:
+                domain.append(('booking_id', '=', rec.booking_id.id))
+            if rec.room_id:
+                domain.append(('room_id', '=', rec.room_id.id))
+            if rec.group_booking_id:
+                domain.append(('group_booking_id', '=', rec.group_booking_id.id))
+            if rec.dummy_id:
+                domain.append(('dummy_id', '=', rec.dummy_id.id))
+
+            # Prepare values for creation or update
+            vals = {
+                'name': rec.name,
+                'booking_id': rec.booking_id.id if rec.booking_id else False,
+                'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
+                'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
+                'room_id': rec.room_id.id if rec.room_id else False,
+                'partner_id': rec.partner_id.id if rec.partner_id else False,
+                'checkin_date': rec.checkin_date,
+                'checkout_date': rec.checkout_date,
+                'adult_count': rec.adult_count,
+                'child_count': rec.child_count,
+                'infant_count': rec.infant_count,
+                'rate_code': rec.rate_code.id if rec.rate_code else False,
+                'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
+                'state': 'In' if rec.state in ('check_in', 'confirmed') else rec.state.capitalize(),
+                'company_id': rec.company_id.id if rec.company_id else company_id,
+                'folio_id': rec.folio_id.id if rec.folio_id else False,
+            }
+
+            existing = self.search(domain, limit=1)
+            if existing:
+                existing.write(vals)  # Update existing record
+            else:
+                self.sudo().create(vals)  # Create new record
+
+        return True
+
+    @api.model
+    def sync_from_viewX(self):
+        company_id = self.env.company.id
+        view_model = self.env['tz.checkout']
+        records = view_model.search([])
         vals = []
 
         for rec in records:
@@ -257,7 +302,7 @@ class HotelCheckOut(models.Model):
                 'infant_count': rec.infant_count,
                 'rate_code': rec.rate_code.id if rec.rate_code else False,
                 'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
-                'state': 'In' if rec.state == 'check_in' else rec.state.capitalize(),
+                'state': 'In' if rec.state == 'check_in' or rec.state == 'confirmed' else rec.state.capitalize(),
                 'company_id': rec.company_id.id if rec.company_id else company_id,
                 'folio_id': rec.folio_id.id if rec.folio_id else False,
             })
@@ -353,37 +398,6 @@ class HotelCheckOut(models.Model):
             },
             'domain': [('type_id', '=', posting_type.id)]
         }
-
-    # def open_manual_posting(self):
-    #     # data = self.get_partner_manual_postings()
-    #     # json_data = json.dumps(data)  # Converts to JSON string
-    #     # raise UserError(json_data)
-    #     self.ensure_one()
-    #     # Optional: Find related posting type_id if available (one way of pre-filling or filtering)
-    #     posting_type = self.env['tz.manual.posting.type'].search([
-    #         ('booking_id', '=', self.booking_id.id),
-    #         ('room_id', '=', self.room_id.id),
-    #         ('group_booking_id', '=', self.group_booking_id.id),
-    #         ('dummy_id', '=', self.dummy_id.id)
-    #     ], limit=1)
-    #
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'name': 'Manual Posting',
-    #         'res_model': 'tz.manual.posting',
-    #         'view_mode': 'tree,form',
-    #         'target': 'current',
-    #         'context': {
-    #             'default_type_id': posting_type.id if posting_type else False,
-    #             'search_default_type_id': posting_type.id if posting_type else False,
-    #             'default_booking_id': self.booking_id.id,
-    #             'default_room_id': self.room_id.id,
-    #             'default_group_booking_id': self.group_booking_id.id,
-    #             'default_dummy_id': self.dummy_id.id,
-    #             'manual_creation': True
-    #         },
-    #         'domain': [('type_id', '=', posting_type.id)] if posting_type else []
-    #     }
 
     def action_auto_posting(self):
         system_date = self.env.company.system_date.date()
