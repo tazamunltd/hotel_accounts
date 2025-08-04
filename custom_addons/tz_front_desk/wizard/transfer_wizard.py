@@ -4,7 +4,7 @@ from odoo.exceptions import UserError
 
 class TransferChargeWizard(models.TransientModel):
     _name = 'tz.transfer.charge.wizard'
-    _description = 'Transfer Charge Wizard'
+    _description = 'Transfer Wizard'
 
     item_id = fields.Many2one(
         'posting.item',

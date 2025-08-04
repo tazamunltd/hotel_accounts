@@ -331,7 +331,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        # self.env['tz.manual.posting.type'].generate_manual_postings()
+        self.env['tz.manual.posting.room']._create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return self._notify_booking_confirmation(result)
 
@@ -341,7 +341,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        # self.env['tz.manual.posting.type'].generate_manual_postings()
+        self.env['tz.manual.posting.room']._create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return self._notify_booking_confirmation(result)
 
@@ -365,7 +365,7 @@ class RoomBooking(models.Model):
 
     def action_block(self):
         result = super(RoomBooking, self).action_block()
-        # self.env['tz.manual.posting.type'].generate_manual_postings()
+        self.env['tz.manual.posting.room']._create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return result
 
@@ -373,8 +373,7 @@ class RoomBooking(models.Model):
         # Call the parent method first
         result = super(RoomBooking, self).action_checkin()
 
-        # Refresh the SQL View and Sync data
-        # self.env['tz.manual.posting.type'].generate_manual_postings()
+        self.env['tz.manual.posting.room']._create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         hotel_check_out = self.env['tz.hotel.checkout']
         hotel_check_out.generate_data()
@@ -385,7 +384,7 @@ class RoomBooking(models.Model):
     def action_checkin_booking(self):
         # Call the parent method first
         result = super(RoomBooking, self).action_checkin_booking()
-        # self.env['tz.manual.posting.type'].generate_manual_postings()
+        self.env['tz.manual.posting.room']._create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         # Refresh the SQL View and Sync data
         hotel_check_out = self.env['tz.hotel.checkout']
