@@ -73,7 +73,7 @@ class HotelCheckOut(models.Model):
     show_re_checkout = fields.Boolean(compute='_compute_button_visibility')
     show_other_buttons = fields.Boolean(compute='_compute_button_visibility')
 
-    move_id = fields.Many2one('account.move', string='Invoice #')
+    move_id = fields.Many2one('account.move', string='Invoice #', readonly=True)
 
     @api.onchange('is_cashier_checkout')
     def _onchange_is_cashier_checkout(self):
@@ -345,6 +345,22 @@ class HotelCheckOut(models.Model):
         return super(HotelCheckOut, self).write(vals)
 
     def action_checkout_room(self):
+        for record in self:
+            if not record.is_cashier_checkout:
+                raise UserError(_("Cashier checkout must be completed first."))  # Translated
+            if record.state == 'In':
+                record.state = 'Out'
+                record.checkout_date = self.env.company.system_date.date()
+                self.get_partner_manual_postings()
+
+                return self._show_notification(
+                    _("Booking Checked Out Successfully!"),  # Translated
+                    'success'
+                )
+            else:
+                raise UserError(_("Room is already checked out."))  # Translated
+
+    def action_checkout_roomX(self):
         for record in self:
             if not record.is_cashier_checkout:
                 raise UserError("Cashier checkout must be completed first.")
@@ -778,6 +794,7 @@ class HotelCheckOut(models.Model):
         self.write({'move_id': invoice.id})
 
         return invoice
+
 
 
 

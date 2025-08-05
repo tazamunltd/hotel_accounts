@@ -1253,7 +1253,7 @@ msgstr "فوليو النزيل"
 #: code:addons/tz_front_desk/models/room_booking.py:0
 #, python-format
 msgid "Master folio successfully created."
-msgstr "تم إنشاء فوليو النزيل بنجاح!"
+msgstr "تم إنشاء الملف الرئيسي بنجاح!"
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
