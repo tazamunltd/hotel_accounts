@@ -172,11 +172,6 @@ class TzHotelManualPosting(models.Model):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
-        default_type = self.env['tz.manual.posting.type'].search([
-            ('company_id', '=', self.env.company.id)
-        ], limit=1)
-        if default_type:
-            res['type_id'] = default_type.id
         return res
 
     @api.model

@@ -188,6 +188,33 @@ class RoomBooking(models.Model):
         # Default creation if not front_desk context
         return super().create(vals)
 
+    # def write(self, vals):
+    #     room_change_detected = False
+    #
+    #     if 'room_line_ids' in vals:
+    #         for command in vals['room_line_ids']:
+    #             if isinstance(command, (list, tuple)) and len(command) >= 3:
+    #                 command_type = command[0]
+    #                 data = command[2]
+    #                 if command_type in (0, 1) and data and 'room_id' in data:
+    #                     room_change_detected = True
+    #                     break
+    #
+    #     if room_change_detected:
+    #         vals['state'] = 'block'
+    #         for record in self:
+    #             record.room_line_ids.write({'state': 'block'})
+    #
+    #     # 🔹 Perform the write operation
+    #     res = super().write(vals)
+    #
+    #     # 🔹 After write, reassign room folios per booking
+    #     if res:
+    #         for booking in self:
+    #             booking._assign_rooms_to_folios()
+    #
+    #     return res
+
     def write(self, vals):
         # Call super() first to perform the write operation
         res = super().write(vals)
@@ -196,6 +223,12 @@ class RoomBooking(models.Model):
         if res and any(field in vals for field in ['room_line_ids', 'group_booking', 'state']):
             for booking in self:
                 self._update_folio_room(booking)
+
+        state = vals.get('state')
+        room_line_ids = vals.get('room_line_ids')
+        for rec in self:
+            if rec.state == 'confirmed' and rec.room_line_ids:
+                rec._assign_rooms_to_folios()
 
         return res
 
@@ -395,28 +428,28 @@ class RoomBooking(models.Model):
 
     def action_assign_all_rooms(self):
         res = super().action_assign_all_rooms()
-
         for booking in self:
             if booking.group_booking:
                 continue
-
-            # 🔹 1. Update/Create folio for the parent booking
-            parent_folio = self._get_or_create_master_folio(booking)
-            if booking.room_line_ids:
-                parent_room = booking.room_line_ids[0].room_id
-                if parent_folio and parent_room:
-                    parent_folio.sudo().write({'room_id': parent_room.id})
-
-            # 🔹 2. Update/Create folios for each child booking
-            child_bookings = self.search([('parent_booking_id', '=', booking.id)])
-            for child_booking in child_bookings:
-                if not child_booking.group_booking:
-                    child_folio = self._get_or_create_master_folio(child_booking)
-                    child_room = child_booking.room_line_ids and child_booking.room_line_ids[0].room_id
-                    if child_folio and child_room:
-                        child_folio.sudo().write({'room_id': child_room.id})
-
+            booking._assign_rooms_to_folios()
         return res
+
+    def _assign_rooms_to_folios(self):
+        # 🔹 1. Update/Create folio for the parent booking
+        parent_folio = self._get_or_create_master_folio(self)
+        if self.room_line_ids:
+            parent_room = self.room_line_ids[0].room_id
+            if parent_folio and parent_room:
+                parent_folio.sudo().write({'room_id': parent_room.id})
+
+        # 🔹 2. Update/Create folios for each child booking
+        child_bookings = self.search([('parent_booking_id', '=', self.id)])
+        for child_booking in child_bookings:
+            if not child_booking.group_booking:
+                child_folio = self._get_or_create_master_folio(child_booking)
+                child_room = child_booking.room_line_ids and child_booking.room_line_ids[0].room_id
+                if child_folio and child_room:
+                    child_folio.sudo().write({'room_id': child_room.id})
 
     def unlink(self):
         master_folio = self.env['tz.master.folio']
