@@ -609,22 +609,75 @@ class HotelCheckOut(models.Model):
         Get all manual postings related to the partner_id of this checkout record.
         Consolidate postings that share the same item description and amount into a single line.
         Exclude any posting with item description 'Cash'.
-        Creates an invoice from the consolidated postings.
+        Only include postings where the related master folio has a balance of 0.
         """
         self.ensure_one()
-
-        # if not self.partner_id:
-        #     raise UserError('The customer/partner is required')
-
-        # raise UserError(self.partner_id)
-
 
         postings = self.env['tz.manual.posting'].search([
             ('company_id', '=', self.company_id.id),
             ('partner_id', '=', self.partner_id.id)
         ])
 
-        # raise UserError(postings)
+        # Filter only postings whose folio has a balance of 0 using sudo
+        postings = postings.filtered(
+            lambda p: p.folio_id and p.folio_id.sudo().balance == 0
+        )
+
+        result = {
+            'partner': {
+                'id': self.partner_id.id,
+                'name': self.partner_id.name,
+                'contact_reference': self.booking_id.reference_contact_ if self.booking_id else '',
+                'hotel_booking_id': self.booking_id or '',
+                'group_booking_name': self.group_booking_id.name if self.group_booking_id else '',
+                'parent_booking_name': self.booking_id.parent_booking_name if self.booking_id else '',
+                'room_numbers': self.booking_id.room_ids_display if self.booking_id else '',
+            },
+            'postings': []
+        }
+
+        consolidated = {}
+        for posting in postings:
+            if posting.item_id.description.strip().lower() == 'cash':
+                continue
+
+            amount = posting.debit_amount if posting.debit_amount > 0 else posting.credit_amount
+            key = (posting.item_id.description, amount)
+
+            if key in consolidated:
+                consolidated[key]['quantity'] += posting.quantity
+                consolidated[key]['total'] += posting.total
+            else:
+                consolidated[key] = {
+                    'id': posting.id,
+                    'item_id': posting.item_id,
+                    'date': str(posting.date),
+                    'time': posting.time,
+                    'item': posting.item_id.description,
+                    'debit': posting.debit_amount,
+                    'credit': posting.credit_amount,
+                    'quantity': posting.quantity,
+                    'taxes': posting.taxes,
+                    'total': posting.total,
+                }
+
+        result['postings'] = list(consolidated.values())
+
+        self.create_invoice(result['partner'], result['postings'])
+
+    def get_partner_manual_postingsX(self):
+        """
+        Get all manual postings related to the partner_id of this checkout record.
+        Consolidate postings that share the same item description and amount into a single line.
+        Exclude any posting with item description 'Cash'.
+        Creates an invoice from the consolidated postings.
+        """
+        self.ensure_one()
+
+        postings = self.env['tz.manual.posting'].search([
+            ('company_id', '=', self.company_id.id),
+            ('partner_id', '=', self.partner_id.id)
+        ])
 
         result = {
             'partner': {
