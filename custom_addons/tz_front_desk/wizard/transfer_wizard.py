@@ -44,6 +44,12 @@ class TransferChargeWizard(models.TransientModel):
         default=lambda self: self.env.company
     )
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        self.env['tz.manual.posting.type'].sync_with_materialized_view()
+        return res
+
     def _compute_current_date(self):
         for record in self:
             record.current_date = fields.Date.context_today(record)
