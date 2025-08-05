@@ -54,6 +54,11 @@
                             class="btn-primary"
                             invisible="not show_other_buttons"/>-->
 
+                    <!--<button name="get_partner_manual_postings"
+                            type="object"
+                            string="Test function"
+                            class="btn-primary"/>-->
+
                     <button name="action_checkout_room"
                             type="object"
                             string="Check Out Room"
