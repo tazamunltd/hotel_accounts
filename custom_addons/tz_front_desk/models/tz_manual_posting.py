@@ -183,14 +183,14 @@ class TzHotelManualPosting(models.Model):
                 dummy_id=vals.get('dummy_id')
             )
             if suspended:
-                raise ValidationError("The Manual posting is suspended")
+                raise ValidationError(_("The Manual posting is suspended."))
 
         booking = self.env['room.booking'].browse(vals.get('booking_id'))
         if booking and booking.state == 'cancel':
-            raise ValidationError("You cannot create a manual posting for a canceled booking.")
+            raise ValidationError(_("You cannot create a manual posting for a canceled booking."))
 
         if not vals.get('sign'):
-            raise ValidationError("You must select a Sign before creating a manual posting.")
+            raise ValidationError(_("You must select a Sign before creating a manual posting."))
 
         if vals.get('name', 'New') == 'New':
             company = self.env.company
@@ -202,10 +202,18 @@ class TzHotelManualPosting(models.Model):
         if self._context.get('manual_creation'):
             record.source_type = 'manual'
 
-            if vals.get('group_booking_id'):
-                record.room_id = self._get_master_room_id(vals['group_booking_id'])
+            group_booking_id = vals.get('group_booking_id')
+            room_id = vals.get('room_id')
 
-            # No folio_id here — moved to computed field
+            # Get or create the master folio
+            folio = record._get_or_create_master_folio(room_id, group_booking_id=group_booking_id)
+            if folio:
+                record.folio_id = folio.id
+                self.env['tz.checkout'].create_or_replace_view()
+                self.env['tz.hotel.checkout'].sync_with_materialized_view()
+
+            if group_booking_id:
+                record.room_id = record._get_master_room_id(group_booking_id)
 
             record._handle_cash_payment(item_id=vals.get('item_id'))
 
@@ -225,7 +233,7 @@ class TzHotelManualPosting(models.Model):
         if 'booking_id' in vals:
             booking = self.env['room.booking'].browse(vals['booking_id'])
             if booking.state == 'cancel':
-                raise ValidationError("You cannot update manual posting to link to a canceled booking.")
+                raise ValidationError(_("You cannot update manual posting to link to a canceled booking."))
 
         res = super().write(vals)
 
@@ -384,7 +392,51 @@ class TzHotelManualPosting(models.Model):
             self.description = False
             # self.taxes = False
 
-    def _get_or_create_master_folio(self, room_id):
+    def _get_or_create_master_folio(self, room_id, group_booking_id=None):
+        """
+        Returns a tz.master.folio record based on booking context.
+        Creates a new folio if necessary (mainly for group booking).
+        """
+        system_date = self.env.company.system_date.date()
+
+        booking_line = self.env['room.booking.line'].search([
+            ('room_id', '=', room_id),
+            ('checkin_date', '>=', fields.Datetime.to_datetime(system_date)),
+            ('checkin_date', '<', fields.Datetime.to_datetime(system_date + timedelta(days=1))),
+            ('state_', 'in', ['confirmed', 'block', 'check_in', 'no_show'])
+        ], limit=1)
+
+        if not booking_line:
+            raise ValidationError(_("No valid room booking line found for the selected room."))
+
+        domain = self._get_domain_filter(room_id)
+
+        booking = booking_line.booking_id
+        is_group_booking = bool(group_booking_id or booking.group_booking)
+
+        folio = self.env['tz.master.folio'].sudo().search(domain, limit=1)
+        if not folio and is_group_booking:
+            company = self.env.company
+            prefix = f"{company.name}/"
+            folio_name = prefix + (self.env['ir.sequence'].sudo().with_company(company)
+                                   .next_by_code('tz.master.folio'))
+
+            folio_vals = {
+                'name': folio_name,
+                'guest_id': booking.partner_id.id,
+                'rooming_info': booking_line.room_id.name,
+                'check_in': booking_line.checkin_date,
+                'check_out': booking_line.checkout_date,
+                'company_id': company.id,
+                'currency_id': company.currency_id.id,
+                'room_id': room_id,
+                'booking_ids': [(4, booking.id)],
+            }
+            folio = self.env['tz.master.folio'].sudo().create(folio_vals)
+
+        return folio
+
+    def _get_or_create_master_folioX(self, room_id):
         """
         Create master folio for manual posting when none exists
         Returns folio ID or raises exception

@@ -34,7 +34,7 @@ class ManualPostingRoom(models.Model):
         ('posted', 'Posted'),
     ], string='State')
 
-    def _create_or_replace_view(self):
+    def create_or_replace_view(self):
         self.env.cr.execute("DROP MATERIALIZED VIEW IF EXISTS tz_manual_posting_room CASCADE")
 
         # Get the company ID first
@@ -169,7 +169,7 @@ class ManualPostingRoom(models.Model):
 
     def refresh_view(self):
         """Public method to manually refresh the view and sync type model"""
-        self._create_or_replace_view()
+        self.create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return True
 
@@ -257,5 +257,8 @@ class ManualPostingType(models.Model):
                 room_type.create(vals)
 
         _logger.info("Manual posting type successfully synced with materialized view for company_id %s", company_id)
+
+    def archive_old_leads(self):
+        raise UserError('Scheduled Actions working')
 
 

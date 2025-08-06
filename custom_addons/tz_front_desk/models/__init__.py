@@ -11,6 +11,6 @@ from . import tz_manual_posting_type
 from . import tz_manual_posting
 from . import tz_manual_posting_tax
 from . import tz_master_folio_report
-from . import tz_checkout
+# from . import tz_checkout
 from . import tz_hotel_checkout
 

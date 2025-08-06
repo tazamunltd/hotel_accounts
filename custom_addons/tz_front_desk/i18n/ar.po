@@ -392,7 +392,7 @@ msgstr "تم الحجز"
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__booking_id
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
 msgid "Booking"
-msgstr "حجز الغرفة"
+msgstr "رقم الحجز"
 
 #. module: tz_front_desk
 #. odoo-python
@@ -896,7 +896,7 @@ msgstr "FrontDesk Checkout"
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
 msgid "Generate Folio Report"
-msgstr "إنشاء تقرير الفيليو"
+msgstr "إنشاء تقرير كشف الحساب"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__amount_total
@@ -1271,14 +1271,14 @@ msgstr "بحث فوليو النزيل"
 #: model:ir.actions.act_window,name:tz_front_desk.action_master_folio
 #: model:ir.ui.menu,name:tz_front_desk.menu_master_folio
 msgid "Master Folios"
-msgstr "فوليو النزيل"
+msgstr "كشف حساب النزيل"
 
 #. module: tz_front_desk
 #. odoo-python
 #: code:addons/tz_front_desk/models/room_booking.py:0
 #, python-format
 msgid "Master folio successfully created."
-msgstr "تم إنشاء الملف الرئيسي بنجاح!"
+msgstr "تم إنشاء كشف حساب النزيل بنجاح."
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
@@ -1534,7 +1534,7 @@ msgstr "نوع الدفع"
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__payment_id
 msgid "Payment #"
-msgstr "الدفع #"
+msgstr "سند الدفع #"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__payment_group

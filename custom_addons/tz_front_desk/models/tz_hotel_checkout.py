@@ -4,6 +4,190 @@ from odoo.exceptions import UserError
 from datetime import date
 _logger = logging.getLogger(__name__)
 
+class TzCheckout(models.Model):
+    _name = 'tz.checkout'
+    _description = 'FrontDesk Checkout'
+    _auto = False
+    _check_company_auto = True
+
+    name = fields.Char('Room')
+    all_name = fields.Char('Room', compute='_compute_name', store=False)
+    booking_id = fields.Many2one('room.booking', string='Booking Id')
+    group_booking_id = fields.Many2one('group.booking', string='Group Booking')
+    dummy_id = fields.Many2one('tz.dummy.group', string='Dummy')
+    room_id = fields.Many2one('hotel.room', string='Room')
+    partner_id = fields.Many2one('res.partner', string='Guest')
+    checkin_date = fields.Datetime('Check-in Date')
+    checkout_date = fields.Datetime('Check-out Date')
+    adult_count = fields.Integer('Adults')
+    child_count = fields.Integer('Children')
+    infant_count = fields.Integer('Infants')
+    rate_code = fields.Many2one('rate.code', string='Rate Code')
+    meal_pattern = fields.Many2one('meal.pattern', string='Meal Pattern')
+    state = fields.Char('Status')
+    company_id = fields.Many2one('res.company', string='Company')
+    v_state = fields.Char('Status', compute='_compute_v_state', store=False)
+    folio_id = fields.Many2one('tz.master.folio', string="Master Folio")
+
+    def create_or_replace_view(self):
+        self.env.cr.execute("DROP MATERIALIZED VIEW IF EXISTS tz_checkout CASCADE")
+
+        company_id = self.env.company.id
+
+        query = f"""
+            CREATE MATERIALIZED VIEW tz_checkout AS (
+                SELECT
+                    id,
+                    name,
+                    booking_id,
+                    room_id,
+                    group_booking_id,
+                    dummy_id,
+                    folio_id,
+                    partner_id,
+                    checkin_date,
+                    checkout_date,
+                    adult_count,
+                    child_count,
+                    infant_count,
+                    rate_code,
+                    meal_pattern,
+                    state,
+                    company_id
+                FROM (
+                    -- Room Booking block (include individual bookings and group bookings that have a master folio)
+                    SELECT
+                        (rb.id * 10 + 1) AS id,
+                        COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
+                        rb.id AS booking_id,
+                        hr.id AS room_id,
+                        rb.group_booking_id,
+                        NULL::integer AS dummy_id,
+                        folio.id AS folio_id,
+                        rb.partner_id,
+                        rb.checkin_date,
+                        rb.checkout_date,
+                        rb.adult_count::integer,
+                        rb.child_count::integer,
+                        rb.infant_count::integer,
+                        rb.rate_code::varchar,
+                        rb.meal_pattern::varchar,
+                        rb.state::varchar AS state,
+                        rb.company_id
+                    FROM room_booking rb
+                    JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+                    JOIN hotel_room hr ON rbl.room_id = hr.id
+                    LEFT JOIN tz_master_folio folio ON folio.room_id = rbl.room_id
+                    WHERE rb.state = 'check_in'
+                      AND rb.company_id = {company_id}
+                      AND (
+                          rb.group_booking IS NULL
+                          OR (rb.group_booking IS NOT NULL AND folio.id IS NOT NULL)
+                      )
+
+                    UNION ALL
+
+                    -- Group Booking block
+                    SELECT
+                        (gb.id * 10 + 2) AS id,
+                        COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+                        NULL::integer AS booking_id,
+                        NULL::integer AS room_id,
+                        gb.id AS group_booking_id,
+                        NULL::integer AS dummy_id,
+                        folio.id AS folio_id,
+                        gb.company AS partner_id,
+                        gb.first_visit AS checkin_date,
+                        gb.last_visit AS checkout_date,
+                        gb.total_adult_count::integer,
+                        gb.total_child_count::integer,
+                        gb.total_infant_count::integer,
+                        gb.rate_code::varchar,
+                        gb.group_meal_pattern::varchar,
+                        gb.status_code::varchar AS state,
+                        gb.company_id
+                    FROM group_booking gb
+                    LEFT JOIN tz_master_folio folio ON folio.group_id = gb.id
+                    WHERE gb.status_code = 'confirmed'
+                      AND gb.company_id = {company_id}
+                      AND gb.id IN (
+                          SELECT rb.group_booking FROM room_booking rb
+                          WHERE rb.state = 'check_in'
+                            AND rb.company_id = {company_id}
+                      )
+
+                    UNION ALL
+
+                    -- Dummy Group block
+                    SELECT
+                        (dg.id * 10 + 3) AS id,
+                        dg.description::text AS name,
+                        NULL::integer AS booking_id,
+                        NULL::integer AS room_id,
+                        NULL::integer AS group_booking_id,
+                        dg.id AS dummy_id,
+                        folio.id AS folio_id,
+                        dg.partner_id,
+                        dg.start_date AS checkin_date,
+                        dg.end_date AS checkout_date,
+                        NULL::integer AS adult_count,
+                        NULL::integer AS child_count,
+                        NULL::integer AS infant_count,
+                        NULL::varchar AS rate_code,
+                        NULL::varchar AS meal_pattern,
+                        dg.state::varchar AS state,
+                        dg.company_id
+                    FROM tz_dummy_group dg
+                    LEFT JOIN tz_master_folio folio ON folio.dummy_id = dg.id
+                    WHERE dg.obsolete = FALSE
+                      AND dg.company_id = {company_id}
+                ) AS unified
+            )
+        """
+
+        self.env.cr.execute(query)
+        self.env.cr.execute("REFRESH MATERIALIZED VIEW tz_checkout")
+
+    def _setup_change_triggers(self):
+        """Setup automatic refresh triggers on source tables"""
+        try:
+            for table in ['room_booking', 'group_booking', 'tz_dummy_group', 'hotel_room', 'tz_master_folio',
+                          'rate.code', 'meal.pattern']:
+                try:
+                    # First drop the trigger if it exists
+                    self.env.cr.execute(f"""
+                        DROP TRIGGER IF EXISTS tz_checkout_refresh_trigger ON {table};
+                    """)
+                    # Then create the new trigger
+                    self.env.cr.execute(f"""
+                        CREATE TRIGGER tz_checkout_refresh_trigger
+                        AFTER INSERT OR UPDATE OR DELETE ON {table}
+                        FOR EACH STATEMENT EXECUTE FUNCTION tz_refresh_checkout();
+                    """)
+                except Exception as trigger_error:
+                    _logger.warning("Failed to create trigger on %s: %s", table, str(trigger_error))
+                    continue
+            _logger.info("Successfully created all refresh triggers")
+        except Exception as e:
+            _logger.error("Failed to setup change triggers: %s", str(e))
+            raise UserError(_("Failed to setup automatic refresh triggers. Check logs for details."))
+
+    @api.model
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        """Ensure fresh data when dropdown is opened"""
+        self.refresh_view()
+        return super().search_read(domain=domain, fields=fields, offset=offset, limit=limit, order=order)
+
+    def refresh_view(self):
+        """Public method to manually refresh the view"""
+        self.create_or_replace_view()
+        return True
+
+    def schedule_refresh_materialized_view(self):
+        """Called by scheduled action to refresh the view"""
+        self.env.cr.execute("REFRESH MATERIALIZED VIEW tz_checkout")
+        self.env.cr.commit()
+
 class HotelCheckOut(models.Model):
     _name = 'tz.hotel.checkout'
     _description = 'Hotel Checkout'
@@ -11,6 +195,7 @@ class HotelCheckOut(models.Model):
     # _order = 'create_date desc'
     _check_company_auto = True
 
+    source_id = fields.Integer(string="Source ID", index=True)
     name = fields.Char('Room')
     booking_id = fields.Many2one('room.booking', string='Booking Id')
     group_booking_id = fields.Many2one('group.booking', string='Group Booking')
@@ -97,131 +282,178 @@ class HotelCheckOut(models.Model):
                 record.show_other_buttons = True
 
     @api.model
-    def generate_data(self):
-        # Get current company_id from environment
+    def sync_with_materialized_view(self):
+        """Sync with the materialized view using ORM."""
         company_id = self.env.company.id
 
-        # 1. Ensure the view exists
-        try:
-            tools.drop_view_if_exists(self.env.cr, 'tz_checkout')
-            self.env.cr.execute("""
-                CREATE OR REPLACE VIEW tz_checkout AS (    
-                    SELECT
-                        ROW_NUMBER() OVER () AS id,
-                        name,
-                        booking_id,
-                        room_id,
-                        group_booking_id,
-                        dummy_id,
-                        folio_id,
-                        partner_id,
-                        checkin_date,
-                        checkout_date,
-                        adult_count,
-                        child_count,
-                        infant_count,
-                        rate_code,
-                        meal_pattern,
-                        state,
-                        company_id
-                    FROM (
-                        -- Room Booking block
-                        SELECT
-                            COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
-                            rb.id AS booking_id,
-                            hr.id AS room_id,
-                            rb.group_booking_id,
-                            NULL::integer AS dummy_id,
-                            folio.id AS folio_id,
-                            rb.partner_id,
-                            rb.checkin_date,
-                            rb.checkout_date,
-                            rb.adult_count::integer,
-                            rb.child_count::integer,
-                            rb.infant_count::integer,
-                            rb.rate_code::varchar,
-                            rb.meal_pattern::varchar,
-                            rb.state::varchar AS state,
-                            rb.company_id
-                        FROM room_booking rb
-                        JOIN room_booking_line rbl ON rbl.booking_id = rb.id
-                        JOIN hotel_room hr ON rbl.room_id = hr.id
-                        LEFT JOIN tz_master_folio folio
-                            ON folio.room_id = rbl.room_id
-                        WHERE rb.state = 'check_in' 
-                          AND rb.group_booking IS NULL
-                          AND rb.company_id = %s
+        # Fetch all relevant rows from the materialized view
+        view_records = self.env['tz.checkout'].sudo().search([
+            ('company_id', '=', company_id),
+        ])
 
-                        UNION ALL
+        for view in view_records:
+            # Create domain based on source_id and other identifying fields
+            domain = [
+                ('source_id', '=', view.id),
+                ('company_id', '=', company_id),
+            ]
 
-                        -- Group Booking block
-                        SELECT
-                            COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
-                            NULL::integer AS booking_id,
-                            NULL::integer AS room_id,
-                            gb.id AS group_booking_id,
-                            NULL::integer AS dummy_id,
-                            folio.id AS folio_id,
-                            gb.company AS partner_id,
-                            gb.first_visit AS checkin_date,
-                            gb.last_visit AS checkout_date,
-                            gb.total_adult_count::integer,
-                            gb.total_child_count::integer,
-                            gb.total_infant_count::integer,
-                            gb.rate_code::varchar,
-                            gb.group_meal_pattern::varchar,
-                            gb.status_code::varchar AS state,
-                            gb.company_id
-                        FROM group_booking gb
-                        LEFT JOIN tz_master_folio folio
-                            ON folio.group_id = gb.id
-                        WHERE gb.status_code = 'confirmed'
-                          AND gb.company_id = %s
-                          AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in' AND rb.company_id = %s)
+            existing = self.sudo().search(domain, limit=1)
 
-                        UNION ALL
+            # Prepare values for creation or update
+            vals = {
+                'source_id': view.id,
+                'name': view.name,
+                'booking_id': view.booking_id.id if view.booking_id else False,
+                'room_id': view.room_id.id if view.room_id else False,
+                'group_booking_id': view.group_booking_id.id if view.group_booking_id else False,
+                'dummy_id': view.dummy_id.id if view.dummy_id else False,
+                'folio_id': view.folio_id.id if view.folio_id else False,
+                'partner_id': view.partner_id.id if view.partner_id else False,
+                'checkin_date': view.checkin_date,
+                'checkout_date': view.checkout_date,
+                'adult_count': view.adult_count,
+                'child_count': view.child_count,
+                'infant_count': view.infant_count,
+                'rate_code': view.rate_code.id if view.rate_code else False,
+                'meal_pattern': view.meal_pattern.id if view.meal_pattern else False,
+                'company_id': company_id,
+                'state': 'In' if view.state in ('check_in', 'confirmed') else view.state.capitalize(),
+            }
+            if not existing:
+                self.sudo().create(vals)
 
-                        -- Dummy Group block
-                        SELECT
-                            dg.description::text AS name,
-                            NULL::integer AS booking_id,
-                            NULL::integer AS room_id,
-                            NULL::integer AS group_booking_id,
-                            dg.id AS dummy_id,
-                            folio.id AS folio_id,
-                            dg.partner_id,
-                            dg.start_date AS checkin_date,
-                            dg.end_date AS checkout_date,
-                            NULL::integer AS adult_count,
-                            NULL::integer AS child_count,
-                            NULL::integer AS infant_count,
-                            NULL::varchar AS rate_code,
-                            NULL::varchar AS meal_pattern,
-                            dg.state::varchar AS state,
-                            dg.company_id
-                        FROM tz_dummy_group dg
-                        LEFT JOIN tz_master_folio folio
-                            ON folio.dummy_id = dg.id
-                        WHERE dg.obsolete = FALSE
-                          AND dg.company_id = %s
-                    ) AS unified
-                );
-            """, (company_id, company_id, company_id, company_id))
-        except Exception as e:
-            raise UserError(f"Failed to create view: {str(e)}")
+            # if existing:
+            #     existing.sudo().write(vals)
+            # else:
+            #     self.sudo().create(vals)
 
-        # Rest of your function remains the same...
-        # 2. Read from the view
-        try:
-            self.env.cr.execute("SELECT * FROM tz_checkout")
-            results = self.env.cr.dictfetchall()
-        except Exception as e:
-            raise UserError(f"Failed to read from view: {str(e)}")
+        _logger.info("Hotel checkout successfully synced with materialized view for company_id %s", company_id)
+        return True
 
-        # [Rest of your existing code...]
+    # @api.model
+    # def create_or_replace_view(self):
+    #     # Get current company_id from environment
+    #     company_id = self.env.company.id
+    #
+    #     # 1. Ensure the view exists
+    #     try:
+    #         tools.drop_view_if_exists(self.env.cr, 'tz_checkout')
+    #         self.env.cr.execute("""
+    #             CREATE MATERIALIZED VIEW tz_checkout AS (
+    #                 SELECT
+    #                     ROW_NUMBER() OVER () AS id,
+    #                     name,
+    #                     booking_id,
+    #                     room_id,
+    #                     group_booking_id,
+    #                     dummy_id,
+    #                     folio_id,
+    #                     partner_id,
+    #                     checkin_date,
+    #                     checkout_date,
+    #                     adult_count,
+    #                     child_count,
+    #                     infant_count,
+    #                     rate_code,
+    #                     meal_pattern,
+    #                     state,
+    #                     company_id
+    #                 FROM (
+    #                     -- Room Booking block
+    #                     SELECT
+    #                         COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
+    #                         rb.id AS booking_id,
+    #                         hr.id AS room_id,
+    #                         rb.group_booking_id,
+    #                         NULL::integer AS dummy_id,
+    #                         folio.id AS folio_id,
+    #                         rb.partner_id,
+    #                         rb.checkin_date,
+    #                         rb.checkout_date,
+    #                         rb.adult_count::integer,
+    #                         rb.child_count::integer,
+    #                         rb.infant_count::integer,
+    #                         rb.rate_code::varchar,
+    #                         rb.meal_pattern::varchar,
+    #                         rb.state::varchar AS state,
+    #                         rb.company_id
+    #                     FROM room_booking rb
+    #                     JOIN room_booking_line rbl ON rbl.booking_id = rb.id
+    #                     JOIN hotel_room hr ON rbl.room_id = hr.id
+    #                     LEFT JOIN tz_master_folio folio
+    #                         ON folio.room_id = rbl.room_id
+    #                     WHERE rb.state = 'check_in'
+    #                       AND rb.group_booking IS NULL
+    #
+    #                     UNION ALL
+    #
+    #                     -- Group Booking block
+    #                     SELECT
+    #                         COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
+    #                         NULL::integer AS booking_id,
+    #                         NULL::integer AS room_id,
+    #                         gb.id AS group_booking_id,
+    #                         NULL::integer AS dummy_id,
+    #                         folio.id AS folio_id,
+    #                         gb.company AS partner_id,
+    #                         gb.first_visit AS checkin_date,
+    #                         gb.last_visit AS checkout_date,
+    #                         gb.total_adult_count::integer,
+    #                         gb.total_child_count::integer,
+    #                         gb.total_infant_count::integer,
+    #                         gb.rate_code::varchar,
+    #                         gb.group_meal_pattern::varchar,
+    #                         gb.status_code::varchar AS state,
+    #                         gb.company_id
+    #                     FROM group_booking gb
+    #                     LEFT JOIN tz_master_folio folio
+    #                         ON folio.group_id = gb.id
+    #                     WHERE gb.status_code = 'confirmed'
+    #                       AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in')
+    #
+    #                     UNION ALL
+    #
+    #                     -- Dummy Group block
+    #                     SELECT
+    #                         dg.description::text AS name,
+    #                         NULL::integer AS booking_id,
+    #                         NULL::integer AS room_id,
+    #                         NULL::integer AS group_booking_id,
+    #                         dg.id AS dummy_id,
+    #                         folio.id AS folio_id,
+    #                         dg.partner_id,
+    #                         dg.start_date AS checkin_date,
+    #                         dg.end_date AS checkout_date,
+    #                         NULL::integer AS adult_count,
+    #                         NULL::integer AS child_count,
+    #                         NULL::integer AS infant_count,
+    #                         NULL::varchar AS rate_code,
+    #                         NULL::varchar AS meal_pattern,
+    #                         dg.state::varchar AS state,
+    #                         dg.company_id
+    #                     FROM tz_dummy_group dg
+    #                     LEFT JOIN tz_master_folio folio
+    #                         ON folio.dummy_id = dg.id
+    #                     WHERE dg.obsolete = FALSE
+    #                 ) AS unified
+    #             );
+    #         """, (company_id, company_id, company_id, company_id))
+    #     except Exception as e:
+    #         raise UserError(f"Failed to create view: {str(e)}")
+    #
+    #     # Rest of your function remains the same...
+    #     # 2. Read from the view
+    #     try:
+    #         self.env.cr.execute("SELECT * FROM tz_checkout")
+    #         results = self.env.cr.dictfetchall()
+    #     except Exception as e:
+    #         raise UserError(f"Failed to read from view: {str(e)}")
+    #
+    #     # [Rest of your existing code...]
 
     @api.model
-    def sync_from_view(self):
+    def sync_with_materialized_viewX(self):
         company_id = self.env.company.id
         view_model = self.env['tz.checkout']
         records = view_model.search([])
@@ -265,51 +497,51 @@ class HotelCheckOut(models.Model):
 
         return True
 
-    @api.model
-    def sync_from_viewX(self):
-        company_id = self.env.company.id
-        view_model = self.env['tz.checkout']
-        records = view_model.search([])
-        vals = []
-
-        for rec in records:
-            # Check for existing record based on the unique key
-            domain = []
-            if rec.booking_id:
-                domain.append(('booking_id', '=', rec.booking_id.id))
-            elif rec.group_booking_id:
-                domain.append(('group_booking_id', '=', rec.group_booking_id.id))
-            elif rec.dummy_id:
-                domain.append(('dummy_id', '=', rec.dummy_id.id))
-            else:
-                continue  # Skip if no identifier is found
-
-            # Avoid duplication
-            if self.search(domain, limit=1):
-                continue
-
-            vals.append({
-                'name': rec.name,
-                'booking_id': rec.booking_id.id if rec.booking_id else False,
-                'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
-                'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
-                'room_id': rec.room_id.id if rec.room_id else False,
-                'partner_id': rec.partner_id.id if rec.partner_id else False,
-                'checkin_date': rec.checkin_date,
-                'checkout_date': rec.checkout_date,
-                'adult_count': rec.adult_count,
-                'child_count': rec.child_count,
-                'infant_count': rec.infant_count,
-                'rate_code': rec.rate_code.id if rec.rate_code else False,
-                'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
-                'state': 'In' if rec.state == 'check_in' or rec.state == 'confirmed' else rec.state.capitalize(),
-                'company_id': rec.company_id.id if rec.company_id else company_id,
-                'folio_id': rec.folio_id.id if rec.folio_id else False,
-            })
-
-        if vals:
-            self.sudo().create(vals)
-        return True
+    # @api.model
+    # def sync_from_viewX(self):
+    #     company_id = self.env.company.id
+    #     view_model = self.env['tz.checkout']
+    #     records = view_model.search([])
+    #     vals = []
+    #
+    #     for rec in records:
+    #         # Check for existing record based on the unique key
+    #         domain = []
+    #         if rec.booking_id:
+    #             domain.append(('booking_id', '=', rec.booking_id.id))
+    #         elif rec.group_booking_id:
+    #             domain.append(('group_booking_id', '=', rec.group_booking_id.id))
+    #         elif rec.dummy_id:
+    #             domain.append(('dummy_id', '=', rec.dummy_id.id))
+    #         else:
+    #             continue  # Skip if no identifier is found
+    #
+    #         # Avoid duplication
+    #         if self.search(domain, limit=1):
+    #             continue
+    #
+    #         vals.append({
+    #             'name': rec.name,
+    #             'booking_id': rec.booking_id.id if rec.booking_id else False,
+    #             'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
+    #             'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
+    #             'room_id': rec.room_id.id if rec.room_id else False,
+    #             'partner_id': rec.partner_id.id if rec.partner_id else False,
+    #             'checkin_date': rec.checkin_date,
+    #             'checkout_date': rec.checkout_date,
+    #             'adult_count': rec.adult_count,
+    #             'child_count': rec.child_count,
+    #             'infant_count': rec.infant_count,
+    #             'rate_code': rec.rate_code.id if rec.rate_code else False,
+    #             'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
+    #             'state': 'In' if rec.state == 'check_in' or rec.state == 'confirmed' else rec.state.capitalize(),
+    #             'company_id': rec.company_id.id if rec.company_id else company_id,
+    #             'folio_id': rec.folio_id.id if rec.folio_id else False,
+    #         })
+    #
+    #     if vals:
+    #         self.sudo().create(vals)
+    #     return True
 
     @api.model
     def create(self, vals):
@@ -360,16 +592,16 @@ class HotelCheckOut(models.Model):
             else:
                 raise UserError(_("Room is already checked out."))  # Translated
 
-    def action_checkout_roomX(self):
-        for record in self:
-            if not record.is_cashier_checkout:
-                raise UserError("Cashier checkout must be completed first.")
-            if record.state == 'In':
-                record.state = 'Out'
-                record.checkout_date = self.env.company.system_date.date()
-                self.get_partner_manual_postings()
-            else:
-                raise UserError("Room is already checked out.")
+    # def action_checkout_roomX(self):
+    #     for record in self:
+    #         if not record.is_cashier_checkout:
+    #             raise UserError("Cashier checkout must be completed first.")
+    #         if record.state == 'In':
+    #             record.state = 'Out'
+    #             record.checkout_date = self.env.company.system_date.date()
+    #             self.get_partner_manual_postings()
+    #         else:
+    #             raise UserError("Room is already checked out.")
 
     def open_manual_posting(self):
         self.ensure_one()
@@ -663,63 +895,6 @@ class HotelCheckOut(models.Model):
             if key in consolidated:
                 consolidated[key]['quantity'] += posting.quantity
                 consolidated[key]['total'] += posting.total
-            else:
-                consolidated[key] = {
-                    'id': posting.id,
-                    'item_id': posting.item_id,
-                    'date': str(posting.date),
-                    'time': posting.time,
-                    'item': posting.item_id.description,
-                    'debit': posting.debit_amount,
-                    'credit': posting.credit_amount,
-                    'quantity': posting.quantity,
-                    'taxes': posting.taxes,
-                    'total': posting.total,
-                }
-
-        result['postings'] = list(consolidated.values())
-
-        self.create_invoice(result['partner'], result['postings'])
-
-    def get_partner_manual_postingsX(self):
-        """
-        Get all manual postings related to the partner_id of this checkout record.
-        Consolidate postings that share the same item description and amount into a single line.
-        Exclude any posting with item description 'Cash'.
-        Creates an invoice from the consolidated postings.
-        """
-        self.ensure_one()
-
-        postings = self.env['tz.manual.posting'].search([
-            ('company_id', '=', self.company_id.id),
-            ('partner_id', '=', self.partner_id.id)
-        ])
-
-        result = {
-            'partner': {
-                'id': self.partner_id.id,
-                'name': self.partner_id.name,
-                'contact_reference': self.booking_id.reference_contact_ if self.booking_id else '',
-                'hotel_booking_id': self.booking_id or '',
-                'group_booking_name': self.group_booking_id.name if self.group_booking_id else '',
-                'parent_booking_name': self.booking_id.parent_booking_name if self.booking_id else '',
-                'room_numbers': self.booking_id.room_ids_display if self.booking_id else '',
-            },
-            'postings': []
-        }
-
-        consolidated = {}
-        for posting in postings:
-            if posting.item_id.description.strip().lower() == 'cash':
-                continue
-
-            amount = posting.debit_amount if posting.debit_amount > 0 else posting.credit_amount
-            key = (posting.item_id.description, amount)
-
-            if key in consolidated:
-                consolidated[key]['quantity'] += posting.quantity
-                consolidated[key]['total'] += posting.total
-                consolidated[key]['balance'] = posting.balance
             else:
                 consolidated[key] = {
                     'id': posting.id,

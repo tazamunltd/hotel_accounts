@@ -235,7 +235,7 @@ class RoomBooking(models.Model):
     def create_booking_lines(self):
         for booking in self:
             if not booking.room_list:
-                raise ValidationError("Room must be selected before creating a booking line.")
+                raise ValidationError(_("Room must be selected before creating a booking line."))
 
             line_vals = {
                 'booking_id': booking.id,
@@ -364,7 +364,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return self._notify_booking_confirmation(result)
 
@@ -374,7 +374,7 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return self._notify_booking_confirmation(result)
 
@@ -398,7 +398,7 @@ class RoomBooking(models.Model):
 
     def action_block(self):
         result = super(RoomBooking, self).action_block()
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return result
 
@@ -406,23 +406,22 @@ class RoomBooking(models.Model):
         # Call the parent method first
         result = super(RoomBooking, self).action_checkin()
 
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
-        hotel_check_out = self.env['tz.hotel.checkout']
-        hotel_check_out.generate_data()
-        hotel_check_out.sync_from_view()
+
+        self.env['tz.checkout'].create_or_replace_view()
+        self.env['tz.hotel.checkout'].sync_with_materialized_view()
 
         return result
 
     def action_checkin_booking(self):
         # Call the parent method first
         result = super(RoomBooking, self).action_checkin_booking()
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         # Refresh the SQL View and Sync data
-        hotel_check_out = self.env['tz.hotel.checkout']
-        hotel_check_out.generate_data()
-        hotel_check_out.sync_from_view()
+        self.env['tz.checkout'].create_or_replace_view()
+        self.env['tz.hotel.checkout'].sync_with_materialized_view()
 
         return result
 

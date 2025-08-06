@@ -28,14 +28,14 @@ class GroupBooking(models.Model):
     def create(self, vals):
         """Override create to refresh materialized view after creation"""
         record = super(GroupBooking, self).create(vals)
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return record
 
     def write(self, vals):
         """Override write to refresh materialized view when relevant fields change"""
         result = super(GroupBooking, self).write(vals)
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return result
 
