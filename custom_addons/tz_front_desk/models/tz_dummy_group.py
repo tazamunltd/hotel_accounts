@@ -95,12 +95,11 @@ class DummyGroup(models.Model):
         group = super().create(vals)
         group._get_or_create_master_folio()
         # Refresh the SQL View and Sync data
-        self.env['tz.manual.posting.room']._create_or_replace_view()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
-        hotel_check_out = self.env['tz.hotel.checkout']
-        hotel_check_out.generate_data()
-        hotel_check_out.sync_from_view()
-        # self.env['tz.manual.posting.type'].generate_manual_postings()
+
+        self.env['tz.checkout'].create_or_replace_view()
+        self.env['tz.hotel.checkout'].sync_with_materialized_view()
         return group
 
     def write(self, vals):
@@ -112,7 +111,7 @@ class DummyGroup(models.Model):
             is_state_in = vals.get('state', record.state) == 'in'
             has_end_date = 'end_date' in vals or record.end_date
             record._get_or_create_master_folio()
-            self.env['tz.manual.posting.room']._create_or_replace_view()
+            self.env['tz.manual.posting.room'].create_or_replace_view()
             self.env['tz.manual.posting.type'].sync_with_materialized_view()
 
             if is_reopen and is_state_in and has_end_date:

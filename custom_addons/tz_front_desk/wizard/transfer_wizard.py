@@ -23,7 +23,7 @@ class TransferChargeWizard(models.TransientModel):
         string="From Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]", #, ('checkin_date', '=', current_date)
+        domain="[('company_id', '=', company_id)]", #, ('folio_id', '!=', False), ('checkin_date', '=', current_date)
         ondelete="restrict"
     )
 
@@ -35,7 +35,7 @@ class TransferChargeWizard(models.TransientModel):
         string="To Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('folio_id', '!=', False)]", #, ('checkin_date', '=', current_date)
+        domain="[('company_id', '=', company_id)]", #, ('folio_id', '!=', False), ('checkin_date', '=', current_date)
         ondelete="restrict"
     )
     company_id = fields.Many2one(
