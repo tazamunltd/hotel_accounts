@@ -239,15 +239,35 @@ class RateDetail(models.Model):
         bookings = self.env['room.booking'].search([
             ('rate_code', '<=', self.id),
             ('state', 'not in', ['done', 'cancel', 'no_show', 'check_out']),
-
         ])
+        if bookings: 
+            first_booking = bookings[0]
+            first_booking._get_forecast_rates(from_rate_code=True)  # Trigger rate details
+            first_booking = self.env['room.booking'].browse(first_booking.id)  # Refresh the record from the database
 
-        # print("BOOKINGS", bookings)
+            if first_booking.rate_forecast_ids:
+                forecast_rate = first_booking.rate_forecast_ids[0].rate
+                forecast_meals = first_booking.rate_forecast_ids[0].meals
+                forecast_fixed_post = first_booking.rate_forecast_ids[0].fixed_post
+                forecast_total = first_booking.rate_forecast_ids[0].total
+                forecast_before_discount = first_booking.rate_forecast_ids[0].before_discount
+                booking_ids = tuple(b.id for b in bookings)
+                if booking_ids:
+                    self.env.cr.execute("""
+                        UPDATE room_rate_forecast
+                        SET rate  = %s,
+                            meals = %s,
+                            fixed_post = %s,
+                            total = %s,
+                            before_discount = %s
+                        WHERE room_booking_id IN %s
+                    """, (forecast_rate, forecast_meals, forecast_fixed_post, forecast_total, forecast_before_discount, booking_ids))
+                    self.env.cr.commit()
 
-        for booking in bookings:
-            # print("CHECK", booking.checkin_date, booking.checkout_date, booking.state)
-            _logger.info(f"BOOKING ID {booking.id}, {booking.name}")
-            booking._get_forecast_rates(from_rate_code=True)
+
+        # for booking in bookings:
+        #     _logger.info(f"BOOKING ID {booking.id}, {booking.name}")
+        #     booking._get_forecast_rates(from_rate_code=True)
 
     company_id = fields.Many2one('res.company', string="Hotel", default=lambda self: self.env.company, tracking=True)
 
@@ -1736,7 +1756,8 @@ class RoomNumberSpecificRate(models.Model):
     room_fsm_location = fields.Many2one(
         'fsm.location',
         string="Location",
-        domain=[('dynamic_selection_id', '=', 4)], tracking=True)
+        # domain=[('dynamic_selection_id', '=', 4)], 
+        tracking=True)
 
     room_fsm_location_id = fields.Integer(
         string="Location ID",

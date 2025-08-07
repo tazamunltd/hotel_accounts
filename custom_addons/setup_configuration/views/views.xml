@@ -2427,8 +2427,8 @@
                 <field name="pax_2" optional='show' />
                 <field name="pax_3" optional='show' />
                 <field name="pax_4" optional='show' />
+                <field name="pax_5" optional='show' />
                 <field name="pax_6" optional='show' />
-                <field name="pax_4" optional='show' />
             </tree>
         </field>
     </record>

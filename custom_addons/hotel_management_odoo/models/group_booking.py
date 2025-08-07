@@ -236,19 +236,20 @@ class GroupBooking(models.Model):
         tracking=True
     )
 
-    @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date')
+    @api.depends('room_booking_ids.checkin_date', 'room_booking_ids.checkout_date', 'room_booking_ids.active')
     def _compute_total_nights(self):
         for group in self:
             # collect all valid check-in and check-out dates as date objects
             cis = []
             cos = []
             for booking in group.room_booking_ids:
-                if booking.checkin_date:
-                    cis.append(fields.Datetime.to_datetime(
-                        booking.checkin_date).date())
-                if booking.checkout_date:
-                    cos.append(fields.Datetime.to_datetime(
-                        booking.checkout_date).date())
+                if booking.active:
+                    if booking.checkin_date:
+                        cis.append(fields.Datetime.to_datetime(
+                            booking.checkin_date).date())
+                    if booking.checkout_date:
+                        cos.append(fields.Datetime.to_datetime(
+                            booking.checkout_date).date())
             if cis and cos:
                 # find earliest check-in and latest check-out
                 min_ci = min(cis)
@@ -533,7 +534,7 @@ class GroupBooking(models.Model):
         ('credit_limit', 'Credit (C/L)'),
         ('credit_card', 'Credit Card'),
         ('other', 'Other Payment'),
-    ], string='Payment Type', tracking=True)
+    ], string='Payment Type', required = True, tracking=True)
 
     master_folio_limit = fields.Float(
         string='Master Folio C. Limit', tracking=True)
@@ -555,7 +556,7 @@ class GroupBooking(models.Model):
         'meal.pattern', string='Meal Pattern',
         domain=lambda self: [
             ('company_id', '=', self.env.company.id),
-        ], tracking=True)
+        ], tracking=True, required=True)
 
     main_meal_code = fields.Many2one(
         'meal.code.sub.type', string='Main Meal Code',
@@ -601,7 +602,60 @@ class GroupBooking(models.Model):
     # first_visit = fields.Date(string='First Visit',tracking=True)
     # last_visit = fields.Date(string='Last Visit',tracking=True)
 
-    last_rate = fields.Float(string='Last Rate', tracking=True)
+    last_rate = fields.Float(
+                string='Last Rate',
+                tracking=True,
+                compute='_compute_last_rate',
+                store=True
+            )
+
+    @api.depends(
+        'room_booking_ids',
+        'room_booking_ids.use_price',
+        'room_booking_ids.room_price',
+        'room_booking_ids.rate_code',
+        'room_booking_ids.adult_count',
+        'room_booking_ids.checkin_date',
+        'room_booking_ids.checkout_date',
+        'room_booking_ids.state',
+        'room_booking_ids.parent_booking_id.state'
+)
+    def _compute_last_rate(self):
+        for record in self:
+            record.last_rate = 0.0
+
+            booking = record.room_booking_ids.filtered(lambda b: b.active)[:1]
+            if not booking:
+                continue
+
+            # Get parent booking if exists
+            parent_booking = booking.parent_booking_id or booking
+
+            # Case 1: If "Use Price" is enabled
+            if parent_booking.use_price:
+                record.last_rate = parent_booking.room_price
+                continue
+
+            # Case 2: Use rate code based on adult count
+            if parent_booking and parent_booking.rate_forecast_ids:
+                last_forecast_line = parent_booking.rate_forecast_ids[-1]  # last record
+                # Example: read any field from last line
+                record.last_rate = last_forecast_line.rate if 'rate' in last_forecast_line else 0.0
+            # if parent_booking.rate_code and parent_booking.checkin_date and parent_booking.checkout_date:
+            #     rate_detail = self.env['rate.detail'].search([
+            #         ('rate_code_id', '=', parent_booking.rate_code.id),
+            #         ('from_date', '<=', parent_booking.checkin_date),
+            #         ('to_date', '>=', parent_booking.checkout_date)
+            #     ], limit=1)
+
+            #     if not rate_detail:
+            #         continue
+
+            #     adult_count = parent_booking.adult_count or 1
+            #     record.last_rate = getattr(rate_detail, f'pax_{adult_count}', 0.0)
+
+
+
 
     name = fields.Char(string=_("Group ID"), required=True,
                        copy=False, readonly=True, default='New', translate=True)

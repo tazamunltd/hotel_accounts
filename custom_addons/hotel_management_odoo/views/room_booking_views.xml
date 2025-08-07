@@ -1357,11 +1357,13 @@ action = {
                         confirm="Are you sure you want to check-out this booking?" />
                     <button name="action_no_show_tree" string="No Show" class="btn-danger"
                         type="object" />
-                    <button name="%(action_open_room_booking_update_wizard)d" 
+                    <button name="action_open_room_booking_update_wizard" string="Edit Data" type="object" class="oe_highlight" />
+
+                    <!-- <button name="%(action_open_room_booking_update_wizard)d" 
                             string="Edit Data"
                             type="action"   
                             class="oe_highlight"
-                            />
+                            /> -->
                 </header>
                 <field name="name" optional="show" />
                 <field name="room_ids_display" string="Room Name" optional="show" />
@@ -1769,7 +1771,7 @@ action = {
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">room.booking</field>
         <field name="view_mode">tree,kanban,pivot,graph,calendar,form</field>
-        <field name="limit">200</field>
+        <field name="limit">500</field>
         <field name="domain">[('show_in_tree', '=', True)]</field>
     </record>
 
@@ -1790,7 +1792,7 @@ action = {
         <field name="model">room.booking</field>
         <field name="report_name">hotel_management_odoo.report_consolidated_template</field>
         <field name="report_type">qweb-pdf</field>
-    </record> -->
+    </record> -->/
 
     <record id="action_report_consolidated_rc" model="ir.actions.server">
         <field name="name">Generate RC Report</field>

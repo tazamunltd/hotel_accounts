@@ -10000,6 +10000,7 @@ msgstr ""
 "هل ترغب في إرسال هذا الحجز إلى <strong>قائمة الانتظار</strong>؟"
 "</div>"
 
+
 #. module: hotel_management_odoo
 #: code:addons/hotel_management_odoo/models/room_booking.py:0
 msgid "Room Price must be greater than 0 when Use Price is selected!"
@@ -10276,3 +10277,53 @@ msgstr "إلغاء الأرشفة"
 #: model:ir.actions.server,name:fieldservice.action_delete_fsm_location
 msgid "Delete"
 msgstr "حذف"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Cannot save without search for the room available first"
+msgstr "لا يمكن الحفظ قبل البحث أولاً عن الغرف المتاحة"
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "The following rooms have a conflict with the new check-in date:\n%s"
+msgstr "الغرفة التالية %s بها تعارض مع تاريخ تسجيل الدخول الجديد."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "The following rooms %s have a conflict with the new checkout date"
+msgstr "العملية غير صالحة، الغرفة التالية %s بها تعارض مع تاريخ تسجيل المغادرة الجديد."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Only %s room(s) of type '%s' are available for %s → %s. You requested %s."
+msgstr "لا تتوفر سوى %s غرفة من نوع «%s» في الفترة من %s إلى %s. لقد طلبت %s غرفة."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "No rooms can be allocated for the selected dates."
+msgstr "لا يمكن تخصيص أي غرف للتواريخ المحددة."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Rooms are not available for the new check-in and check-out dates."
+msgstr "الغرف غير متاحة لتواريخ تسجيل الدخول والخروج الجديدة."
+
+#. module: hotel_management_odoo
+#. odoo-python
+#: code:addons/hotel_management_odoo/models/room_booking.py:0
+#, python-format
+msgid "Room Availability"
+msgstr "إتاحية الغرف"
+

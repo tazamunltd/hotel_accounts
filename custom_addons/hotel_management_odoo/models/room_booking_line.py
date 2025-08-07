@@ -195,6 +195,8 @@ class RoomBookingLine(models.Model):
         "('id', 'not in', booked_room_ids), ('company_id', '=', current_company_id)]",
         help="Indicates the Room",tracking=True)
 
+    
+
     @api.model
     def default_get(self, fields_list):
         defaults = super(RoomBookingLine, self).default_get(fields_list)
@@ -215,30 +217,211 @@ class RoomBookingLine(models.Model):
         store=False
     ,tracking=True)
 
-    
+    # @api.depends('checkin_date', 'checkout_date')
+    # def _compute_booked_room_ids(self):
+    #     BookingLine = self.env['room.booking.line']
+    #     # 1) Split into “to compute” vs “to clear” sets
+    #     to_compute = self.filtered(lambda r: isinstance(r.id, int) and r.checkin_date and r.checkout_date)
+    #     to_clear = self - to_compute
 
-    @api.depends('checkin_date', 'checkout_date')
+    #     # 2) Clear the rest in one go
+    #     for rec in to_clear:
+    #         rec.booked_room_ids = []
+
+    #     if not to_compute:
+    #         return
+
+    #     # 3) Build a loose domain covering all of them
+    #     min_checkin  = min(to_compute.mapped('checkin_date'))
+    #     max_checkout = max(to_compute.mapped('checkout_date'))
+    #     domain = [
+    #         ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
+    #         ('room_id', '!=', False),
+    #         ('booking_id.checkin_date', '<', max_checkout),
+    #         ('booking_id.checkout_date', '>', min_checkin),
+    #     ]
+    #     all_lines = BookingLine.search(domain)
+
+    #     # 4) For each record, filter those lines by its specific window
+    #     for rec in to_compute:
+    #         overlapping = all_lines.filtered(
+    #             lambda ln:
+    #             ln.booking_id.checkin_date < rec.checkout_date
+    #             and ln.booking_id.checkout_date > rec.checkin_date
+    #             and not (
+    #                 ln.booking_id.checkin_date <= rec.checkin_date
+    #                 and ln.booking_id.checkout_date >= rec.checkout_date
+    #             )
+    #             and ln.id != rec.id
+    #         )
+    #         # overlapping = all_lines.filtered(
+    #         #     lambda ln: ln.booking_id.checkin_date < rec.checkout_date
+    #         #             and ln.booking_id.checkout_date > rec.checkin_date
+    #         #             and ln.id != rec.id
+    #         # )
+    #         rec.booked_room_ids = overlapping.mapped('room_id.id')
+
+    # @api.depends('checkin_date', 'checkout_date')
+    # def _compute_booked_room_ids(self):
+    #     BookingLine = self.env['room.booking.line']
+
+    #     # 1) Split into “to compute” vs “to clear” sets
+    #     to_compute = self.filtered(lambda r: isinstance(r.id, int) and r.checkin_date and r.checkout_date)
+    #     to_clear   = self - to_compute
+
+    #     _logger.info("Compute triggered for %d records", len(self))
+    #     _logger.info(" to_compute IDs: %s", to_compute.ids)
+    #     _logger.info(" to_clear IDs: %s", to_clear.ids)
+
+    #     # 2) Clear the rest in one go
+    #     for rec in to_clear:
+    #         _logger.info(" Clearing booked_room_ids for record %s", rec.id)
+    #         rec.booked_room_ids = []
+
+    #     if not to_compute:
+    #         _logger.info(" Nothing to compute, exiting.")
+    #         return
+
+    #     # 3) Build a loose domain covering all of them
+    #     min_checkin  = min(to_compute.mapped('checkin_date'))
+    #     max_checkout = max(to_compute.mapped('checkout_date'))
+    #     domain = [
+    #         ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
+    #         ('room_id', '!=', False),
+    #         ('booking_id.checkin_date', '<', max_checkout),
+    #         ('booking_id.checkout_date', '>', min_checkin),
+    #     ]
+    #     _logger.info(" Overall date window: %s to %s", min_checkin, max_checkout)
+    #     _logger.info(" Search domain: %s", domain)
+
+    #     all_lines = BookingLine.search(domain)
+    #     _logger.info(" Found %d lines matching domain", len(all_lines))
+
+    #     # 4) For each record, filter those lines by its specific window
+    #     for rec in to_compute:
+    #         _logger.info(" -- Computing for record %s (checkin=%s, checkout=%s)",
+    #                      rec.id, rec.checkin_date, rec.checkout_date)
+    #         overlapping = all_lines.filtered(
+    #             lambda ln:
+    #                 ln.booking_id.checkin_date < rec.checkout_date
+    #                 and ln.booking_id.checkout_date > rec.checkin_date
+    #                 and not (
+    #                     ln.booking_id.checkin_date <= rec.checkin_date
+    #                     and ln.booking_id.checkout_date >= rec.checkout_date
+    #                 )
+    #                 and ln.id != rec.id
+    #         )
+    #         _logger.info("    Overlapping lines for rec %s: %s", rec.id, overlapping.ids)
+
+    #         room_ids = overlapping.mapped('room_id.id')
+    #         _logger.info("    Mapped overlapping room_ids: %s", room_ids)
+
+    #         rec.booked_room_ids = room_ids
+    #         _logger.info("    Set booked_room_ids for rec %s to %s", rec.id, rec.booked_room_ids.ids)    
+
+    @api.depends('booking_id.checkin_date', 'booking_id.checkout_date', 'booking_id.state')
     def _compute_booked_room_ids(self):
-        _logger.info("Computing booked room IDs for room booking lines.")
-        for record in self:
-            if isinstance(record.id, NewId):
-                # Skip unsaved records, as they do not have a valid database ID
-                record.booked_room_ids = []
-                continue
+        BookingLine = self.env['room.booking.line']
+        to_compute = self.filtered(lambda r: r.booking_id.checkin_date and r.booking_id.checkout_date)
+        to_clear = self - to_compute
 
-            if record.checkin_date and record.checkout_date:
-                overlapping_bookings = self.env['room.booking.line'].search([
-                    ('booking_id.checkin_date', '<', record.checkout_date),
-                    ('booking_id.checkout_date', '>', record.checkin_date),
-                    ('booking_id.state', 'in', [
-                     'confirmed', 'block', 'check_in']),
-                    ('room_id', '!=', False),
-                    ('id', '!=', record.id)  # Exclude current record
-                ])
-                # Collect room IDs that are already booked
-                record.booked_room_ids = overlapping_bookings.mapped('room_id.id')
-            else:
-                record.booked_room_ids = []
+        if to_clear:
+            to_clear.write({'booked_room_ids': [(5, 0, 0)]})
+
+        if not to_compute:
+            return
+
+        min_ci = min(to_compute.mapped('booking_id.checkin_date'))
+        max_co = max(to_compute.mapped('booking_id.checkout_date'))
+        domain = [
+            ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
+            ('room_id', '!=', False),
+            ('booking_id.checkin_date', '<', max_co),
+            ('booking_id.checkout_date', '>', min_ci),
+        ]
+        all_lines = BookingLine.search(domain)
+
+        for rec in to_compute:
+            # raw values (strings for Date fields)
+            ci_raw = rec.booking_id.checkin_date
+            co_raw = rec.booking_id.checkout_date
+            # convert to datetime.date
+            ci_date = fields.Date.to_date(ci_raw)
+            co_date = fields.Date.to_date(co_raw)
+
+            overlapping = all_lines.filtered(lambda ln: (
+                    ln.id != rec.id
+                    # skip if the **date** they check out == this date’s check-in
+                    and fields.Date.to_date(ln.booking_id.checkout_date) != ci_date
+                    # otherwise true overlap on dates
+                    and fields.Date.to_date(ln.booking_id.checkin_date) < co_date
+                    and fields.Date.to_date(ln.booking_id.checkout_date) > ci_date
+            ))
+            rec.booked_room_ids = overlapping.mapped('room_id.id')
+
+    # def _compute_booked_room_ids(self):
+    #     BookingLine = self.env['room.booking.line']
+    #     to_compute = self.filtered(lambda r: r.booking_id.checkin_date and r.booking_id.checkout_date)
+    #     to_clear   = self - to_compute
+    #
+    #     _logger.info("Compute triggered for %d lines; to_clear=%s, to_compute=%s",
+    #                 len(self), to_clear.ids, to_compute.ids)
+    #
+    #     # only clear if there *are* records to clear
+    #     if to_clear:
+    #         to_clear.write({'booked_room_ids': [(5, 0, 0)]})
+    #
+    #     if not to_compute:
+    #         return
+    #
+    #     min_ci  = min(to_compute.mapped('booking_id.checkin_date'))
+    #     max_co  = max(to_compute.mapped('booking_id.checkout_date'))
+    #     domain  = [
+    #         ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
+    #         ('room_id', '!=', False),
+    #         ('booking_id.checkin_date', '<', max_co),
+    #         ('booking_id.checkout_date', '>', min_ci),
+    #     ]
+    #     all_lines = BookingLine.search(domain)
+    #     _logger.info("Found %d candidate lines in %s–%s", len(all_lines), min_ci, max_co)
+    #
+    #     for rec in to_compute:
+    #         ci, co = rec.booking_id.checkin_date, rec.booking_id.checkout_date
+    #         overlapping = all_lines.filtered(lambda ln:
+    #                                                          ln.id != rec.id
+    #                                            # skip lines that check out exactly when this one checks in
+    #                                           and not (ln.booking_id.checkout_date == ci)
+    #                                                      # true overlap otherwise
+    #                                                     and ln.booking_id.checkin_date < co
+    #                                           and ln.booking_id.checkout_date > ci
+    #                                          )
+    #         rec.booked_room_ids = overlapping.mapped('room_id.id')
+    #         _logger.info("Line %s => booked_room_ids=%s", rec.id, rec.booked_room_ids.ids)
+
+
+
+    # @api.depends('checkin_date', 'checkout_date')
+    # def _compute_booked_room_ids(self):
+    #     _logger.info("Computing booked room IDs for room booking lines.")
+    #     for record in self:
+    #         if isinstance(record.id, NewId):
+    #             # Skip unsaved records, as they do not have a valid database ID
+    #             record.booked_room_ids = []
+    #             continue
+
+    #         if record.checkin_date and record.checkout_date:
+    #             overlapping_bookings = self.env['room.booking.line'].search([
+    #                 ('booking_id.checkin_date', '<', record.checkout_date),
+    #                 ('booking_id.checkout_date', '>', record.checkin_date),
+    #                 ('booking_id.state', 'in', [
+    #                  'confirmed', 'block', 'check_in']),
+    #                 ('room_id', '!=', False),
+    #                 ('id', '!=', record.id)  # Exclude current record
+    #             ])
+    #             # Collect room IDs that are already booked
+    #             record.booked_room_ids = overlapping_bookings.mapped('room_id.id')
+    #         else:
+    #             record.booked_room_ids = []
 
     hotel_room_type = fields.Many2one(
         'room.type',
@@ -732,7 +915,10 @@ class RoomBookingLine(models.Model):
         python_fields = {'state_', 'room_id'}
         # If we're not touching those, do one SQL UPDATE and return
         if not (set(vals) & python_fields):
-            cols = ', '.join(f"{col} = %s" for col in vals)
+            if not vals:   # <-- prevent empty update
+                return True
+
+            cols = ', '.join(f"{col} = %s" for col in vals.keys())
             params = list(vals.values()) + [tuple(self.ids)]
             self.env.cr.execute(
                 f"UPDATE room_booking_line SET {cols} WHERE id IN %s",
@@ -923,7 +1109,7 @@ class RoomBookingLine(models.Model):
                             _logger.info(f"Updated parent booking {parent_booking.id}, {self.counter} with the last pending room assignment.")
                             self.update_adult_record(parent_booking.id,self.counter)
                         else:
-                            room_count = 10
+                            
                             # _logger.info("this creates the final booking here", len(booking_line_records), record.is_unassigned)
                             room_rate = parent_booking.rate_code.id
                             meal_rate = parent_booking.meal_pattern.id
@@ -1003,15 +1189,7 @@ class RoomBookingLine(models.Model):
                                 'meal_is_percentage':parent_booking.meal_is_percentage,
                                 'payment_type': parent_booking.payment_type,
                                 # 'is_room_line_readonly': True,
-                                'rate_forecast_ids': [(0, 0, {
-                                    'date': fc.date,
-                                    'rate': fc.rate / room_count,
-                                    'meals': fc.meals / room_count,
-                                    'packages': fc.packages / room_count,
-                                    'fixed_post': fc.fixed_post / room_count,
-                                    'total': fc.total / room_count,  # Divide the total by room_count
-                                    'before_discount': fc.before_discount / room_count,
-                                }) for fc in parent_booking.rate_forecast_ids],
+                                
                             }
 
                             # Create the new child booking
@@ -1035,8 +1213,71 @@ class RoomBookingLine(models.Model):
                                 })
                                 _logger.info(f"Updated rate_forecast ID {rate_forecast.id} with total: {rate_forecast_total}")
 
+                            parent = new_id_booking.parent_booking_id
+                            if parent and parent.room_count <= 2:
+                                # 1) Turn on your override flag so the compute method skips
+                                parent.manual_override = True
 
-                            
+                                # 2) Sample one line to get the original components
+                                sample_line = parent.rate_forecast_ids[:1]
+                                print(f"Sample line: {sample_line}")
+                                if not sample_line:
+                                    _logger.warning("No forecast lines on parent %s", parent.id)
+                                    return
+
+                                orig = sample_line[0]
+                                print(f"Original line: {orig}")
+                                rate   = float(orig.rate or 0)
+                                meals  = float(orig.meals or 0)
+                                packs  = float(orig.packages or 0)
+                                fp     = float(orig.fixed_post or 0)
+                                bdisc  = float(orig.before_discount or 0)
+                                print(f"Original values: rate={rate}, meals={meals}, packs={packs}, fp={fp}, bdisc={bdisc}")
+
+                                # 3) Distribute your target total (308.5) in proportion
+                                target = rate_forecast_total  # e.g. 308.5
+                                print(f"Target total: {target}")
+                                subtotal = rate + meals + packs + fp
+                                print(f"Subtotal: {subtotal}")
+                                if subtotal:
+                                    factor = target / subtotal
+                                    rate_new  = round(rate   / 2, 2)
+                                    meals_new = round(meals  / 2, 2)
+                                    packs_new = round(packs  / 2, 2)
+                                    fp_new    = round(fp     / 2, 2)
+                                else:
+                                    # fallback: split equally
+                                    per = round(target / 4, 2)
+                                    rate_new = meals_new = packs_new = fp_new = per
+
+                                total_new       = rate_new + meals_new + packs_new + fp_new
+                                print(f"New values: rate_new={rate_new}, meals_new={meals_new}, packs_new={packs_new}, fp_new={fp_new}, total_new={total_new}")
+                                bdisc_new       = round(bdisc / 2, 2)  # or whatever logic you need
+                                print(f"New before discount: {bdisc_new}")
+
+                                # 4) **Bulk-update via ORM** (this will stick)
+                                parent.rate_forecast_ids.write({
+                                    'rate':            rate_new,
+                                    'meals':           meals_new,
+                                    'packages':        packs_new,
+                                    'fixed_post':      fp_new,
+                                    'before_discount': bdisc_new,
+                                    'total':           rate_forecast_total,
+                                })
+
+                                # 5) Log success
+                                _logger.info(
+                                    "Forecast for booking %s overridden: rate=%s, meals=%s, packages=%s, "
+                                    "fixed_post=%s, total=%s, before_discount=%s",
+                                    parent.id, rate_new, meals_new, packs_new, fp_new, total_new, bdisc_new
+                                )
+                            else:
+                                _logger.info(
+                                    "Skipping override: parent %s room_count=%s",
+                                    getattr(parent, 'id', None),
+                                    getattr(parent, 'room_count', None)
+                                )
+
                             # Search for room.booking.line records with the same counter
                             lines_to_delete = self.env['room.booking.line'].search([('counter', '=', self.counter),  ('booking_id', '=', parent_booking.id)])
                             _logger.info(f"Lines to delete: {lines_to_delete}")
@@ -1132,56 +1373,6 @@ class RoomBookingLine(models.Model):
                 result = lines_to_update.write({'room_id': line.room_id.id})
                 _logger.info(f"Result: {result}")
 
-        # for line in record_to_delete:
-        #     self._delete_line_and_related_records(line)
-        #     _logger.info(f"Deleted line: {line}")
-
-        # for line in record_to_delete:
-        #     booking = line.booking_id
-        #     seq     = line.counter
-            
-        #     # 1) delete this booking-line
-        #     super(RoomBookingLine, line).unlink()
-
-        #     # 2) delete all matching reservation records in one small loop
-        #     for model in ('reservation.adult', 'reservation.child', 'reservation.infant'):
-        #         self.env[model].search([
-        #             ('reservation_id', '=', booking.id),
-        #             ('room_sequence',   '=', seq),
-        #         ]).unlink()
-
-        #     # 3) decrement the room_count rather than re-counting the whole one
-        #     #    (faster than len(booking.room_line_ids))
-        #     booking.write({'room_count': booking.room_count - 1})
-            # _logger.info("END-----------TIME", datetime.now())
-        
-        # for line in record_to_delete:
-        #     line_booking_obj = line.booking_id
-        #     line_booking = line.booking_id.id
-        #     line_counter = line.counter
-        #     super(RoomBookingLine, line).unlink()
-        #     adult_lines = self.env['reservation.adult'].search([
-        #             # Match parent booking ID
-        #             ('reservation_id', '=', line_booking),
-        #             ('room_sequence', '=', line_counter)  # Exclude matching counter value
-        #         ], order='room_sequence asc')
-        #     adult_lines.unlink()
-        #     child_lines = self.env['reservation.child'].search([
-        #             # Match parent booking ID
-        #             ('reservation_id', '=', line_booking),
-        #             ('room_sequence', '=', line_counter)  # Exclude matching counter value
-        #         ], order='room_sequence asc')
-        #     child_lines.unlink()
-        #     infant_lines = self.env['reservation.infant'].search([
-        #             # Match parent booking ID
-        #             ('reservation_id', '=', line_booking),
-        #             ('room_sequence', '=', line_counter)  # Exclude matching counter value
-        #         ], order='room_sequence asc')
-        #     infant_lines.unlink()
-
-        #     if len(line_booking_obj.room_line_ids) > 0:
-        #         line_booking_obj.write({'room_count': len(line_booking_obj.room_line_ids)})
-        
         for line in record_to_delete:
             # Get ID of record (only primary key ID)
             line_id = line.id
@@ -1237,13 +1428,8 @@ class RoomBookingLine(models.Model):
 
         # 🧹 STEP 4: Commit transaction after all deletions
         self.env.cr.commit()
-
-
         return result
 
-
-    
-    
     def _delete_child_booking_records(self, counter, parent_booking):
         """Helper function to delete child booking records."""
         # Find all child bookings related to this parent booking

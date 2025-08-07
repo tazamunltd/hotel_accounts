@@ -124,7 +124,7 @@ class MealSubType(models.Model):
     def action_unarchieve_record(self):
         for record in self:
             record.active = True
-    name = fields.Char(string="Main Meal Code", required=True, tracking=True)
+    name = fields.Char(string="Main Meal Code", required=True, translate = True, tracking=True)
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.company, tracking=True)
 
 class MealCode(models.Model):
@@ -178,8 +178,7 @@ class MealCode(models.Model):
         ('sohor', 'Sohor'),
     ], string="Type", default="unspecified",tracking=True)
 
-    meal_code_sub_type = fields.Many2one(
-        'meal.code.sub.type', string="Main Meal Code", required=True,)
+    meal_code_sub_type = fields.Many2one('meal.code.sub.type', string="Main Meal Code", required=True,)
     # domain=lambda self: [
     #     ('company_id', '=', self.env.company.id)],)
     

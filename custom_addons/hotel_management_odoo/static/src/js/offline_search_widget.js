@@ -1708,6 +1708,7 @@ export class OfflineSearchWidget extends Component {
                 hotel_room_type: roomTypeId,
                 is_offline_search: false,
                 partner_id: this.state.contactId,
+                payment_type:'cash',
             };
 
             // Check if we're in a new booking context

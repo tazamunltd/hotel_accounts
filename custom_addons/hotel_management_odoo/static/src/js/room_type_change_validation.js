@@ -159,10 +159,8 @@ import { _t } from "@web/core/l10n/translation";
    * On cancel: we trigger Odoo’s default Discard (click the Discard button).
    */
   function attachRoomTypeHandler() {
-    // Locate the visible autocomplete <input> for hotel_room_type
-    const input = document.querySelector(
-      '[name="hotel_room_type"] input.o_input'
-    );
+    // Locate the visible autocomplete <input> for hotel_room_type//
+    const input = document.querySelector('#hotel_room_type_0.o_input');
     if (!input || input.__rcp_attached) {
       return;
     }

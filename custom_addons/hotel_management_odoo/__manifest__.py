@@ -153,7 +153,7 @@
             # 'hotel_management_odoo/static/src/js/loader.js',
 
             # 'hotel_management_odoo/static/src/js/no_of_nights_validation.js',
-            # 'hotel_management_odoo/static/src/js/checkin_date_validation.js',
+            'hotel_management_odoo/static/src/js/checkin_date_validation.js',
             # 'hotel_management_odoo/static/src/js/checkout_date_validation.js',
             # 'hotel_management_odoo/static/src/js/checkout_validation_on_checkin.js',
             # 'hotel_management_odoo/static/src/js/checkout_validation_on_block.js',

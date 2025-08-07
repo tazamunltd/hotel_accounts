@@ -2260,7 +2260,7 @@ class WebAppController(http.Controller):
         # Register a font that supports Arabic
         if platform.system() == "Windows":
             # font_path = "C:/Windows/Fonts/arial.ttf"
-            font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+            font_path = "C:/Windows/Fonts//DejaVuSans.ttf"
             # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
@@ -2959,7 +2959,7 @@ class WebAppController(http.Controller):
         # Register a font that supports Arabic
         if platform.system() == "Windows":
             # font_path = "C:/Windows/Fonts/arial.ttf"
-            font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+            font_path = "C:/Windows/Fonts//DejaVuSans.ttf"
             # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
         else:
             font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"  # Or "/usr/share/fonts/truetype/amiri/Amiri-Regular.ttf"
@@ -3747,7 +3747,7 @@ class WebAppController(http.Controller):
     def generate_rc_bookings_pdf(self, booking_ids=None, company_id=None): # GROUP BOOKING
         if not booking_ids:
             return request.not_found()
-
+        print("this is test")
         # Step 1: Dynamically retrieve the user's currently selected company ID
         current_company_id = int(
             company_id) if company_id else request.env.user.company_id.id
@@ -3802,13 +3802,79 @@ class WebAppController(http.Controller):
                 ('Content-Type', 'application/zip'),
                 ('Content-Disposition', 'attachment; filename="bookings.zip"')
             ])
+
+    # def calculate_meal_distribution(self, total_meal_rate_after_discount, lunch_value, breakfast_value, num_rooms, pax):
+    #     # 1. Compute total meal‐value and individual percentages
+    #     total_meal_value = lunch_value + breakfast_value
+    #     lunch_pct = lunch_value / total_meal_value
+    #     breakfast_pct = breakfast_value / total_meal_value
+
+    #     # 2. Calculate final amounts
+    #     final_lunch_amount = pax * num_rooms * (total_meal_rate_after_discount * lunch_pct)
+    #     final_breakfast_amount = pax * num_rooms * (total_meal_rate_after_discount * breakfast_pct)
+
+    #     return lunch_pct, breakfast_pct, final_lunch_amount, final_breakfast_amount
+    # def calculate_dynamic_meal_distribution(self, total_rate, meal_values, num_rooms, pax):
+    #     """
+    #     total_rate: float  — total_meal_after_discount
+    #     meal_values: dict — mapping of meal_name → unit price (UA)
+    #     num_rooms: int    — number of rooms
+    #     pax: int          — pax per room
+    #     """
+    #     total_value = sum(meal_values.values()) or 1.0
+    #     distribution = {}
+    #     for name, ua in meal_values.items():
+    #         pct = ua / total_value
+    #         final_amt = pax * num_rooms * (total_rate * pct)
+    #         distribution[name] = {
+    #             'unit_price':    ua,
+    #             'percentage':    pct,
+    #             'final_amount':  final_amt,
+    #         }
+    #     return distribution
+        
+    def calculate_dynamic_meal_distribution(self, total_rate, meal_values, num_rooms, pax, discount,is_line_wise, nights):
+        """
+        Splits total_rate across meal_values proportionally and computes
+        final_amount = pax * num_rooms * (total_rate * pct)
+        """
+        logger.info(
+            "Starting meal distribution: total_rate=%s, num_rooms=%s, pax=%s, meal_values=%s",
+            total_rate, num_rooms, pax, meal_values
+        )
+        total_value = sum(meal_values.values()) or 1.0
+        logger.info("Sum of unit prices (total_value): %s", total_value)
+
+        distribution = {}
+        for name, ua in meal_values.items():
+            pct = ua / total_value
+            final_amt = (total_rate * pct)
+            logger.debug(
+                "Meal %s → unit_price=%s, percentage=%s, final_amount=%s",
+                name, ua, pct, final_amt
+            )
+            if is_line_wise:
+                distribution[name] = {
+                    'unit_price':   ua,
+                    'percentage':   pct,
+                    'final_amount': final_amt - ((num_rooms * discount * nights)/ len(meal_values)),
+                }
+            else:
+                distribution[name] = {
+                    'unit_price': ua,
+                    'percentage': pct,
+                    'final_amount': final_amt - ((nights * discount) / len(meal_values)),
+                }
+
+        logger.info("Completed meal distribution: %s", distribution)
+        return distribution
     
     # GROUP BOOKING
     def _generate_rc_pdf_for_booking(self, booking, forecast_lines=None, booking_ids=None, company_id=None): # GROUP BOOKING
         if forecast_lines is None:
             # fetch them here or set them to an empty list
             forecast_lines = request.env["room.rate.forecast"].search([("room_booking_id", "=", booking.id)])
-
+        logger.info("this is called for the test")
         buffer = BytesIO()
         c = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
@@ -3845,7 +3911,7 @@ class WebAppController(http.Controller):
         if platform.system() == "Windows":
             try:
                 # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
-                font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+                font_path = "D:/Tazamun_docs/font/dejavu-sans-ttf-2.37/ttf/DejaVuSans.ttf"
                 # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
             except:
                 font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
@@ -3871,66 +3937,238 @@ class WebAppController(http.Controller):
 
         max_address_width = 18
 
-        group_bookings = request.env['room.booking'].search([('group_booking', '=', booking.id)])
-        room_types = []
-        room_data = {}
-        meal_data = {}
+        lang = request.context.get('lang') or request.env.user.lang
+        logger.info(f"Current language: {lang}")
+
+        # group_bookings = request.env['room.booking'].search([('group_booking', '=', booking.id)])
+        Booking = request.env['room.booking'].with_context(lang=lang)
+        group_bookings = Booking.search([('group_booking', '=', booking.id)])
+
+        
         meal_patterns = []
-
         room_types, room_data = [], {}
-        # meal_patterns, meal_data = [], {}
         meal_patterns_set, meal_data = set(), {}
+        room_types_set = set()
 
-        # ------------------------------------------------------------------
-        # 1.  Collect data from every group‑booking line
-        # ------------------------------------------------------------------
         for gb in group_bookings:
+            room_type = (
+                getattr(
+                    gb.hotel_room_type.with_context(lang=lang).room_type,
+                    'name',
+                    gb.hotel_room_type.with_context(lang=lang).room_type
+                ) or 'N/A'
+            ) if gb.hotel_room_type else 'N/A'
+            room_types_set.add(room_type)
 
-            # ---------- 1.a  Room‑type aggregation ----------
-            room_type = gb.hotel_room_type.room_type if gb.hotel_room_type else 'N/A'
+        # 2) sort and init your data structure
+        room_types = sorted(room_types_set)
+        logger.info(f"Final sorted room types: {room_types}")
+        num_room_types = len(room_types)
+        logger.info(f"Number of room types: {num_room_types}")
 
-            if room_type not in room_types:
-                room_types.append(room_type)
+        room_data = {
+            rt: {'Rooms': 0, 'PAX': 0, 'Price': 0}
+            for rt in room_types
+        }
+        logger.info(f"Initialized room data: {room_data}")
 
-            if gb.state in ['not_confirmed', 'confirmed']:
-                room_data.setdefault(room_type, {'Rooms': 0, 'PAX': 0, 'Price': 0})
-                room_data[room_type]['Rooms'] += gb.room_count           or 0
-                room_data[room_type]['PAX']   += (gb.adult_count * gb.room_count) or 0
-                room_data[room_type]['Price'] += gb.total_rate_forecast  or 0
+        for gb in group_bookings:
+            room_type = (
+                getattr(
+                    gb.hotel_room_type.with_context(lang=lang).room_type,
+                    'name',
+                    gb.hotel_room_type.with_context(lang=lang).room_type
+                ) or 'N/A'
+            ) if gb.hotel_room_type else 'N/A'
+            logger.info(f"Processing booking {gb.id} with room type: {room_type}")
+            # room_types_set.add(room_type)
+            logger.info(f"Room types set: {room_types_set}")
+
+        
+
+        # for gb in group_bookings:
+            rate_details = request.env['rate.detail'].search([
+                ('rate_code_id', '=', gb.rate_code.id)
+                # ('from_date', '<=', checkin_date),
+                # ('to_date', '>=', checkin_date)
+            ], limit=1)
+            
+            adult_count  = gb.adult_count or 0
+            child_count  = gb.child_count or 0
+            room_count   = gb.room_count or 0
+            nights       = gb.no_of_nights or 0
+
+            # rate_detail_discount_value = int(rate_details.rate_detail_dicsount) if rate_details else 0
+            if rate_details and rate_details.price_type == 'room_only':
+                rate_detail_discount_value = gb.meal_discount or 0
             else:
-                room_data.setdefault(room_type, {'Rooms': 0, 'PAX': 0, 'Price': 0})
-                room_data[room_type]['Rooms'] += gb.room_count           or 0
-                room_data[room_type]['PAX']   += gb.adult_count or 0
-                room_data[room_type]['Price'] += gb.total_rate_after_discount or 0
+                rate_detail_discount_value = int(rate_details.rate_detail_dicsount) if rate_details else 0
 
-            
-            
-            adult_count = gb.adult_count or 0
-            child_count = gb.child_count or 0
-            room_count = gb.room_count or 0
-            
-            if gb.meal_pattern:
-                for line in gb.meal_pattern.meals_list_ids:
-                    if line.meal_code and line.meal_code.meal_code_sub_type:
-                        meal_name = line.meal_code.meal_code_sub_type.name
-                        unit_price_adult = line.price or 0.0
-                        unit_price_child = line.price_child or 0.0
+            logger.info(f"Rate detail discount value: {rate_detail_discount_value}")
 
-                        total_price = (unit_price_adult * adult_count) + (unit_price_child * child_count)
+            logger.info(f"Booking {gb.id} - State: {gb.state}, Room Type: {room_type}, Use Price: {gb.use_price}")
+            logger.info(f"Booking {gb.id} - total_rate_forecast: {gb.total_rate_forecast}, total_rate_after_discount: {gb.total_rate_after_discount}")
+            
+            if gb.use_price:
+                if gb.state in ['not_confirmed', 'confirmed']:
+                    raw_total = (gb.total_rate_forecast or 0)
+                    logger.info(f"Booking {gb.id} - Using forecast for confirmed/not_confirmed: {raw_total}")
+                    room_count_ = gb.room_count or 0
+                    room_discount = gb.room_discount or 0
+                    if gb.room_amount_selection == 'line_wise':
+                        raw_total = raw_total - (room_count_ * room_discount * nights)
+                    else:
+                        raw_total = raw_total - (nights * room_discount)
 
+                    logger.info(f"Booking {gb.id} - After room discount: {raw_total}")
+                elif gb.state in ['block','check_in','check_out']:
+                    # For block state, use total_rate_after_discount directly
+                    raw_total = gb.total_rate_after_discount or 0
+                    logger.info(f"Booking {gb.id} - Using after_discount for block: {raw_total}")
+                else:
+                    raw_total = gb.total_rate_after_discount or 0
+                    logger.info(f"Booking {gb.id} - Using after_discount for other states: {raw_total}")
+            else:
+                # For non-use_price bookings, always use total_rate_after_discount
+                # as it already contains the correct discount calculations
+                raw_total = gb.total_rate_after_discount or 0.0
+                logger.info(f"Booking {gb.id} - Using after_discount for non-use_price booking: {raw_total}")
+
+            logger.info("Booking %s final raw_total: %s", gb.id, raw_total)
+
+            # ——— Then update your room_data ———
+            room_data[room_type]['Price'] += raw_total
+            room_data[room_type]['Rooms'] += (gb.room_count or 0)
+            if gb.state in ['not_confirmed', 'confirmed']:
+                room_data[room_type]['PAX'] += (gb.adult_count or 0) * (gb.room_count or 0)
+            else:
+                room_data[room_type]['PAX'] += (gb.adult_count or 0) + (gb.child_count or 0)
+
+
+
+            # if gb.state in ['not_confirmed', 'confirmed']:
+            #     raw_total = (gb.total_rate_forecast or 0)
+            #     logger.info(f"Booking {gb.id} state is not confirmed or confirmed or block, raw total: {raw_total}")
+            #     room_count_ = gb.room_count or 0
+            #     logger.info(f"Room count for booking {gb.id}: {room_count_}")
+            #     len_of_room_types = len(room_types) or 1   
+            #     logger.info(f"Number of room types: {len_of_room_types}")
+            #     # discount_share =  (room_count / len_of_room_types) * rate_detail_discount_value
+            #     discount_share =  nights * rate_detail_discount_value
+            #     logger.info(f"Discount share for booking {gb.id}: {discount_share}")
+            #     raw_total = raw_total - discount_share
+            #     logger.info(f"Raw total after discount for booking {gb.id}: {raw_total}")
+            # else:
+            #     raw_total = gb.total_rate_after_discount or 0
+            #     logger.info(f"In Else Booking {gb.id} state is not confirmed or confirmed, raw total: {raw_total}")
+
+            # room_data[room_type]['Price'] += raw_total
+            # room_data[room_type]['Rooms'] += (gb.room_count or 0)
+            # if gb.state in ['not_confirmed', 'confirmed']:
+            #     room_data[room_type]['PAX'] += (gb.adult_count or 0) * \
+            #         (gb.room_count or 0)
+            # else:
+            #     room_data[room_type]['PAX']   += (gb.adult_count or 0) + (gb.child_count or 0) 
+
+            if gb.use_meal_price:
+                mp_rec = gb.meal_pattern.with_context(lang=lang)
+                # 1. Gather all meal_code names and prices
+                meal_values = {}
+                for line in mp_rec.meals_list_ids:
+                    if not (line.meal_code and line.meal_code.meal_code_sub_type):
+                        continue
+                    name = line.meal_code.meal_code_sub_type.with_context(lang=lang).name
+                    ua   = line.price or 0.0
+                    meal_values[name] = ua
+
+                # 2. Decide which bookings to process
+                if gb.state in ['block','check_in','check_out']:
+                    # include all individual bookings in block state under this group
+                    group_id = gb.group_booking.id or gb.id
+                    bookings = request.env['room.booking'].search([
+                        ('group_booking', '=', group_id),
+                        ('state',        '=', 'block'),
+                    ])
+                    bookings_count = len(bookings)
+                else:
+                    # only the single booking
+                    bookings = gb
+                    bookings_count = 1
+
+                # 3. Build meal_patterns_set and meal_data for your PDF table:
+                meal_patterns_set = set()
+                meal_data = {}
+                is_line_wise = False
+                if gb.meal_amount_selection == 'line_wise':
+                    is_line_wise = True
+                for booking_ in bookings:
+                    # distribute per‐meal amounts for this booking
+                    result = self.calculate_dynamic_meal_distribution(
+                        booking_.total_meal_forecast,
+                        # booking_.meal_price,
+                        meal_values,
+                        booking_.room_count,
+                        booking_.adult_count,
+                        booking_.meal_discount,
+                        is_line_wise,
+                        nights
+                    )
+                    # accumulate across all bookings
+                    for meal_name, metrics in result.items():
                         meal_patterns_set.add(meal_name)
+                        meal_data.setdefault(meal_name, {'PAX': 0, 'Price': 0.0})
+                        # sum PAX and Price
+                        meal_data[meal_name]['PAX']   += booking_.adult_count * booking_.room_count
+                        meal_data[meal_name]['Price'] += metrics['final_amount'] 
+                        # meal_data[meal_name]['Price'] += metrics['final_amount']
+            else:
+                if gb.meal_pattern:
+                    mp_rec = gb.meal_pattern.with_context(lang=lang)
+                    meals = mp_rec.meals_list_ids
+                    meal_count = len(meals) or 1
+                    logger.info(f"Booking {gb.id} has meal pattern {mp_rec.id} with {meal_count} meals")
+                    logger.info(f"Booking {gb.id} has meal pattern {mp_rec.id} with {len(mp_rec.meals_list_ids)} meals")
+                    #if total then
+                    if rate_details and rate_details.amount_selection == 'line_wise':
+                        discount_share = (nights * rate_detail_discount_value * room_count) / meal_count
+                    else:
+                        discount_share = (nights * rate_detail_discount_value) / meal_count
+                    logger.info(f"Rate detail discount value: {rate_detail_discount_value}, Discount share per meal: {discount_share}")
+                    logger.info(f"Using meal pattern {mp_rec.id}, lines={len(mp_rec.meals_list_ids)}")
 
-                        if meal_name not in meal_data:
-                            meal_data[meal_name] = {'PAX': 0, 'Price': 0.0}
+                    for line in mp_rec.meals_list_ids:
+                        if not (line.meal_code and line.meal_code.meal_code_sub_type):
+                            continue
+
+                        name = line.meal_code.meal_code_sub_type.with_context(lang=lang).name
+                        ua   = line.price      or 0.0
+                        uc   = line.price_child or 0.0
+                        total_price = ua * adult_count + uc * child_count
+
+                        meal_patterns_set.add(name)
+                        meal_data.setdefault(name, {'PAX': 0, 'Price': 0.0})
+
+                        # meal_price_after_discount = 0 if rate_details and rate_details.price_type == 'room_only' else meal_price_after_discount
+
                         if gb.state in ['not_confirmed', 'confirmed']:
-                            meal_data[meal_name]['PAX'] += adult_count * room_count 
-                            meal_data[meal_name]['Price'] += total_price
+                            raw_line_total = total_price * room_count * nights
+                            if rate_details and rate_details.price_type == 'room_only':
+                                raw_line_total = raw_line_total
+                            else:
+                                raw_line_total = raw_line_total - discount_share  # Or keep as-is if discount always applies
+                            meal_data[name]['PAX']   += adult_count * room_count
+                            meal_data[name]['Price'] += raw_line_total
                         else:
-                            meal_data[meal_name]['PAX'] += adult_count 
-                            meal_data[meal_name]['Price'] += total_price   
+                            other_total = total_price * room_count * nights
+                            if rate_details and rate_details.price_type == 'room_only':
+                                meal_data[name]['PAX']   += adult_count
+                                meal_data[name]['Price'] += other_total  # **No discount applied**
+                            else:
+                                meal_data[name]['PAX']   += adult_count
+                                meal_data[name]['Price'] += other_total - discount_share
                     
+            
         meal_patterns = sorted(list(meal_patterns_set)) or ['N/A']
-
         for mp in meal_patterns:
             meal_data.setdefault(mp, {'PAX': 0, 'Price': 0.0})
             
@@ -3958,7 +4196,6 @@ class WebAppController(http.Controller):
 
 
         daily_meals_sum = round(sum(info['Price'] for info in meal_data.values()), 2)
-
         avg_rate_report = 0.0
         avg_meals_report = 0.0
         total_rate_report = 0.0
@@ -3985,24 +4222,62 @@ class WebAppController(http.Controller):
         if group_bookings:
             # Fetch all bookings with the same group_id
             group_bookings_data = request.env['room.booking'].search([('group_booking', '=', booking.id)])
+            logger.info("Booking ID: %s", booking.id)
+            logger.info("Group bookings data: %s", group_bookings_data)
+            
 
             for booking_ in group_bookings_data:
+                logger.info("Booking: %s", booking_)
                 if not booking_.parent_booking_name:
+                    logger.info("Booking if Not: %s", booking_)
                     total_nights += booking_.no_of_nights
+                    logger.info("Total nights: %s", total_nights)
                 # pull every forecast line for this booking
                 room_rate_forecast = request.env['room.rate.forecast'].search([('room_booking_id', '=', booking_.id)])
+                logger.info("Room rate forecast: %s", room_rate_forecast)
 
-                # If you still need the TOTAL rates as well:
-                # total_room_rate  += booking_.total_rate_forecast or 0
-                total_room_rate  += booking_.total_rate_after_discount or 0
+                logger.info(f"Booking {booking_.id} - State: {booking_.state}, Use Price: {booking_.use_price}")
+                logger.info(f"Booking {booking_.id} - total_rate_forecast: {booking_.total_rate_forecast}, total_rate_after_discount: {booking_.total_rate_after_discount}")
                 
-                # total_meal_rate  += booking_.total_meal_forecast or 0
-                total_meal_rate  += booking_.total_meal_after_discount or 0
+                if booking_.use_price:
+                    if booking_.state in ['not_confirmed', 'confirmed']:
+                        # Use forecast minus room discount for confirmed/not_confirmed
+                        if booking_.room_amount_selection == 'line_wise':
+                            room_rate_value = (booking_.total_rate_forecast or 0) - (
+                                        (booking_.room_count or 0) * (booking_.no_of_nights or 0) *(booking_.room_discount or 0))
+
+                        else:
+                            room_rate_value = (booking_.total_rate_forecast or 0) - (
+                                        (booking_.no_of_nights or 0) * (booking_.room_discount or 0))
+
+                        logger.info(f"Booking {booking_.id} - Using forecast minus room discount: {room_rate_value}")
+                    elif booking_.state == 'block':
+                        # Use after_discount for block state
+                        room_rate_value = booking_.total_rate_after_discount or 0
+                        logger.info(f"Booking {booking_.id} - Using after_discount for block: {room_rate_value}")
+                    else:
+                        room_rate_value = booking_.total_rate_after_discount or 0
+                        logger.info(f"Booking {booking_.id} - Using after_discount for other states: {room_rate_value}")
+                else:
+                    # For non-use_price bookings, always use total_rate_after_discount
+                    # as it already contains the correct discount calculations
+                    room_rate_value = booking_.total_rate_after_discount or 0
+                    logger.info(f"Booking {booking_.id} - Using after_discount for non-use_price booking: {room_rate_value}")
+                
+                total_room_rate += room_rate_value
+                logger.info("Total room rate: %s", total_room_rate)
+                
+                # Use forecast values for block state bookings, after_discount for others
+                if booking_.state in ['not_confirmed', 'confirmed']:
+                    total_meal_rate  += booking_.total_meal_after_discount or 0
+                else:
+                    total_meal_rate  += booking_.total_meal_after_discount or 0
+                logger.info("Total meal rate: %s", total_meal_rate)
                  
                 total_vat += booking_.total_vat or 0
                 total_total_municipality_tax += booking_.total_municipality_tax or 0
 
-                if booking_.state in ['not_confirmed', 'confirmed']:
+                if booking_.state in ['not_confirmed', 'confirmed', 'block']:
                     total_pax += (booking_.adult_count * booking_.room_count) or 0
                 else:
                     total_pax += booking_.adult_count or 0
@@ -4211,9 +4486,9 @@ class WebAppController(http.Controller):
             "كود التعاقد:     ",
 
             # 3) Use the status_label from above:
-            "Status:",
+            "Group Status:",
             self._truncate_text_(status_label),
-            "حالة الحجز:           "),
+            "حالة المجموعة:           "),
 
             ("Meal Pattern:",
              f"{self._truncate_text_(meal_pattern_trans)}",
@@ -4222,7 +4497,7 @@ class WebAppController(http.Controller):
             # 4) Use the booking’s create_date for “Date Created.”
             "Date Created:",
             f"{formatted_create_date}",
-            "تاريخ إنشاء الحجز:   "),
+             "تاريخ إنشاء المجموعة:   "),
         ]
 
         ARABIC_ADJUSTMENTS = {
@@ -4231,8 +4506,8 @@ class WebAppController(http.Controller):
             "جنسية المجموعة:": -7,    # Nationality (move left 10)
             "مسؤول المجموعة:": -7,     # Contact Person (move left 5)
             "رقم الجوال:": -7,        # Mobile No. (move left 20)
-            "حالة الحجز:": -7,        # Status (move left 15)
-            "تاريخ إنشاء الحجز:": -7, # Date Created (move left 25)
+            "حالة المجموعة:": -18,        # Status (move left 15)
+            "تاريخ إنشاء المجموعة:": -20,  # Date Created (move left 25)
             "طريقة الدفع:": -7,       # Payment Method (move left 10)
             "سعر الغرفة اليومي:": -7,   # Daily Room Rate (no adjustment)
             "سعر الوجبات اليومية:": -7, # Daily Meal Rate (no adjustment)
@@ -4257,7 +4532,7 @@ class WebAppController(http.Controller):
             c.drawString(RIGHT_LABEL_X, y_position, r_label)
 
             # For "Full Name" or "Nationality", call draw_arabic_text_left instead of drawString
-            if r_label in ("Group Name:", "Nationality:", "Company Name:", "Contact:", "Mobile No.:", "Status:"):
+            if r_label in ("Group Name:", "Nationality:", "Company Name:", "Contact:", "Mobile No.:", "Group Status:"):
                 self.draw_arabic_text_left(c, RIGHT_VALUE_X, y_position, r_value)
             else:
                 c.drawString(RIGHT_VALUE_X, y_position, r_value)
@@ -4273,11 +4548,22 @@ class WebAppController(http.Controller):
         total_municipality_tax = report_data.get('total_municipality_tax', 0.0)
         total_amount = round(total_vat + total_municipality_tax, 2)
 
-        pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
+        # pay_type = dict(booking.fields_get()['payment_type']['selection']).get(booking.payment_type, "")
+                # 2) get a booking record in that language
+        booking_ctx = booking.with_context(lang=lang)
+
+        # 3) pull the raw selection labels in that language…
+        sel = booking_ctx.fields_get(['payment_type'])['payment_type']['selection']
+        sel_dict = dict(sel)
+
+        # 4) look up your booking’s code, then truncate
+        raw_label = sel_dict.get(booking.payment_type, '')
+        pay_type  = self._truncate_text_(raw_label) or 'N/A'
+        
         # print(pay_type, 'line 4171',dict(booking.fields_get()['payment_type']['selection']))
         payment_details = [
             ("Total VAT:", f"{report_data.get('total_vat', 0.0)}", "القيمة المضافة:",
-              "Payment Method:", f"{self._truncate_text_(pay_type) or 'N/A'}", "نظام الدفع:            "),
+              "Payment Method:", pay_type, "نظام الدفع:            "),
 
             ("Total Municipality:", f"{report_data.get('total_municipality_tax', 0.0)}", "رسوم البلدية:   ", 
              "Daily Room Rate:", f"{report_data['avg_rate']}", "سعر الغرفة اليومي: "),
@@ -4750,19 +5036,6 @@ class WebAppController(http.Controller):
             get_meal_discount = sum(children.filtered(lambda r: r.room_is_amount).mapped('meal_discount'))
             
 
-            # total_municipality_tax = sum((children | parent).mapped('total_municipality_tax'))
-            # print("total_municipality_tax", total_municipality_tax)
-            # total_vat = sum((children | parent).mapped('total_vat'))
-            # print("toal_vat", total_vat)
-            # total_untaxed = sum((children | parent).mapped('total_untaxed'))
-
-            # total_municipality_tax = 0.0
-            # total_vat = 0.0
-
-            # for booking in (children | parent):
-            #     total_municipality_tax += booking.total_municipality_tax or 0.0
-            #     total_vat += booking.total_vat or 0.0
-
             total_untaxed = total_vat + total_municipality_tax
 
 
@@ -4910,7 +5183,7 @@ class WebAppController(http.Controller):
         # Register a font that supports Arabic
         if platform.system() == "Windows":
             try:
-                font_path = "C:/Users/shaik/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
+                font_path = "C:/Windows/Fonts/DejaVuSans.ttf"
                 # font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
             except:
                 font_path = "C:/Users/Admin/Downloads/dejavu-fonts-ttf-2.37/dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf"
@@ -5116,11 +5389,13 @@ class WebAppController(http.Controller):
                 }
 
             # Convert the dictionary into a table format
-            room_type_name = (
-                booking.hotel_room_type.room_type.room_type
-                if booking.hotel_room_type and booking.hotel_room_type.room_type
-                else "N/A"
-            )
+            # room_type_name = (
+            #     booking.hotel_room_type.room_type.room_type
+            #     if booking.hotel_room_type and booking.hotel_room_type.room_type
+            #     else "N/A"
+            # )
+            room_type_name = booking.hotel_room_type.display_name if booking.hotel_room_type else "N/A"
+            print(f"room_type_name {room_type_name}")
 
             # Get room count and total guests
             # room_count = booking.room_count or 0
