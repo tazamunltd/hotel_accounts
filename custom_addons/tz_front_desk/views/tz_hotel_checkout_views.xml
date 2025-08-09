@@ -54,7 +54,7 @@
                             class="btn-primary"
                             invisible="not show_other_buttons"/>-->
 
-                    <!--<button name="get_partner_manual_postings"
+                    <!--<button name="sync_with_materialized_view"
                             type="object"
                             string="Test function"
                             class="btn-primary"/>-->
@@ -97,7 +97,7 @@
                             <field name="room_id" readonly="1"/>
                             <field name="checkin_date" readonly="1"/>
                             <field name="checkout_date" readonly="1"/>
-                            <field name="booking_id" readonly="1" invisible="not booking_id"/>
+                            <field name="booking_id" widget="many2one" readonly="1" invisible="not booking_id"/>
                             <field name="payment_type" readonly="1" invisible="not booking_id"/>
                             <field name="group_booking_id" readonly="1" invisible="not group_booking_id"/>
                             <field name="dummy_id" readonly="1" invisible="not dummy_id"/>

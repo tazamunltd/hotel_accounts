@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class TzMasterFolio(models.Model):
     _name = 'tz.master.folio'
     _description = 'Master Folio'
-    _order = 'create_date desc'
+    _order = 'room_id, group_id, dummy_id' #create_date desc,
 
     name = fields.Char(string="Folio Number", required=True, index=True, default="New")
 
@@ -107,14 +107,25 @@ class TzMasterFolio(models.Model):
     @api.depends('room_id', 'group_id', 'dummy_id')
     def _compute_display_info(self):
         for rec in self:
-            values = []
             if rec.room_id:
-                values.append(f"Room: {rec.room_id.name}")
-            if rec.group_id:
-                values.append(f"Group: {rec.group_id.name}")
-            if rec.dummy_id:
-                values.append(f"Dummy: {rec.dummy_id.name}")
-            rec.display_info = " | ".join(values)
+                rec.display_info = rec.room_id.name
+            elif rec.group_id:
+                rec.display_info = rec.group_id.group_name
+            elif rec.dummy_id:
+                rec.display_info = rec.dummy_id.description
+            else:
+                rec.display_info = ""
+    # @api.depends('room_id', 'group_id', 'dummy_id')
+    # def _compute_display_info(self):
+    #     for rec in self:
+    #         values = []
+    #         if rec.room_id:
+    #             values.append(f"Room: {rec.room_id.name}")
+    #         if rec.group_id:
+    #             values.append(f"Group: {rec.group_id.name}")
+    #         if rec.dummy_id:
+    #             values.append(f"Dummy: {rec.dummy_id.name}")
+    #         rec.display_info = " | ".join(values)
 
     @api.depends('manual_posting_ids.balance')
     def _compute_balance(self):

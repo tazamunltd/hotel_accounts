@@ -1,7 +1,8 @@
 import logging
 from odoo import models, fields, tools, api, _
 from odoo.exceptions import UserError
-from datetime import date
+from datetime import date, datetime
+
 _logger = logging.getLogger(__name__)
 
 class TzCheckout(models.Model):
@@ -70,8 +71,8 @@ class TzCheckout(models.Model):
                         rb.adult_count::integer,
                         rb.child_count::integer,
                         rb.infant_count::integer,
-                        rb.rate_code::varchar,
-                        rb.meal_pattern::varchar,
+                        rb.rate_code AS rate_code,  -- Removed varchar cast for Many2one
+                        rb.meal_pattern AS meal_pattern,  -- Removed varchar cast for Many2one
                         rb.state::varchar AS state,
                         rb.company_id
                     FROM room_booking rb
@@ -87,8 +88,8 @@ class TzCheckout(models.Model):
 
                     UNION ALL
 
-                    -- Group Booking block
-                    SELECT
+                    -- Group Booking block (fixed to prevent duplicates)
+                    SELECT DISTINCT ON (gb.id)
                         (gb.id * 10 + 2) AS id,
                         COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
                         NULL::integer AS booking_id,
@@ -102,12 +103,18 @@ class TzCheckout(models.Model):
                         gb.total_adult_count::integer,
                         gb.total_child_count::integer,
                         gb.total_infant_count::integer,
-                        gb.rate_code::varchar,
-                        gb.group_meal_pattern::varchar,
+                        gb.rate_code AS rate_code,  -- Removed varchar cast for Many2one
+                        gb.group_meal_pattern AS meal_pattern,  -- Removed varchar cast for Many2one
                         gb.status_code::varchar AS state,
                         gb.company_id
                     FROM group_booking gb
-                    LEFT JOIN tz_master_folio folio ON folio.group_id = gb.id
+                    LEFT JOIN LATERAL (
+                        SELECT id 
+                        FROM tz_master_folio 
+                        WHERE group_id = gb.id
+                        ORDER BY id
+                        LIMIT 1
+                    ) folio ON true
                     WHERE gb.status_code = 'confirmed'
                       AND gb.company_id = {company_id}
                       AND gb.id IN (
@@ -133,8 +140,8 @@ class TzCheckout(models.Model):
                         NULL::integer AS adult_count,
                         NULL::integer AS child_count,
                         NULL::integer AS infant_count,
-                        NULL::varchar AS rate_code,
-                        NULL::varchar AS meal_pattern,
+                        NULL::integer AS rate_code,  -- Changed to integer for Many2one
+                        NULL::integer AS meal_pattern,  -- Changed to integer for Many2one
                         dg.state::varchar AS state,
                         dg.company_id
                     FROM tz_dummy_group dg
@@ -283,7 +290,7 @@ class HotelCheckOut(models.Model):
 
     @api.model
     def sync_with_materialized_view(self):
-        """Sync with the materialized view using ORM."""
+        """Sync with the materialized view using ORM with consistent field handling."""
         company_id = self.env.company.id
 
         # Fetch all relevant rows from the materialized view
@@ -300,7 +307,7 @@ class HotelCheckOut(models.Model):
 
             existing = self.sudo().search(domain, limit=1)
 
-            # Prepare values for creation or update
+            # Prepare values for creation or update - ensure all fields are properly formatted
             vals = {
                 'source_id': view.id,
                 'name': view.name,
@@ -308,7 +315,7 @@ class HotelCheckOut(models.Model):
                 'room_id': view.room_id.id if view.room_id else False,
                 'group_booking_id': view.group_booking_id.id if view.group_booking_id else False,
                 'dummy_id': view.dummy_id.id if view.dummy_id else False,
-                'folio_id': view.folio_id.id if view.folio_id else False,
+                'folio_id': view.folio_id.id, # if view.folio_id else False
                 'partner_id': view.partner_id.id if view.partner_id else False,
                 'checkin_date': view.checkin_date,
                 'checkout_date': view.checkout_date,
@@ -320,13 +327,13 @@ class HotelCheckOut(models.Model):
                 'company_id': company_id,
                 'state': 'In' if view.state in ('check_in', 'confirmed') else view.state.capitalize(),
             }
-            if not existing:
-                self.sudo().create(vals)
 
-            # if existing:
-            #     existing.sudo().write(vals)
-            # else:
-            #     self.sudo().create(vals)
+            # raise UserError(str(vals))
+
+            if existing:
+                existing.sudo().write(vals)
+            else:
+                self.sudo().create(vals)
 
         _logger.info("Hotel checkout successfully synced with materialized view for company_id %s", company_id)
         return True
@@ -566,31 +573,54 @@ class HotelCheckOut(models.Model):
                 })
         for record in self:
             new_value = vals.get('is_cashier_checkout')
-            if new_value is not None:  # user is trying to change the field
-                # if not record.folio_id:
-                #     raise UserError("No Master Folio linked to this checkout.")
-
-                # User wants to check it (True)
+            if new_value is not None:
                 if new_value and record.folio_id.balance != 0.0:
-                    raise UserError("The folio balance is not zero. Cannot proceed with cashier checkout.")
-                # User wants to uncheck it (False) — always allowed
+                    raise UserError(_("The folio balance is not zero. Cannot proceed with cashier checkout."))
         return super(HotelCheckOut, self).write(vals)
 
     def action_checkout_room(self):
-        for record in self:
-            if not record.is_cashier_checkout:
-                raise UserError(_("Cashier checkout must be completed first."))  # Translated
-            if record.state == 'In':
-                record.state = 'Out'
-                record.checkout_date = self.env.company.system_date.date()
-                self.get_partner_manual_postings()
+        booking = self.booking_id
 
-                return self._show_notification(
-                    _("Booking Checked Out Successfully!"),  # Translated
-                    'success'
-                )
-            else:
-                raise UserError(_("Room is already checked out."))  # Translated
+        today = fields.Date.context_today(self)
+        if self.checkout_date and self.checkout_date.date() > today:
+            return {
+                'name': _('Confirm Early Check-Out'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'confirm.early.checkout.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_booking_ids': [(6, 0, booking.id)],
+                },
+            }
+        else:
+            booking.write({
+                "state": "check_out",
+                "checkout_date": fields.Datetime.now(),
+            })
+            booking.room_line_ids.write({"state_": "check_out"})
+            self.get_partner_manual_postings()
+            self.write({"state": "Out"})
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'type': 'success',
+                    'message': _("Booking Checked Out Successfully!"),
+                    'next': {'type': 'ir.actions.act_window_close'},
+                }
+            }
+
+        # for record in self:
+        #     if not record.is_cashier_checkout:
+        #         raise UserError(_("Cashier checkout must be completed first."))
+        #     if record.state == 'In':
+        #         # Assuming 'booking_id' is a Many2one to 'room.booking'
+        #         if record.booking_id:
+        #             record.booking_id.action_checkout()  # Call on the specific booking
+        #         record.state = 'Out'
+        #         record.checkout_date = fields.Date.context_today(self)
+        #         self.get_partner_manual_postings()
 
     # def action_checkout_roomX(self):
     #     for record in self:
@@ -681,7 +711,7 @@ class HotelCheckOut(models.Model):
                 f"Successfully posted {created_count} charges",
                 "success"
             )
-        return self._show_notification("No charges available for posting", "warning")
+        return self._show_notification(_("No charges available for posting"), "warning")
 
     def _find_existing_folio(self, booking_line):
         """Find existing folio that is active during the system_date"""
@@ -821,7 +851,9 @@ class HotelCheckOut(models.Model):
     def action_re_checkout_room(self):
         for rec in self:
             if rec.checkout_date.date() != self.env.company.system_date.date():
-                raise UserError("You cannot back checkout room if checkout date not equal system date")
+                raise UserError(_("You cannot back checkout room if checkout date not equal system date"))
+
+        self.env['room.booking'].action_checkin()
         self.write({'state': 'In'})
 
     def _check_suspended_manual_posting(self, room_id=None, group_id=None, dummy_id=None):
