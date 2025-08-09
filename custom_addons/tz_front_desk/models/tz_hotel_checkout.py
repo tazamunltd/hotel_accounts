@@ -265,7 +265,7 @@ class HotelCheckOut(models.Model):
     show_re_checkout = fields.Boolean(compute='_compute_button_visibility')
     show_other_buttons = fields.Boolean(compute='_compute_button_visibility')
 
-    move_id = fields.Many2one('account.move', string='Invoice #', readonly=True)
+    move_id = fields.Many2one('account.move', string='Invoice #')
 
     @api.onchange('is_cashier_checkout')
     def _onchange_is_cashier_checkout(self):
