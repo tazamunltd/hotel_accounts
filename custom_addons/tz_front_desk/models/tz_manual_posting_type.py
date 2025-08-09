@@ -70,7 +70,7 @@ class ManualPostingRoom(models.Model):
 
                 UNION ALL
 
-                SELECT
+                SELECT DISTINCT ON (gb.id)
                     (gb.id * 10 + 2) AS id,
                     COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
                     (SELECT id FROM room_booking rb2 WHERE rb2.group_booking = gb.id AND rb2.state != 'check_out' LIMIT 1) AS booking_id,

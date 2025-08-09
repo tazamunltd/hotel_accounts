@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-06 06:07+0000\n"
-"PO-Revision-Date: 2025-08-06 06:07+0000\n"
+"POT-Creation-Date: 2025-08-09 09:10+0000\n"
+"PO-Revision-Date: 2025-08-09 09:10+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -276,7 +276,7 @@ msgstr "أيقونة نوع النشاط"
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__adjustment
 msgid "Adjustment"
-msgstr "Adjustment"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__adult_count
@@ -321,6 +321,11 @@ msgstr "المبلغ"
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.fd_view_room_booking_form
 msgid "Amount Selection"
 msgstr "اختيار المبلغ"
+
+#. module: tz_front_desk
+#: model:ir.actions.server,name:tz_front_desk.ir_cron_archive_stale_posting_types_ir_actions_server
+msgid "Archive Stale Posting Types"
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
@@ -405,7 +410,7 @@ msgstr "تم تسجيل خروج الحجز بنجاح!"
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_checkout__booking_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__booking_id
 msgid "Booking Id"
-msgstr ""
+msgstr "معرف الحجز"
 
 #. module: tz_front_desk
 #: model:ir.actions.act_window,name:tz_front_desk.fd_action_room_booking_list
@@ -556,7 +561,7 @@ msgstr "ضريبة القيمة المضافة للشركة"
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__confirmed
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_type__state__confirmed
 msgid "Confirmed"
-msgstr "Confirmed"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_res_partner
@@ -798,10 +803,14 @@ msgstr "أسرة إضافية"
 
 #. module: tz_front_desk
 #. odoo-python
+#: code:addons/tz_front_desk/models/tz_checkout.py:0
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
 #: code:addons/tz_front_desk/models/tz_manual_posting_type.py:0
 #, python-format
 msgid "Failed to setup automatic refresh triggers. Check logs for details."
-msgstr "تعذّر إعداد مُشغّلات التحديث التلقائي. يُرجى مراجعة السجلات لمزيد من التفاصيل."
+msgstr ""
+"تعذّر إعداد مُشغّلات التحديث التلقائي. يُرجى مراجعة السجلات لمزيد من "
+"التفاصيل."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_group_booking__first_visit
@@ -891,7 +900,7 @@ msgstr "حجوزات الاستقبال"
 #. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_tz_checkout
 msgid "FrontDesk Checkout"
-msgstr "FrontDesk Checkout"
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_master_folio_form
@@ -1011,7 +1020,7 @@ msgstr "ترحيل يدوي للفندق"
 #. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_tz_manual_posting_tax
 msgid "Hotel Manual Posting Tax"
-msgstr "Hotel Manual Posting Tax"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__id
@@ -1065,7 +1074,7 @@ msgstr "إذا تم تحديده، فإن بعض الرسائل بها خطأ ف
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__group_booking__state__in
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_dummy_group__state__in
 msgid "In"
-msgstr "In"
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_room_booking_search_inherit
@@ -1152,7 +1161,7 @@ msgstr "كود بند التحميل"
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_master_folio__tax_totals
 msgid "JSON-formatted tax summary"
-msgstr "JSON-formatted tax summary"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_group_booking__last_visit
@@ -1208,7 +1217,7 @@ msgstr "ترحيل يدوي"
 #. module: tz_front_desk
 #: model:ir.model,name:tz_front_desk.model_tz_manual_posting_room
 msgid "Manual Posting Room"
-msgstr "Manual Posting Room"
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.tz_manual_posting_view_search
@@ -1342,7 +1351,9 @@ msgstr "الرسائل"
 msgid ""
 "Missing Sales Product for item \"%s\". Please set a product_id on the "
 "Posting Item."
-msgstr "منتج المبيعات مفقود للصنف \"%s\". يرجى تعيين معرف منتج (product_id) في بند الترحيل."
+msgstr ""
+"منتج المبيعات مفقود للصنف \"%s\". يرجى تعيين معرف منتج (product_id) في بند "
+"الترحيل."
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
@@ -1420,7 +1431,9 @@ msgstr "لا يوجد دفتر أستاذ محاسبي من نوع \"مبيعا�
 #. module: tz_front_desk
 #: model_terms:ir.actions.act_window,help:tz_front_desk.action_hotel_checkout
 msgid "No checkouts found. Checkouts will be auto-generated from bookings"
-msgstr "لم يتم العثور على بيانات مغادرة. سيتم إنشاء بيانات المغادرة تلقائيًا من الحجوزات."
+msgstr ""
+"لم يتم العثور على بيانات مغادرة. سيتم إنشاء بيانات المغادرة تلقائيًا من "
+"الحجوزات."
 
 #. module: tz_front_desk
 #. odoo-python
@@ -1456,6 +1469,13 @@ msgstr "لا يوجد بند التحميل مكون للباقة"
 #, python-format
 msgid "No posting item configured for rate code."
 msgstr "لا يوجد بند التحميل مكون لكود التعاقد."
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_manual_posting.py:0
+#, python-format
+msgid "No valid room booking line found for the selected room."
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting__display_type__line_note
@@ -1516,7 +1536,7 @@ msgstr "آخر"
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__group_booking__state__out
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_dummy_group__state__out
 msgid "Out"
-msgstr "Out"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_auto_posting_wizard__include_packages
@@ -1736,6 +1756,13 @@ msgid "Room is already checked out."
 msgstr "تم تسجيل خروج الغرفة بالفعل."
 
 #. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/room_booking.py:0
+#, python-format
+msgid "Room must be selected before creating a booking line."
+msgstr ""
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio__display_info
 msgid "Room/Group"
 msgstr "غرفة/مجموعة"
@@ -1777,12 +1804,12 @@ msgstr "اختر غرفة"
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__show_other_buttons
 msgid "Show Other Buttons"
-msgstr "Show Other Buttons"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__show_re_checkout
 msgid "Show Re Checkout"
-msgstr "Show Re Checkout"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__price
@@ -1800,9 +1827,10 @@ msgid "Source"
 msgstr "المصدر"
 
 #. module: tz_front_desk
+#: model:ir.model.fields,field_description:tz_front_desk.field_tz_hotel_checkout__source_id
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_type__source_id
 msgid "Source ID"
-msgstr "Source ID"
+msgstr ""
 
 #. module: tz_front_desk
 #. odoo-python
@@ -1853,6 +1881,13 @@ msgstr ""
 "مخطط: الأنشطة المستقبلية."
 
 #. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/wizard/tz_auto_posting.py:0
+#, python-format
+msgid "Successfully posted charges for %s rooms"
+msgstr ""
+
+#. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__suite
 msgid "Suite"
 msgstr "جناح"
@@ -1899,6 +1934,13 @@ msgstr "إجمالي الضرائب"
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__taxes_info
 msgid "Taxes"
 msgstr "الضرائب"
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_manual_posting.py:0
+#, python-format
+msgid "The Manual posting is suspended."
+msgstr "تم تعليق الترحيل اليدوي"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,help:tz_front_desk.field_tz_master_folio__company_vat
@@ -2075,6 +2117,13 @@ msgstr "تاريخ التواصل عبر الموقع"
 #. odoo-python
 #: code:addons/tz_front_desk/models/tz_manual_posting.py:0
 #, python-format
+msgid "You cannot create a manual posting for a canceled booking."
+msgstr ""
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_manual_posting.py:0
+#, python-format
 msgid "You cannot delete a record from yesterday's date."
 msgstr "لا يمكنك حذف سجل قديم من تاريخ أمس."
 
@@ -2084,6 +2133,20 @@ msgstr "لا يمكنك حذف سجل قديم من تاريخ أمس."
 #, python-format
 msgid "You cannot delete a record that is posted."
 msgstr "لا يمكنك حذف سجل تم ترحيله."
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_manual_posting.py:0
+#, python-format
+msgid "You cannot update manual posting to link to a canceled booking."
+msgstr ""
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_manual_posting.py:0
+#, python-format
+msgid "You must select a Sign before creating a manual posting."
+msgstr ""
 
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_search

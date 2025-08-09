@@ -57,7 +57,7 @@ class TzHotelManualPosting(models.Model):
         string="Room",
         required=True,
         index=True,
-        domain="[('company_id', '=', company_id), ('checkin_date', '=', date)]",
+        domain="[('company_id', '=', company_id)]", #, ('checkin_date', '=', date)
         ondelete="restrict"
     )
 
@@ -206,11 +206,12 @@ class TzHotelManualPosting(models.Model):
             room_id = vals.get('room_id')
 
             # Get or create the master folio
-            folio = record._get_or_create_master_folio(room_id, group_booking_id=group_booking_id)
-            if folio:
-                record.folio_id = folio.id
-                self.env['tz.checkout'].create_or_replace_view()
-                self.env['tz.hotel.checkout'].sync_with_materialized_view()
+            # VI! We change the scenario we will create a master folio for each room from booking
+            # folio = record._get_or_create_master_folio(room_id, group_booking_id=group_booking_id)
+            # if folio:
+            #     record.folio_id = folio.id
+            #     self.env['tz.checkout'].create_or_replace_view()
+            #     self.env['tz.hotel.checkout'].sync_with_materialized_view()
 
             if group_booking_id:
                 record.room_id = record._get_master_room_id(group_booking_id)
@@ -646,7 +647,7 @@ class TzHotelManualPosting(models.Model):
 
         records_context = [(r.folio_id, r.company_id, r.date) for r in to_delete]
 
-        res = super(TzHotelManualPosting, to_delete).unlink()
+        super(TzHotelManualPosting, to_delete).unlink()
 
         for folio, company, date in records_context:
             if folio:
@@ -657,7 +658,10 @@ class TzHotelManualPosting(models.Model):
                 ])
                 # Optionally: update folio totals or triggers
 
-        return res
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     @api.depends('debit_amount', 'credit_amount', 'quantity', 'taxes')
     def _compute_amounts(self):
