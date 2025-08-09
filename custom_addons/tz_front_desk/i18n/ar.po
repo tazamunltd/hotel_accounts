@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-09 09:10+0000\n"
-"PO-Revision-Date: 2025-08-09 09:10+0000\n"
+"POT-Creation-Date: 2025-08-09 12:24+0000\n"
+"PO-Revision-Date: 2025-08-09 12:24+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -401,6 +401,7 @@ msgstr "رقم الحجز"
 
 #. module: tz_front_desk
 #. odoo-python
+#: code:addons/tz_front_desk/models/room_booking.py:0
 #: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
 #, python-format
 msgid "Booking Checked Out Successfully!"
@@ -442,13 +443,6 @@ msgstr "مغادرة الكاشير"
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
 msgid "Cashier Checkout"
 msgstr "مغادرة الكاشير"
-
-#. module: tz_front_desk
-#. odoo-python
-#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
-#, python-format
-msgid "Cashier checkout must be completed first."
-msgstr "يجب إكمال عملية الدفع بواسطة الكاشير أولاً."
 
 #. module: tz_front_desk
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__check_in
@@ -556,6 +550,13 @@ msgstr "الشركة/الفندق"
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_master_folio_report__company_vat
 msgid "Company VAT"
 msgstr "ضريبة القيمة المضافة للشركة"
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
+#, python-format
+msgid "Confirm Early Check-Out"
+msgstr ""
 
 #. module: tz_front_desk
 #: model:ir.model.fields.selection,name:tz_front_desk.selection__tz_manual_posting_room__state__confirmed
@@ -803,7 +804,6 @@ msgstr "أسرة إضافية"
 
 #. module: tz_front_desk
 #. odoo-python
-#: code:addons/tz_front_desk/models/tz_checkout.py:0
 #: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
 #: code:addons/tz_front_desk/models/tz_manual_posting_type.py:0
 #, python-format
@@ -1429,6 +1429,13 @@ msgid "No accounting journal with type \"Sale\" defined !"
 msgstr "لا يوجد دفتر أستاذ محاسبي من نوع \"مبيعات\" مُعرّف!"
 
 #. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
+#, python-format
+msgid "No charges available for posting"
+msgstr "لا توجد أي رسوم متاحة للترحيل."
+
+#. module: tz_front_desk
 #: model_terms:ir.actions.act_window,help:tz_front_desk.action_hotel_checkout
 msgid "No checkouts found. Checkouts will be auto-generated from bookings"
 msgstr ""
@@ -1750,13 +1757,6 @@ msgstr "اسم نوع الغرفة"
 
 #. module: tz_front_desk
 #. odoo-python
-#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
-#, python-format
-msgid "Room is already checked out."
-msgstr "تم تسجيل خروج الغرفة بالفعل."
-
-#. module: tz_front_desk
-#. odoo-python
 #: code:addons/tz_front_desk/models/room_booking.py:0
 #, python-format
 msgid "Room must be selected before creating a booking line."
@@ -1885,7 +1885,7 @@ msgstr ""
 #: code:addons/tz_front_desk/wizard/tz_auto_posting.py:0
 #, python-format
 msgid "Successfully posted charges for %s rooms"
-msgstr ""
+msgstr "تم ترحيل %s رسم بنجاح."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_room_booking__suite
@@ -1951,6 +1951,13 @@ msgid ""
 msgstr ""
 "رقم التعريف الضريبي. سيتم التحقق من القيم هنا بناءً على تنسيق البلد. يمكنك "
 "استخدام '/' للإشارة إلى أن الشريك غير خاضع للضريبة."
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
+#, python-format
+msgid "The folio balance is not zero. Cannot proceed with cashier checkout."
+msgstr "رصيد الملف غير صفري. لا يمكن المتابعة في إقفال الصندوق."
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting__time
@@ -2112,6 +2119,13 @@ msgstr "رسائل الموقع"
 #: model:ir.model.fields,help:tz_front_desk.field_tz_manual_posting__website_message_ids
 msgid "Website communication history"
 msgstr "تاريخ التواصل عبر الموقع"
+
+#. module: tz_front_desk
+#. odoo-python
+#: code:addons/tz_front_desk/models/tz_hotel_checkout.py:0
+#, python-format
+msgid "You cannot back checkout room if checkout date not equal system date"
+msgstr ""
 
 #. module: tz_front_desk
 #. odoo-python
