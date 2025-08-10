@@ -111,7 +111,14 @@
                             <field name="rate_code" readonly="1"/>
                             <field name="meal_pattern" readonly="1"/>
                             <field name="company_id" groups="base.group_multi_company" readonly="1"/>
-                            <field name="move_id"/>
+                            <!--                            <field name="move_id"/>-->
+                            <field name="move_id"
+                                   readonly="1"
+                                   widget="many2one"
+                                   options="{'no_create': True, 'no_open': False}"/>
+
+                            <!--<field name="move_id" readonly="1"
+                                   options="{'no_open': False, 'no_create': True, 'no_create_edit': True}"/>-->
                         </group>
                     </group>
 
