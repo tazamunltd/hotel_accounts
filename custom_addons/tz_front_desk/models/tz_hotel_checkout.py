@@ -233,7 +233,6 @@ class HotelCheckOut(models.Model):
         store=True,
         readonly=True)
 
-
     group_by_category = fields.Selection([
         ('expected_dep', 'Expected Departure'),
         ('dep_with_balance', 'Departure with Balance'),
@@ -265,7 +264,8 @@ class HotelCheckOut(models.Model):
     show_re_checkout = fields.Boolean(compute='_compute_button_visibility')
     show_other_buttons = fields.Boolean(compute='_compute_button_visibility')
 
-    move_id = fields.Many2one('account.move', string='Invoice #')
+    # move_id = fields.Many2one('account.move', string='Invoice #')
+    move_id = fields.Many2one('account.move', string='Invoice #', readonly=True)
 
     @api.onchange('is_cashier_checkout')
     def _onchange_is_cashier_checkout(self):
@@ -281,7 +281,6 @@ class HotelCheckOut(models.Model):
     def _compute_button_visibility(self):
         for record in self:
             if record.state == 'Out':
-                # raise UserError((record.checkout_date.date() == self.env.company.system_date.date()))
                 record.show_re_checkout = (record.checkout_date.date() == self.env.company.system_date.date())
                 record.show_other_buttons = False
             else:
@@ -338,127 +337,6 @@ class HotelCheckOut(models.Model):
         _logger.info("Hotel checkout successfully synced with materialized view for company_id %s", company_id)
         return True
 
-    # @api.model
-    # def create_or_replace_view(self):
-    #     # Get current company_id from environment
-    #     company_id = self.env.company.id
-    #
-    #     # 1. Ensure the view exists
-    #     try:
-    #         tools.drop_view_if_exists(self.env.cr, 'tz_checkout')
-    #         self.env.cr.execute("""
-    #             CREATE MATERIALIZED VIEW tz_checkout AS (
-    #                 SELECT
-    #                     ROW_NUMBER() OVER () AS id,
-    #                     name,
-    #                     booking_id,
-    #                     room_id,
-    #                     group_booking_id,
-    #                     dummy_id,
-    #                     folio_id,
-    #                     partner_id,
-    #                     checkin_date,
-    #                     checkout_date,
-    #                     adult_count,
-    #                     child_count,
-    #                     infant_count,
-    #                     rate_code,
-    #                     meal_pattern,
-    #                     state,
-    #                     company_id
-    #                 FROM (
-    #                     -- Room Booking block
-    #                     SELECT
-    #                         COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
-    #                         rb.id AS booking_id,
-    #                         hr.id AS room_id,
-    #                         rb.group_booking_id,
-    #                         NULL::integer AS dummy_id,
-    #                         folio.id AS folio_id,
-    #                         rb.partner_id,
-    #                         rb.checkin_date,
-    #                         rb.checkout_date,
-    #                         rb.adult_count::integer,
-    #                         rb.child_count::integer,
-    #                         rb.infant_count::integer,
-    #                         rb.rate_code::varchar,
-    #                         rb.meal_pattern::varchar,
-    #                         rb.state::varchar AS state,
-    #                         rb.company_id
-    #                     FROM room_booking rb
-    #                     JOIN room_booking_line rbl ON rbl.booking_id = rb.id
-    #                     JOIN hotel_room hr ON rbl.room_id = hr.id
-    #                     LEFT JOIN tz_master_folio folio
-    #                         ON folio.room_id = rbl.room_id
-    #                     WHERE rb.state = 'check_in'
-    #                       AND rb.group_booking IS NULL
-    #
-    #                     UNION ALL
-    #
-    #                     -- Group Booking block
-    #                     SELECT
-    #                         COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
-    #                         NULL::integer AS booking_id,
-    #                         NULL::integer AS room_id,
-    #                         gb.id AS group_booking_id,
-    #                         NULL::integer AS dummy_id,
-    #                         folio.id AS folio_id,
-    #                         gb.company AS partner_id,
-    #                         gb.first_visit AS checkin_date,
-    #                         gb.last_visit AS checkout_date,
-    #                         gb.total_adult_count::integer,
-    #                         gb.total_child_count::integer,
-    #                         gb.total_infant_count::integer,
-    #                         gb.rate_code::varchar,
-    #                         gb.group_meal_pattern::varchar,
-    #                         gb.status_code::varchar AS state,
-    #                         gb.company_id
-    #                     FROM group_booking gb
-    #                     LEFT JOIN tz_master_folio folio
-    #                         ON folio.group_id = gb.id
-    #                     WHERE gb.status_code = 'confirmed'
-    #                       AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in')
-    #
-    #                     UNION ALL
-    #
-    #                     -- Dummy Group block
-    #                     SELECT
-    #                         dg.description::text AS name,
-    #                         NULL::integer AS booking_id,
-    #                         NULL::integer AS room_id,
-    #                         NULL::integer AS group_booking_id,
-    #                         dg.id AS dummy_id,
-    #                         folio.id AS folio_id,
-    #                         dg.partner_id,
-    #                         dg.start_date AS checkin_date,
-    #                         dg.end_date AS checkout_date,
-    #                         NULL::integer AS adult_count,
-    #                         NULL::integer AS child_count,
-    #                         NULL::integer AS infant_count,
-    #                         NULL::varchar AS rate_code,
-    #                         NULL::varchar AS meal_pattern,
-    #                         dg.state::varchar AS state,
-    #                         dg.company_id
-    #                     FROM tz_dummy_group dg
-    #                     LEFT JOIN tz_master_folio folio
-    #                         ON folio.dummy_id = dg.id
-    #                     WHERE dg.obsolete = FALSE
-    #                 ) AS unified
-    #             );
-    #         """, (company_id, company_id, company_id, company_id))
-    #     except Exception as e:
-    #         raise UserError(f"Failed to create view: {str(e)}")
-    #
-    #     # Rest of your function remains the same...
-    #     # 2. Read from the view
-    #     try:
-    #         self.env.cr.execute("SELECT * FROM tz_checkout")
-    #         results = self.env.cr.dictfetchall()
-    #     except Exception as e:
-    #         raise UserError(f"Failed to read from view: {str(e)}")
-    #
-    #     # [Rest of your existing code...]
-
     @api.model
     def sync_with_materialized_viewX(self):
         company_id = self.env.company.id
@@ -504,52 +382,6 @@ class HotelCheckOut(models.Model):
 
         return True
 
-    # @api.model
-    # def sync_from_viewX(self):
-    #     company_id = self.env.company.id
-    #     view_model = self.env['tz.checkout']
-    #     records = view_model.search([])
-    #     vals = []
-    #
-    #     for rec in records:
-    #         # Check for existing record based on the unique key
-    #         domain = []
-    #         if rec.booking_id:
-    #             domain.append(('booking_id', '=', rec.booking_id.id))
-    #         elif rec.group_booking_id:
-    #             domain.append(('group_booking_id', '=', rec.group_booking_id.id))
-    #         elif rec.dummy_id:
-    #             domain.append(('dummy_id', '=', rec.dummy_id.id))
-    #         else:
-    #             continue  # Skip if no identifier is found
-    #
-    #         # Avoid duplication
-    #         if self.search(domain, limit=1):
-    #             continue
-    #
-    #         vals.append({
-    #             'name': rec.name,
-    #             'booking_id': rec.booking_id.id if rec.booking_id else False,
-    #             'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
-    #             'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
-    #             'room_id': rec.room_id.id if rec.room_id else False,
-    #             'partner_id': rec.partner_id.id if rec.partner_id else False,
-    #             'checkin_date': rec.checkin_date,
-    #             'checkout_date': rec.checkout_date,
-    #             'adult_count': rec.adult_count,
-    #             'child_count': rec.child_count,
-    #             'infant_count': rec.infant_count,
-    #             'rate_code': rec.rate_code.id if rec.rate_code else False,
-    #             'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
-    #             'state': 'In' if rec.state == 'check_in' or rec.state == 'confirmed' else rec.state.capitalize(),
-    #             'company_id': rec.company_id.id if rec.company_id else company_id,
-    #             'folio_id': rec.folio_id.id if rec.folio_id else False,
-    #         })
-    #
-    #     if vals:
-    #         self.sudo().create(vals)
-    #     return True
-
     @api.model
     def create(self, vals):
         if vals.get('is_cashier_checkout'):
@@ -580,58 +412,53 @@ class HotelCheckOut(models.Model):
 
     def action_checkout_room(self):
         booking = self.booking_id
+        system_date = self.env.company.system_date.date()
 
-        today = fields.Date.context_today(self)
-        if self.checkout_date and self.checkout_date.date() > today:
-            return {
-                'name': _('Confirm Early Check-Out'),
-                'type': 'ir.actions.act_window',
-                'res_model': 'confirm.early.checkout.wizard',
-                'view_mode': 'form',
-                'target': 'new',
-                'context': {
-                    'default_booking_ids': [(6, 0, booking.id)],
-                },
+        booking.write({
+            "state": "check_out",
+            "checkout_date": system_date,
+        })
+        booking.room_line_ids.write({"state_": "check_out"})
+        self.write({"state": "Out", "checkout_date": system_date})
+        self.get_partner_manual_postings()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'success',
+                'message': _("Booking Checked Out Successfully!"),
+                'next': {'type': 'ir.actions.act_window_close'},
             }
-        else:
-            booking.write({
-                "state": "check_out",
-                "checkout_date": fields.Datetime.now(),
-            })
-            booking.room_line_ids.write({"state_": "check_out"})
-            self.get_partner_manual_postings()
-            self.write({"state": "Out"})
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'type': 'success',
-                    'message': _("Booking Checked Out Successfully!"),
-                    'next': {'type': 'ir.actions.act_window_close'},
-                }
-            }
+        }
 
-        # for record in self:
-        #     if not record.is_cashier_checkout:
-        #         raise UserError(_("Cashier checkout must be completed first."))
-        #     if record.state == 'In':
-        #         # Assuming 'booking_id' is a Many2one to 'room.booking'
-        #         if record.booking_id:
-        #             record.booking_id.action_checkout()  # Call on the specific booking
-        #         record.state = 'Out'
-        #         record.checkout_date = fields.Date.context_today(self)
-        #         self.get_partner_manual_postings()
-
-    # def action_checkout_roomX(self):
-    #     for record in self:
-    #         if not record.is_cashier_checkout:
-    #             raise UserError("Cashier checkout must be completed first.")
-    #         if record.state == 'In':
-    #             record.state = 'Out'
-    #             record.checkout_date = self.env.company.system_date.date()
-    #             self.get_partner_manual_postings()
-    #         else:
-    #             raise UserError("Room is already checked out.")
+        # if self.checkout_date and self.checkout_date.date() > system_date:
+        #     return {
+        #         'name': _('Confirm Early Check-Out'),
+        #         'type': 'ir.actions.act_window',
+        #         'res_model': 'confirm.early.checkout.wizard',
+        #         'view_mode': 'form',
+        #         'target': 'new',
+        #         'context': {
+        #             'default_booking_id': booking.id,
+        #         },
+        #     }
+        # else:
+        #     booking.write({
+        #         "state": "check_out",
+        #         "checkout_date": system_date,
+        #     })
+        #     booking.room_line_ids.write({"state_": "check_out"})
+        #     self.write({"state": "Out", "checkout_date": system_date})
+        #     self.get_partner_manual_postings()
+        #     return {
+        #         'type': 'ir.actions.client',
+        #         'tag': 'display_notification',
+        #         'params': {
+        #             'type': 'success',
+        #             'message': _("Booking Checked Out Successfully!"),
+        #             'next': {'type': 'ir.actions.act_window_close'},
+        #         }
+        #     }
 
     def open_manual_posting(self):
         self.ensure_one()
@@ -849,11 +676,15 @@ class HotelCheckOut(models.Model):
         }
 
     def action_re_checkout_room(self):
+        booking = self.booking_id
         for rec in self:
             if rec.checkout_date.date() != self.env.company.system_date.date():
                 raise UserError(_("You cannot back checkout room if checkout date not equal system date"))
 
-        self.env['room.booking'].action_checkin()
+        booking.write({
+            "state": "check_in",
+        })
+        booking.room_line_ids.write({"state_": "check_in"})
         self.write({'state': 'In'})
 
     def _check_suspended_manual_posting(self, room_id=None, group_id=None, dummy_id=None):
