@@ -126,6 +126,9 @@ class DummyGroup(models.Model):
         name = prefix + (self.env['ir.sequence'].sudo().with_company(company)
                          .next_by_code('tz.dummy.group'))
         default = dict(default or {}, name=name)
+        self._get_or_create_master_folio()
+        self.env['tz.manual.posting.room'].create_or_replace_view()
+        self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return super().copy(default)
 
 
