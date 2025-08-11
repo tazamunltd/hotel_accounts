@@ -163,7 +163,9 @@ class TransferChargeWizard(models.TransientModel):
         # }
 
     def _get_master_folio(self, room_id, dummy_id):
-        folio_id = self.env['tz.manual.posting']._get_or_create_master_folio(room_id)
-        if dummy_id:
+        folio_id = 0
+        if room_id:
+            folio_id = self.env['tz.manual.posting']._get_or_create_master_folio(room_id)
+        elif dummy_id:
             folio_id = self.env['tz.manual.posting']._get_master_folio_for_dummy(dummy_id)
         return folio_id
