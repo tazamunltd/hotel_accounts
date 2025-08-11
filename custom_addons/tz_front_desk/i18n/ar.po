@@ -468,7 +468,7 @@ msgstr "تاريخ المغادرة"
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
 msgid "Check Out Room"
-msgstr "مغادرة الغرفة"
+msgstr "المغادرة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_manual_posting_room__checkin_date
@@ -1655,7 +1655,7 @@ msgstr ""
 #. module: tz_front_desk
 #: model_terms:ir.ui.view,arch_db:tz_front_desk.view_hotel_checkout_form
 msgid "Re-Checkout Room"
-msgstr "التراجع عن مغادرة الغرفة"
+msgstr "الغاء المغادرة"
 
 #. module: tz_front_desk
 #: model:ir.model.fields,field_description:tz_front_desk.field_tz_dummy_group__activity_user_id
