@@ -115,17 +115,6 @@ class TzMasterFolio(models.Model):
                 rec.display_info = rec.dummy_id.description
             else:
                 rec.display_info = ""
-    # @api.depends('room_id', 'group_id', 'dummy_id')
-    # def _compute_display_info(self):
-    #     for rec in self:
-    #         values = []
-    #         if rec.room_id:
-    #             values.append(f"Room: {rec.room_id.name}")
-    #         if rec.group_id:
-    #             values.append(f"Group: {rec.group_id.name}")
-    #         if rec.dummy_id:
-    #             values.append(f"Dummy: {rec.dummy_id.name}")
-    #         rec.display_info = " | ".join(values)
 
     @api.depends('manual_posting_ids.balance')
     def _compute_balance(self):
@@ -137,13 +126,54 @@ class TzMasterFolio(models.Model):
 
     @api.depends_context('lang')
     @api.depends('manual_posting_ids.taxes', 'manual_posting_ids.total', 'amount_total', 'amount_untaxed')
-    def _compute_tax_totals(self):
+    def _compute_tax_totalsX(self):
         for folio in self:
-            lines = folio.manual_posting_ids.filtered(lambda l: not l.display_type)
+            # Filter out:
+            # 1. Display-type lines
+            # 2. Credit-only lines (credit_amount > 0 and debit_amount = 0)
+            # 3. From specific payment/charge groups
+            lines = folio.manual_posting_ids.filtered(
+                lambda l: not l.display_type
+                          and not (l.credit_amount > 0 and l.debit_amount == 0
+                                   and (l.payment_group or l.charge_group)))
+
             folio.tax_totals = self.env['account.tax']._prepare_tax_totals(
                 [l._convert_to_tax_base_line_dict() for l in lines],
                 folio.currency_id or folio.company_id.currency_id,
             )
+
+    def _compute_tax_totals(self):
+        for folio in self:
+            # Filter out:
+            # - Display-type lines
+            # - Lines with a payment_group (e.g., Cash)
+            lines = folio.manual_posting_ids.filtered(
+                lambda l: not l.display_type and not l.payment_group
+            )
+
+            base_lines = []
+            currency = folio.currency_id or folio.company_id.currency_id
+
+            for line in lines:
+                price_unit = line.debit_amount - line.credit_amount
+                base_line = self.env['account.tax']._convert_to_tax_base_line_dict(
+                    line,
+                    partner=folio.guest_id,
+                    currency=currency,
+                    product=None,
+                    taxes=line.taxes,
+                    price_unit=price_unit,
+                    quantity=1.0,
+                    discount=0.0,
+                    price_subtotal=price_unit,
+                )
+                base_lines.append(base_line)
+
+            folio.tax_totals = self.env['account.tax']._prepare_tax_totals(
+                base_lines,
+                currency,
+            )
+
 
 class OdooPayment(models.Model):
     _inherit = 'account.payment'

@@ -125,6 +125,42 @@
                             <br/>
                         </t>
                     </t>
+                    <t t-if="tax_totals">
+                        <div>
+                            <strong>Tax Breakdown:</strong>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <t t-foreach="tax_totals['groups_by_subtotal']" t-as="group">
+                                    <li>
+                                        <span t-esc="group['tax_group_name']"/>:
+                                        <span t-esc="group['tax_amount']"/>
+                                        <span t-esc="tax_totals['currency_symbol']"/>
+                                    </li>
+                                </t>
+                            </ul>
+                            <p>
+                                <strong>Total (with tax):</strong>
+                                <span t-esc="tax_totals['formatted_amount_total']"/>
+                            </p>
+                        </div>
+                    </t>
+
+                    <div>
+                            <strong>Tax Breakdown:</strong>
+                            <ul style="list-style: none; padding-left: 0;">
+                                <t t-foreach="tax_totals['groups_by_subtotal']" t-as="group">
+                                    <li>
+                                        <span t-esc="group['tax_group_name']"/>:
+                                        <span t-esc="group['tax_amount']"/>
+                                        <span t-esc="tax_totals['currency_symbol']"/>
+                                    </li>
+                                </t>
+                            </ul>
+                            <p>
+                                <strong>Total (with tax):</strong>
+                                <span t-esc="tax_totals['formatted_amount_total']"/>
+                            </p>
+                        </div>
+
                 </div>
 
                 <!-- Thank You -->

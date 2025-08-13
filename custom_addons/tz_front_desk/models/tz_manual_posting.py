@@ -145,6 +145,9 @@ class TzHotelManualPosting(models.Model):
 
     payment_group = fields.Selection(related='item_id.main_department.payment_group', string="Payment Group",
                                      store=True, readonly=True)
+    charge_group = fields.Selection(related='item_id.main_department.charge_group', string="Payment Group",
+                                     store=True, readonly=True)
+
     adjustment = fields.Selection(related='item_id.main_department.adjustment', string="Adjustment", store=True,
                                   readonly=True)
     payment_id = fields.Many2one('account.payment', string="Payment #", index=True, store=True)
@@ -678,10 +681,12 @@ class TzHotelManualPosting(models.Model):
             line.tax_amount = taxes['total_included'] - taxes['total_excluded']
             line.price_total = taxes['total_included']
 
-    def _convert_to_tax_base_line_dict(self):
+    def _convert_to_tax_base_line_dict(self, totals=None):
         self.ensure_one()
-        price_unit = (self.debit_amount)
-        # price_unit = (self.debit_without_vat or self.credit_without_vat) / (self.quantity or 1)
+
+        # Use the line's own debit and credit
+        price_unit = self.debit_amount - self.credit_amount
+
         return self.env['account.tax']._convert_to_tax_base_line_dict(
             self,
             partner=self.folio_id.guest_id,
@@ -691,7 +696,57 @@ class TzHotelManualPosting(models.Model):
             price_unit=price_unit,
             quantity=self.quantity,
             discount=0.0,
-            price_subtotal=self.price_subtotal,
+            price_subtotal=(price_unit * self.quantity),
+        )
+
+    def _convert_to_tax_base_line_dictXX(self, totals=None):
+        """
+        Convert this posting to a tax base line dict, using precomputed totals
+        if available to avoid duplicate queries.
+        """
+        self.ensure_one()
+
+        if totals is None:
+            # Compute totals only if not provided
+            postings = self.env['tz.manual.posting'].search([
+                ('folio_id', '=', self.folio_id.id),
+                ('item_id.main_department.payment_group', '=', False),
+            ])
+            total_debit = float(sum(postings.mapped('debit_amount') or [0.0]))
+            total_credit = float(sum(postings.mapped('credit_amount') or [0.0]))
+        else:
+            total_debit, total_credit = totals
+
+        credit_value = total_credit
+        price_unit = self.debit_amount - credit_value
+
+        return self.env['account.tax']._convert_to_tax_base_line_dict(
+            self,
+            partner=self.folio_id.guest_id,
+            currency=self.currency_id,
+            product=None,
+            taxes=self.taxes,
+            price_unit=price_unit,
+            quantity=self.quantity,
+            discount=0.0,
+            price_subtotal=(price_unit * self.quantity),
+        )
+
+    def _convert_to_tax_base_line_dictX(self):
+        self.ensure_one()
+
+        credit_value = self.get_credit_value()
+        price_unit = (self.debit_amount - credit_value)
+        return self.env['account.tax']._convert_to_tax_base_line_dict(
+            self,
+            partner=self.folio_id.guest_id,
+            currency=self.currency_id,
+            product=None,
+            taxes=self.taxes,
+            price_unit=price_unit,
+            quantity=self.quantity,
+            discount=0.0,
+            price_subtotal=(price_unit * self.quantity),
         )
 
     def create_account_payment(self, payment_type='inbound'):
@@ -805,6 +860,83 @@ class TzHotelManualPosting(models.Model):
                 room_type.create(vals)
 
         _logger.info("Manual posting type successfully synced with materialized view for company_id %s", company_id)
+
+    def _compute_tax_totals(self):
+        for folio in self:
+            lines = folio.manual_postings  # Adjust to your actual relation field
+
+            # Filter only lines without payment group
+            postings_for_totals = lines.filtered(
+                lambda l: not l.item_id.main_department.payment_group
+            )
+
+            total_debit = float(sum(postings_for_totals.mapped('debit_amount') or [0.0]))
+            total_credit = float(sum(postings_for_totals.mapped('credit_amount') or [0.0]))
+
+            # Pass totals to each line so they don't recompute
+            base_lines = [
+                l._convert_to_tax_base_line_dict(totals=(total_debit, total_credit))
+                for l in lines
+            ]
+
+            # Now you can process base_lines as needed for your tax total computation
+            # folio.tax_totals = ...
+
+    def get_credit_valueX(self):
+        """
+        Returns total credit amount (as float) for:
+        - Current posting's folio
+        - Excluding all payment group records
+        """
+        current_folio = self.folio_id
+        if not current_folio:
+            return 0.0
+
+        # Get matching postings without triggering read_group duplicate join bug
+        credit_postings = self.env['tz.manual.posting'].search([
+            ('company_id', '=', self.company_id.id),
+            ('folio_id', '=', current_folio.id),
+            ('id', '=', self.id),
+            ('item_id', '=', self.item_id.id),
+            ('item_id.main_department.payment_group', '=', False),
+        ])
+
+        total = sum(credit_postings.mapped('credit_amount'))
+
+        return float(total)
+
+    def test_function(self):
+        """
+        Returns total credit amount (as float) for:
+        - Current posting's folio
+        - Excluding all payment group records
+        """
+        # Get current posting's folio
+        current_folio = self.folio_id
+
+        if not current_folio:
+            return 0.0  # Return 0 if no folio linked
+
+        # Filter domain:
+        # 1. Belongs to current folio
+        # 2. Has no payment group
+        domain = [
+            ('folio_id', '=', current_folio.id),
+            ('item_id.main_department.payment_group', '=', False)
+        ]
+
+        # Efficient sum using read_group()
+        result = self.env['tz.manual.posting'].read_group(
+            domain,
+            ['credit_amount:sum'],
+            []
+        )
+
+        # Extract sum or default to 0.0
+        total = result[0]['credit_amount'] if result else 0.0
+        new_val = self.debit_amount - total
+        raise UserError(self.price_subtotal)
+        return float(total)
 
 
 
