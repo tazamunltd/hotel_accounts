@@ -8,6 +8,75 @@
         <field name="report_name">tz_front_desk.report_master_folio</field>
     </record>
 
+    <!--<template id="report_folio_summary">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div>
+                    <h2>Folio:
+                        <t t-esc="doc.name"/>
+                    </h2>
+                    <p>Guest:
+                        <t t-esc="doc.guest_id.name"/>
+                    </p>
+                    <p>Check-in:
+                        <t t-esc="format_datetime(doc.check_in)"/>
+                    </p>
+                    <p>Check-out:
+                        <t t-esc="format_datetime(doc.check_out)"/>
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.line_ids" t-as="line">
+                                <tr>
+                                    <td>
+                                        <t t-esc="format_datetime(line.date)"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line.item_name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line.item_description"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="format_amount(line.total_debit, doc.currency_id)"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="format_amount(line.total_credit, doc.currency_id)"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="format_amount(line.total_balance, doc.currency_id)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <div>
+                        <h3>Tax Summary</h3>
+                        <t t-if="tax_totals.get(doc.id)">
+                            <ul>
+                                <t t-foreach="tax_totals.get(doc.id).get('groups', [])" t-as="group">
+                                    <li><t t-esc="group['tax_group_name']"/>:
+                                        <t t-esc="format_amount(group['amount'], doc.currency_id)"/>
+                                    </li>
+                                </t>
+                            </ul>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>-->
+
     <template id="report_master_folio">
         <t t-call="web.html_container">
             <t t-set="doc" t-value="docs[0]"/>
@@ -95,72 +164,73 @@
                     </table>
                 </div>
 
-                <!-- Totals -->
-                <div class="row" style="margin-top: 30px; border-top: 1px solid #000; padding-top: 10px;">
-                    <div class="col-12 text-end">
-                        <strong>Total Debit:</strong>
-                        <span t-esc="round(doc.folio_total_debit, 2)"/>
-                        <br/>
-                        <strong>Total Credit:</strong>
-                        <span t-esc="round(doc.folio_total_credit, 2)"/>
-                        <br/>
-                        <strong>Balance:</strong>
-                        <span t-esc="round(doc.folio_balance, 2)"/>
-                        <br/>
-                        <strong>VAT:</strong>
-                        <span t-esc="round(doc.value_added_tax, 2)"/>
-                        <br/>
-                        <strong>Municipality Tax:</strong>
-                        <span t-esc="round(doc.municipality_tax, 2)"/>
-                        <h6>
-                            <strong>Total:</strong>
-                            <span t-esc="round(doc.amount_total, 2)"/>
-                        </h6>
+                <!-- Tax Summary Section -->
+                <!-- Tax Summary Section - SAFE VERSION -->
+                <t t-set="tax_data" t-value="doc.tax_totals or {}"/>
+                <t t-set="currency" t-value="doc.currency_id or None"/>
+
+                <!-- Fallback format_amount if not provided -->
+                <t t-if="not format_amount">
+                    <t t-set="format_amount" t-value="lambda amount, currency: str(amount)"/>
+                </t>
+
+                <div class="row mt-4" t-if="tax_data">
+                    <div class="col-12">
+                        <h4>Tax Summary</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Description</th>
+                                    <th class="text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Safe rendering of tax groups -->
+                                <t t-if="tax_data.get('groups_by_subtotal')">
+                                    <t t-foreach="tax_data.get('groups_by_subtotal', {}).items()" t-as="subtotal">
+                                        <tr class="subtotal-header">
+                                            <td colspan="2">
+                                                <strong t-esc="subtotal[0] or 'Tax Group'"/>
+                                            </td>
+                                        </tr>
+                                        <t t-foreach="subtotal[1]" t-as="tax_group">
+                                            <tr>
+                                                <td class="pl-4">
+                                                    <span t-esc="tax_group.get('tax_group_name', 'Tax')"/>
+                                                    <t t-if="tax_group.get('tax_group_rate')">
+                                                        (<span t-esc="tax_group['tax_group_rate']"/>%)
+                                                    </t>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-esc="format_amount(float(tax_group.get('tax_group_amount', 0.0)), currency)"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </t>
+
+                                <!-- Totals Section with extra safety checks -->
+                                <tr class="border-top">
+                                    <td>
+                                        <strong>Untaxed Amount</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="format_amount(float(tax_data.get('amount_untaxed', 0.0)), currency)"/>
+                                    </td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td>
+                                        <strong>Total With Tax</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong>
+                                            <span t-esc="format_amount(float(tax_data.get('amount_total', 0.0)), currency)"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <hr/>
-                    <t t-if="doc.taxes_info">
-                        <t t-foreach="doc.taxes_info" t-as="tax">
-                            <strong t-esc="tax['label']"/>:
-                            <span t-esc="tax['amount']"/>
-                            <br/>
-                        </t>
-                    </t>
-                    <t t-if="tax_totals">
-                        <div>
-                            <strong>Tax Breakdown:</strong>
-                            <ul style="list-style: none; padding-left: 0;">
-                                <t t-foreach="tax_totals['groups_by_subtotal']" t-as="group">
-                                    <li>
-                                        <span t-esc="group['tax_group_name']"/>:
-                                        <span t-esc="group['tax_amount']"/>
-                                        <span t-esc="tax_totals['currency_symbol']"/>
-                                    </li>
-                                </t>
-                            </ul>
-                            <p>
-                                <strong>Total (with tax):</strong>
-                                <span t-esc="tax_totals['formatted_amount_total']"/>
-                            </p>
-                        </div>
-                    </t>
-
-                    <div>
-                            <strong>Tax Breakdown:</strong>
-                            <ul style="list-style: none; padding-left: 0;">
-                                <t t-foreach="tax_totals['groups_by_subtotal']" t-as="group">
-                                    <li>
-                                        <span t-esc="group['tax_group_name']"/>:
-                                        <span t-esc="group['tax_amount']"/>
-                                        <span t-esc="tax_totals['currency_symbol']"/>
-                                    </li>
-                                </t>
-                            </ul>
-                            <p>
-                                <strong>Total (with tax):</strong>
-                                <span t-esc="tax_totals['formatted_amount_total']"/>
-                            </p>
-                        </div>
-
                 </div>
 
                 <!-- Thank You -->
@@ -170,6 +240,134 @@
                             <strong>Thank you for your business!</strong>
                         </p>
                     </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_tz_master_folio_new" model="ir.actions.report">
+        <field name="name">Master Folio Report</field>
+        <field name="model">tz.master.folio</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_file">tz_front_desk.report_folio_summary</field>
+        <field name="report_name">tz_front_desk.report_folio_summary</field>
+        <field name="print_report_name">'Master Folio - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_tz_master_folio"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_master_folio_new">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-set="doc" t-value="docs[0]"/>
+                <div class="page">
+                    <div class="header">
+                        <h2>Master Folio Report</h2>
+                        <h3>
+                            <span t-field="doc.name"/>
+                        </h3>
+                    </div>
+                    <!-- Tax Totals Section -->
+                    <div class="row mt-4" t-if="doc.tax_totals">
+                        <div class="col-12">
+                            <h4>Tax Summary</h4>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="tax_data" t-value="doc._get_tax_totals_display()"/>
+                                    <t t-if="tax_data and tax_data.get('subtotals')">
+                                        <!-- Handle subtotals first -->
+                                        <t t-foreach="tax_data['subtotals']" t-as="subtotal">
+                                            <tr>
+                                                <td colspan="2">
+                                                    <strong t-esc="subtotal.get('name', 'Subtotal')"/>
+                                                </td>
+                                            </tr>
+                                            <t t-foreach="subtotal.get('tax_group_data', [])" t-as="tax_group">
+                                                <tr>
+                                                    <td>
+                                                        <span t-esc="tax_group.get('tax_group_name', 'Tax')"/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-esc="tax_group.get('tax_group_amount', '0.00')"/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+
+                                        <!-- Handle groups_by_subtotal if exists -->
+                                        <t t-if="tax_data.get('groups_by_subtotal')">
+                                            <t t-foreach="tax_data['groups_by_subtotal'].items()" t-as="subtotal">
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <strong t-esc="subtotal[0]"/>
+                                                    </td>
+                                                </tr>
+                                                <t t-foreach="subtotal[1]" t-as="tax_group">
+                                                    <tr>
+                                                        <td>
+                                                            <span t-esc="tax_group.get('tax_group_name', 'Tax')"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-esc="tax_group.get('tax_group_amount', '0.00')"/>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                        </t>
+
+                                        <!-- Totals -->
+                                        <tr>
+                                            <td>
+                                                <strong>Total With Tax</strong>
+                                            </td>
+                                            <td>
+                                                <span t-esc="tax_data.get('amount_total', '0.00')"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-elif="tax_data">
+                                        <!-- Fallback display if no subtotals -->
+                                        <tr>
+                                            <td>
+                                                <strong>Untaxed Amount</strong>
+                                            </td>
+                                            <td>
+                                                <span t-esc="tax_data.get('amount_untaxed', '0.00')"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Total Tax</strong>
+                                            </td>
+                                            <td>
+                                                <span t-esc="tax_data.get('amount_tax', '0.00')"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Total With Tax</strong>
+                                            </td>
+                                            <td>
+                                                <span t-esc="tax_data.get('amount_total', '0.00')"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-else="">
+                                        <tr>
+                                            <td colspan="2">No tax information available</td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </t>
         </t>
