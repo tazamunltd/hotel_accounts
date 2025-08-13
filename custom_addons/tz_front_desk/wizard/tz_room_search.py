@@ -176,13 +176,11 @@ class TzRoomSearch(models.TransientModel):
                 }
             grouped_availabilities[room_type_id]['total_room_count'] += availability['total_room_count']
             grouped_availabilities[room_type_id]['entries'].append(availability)
-            # print('3245', grouped_availabilities)
 
         total_available_rooms = 0
         for room_type_id, availability in grouped_availabilities.items():
             # room_type_id = availability['room_type'][0] if isinstance(availability['room_type'], tuple) else \
             #     availability['room_type']
-            # print('2666', room_type_id, availability['pax'], checkout_date, checkin_date)
             # Exclude already allocated bookings from search
             booked_rooms = self.env['room.booking.line'].search_count([
                 ('hotel_room_type', '=', room_type_id),
@@ -199,7 +197,6 @@ class TzRoomSearch(models.TransientModel):
                 # ('state', 'in', ['confirmed', 'block', 'check_in']),
                 # ('id', 'not in', self.env.context.get('already_allocated', []))  # Exclude allocated lines
             ])
-            # print("line 2676",booked_rooms)
 
             if availability['overbooking_allowed']:
                 available_rooms = max(
@@ -208,11 +205,9 @@ class TzRoomSearch(models.TransientModel):
                 if availability['overbooking_rooms'] == 0:
                     return 99999  # Unlimited rooms
             else:
-                # print("2693",availability['total_room_count'], booked_rooms,max(availability['total_room_count'] - booked_rooms, 0))
                 available_rooms = max(availability['total_room_count'] - booked_rooms, 0)
 
             total_available_rooms += available_rooms
-            # print('line 2697',total_available_rooms)
 
         return total_available_rooms
 
@@ -276,7 +271,6 @@ class TzRoomSearch(models.TransientModel):
                         availability['total_room_count'] - booked_rooms + availability['overbooking_rooms'], 0)
                 else:
                     available_rooms = max(availability['total_room_count'] - booked_rooms, 0)
-                # print("line 2582", remaining_rooms, available_rooms)
                 current_rooms_reserved = min(remaining_rooms, available_rooms)
 
                 # Track allocated bookings in context
@@ -304,10 +298,8 @@ class TzRoomSearch(models.TransientModel):
                     'user_sort': room_types_dict.get(room_type_id, {}).get('user_sort', ''),
                     'abbreviation': room_types_dict.get(room_type_id, {}).get('abbreviation', ''),
                 })
-                # print('3174', results)
 
                 remaining_rooms -= current_rooms_reserved
-                # print('3172', remaining_rooms)
                 if remaining_rooms <= 0:
                     break
 

@@ -50,6 +50,11 @@ class TzMasterFolioReport(models.Model):
     folio_total_debit = fields.Float(string='Folio Total Debit')
     folio_total_credit = fields.Float(string='Folio Total Credit')
     folio_balance = fields.Float(string='Folio Balance')
+    tax_totals = fields.Binary(
+        string="Tax Totals",
+        related='folio_id.tax_totals',
+        readonly=True
+    )
 
     taxes_info = fields.Json(string="Taxes", compute="_compute_taxes_info", store=False)
 
