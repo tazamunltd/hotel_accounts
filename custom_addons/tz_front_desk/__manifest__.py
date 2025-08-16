@@ -58,6 +58,7 @@
         'views/tz_master_folio_views.xml',
         'views/tz_dummy_group_views.xml',
         'views/tz_hotel_checkout_views.xml',
+        'views/house_keeping_views.xml',
 
         'wizard/tz_auto_posting_views.xml',
         'wizard/transfer_wizard_views.xml',
