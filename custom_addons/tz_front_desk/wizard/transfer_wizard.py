@@ -99,15 +99,17 @@ class TransferChargeWizard(models.TransientModel):
     def action_transfer(self):
         self.ensure_one()
 
-        folio_id = self._get_master_folio(self.type_id.room_id.id, self.type_id.dummy_id.id)
+        # folio_id = self._get_master_folio(self.type_id.room_id.id, self.type_id.dummy_id.id)
 
         manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
         system_date = self.env.company.system_date.date()
 
+        # raise UserError(self.type_id.folio_id.id)
+
         first_record_vals = {
             'name': str(manual_posting),
             'date': str(system_date),
-            'folio_id': folio_id.id,
+            'folio_id': self.type_id.folio_id.id,
             'item_id': self.item_id.id,
             'type_id': self.type_id.id,
             'description': self.to_description,
@@ -123,12 +125,12 @@ class TransferChargeWizard(models.TransientModel):
 
         credit_posting = self.env['tz.manual.posting'].create(first_record_vals)
 
-        to_folio_id = self._get_master_folio(self.to_type_id.room_id.id, self.to_type_id.dummy_id.id)
+        # to_folio_id = self._get_master_folio(self.to_type_id.room_id.id, self.to_type_id.dummy_id.id)
 
         second_record_vals = {
             'name': str(manual_posting),
             'date': str(system_date),
-            'folio_id': to_folio_id.id,
+            'folio_id': self.to_type_id.folio_id.id,
             'item_id': self.item_id.id,
             'type_id': self.to_type_id.id,
             'description': self.description,
