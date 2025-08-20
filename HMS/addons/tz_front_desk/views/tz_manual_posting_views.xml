@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="tz_view_manual_posting_tree" model="ir.ui.view">
+        <field name="name">tz.manual.posting.tree</field>
+        <field name="model">tz.manual.posting</field>
+        <field name="arch" type="xml">
+            <tree string="Manual Postings" default_order="create_date desc">
+                <field name="name"/>
+                <field name="item_id"/>
+                <field name="type_id" string="Room"/>
+                <field name="date"/>
+                <field name="description"/>
+                <field name="price" widget="monetary"/>
+                <field name="quantity"/>
+                <field name="sign"/>
+                <field name="total"/>
+                <field name="source_type" widget="badge" decoration-danger="source_type == 'auto'"
+                       decoration-info="source_type == 'manual'"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-success="state == 'posted'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="tz_view_manual_posting_form" model="ir.ui.view">
+        <field name="name">tz.manual.posting.form</field>
+        <field name="model">tz.manual.posting</field>
+        <field name="arch" type="xml">
+            <form string="Manual Posting">
+                <header>
+                    <!--<button name="test_function"
+                            string="Test Room Type"
+                            type="object"
+                            class="btn-primary"/>-->
+                    <field name="state" widget="statusbar"/>
+                </header>
+
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="item_id" options="{'no_create': True}"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="master_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="type_id" string="Room" options="{'no_create': True,'no_open': True}"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                        </group>
+                    </group>
+                    <hr invisible="not item_id"/>
+                    <group invisible="not item_id">
+                        <group>
+                            <field name="debit_amount" invisible="sign != 'debit'" string="Price"
+                                   force_save="1" readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="credit_amount" invisible="sign != 'credit'" string="Price"
+                                   force_save="1" readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="quantity" readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="total" readonly="1"/>
+                            <field name="description" force_save="1"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="payment_group"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" readonly="1" force_save="1"/>
+                            <field name="sign" readonly="1" force_save="1"/>
+<!--                            <field name="sign" widget="radio" options="{'horizontal': True}"-->
+<!--                                   readonly="not item_id or not item_id.allow_change_sign or source_type == 'auto' or state == 'posted' or master_id"/>-->
+                            <field name="taxes" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="voucher_number"
+                                   readonly="source_type == 'auto' or state == 'posted' or master_id"/>
+                            <field name="adjustment"/>
+                        </group>
+                    </group>
+                    <hr invisible="not type_id"/>
+                    <group invisible="not type_id">
+                        <group>
+                            <field name="booking_id" force_save="1" readonly="1"/>
+                            <field name="room_id" force_save="1" invisible="1"/>
+                            <field name="folio_id" force_save="1" readonly="1"/>
+                            <field name="payment_id" force_save="1" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="group_booking_id" force_save="1" invisible="1"/>
+                            <field name="dummy_id" force_save="1" invisible="1"/>
+                            <field name="partner_id" force_save="1"/>
+                            <field name="reference_contact_"/>
+                        </group>
+                    </group>
+                    <hr/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="date" readonly="1"/>
+                            <field name="source_type" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook invisible="not item_id">
+                        <page string="Details">
+                            <field name="tax_ids" readonly="1">
+                                <tree>
+                                    <field name="description"/>
+                                    <field name="price"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="tz_manual_posting_view_search" model="ir.ui.view">
+        <field name="name">manual.posting.search</field>
+        <field name="model">tz.manual.posting</field>
+        <field name="arch" type="xml">
+            <search string="Manual Posting Search">
+                <filter name="room_list" string="Room"
+                        domain="[('room_id','=',context.get('search_default_room_list'))]"/>
+                <filter name="booking_id" string="Booking"
+                        domain="[('booking_id','=',context.get('search_default_booking_id'))]"/>
+                <filter name="group_list" string="Group"
+                        domain="[('group_booking_id','=',context.get('search_default_group_list'))]"/>
+                <filter name="dummy_list" string="Dummy"
+                        domain="[('dummy_id','=',context.get('search_default_dummy_list'))]"/>
+
+                <field name="type_id" string="Type"/>
+                <field name="room_id" string="Room"/>
+                <field name="group_booking_id" string="Group"/>
+                <field name="dummy_id" string="Dummy"/>
+                <field name="item_id" string="Item"/>
+                <field name="voucher_number" string="Voucher #"/>
+                <field name="debit_amount" string="Debit Amount"/>
+                <field name="credit_amount" string="Credit Amount"/>
+                <separator/>
+            </search>
+        </field>
+    </record>
+
+    <record id="tz_action_manual_posting" model="ir.actions.act_window">
+        <field name="name">Manual Postings</field>
+        <field name="res_model">tz.manual.posting</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">
+            {
+            'manual_creation': True
+            }
+        </field>
+    </record>
+
+    <menuitem id="menu_cashier_parent" parent="front_desk.menu_front_desk" name="Cashier"/>
+
+    <menuitem id="menu_manual_posting" name="Manual Postings" parent="menu_cashier_parent"
+              action="tz_action_manual_posting" sequence="3"/>
+
+    <record id="view_manual_posting_type_tree" model="ir.ui.view">
+        <field name="name">tz.manual.posting.type.tree</field>
+        <field name="model">tz.manual.posting.type</field>
+        <field name="arch" type="xml">
+            <tree string="Manual Posting Types">
+                <field name="name" string="Room"/>
+                <field name="booking_id"/>
+                <field name="room_id"/>
+                <field name="group_booking_id"/>
+                <field name="dummy_id"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="checkin_date" widget="date"/>
+                <field name="checkout_date" widget="date"/>
+                <field name="adult_count"/>
+                <field name="child_count"/>
+                <field name="infant_count"/>
+                <field name="rate_code"/>
+                <field name="meal_pattern"/>
+                <field name="state"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_manual_posting_type_search" model="ir.ui.view">
+        <field name="name">tz.manual.posting.type.search</field>
+        <field name="model">tz.manual.posting.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="All"/>
+                <field name="partner_id"/>
+                <field name="room_id"/>
+                <field name="booking_id"/>
+                <field name="group_booking_id"/>
+                <field name="dummy_id"/>
+                <field name="company_id"/>
+                <filter string="Current Company" name="current_company" domain="[('company_id','=', company_id)]"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>

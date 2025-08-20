@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="rule_tz_dummy_group_company" model="ir.rule">
+            <field name="name">Dummy Group - Multi-Company</field>
+            <field name="model_id" ref="model_tz_dummy_group"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_tz_manual_posting_company" model="ir.rule">
+            <field name="name">Manual Posting - Multi-Company</field>
+            <field name="model_id" ref="model_tz_manual_posting"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_tz_master_folio_company" model="ir.rule">
+            <field name="name">Master Folio - Multi-Company</field>
+            <field name="model_id" ref="model_tz_master_folio"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_tz_master_folio_report_company" model="ir.rule">
+            <field name="name">Master Folio Report - Multi-Company</field>
+            <field name="model_id" ref="model_tz_master_folio_report"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="tz_hotel_checkout_company_rule" model="ir.rule">
+            <field name="name">Checkout Rule - Multi-Company</field>
+            <field name="model_id" ref="model_tz_hotel_checkout"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+    </data>
+</odoo>

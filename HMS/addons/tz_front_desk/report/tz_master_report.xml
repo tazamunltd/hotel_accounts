@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Report Action -->
+    <record id="action_report_master_folio" model="ir.actions.report">
+        <field name="name">Master Folio Report</field>
+        <field name="model">tz.master.folio</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">tz_front_desk.report_master_folio</field>
+        <field name="report_file">tz_front_desk.report_master_folio</field>
+        <field name="binding_model_id" ref="model_tz_master_folio"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Folio - %s' % (object.name)</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="report_master_folio">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <t t-if="docs">
+                        <!-- Header Section -->
+                        <div>
+                            <h5>Master Folio:
+                                <span t-esc="docs.name"/>
+                            </h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td width="30%">
+                                        <strong>Room:</strong>
+                                        <span t-esc="docs.room_id.name"/>
+                                        (<span t-esc="docs.room_type_id.room_type"/>)
+                                    </td>
+                                    <td width="30%">
+                                        <strong>Guest:</strong>
+                                        <span t-esc="docs.guest_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="30%">
+                                        <strong>Group:</strong>
+                                        <span t-esc="docs.group_id.name"/>
+                                    </td>
+                                    <td width="40%">
+                                        <strong>VAT:</strong>
+                                        <t t-if="docs.guest_id.vat">
+                                            <span t-esc="docs.guest_id.vat"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Check-in:</strong>
+                                        <span t-esc="docs.check_in.strftime('%Y-%m-%d %H:%M:%S')"/>
+                                    </td>
+                                    <td>
+                                        <strong>Check-out:</strong>
+                                        <span t-esc="docs.check_out.strftime('%Y-%m-%d %H:%M:%S')"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Bill Number:</strong>
+                                        <span t-esc="docs.bill_number"/>
+                                    </td>
+                                    <td>
+                                        <strong>Rooming:</strong>
+                                        <span t-esc="docs.rooming_info"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Postings Table -->
+                        <div class="postings-section">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Item</th>
+                                        <th>Description</th>
+                                        <th>Voucher</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="docs.manual_posting_ids" t-as="posting">
+                                        <tr>
+                                            <td>
+                                                <t t-if="posting.date">
+                                                    <span t-esc="posting.date.strftime('%Y-%m-%d')"/>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <span t-esc="posting.time"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="posting.item_id.item_code"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="posting.description"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="posting.voucher_number"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="posting.debit_amount"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="posting.credit_amount"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="posting.balance"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Totals Section -->
+                        <div class="totals-section" style="margin-top: 30px;">
+                            <table class="table table-borderless" style="width: 50%; float: right;">
+                                <tr>
+                                    <td>
+                                        <strong>Total Debit:</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="docs.total_debit"/>
+                                        <span t-esc="docs.currency_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Total Credit:</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="docs.total_credit"/>
+                                        <span t-esc="docs.currency_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Balance:</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="docs.balance"/>
+                                        <span t-esc="docs.currency_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>VAT Amount:</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="docs.value_added_tax"/>
+                                        <span t-esc="docs.currency_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Municipality Tax:</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="docs.municipality_tax"/>
+                                        <span t-esc="docs.currency_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 1px solid black;">
+                                    <td>
+                                        <strong>Grand Total:</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <strong>
+                                            <span t-esc="docs.amount_total"/>
+                                            <span t-esc="docs.currency_id.name"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

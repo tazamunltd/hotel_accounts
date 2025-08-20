@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!--    Room booking report action-->
+    <record id="action_report_room_booking" model="ir.actions.report">
+        <field name="name">Room Booking Order</field>
+        <field name="model">room.booking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_room_booking</field>
+        <field name="report_file">hotel_management.report_room_booking</field>
+        <field name="binding_model_id" ref="model_room_booking" />
+        <field name="binding_type">report</field>
+    </record>
+    <!--    Room booking template-->
+    <template id="report_room_booking">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Room Booking</h2>
+                    <br />
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Room No.</th>
+                                <th>Room Name.</th>
+                                <th>Contact</th>
+                                <th>Contact Reference</th>
+                                <th>Group Booking</th>
+
+                                <th>Check-In</th>
+                                <th>Check-Out</th>
+                                <th>Order Date</th>
+                                <th>State</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o">
+                                <tr>
+                                    <!-- Sl No. = Booking ID (name) -->
+                                    <td>
+                                        <t t-esc="o.name" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="o.room_ids_display or ''" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="o.room_type_display or ''" />
+                                    </td>
+
+                                    <td>
+                                        <t t-esc="o.partner_id.display_name if o.partner_id else ''" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="o.reference_contact_ or ''" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="o.group_booking.name if o.group_booking else ''" />
+                                    </td>
+                                    <!-- Dates without time -->
+                                    <td style="white-space: nowrap;">
+                                        <t
+                                            t-esc="o.checkin_date.strftime('%Y-%m-%d') if o.checkin_date else ''" />
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <t
+                                            t-esc="o.checkout_date.strftime('%Y-%m-%d') if o.checkout_date else ''" />
+                                    </td>
+                                    <td style="white-space: nowrap;">
+                                        <t
+                                            t-esc="o.date_order.strftime('%Y-%m-%d') if o.date_order else ''" />
+                                    </td>
+                                    <!-- <td><t t-esc="o.checkin_date.strftime('%Y-%m-%d') if
+                                    o.checkin_date else ''"/></td>
+                                <td><t t-esc="o.checkout_date.strftime('%Y-%m-%d') if o.checkout_date else ''"/></td>
+                                <td><t t-esc="o.date_order.strftime('%Y-%m-%d') if o.date_order else ''"/></td> -->
+                                    <td>
+                                        <t t-esc="o.state" />
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <!-- <t t-set="i" t-value="0"/>
+                        <t t-foreach="booking" t-as="line">
+                            
+                            <tr>
+                                <td>
+                                     <t t-esc="line['name']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="line['partner_id']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="line['room_ids_display']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="line['checkin_date_omnly']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="line['checkin_date_only']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="line['reference_contact_']"/>
+                                </td>
+                            </tr>
+                        </t> -->
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

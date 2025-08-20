@@ -1,0 +1,140 @@
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_reservation_summary_report_tree" model="ir.ui.view">
+            <field name="name">reservation.summary.report.tree</field>
+            <field name="model">reservation.summary.report</field>
+            <field name="arch" type="xml">
+                <tree string="Reservation Summary Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
+                    <field name = "company_id" optional="show"/>
+                    <field name = "company_name" optional="show"/>
+                    <field name = "group_booking_name" optional="show"/>
+                    <field name = "rms" optional="show"/>
+                    <field name = "sng" optional="show"/>
+                    <field name = "dbl" optional="show"/>
+                    <field name = "tpl" optional="show"/>
+                    <field name = "oth" optional="show"/>
+                    <field name = "first_arrival" optional="show"/>
+                    <field name = "last_departure" optional="show"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <!-- Graph View -->
+        <record id="view_reservation_summary_report_graph" model="ir.ui.view">
+            <field name="name">reservation.summary.report.graph</field>
+            <field name="model">reservation.summary.report</field>
+            <field name="arch" type="xml">
+                <graph string="Reservation Summary Reports" type="bar">
+                    <field name = "company_id" optional="show"/>
+                    <field name="company_name" type="row"/>
+                    <field name="group_booking_name" type="row"/>
+                    <field name="rms" type="measure"/>
+                    <field name="sng" type="measure"/>
+                    <field name="dbl" type="measure"/>
+                    <field name="tpl" type="measure"/>
+                    <field name="oth" type="measure"/>
+                    <field name="first_arrival" type="row"/>
+                    <field name="last_departure" type="row"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_reservation_summary_report_pivot" model="ir.ui.view">
+            <field name="name">reservation.summary.report.pivot</field>
+            <field name="model">reservation.summary.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Reservation Summary Reports">
+                    <!-- <field name="id" type="col"/> -->
+                    <field name = "company_id" optional="show"/>
+                    <field name="company_name" type="col"/>
+                    <!-- <field name="client_id" type="col"/> -->
+                    <field name="group_booking_name" type="col"/>
+                    <field name="rms" type="measure"/>
+                    <field name="sng" type="measure"/>
+                    <field name="dbl" type="measure"/>
+                    <field name="tpl" type="measure"/>
+                    <field name="oth" type="measure"/>
+                    <field name="first_arrival" type="col"/>
+                    <field name="last_departure" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="action_run_process_by_reservation_summary_report" model="ir.actions.server">
+            <field name="name">Run Process by Reservation Summary Report</field>
+            <field name="model_id" ref="model_reservation_summary_report"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["reservation.summary.report"].action_run_process_by_reservation_summary_report()
+        ]]>
+            </field>
+        </record>
+        <!-- Action -->
+    <!-- <record id="action_run_process_by_reservation_summary_report" model="ir.actions.server">
+        <field name="name">Run process by reservation summary report</field>
+        <field name="model_id" ref="model_reservation_summary_report"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_reservation_summary_report()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Summary Report',
+    'res_model': 'reservation.summary.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management.view_reservation_summary_report_tree').id, 'tree'),
+        (env.ref('hotel_management.view_reservation_summary_report_graph').id, 'graph'),
+        (env.ref('hotel_management.view_reservation_summary_report_pivot').id, 'pivot'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Summary Report',
+    'res_model': 'reservation.summary.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management.view_reservation_summary_report_tree').id, 'tree'),
+        (env.ref('hotel_management.view_reservation_summary_report_graph').id, 'graph'),
+        (env.ref('hotel_management.view_reservation_summary_report_pivot').id, 'pivot'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
+            <![CDATA[
+model.run_process_by_reservation_summary_report()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Reservation Summary Report',
+    'res_model': 'reservation.summary.report',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management.view_reservation_summary_report_tree').id, 'tree'),
+        (env.ref('hotel_management.view_reservation_summary_report_graph').id, 'graph'),
+        (env.ref('hotel_management.view_reservation_summary_report_pivot').id, 'pivot'),
+    ],
+    'target': 'current',
+}
+            ]]>
+        </field> -->
+    <!-- </record> -->
+
+        <menuitem id="menu_reservation_summary_report"
+              name="Reservation Summary Report"
+              action="action_run_process_by_reservation_summary_report"
+              parent="menu_reservation"
+              sequence="80"/>
+    </data>
+</odoo>

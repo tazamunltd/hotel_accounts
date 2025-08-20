@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="CustomDashBoard">
+        <div class="oh_dashboards">
+         <!-- Date: 2025-01-20 Time: 00:22:13 -->
+            <div class="container-fluid o_pj_dashboard">
+                <div class="row main-section">
+            
+            <!-- Date: 2025-01-19 Time: 22:08:28 -->
+            <!-- Old dashboard section - containing previous dashboard -->
+                    <!--            Expected Arrivals-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 expected_arrivals dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#4a90e2;">
+                                <i class="fa fa-plane fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.expected_arrivals">
+                                    <t t-esc="state.expected_arrivals"/>
+                                </div>
+                                <div class="dash-head">Expected Arrivals</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--            Out of Order Rooms-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 out_of_order dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#ff0000;">
+                                <i class="fa fa-ban fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.out_of_order">
+                                    <t t-esc="state.out_of_order"/>
+                                </div>
+                                <div class="dash-head">Out of Order Rooms</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            Rooms on Hold-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 rooms_on_hold dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#ffa500;">
+                                <i class="fa fa-pause fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.rooms_on_hold">
+                                    <t t-esc="state.rooms_on_hold"/>
+                                </div>
+                                <div class="dash-head">Rooms on Hold</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            Out of Service Rooms-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 out_of_service dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#808080;">
+                                <i class="fa fa-wrench fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.out_of_service">
+                                    <t t-esc="state.out_of_service"/>
+                                </div>
+                                <div class="dash-head">Out of Service Rooms</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            In-House Rooms-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 inhouse dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#008000;">
+                                <i class="fa fa-home fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.inhouse">
+                                    <t t-esc="state.inhouse"/>
+                                </div>
+                                <div class="dash-head">In-House Rooms</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            Expected Departures-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 expected_departures dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#800080;">
+                                <i class="fa fa-sign-out fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.expected_departures">
+                                    <t t-esc="state.expected_departures"/>
+                                </div>
+                                <div class="dash-head">Expected Departures</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            House Use Count-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 house_use_count dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#4169e1;">
+                                <i class="fa fa-building fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.house_use_count">
+                                    <t t-esc="state.house_use_count"/>
+                                </div>
+                                <div class="dash-head">House Use Count</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            Complementary Use Count-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 complementary_use_count dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#32cd32;">
+                                <i class="fa fa-gift fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.complementary_use_count">
+                                    <t t-esc="state.complementary_use_count"/>
+                                </div>
+                                <div class="dash-head">Complementary Use Count</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            Expected Occupied Rate-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 expected_occupied_rate dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#ff4500;">
+                                <i class="fa fa-percent fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.expected_occupied_rate">
+                                    <t t-esc="state.expected_occupied_rate"/>%
+                                </div>
+                                <div class="dash-head">Expected Occupied Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            Expected In-House-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 expected_inhouse dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#20b2aa;">
+                                <i class="fa fa-users fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.expected_inhouse">
+                                    <t t-esc="state.expected_inhouse"/>
+                                </div>
+                                <div class="dash-head">Expected In-House</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            Free to Sell-->
+                    <div groups="hotel_management.hotel_group_reception"
+                         class="col-md-3 col-sm-6 free_to_sell dash-card">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1"
+                                 style="color:#8a2be2;">
+                                <i class="fa fa-tags fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.free_to_sell">
+                                    <t t-esc="state.free_to_sell"/>
+                                </div>
+                                <div class="dash-head">Free to Sell</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--            Total Room-->
+                    <div class="col-md-3 col-sm-6 total_room dash-card"
+                         t-on-click="(e) => this.total_rooms(e)">
+                        <div class="card" style="width: 18rem;">
+                            <div class="card-img-top dash-icon-1 "
+                                 style="color:#e39db5;">
+                                <i class="fa fa-bed fa-lg"/>
+                            </div>
+                            <div class="card-body">
+                                <div class="dash-count" t-att-data-value="state.total_rooms">
+                                    <t t-esc="state.total_rooms"/>
+                                </div>
+                                     <div class="dash-head">Total Room</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Containers Section -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Room Occupancy Status</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="roomOccupancyStatusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Daily Occupancy Rate</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="dailyOccupancyChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Arrivals vs Departures</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="arrivalsVsDeparturesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Room Type Distribution</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="roomTypeDistributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Room Status by Type</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="roomStatusByTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Room Availability Timeline</h5>
+                                <div style="height: 300px;">
+                                    <canvas id="roomAvailabilityTimelineChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4 mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Reservation Statistics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="reservation-stats-content">
+                                    <!-- Content will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

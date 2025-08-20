@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hotel_management.TimerWidget" owl="1">
+        <div class="header-timer">
+            <span id="current-time" class="o_current_time" t-esc="state.currentTime"/>
+        </div>
+    </t>
+</templates>

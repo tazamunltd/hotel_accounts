@@ -1,0 +1,206 @@
+<odoo>
+    <!-- Pivot View -->
+    <record id="view_hotel_room_result_pivot" model="ir.ui.view">
+        <field name="name">hotel.room.result.pivot</field>
+        <field name="model">hotel.room.result</field>
+        <field name="arch" type="xml">
+            <pivot string="Hotel Room Result">
+                <field name="report_date" type="row" />
+                <field name="room_type" type="row" />
+                <field name="total_rooms" type="measure" />
+                <field name="out_of_order" type="measure" />
+                <field name="available" type="measure" />
+                <field name="inhouse" type="measure" />
+                <field name="expected_arrivals" type="measure" />
+                <field name="expected_departures" type="measure" />
+                <field name="expected_inhouse" type="measure" />
+                <field name="expected_occupied_rate" type="measure" />
+                <field name="reserved" type="measure" />
+                <field name="overbook" type="measure" />
+                <field name="free_to_sell" type="measure" />
+                <field name="company_id" type="row" />
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_hotel_room_result_graph" model="ir.ui.view">
+        <field name="name">hotel.room.result.graph</field>
+        <field name="model">hotel.room.result</field>
+        <field name="arch" type="xml">
+            <graph string="Hotel Room Results" type="bar">
+                <field name="report_date" type="row" />
+                <field name="room_type" type="row" />
+                <field name="total_rooms" type="measure" />
+                <field name="available" type="measure" />
+                <field name="inhouse" type="measure" />
+                <field name="expected_arrivals" type="measure" />
+                <field name="expected_departures" type="measure" />
+                <field name="expected_inhouse" type="measure" />
+                <field name="reserved" type="measure" />
+                <field name="expected_occupied_rate" type="measure" />
+                <field name="out_of_order" type="measure" />
+                <field name="overbook" type="measure" />
+                <field name="free_to_sell" type="measure" />
+                <field name="company_id" type="row" />
+            </graph>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_hotel_room_result_search" model="ir.ui.view">
+        <field name="name">hotel.room.result.search</field>
+        <field name="model">hotel.room.result</field>
+        <field name="arch" type="xml">
+            <search string="Hotel Room Result">
+                <field name="report_date" />
+                <field name="room_type" />
+                <field name="company_id" />
+
+                <!-- Date Range Filters -->
+                <filter string="Today" name="filter_today"
+                    domain="[('is_today', '=', True)]" />
+                <filter string="Week" name="filter_week"
+                    domain="[('is_this_week', '=', True)]" />
+                <filter string="Month" name="filter_month"
+                    domain="[('is_this_month', '=', True)]" />
+
+                <separator />
+                <group expand="0" string="Group By">
+                    <filter string="Report Date" name="group_report_date"
+                        context="{'group_by': 'report_date'}" />
+                    <filter string="Room Type" name="group_room_type"
+                        context="{'group_by': 'room_type'}" />
+                    <filter string="Company" name="group_company"
+                        context="{'group_by': 'company_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_hotel_room_result_tree" model="ir.ui.view">
+        <field name="name">hotel.room.result.tree</field>
+        <field name="model">hotel.room.result</field>
+        <field name="arch" type="xml">
+            <tree string="Hotel Room Result" js_class="hotel_room_result_filter" create="false"
+                edit="false" delete="false">
+                <field name="report_date" />
+                <field name="room_type" />
+                <field name="total_rooms" optional="show" />
+                <field name="out_of_service" optional="show" />
+                <field name="out_of_order" optional="show" />
+                <field name="house_use_count" optional="show" />
+                <field name="available" optional="show" />
+                <field name="inhouse" optional="show" />
+                <field name="expected_arrivals" optional="show" />
+                <field name="expected_departures" optional="show" />
+                <field name="expected_inhouse" optional="show" />
+                <field name="expected_occupied_rate" optional="show" />
+                <field name="overbook" optional="show" />
+                <field name="free_to_sell" optional="show" />
+                <field name="company_id" optional="show" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Server Actions for Favorite Filters -->
+    <record id="action_filter_today" model="ir.actions.server">
+        <field name="name">Today</field>
+        <field name="model_id" ref="model_hotel_room_result" />
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+# Generate data for today
+env["hotel.room.result"].run_process_room_availability()
+# Get today's domain
+domain = env["hotel.room.result"].get_today_domain()
+action = {
+    'name': 'Today - Room Results',
+    'type': 'ir.actions.act_window',
+    'res_model': 'hotel.room.result',
+    'view_mode': 'tree,pivot,graph',
+    'domain': domain,
+    'target': 'current',
+}
+        ]]>
+        </field>
+    </record>
+
+    <record id="action_filter_week" model="ir.actions.server">
+        <field name="name">Week</field>
+        <field name="model_id" ref="model_hotel_room_result" />
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+# Generate data for this week
+env["hotel.room.result"].run_process_room_availability()
+# Get week's domain
+domain = env["hotel.room.result"].get_week_domain()
+action = {
+    'name': 'This Week - Room Results',
+    'type': 'ir.actions.act_window',
+    'res_model': 'hotel.room.result',
+    'view_mode': 'tree,pivot,graph',
+    'domain': domain,
+    'target': 'current',
+}
+        ]]>
+        </field>
+    </record>
+
+    <record id="action_filter_month" model="ir.actions.server">
+        <field name="name">Month</field>
+        <field name="model_id" ref="model_hotel_room_result" />
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+# Generate data for this month
+env["hotel.room.result"].run_process_room_availability()
+# Get month's domain
+domain = env["hotel.room.result"].get_month_domain()
+action = {
+    'name': 'This Month - Room Results',
+    'type': 'ir.actions.act_window',
+    'res_model': 'hotel.room.result',
+    'view_mode': 'tree,pivot,graph',
+    'domain': domain,
+    'target': 'current',
+}
+        ]]>
+        </field>
+    </record>
+
+    
+
+    <!-- Action Server -->
+
+    <record id="action_run_process_room_availability" model="ir.actions.server">
+        <field name="name">Run Hotel Room Process</field>
+        <field name="model_id" ref="model_hotel_room_result" />
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+action = env["hotel.room.result"].action_run_process_room_availability()
+        ]]>
+        </field>
+    </record>
+
+    <record id="action_room_result" model="ir.actions.act_window">
+        <field name="name">Hotel Room Results </field>
+        <field name="res_model">hotel.room.result</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+
+    <!-- Menu Items -->
+    <menuitem
+        id="menu_run_process_room_availability"
+        name="Room Availability"
+        parent="menu_reservation"
+        action="action_run_process_room_availability"
+        sequence="10"
+    />
+
+</odoo>

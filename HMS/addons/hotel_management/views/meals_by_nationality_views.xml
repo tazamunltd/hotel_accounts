@@ -1,0 +1,182 @@
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_meals_by_nationality_forecast_tree" model="ir.ui.view">
+            <field name="name">meals.by.nationality.forecast.tree</field>
+            <field name="model">meals.by.nationality.forecast</field>
+            <field name="arch" type="xml">
+                <tree string="Meals by Nationality Forecast Reports" js_class="hotel_room_result_filter" create="false" edit="false" delete="false">
+                    <field name="report_date" optional="show"/>
+                    <field name="company_id" optional="show"/>
+                    <field name="room_type_name" optional="show"/>
+                    <field name="meal_pattern" optional="show"/>
+                    <field name="country_name" optional="show"/>
+                    <field name="expected_arrivals" optional="show"/>
+                    <field name="expected_arrivals_adults" optional="show"/>
+                    <field name="expected_arrivals_children" optional="show"/>
+                    <!-- <field name="expected_arrivals_infants" optional="show"/> -->
+                    <field name="expected_arrivals_total" optional="show"/>
+                    <field name="expected_departures" optional="show"/>
+                    <field name="expected_departures_adults" optional="show"/>
+                    <field name="expected_departures_children" optional="show"/>
+                    <!-- <field name="expected_departures_infants" optional="show"/> -->
+                    <field name="expected_departures_total" optional="show"/>
+                    <field name="in_house" optional="show"/>
+                    <field name="in_house_adults" optional="show"/>
+                    <field name="in_house_children" optional="show"/>
+                    <!-- <field name="in_house_infants" optional="show"/> -->
+                    <field name="in_house_total" optional="show"/>
+                    <field name="total_adults" optional="show"/>
+                    <field name="total_children" optional="show"/>
+                    <!-- <field name="total_infants" optional="show"/> -->
+                    <field name="total_of_all" optional="show"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Graph View -->
+        <record id="view_meals_by_nationality_forecast_graph" model="ir.ui.view">
+            <field name="name">meals.by.nationality.forecast.graph</field>
+            <field name="model">meals.by.nationality.forecast</field>
+            <field name="arch" type="xml">
+                <graph string="Meals by Nationality Forecast Reports" type="bar">
+                    <field name="report_date" type="row"/>
+                    <field name="company_id" type="row"/>
+                    <field name="room_type_name" type="row"/>
+                    <field name="meal_pattern" type="row"/>
+                    <field name="country_name" type="row"/>
+                    <field name="expected_arrivals" type="measure"/>
+                    <field name="expected_arrivals_adults" type="measure"/>
+                    <field name="expected_arrivals_children" type="measure"/>
+                    <!-- <field name="expected_arrivals_infants" type="measure"/> -->
+                    <field name="expected_arrivals_total" type="measure"/>
+                    <field name="expected_departures" type="measure"/>
+                    <field name="expected_departures_adults" type="measure"/>
+                    <field name="expected_departures_children" type="measure"/>
+                    <!-- <field name="expected_departures_infants" type="measure"/> -->
+                    <field name="expected_departures_total" type="measure"/>
+                    <field name="in_house" type="measure"/>
+                    <field name="in_house_adults" type="measure"/>
+                    <field name="in_house_children" type="measure"/>
+                    <!-- <field name="in_house_infants" type="measure"/> -->
+                    <field name="in_house_total" type="measure"/>
+                    <field name="total_adults" type="measure"/>
+                    <field name="total_children" type="measure"/>
+                    <!-- <field name="total_infants" type="measure"/> -->
+                    <field name="total_of_all" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_meals_by_nationality_forecast_pivot" model="ir.ui.view">
+            <field name="name">meals.by.nationality.forecast.pivot</field>
+            <field name="model">meals.by.nationality.forecast</field>
+            <field name="arch" type="xml">
+                <pivot string="Meals by Nationality Forecast Reports">
+                    <field name="report_date" type="row"/>
+                    <field name="company_id" type="row"/>
+                    <field name="room_type_name" type="row"/>
+                    <field name="meal_pattern" type="row"/>
+                    <field name="country_name" type="row"/>
+                    <field name="expected_arrivals" type="measure"/>
+                    <field name="expected_arrivals_adults" type="measure"/>
+                    <field name="expected_arrivals_children" type="measure"/>
+                    <!-- <field name="expected_arrivals_infants" type="measure"/> -->
+                    <field name="expected_arrivals_total" type="measure"/>
+                    <field name="expected_departures" type="measure"/>
+                    <field name="expected_departures_adults" type="measure"/>
+                    <field name="expected_departures_children" type="measure"/>
+                    <!-- <field name="expected_departures_infants" type="measure"/> -->
+                    <field name="expected_departures_total" type="measure"/>
+                    <field name="in_house" type="measure"/>
+                    <field name="in_house_adults" type="measure"/>
+                    <field name="in_house_children" type="measure"/>
+                    <!-- <field name="in_house_infants" type="measure"/> -->
+                    <field name="in_house_total" type="measure"/>
+                    <field name="total_adults" type="measure"/>
+                    <field name="total_children" type="measure"/>
+                    <!-- <field name="total_infants" type="measure"/> -->
+                    <field name="total_of_all" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="action_run_process_by_meals_by_nationality_forecast" model="ir.actions.server">
+            <field name="name">Run Process by Meals by Nationality Forecast</field>
+            <field name="model_id" ref="model_meals_by_nationality_forecast"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+action = env["meals.by.nationality.forecast"].action_run_process_by_meals_by_nationality_forecast()
+        ]]>
+            </field>
+        </record>
+
+        <!-- Action -->
+    <!-- <record id="action_run_process_by_meals_by_nationality_forecast" model="ir.actions.server">
+        <field name="name">Run process by meals by nationality forecast</field>
+        <field name="model_id" ref="model_meals_by_nationality_forecast"/>
+        <field name="state">code</field>
+        <field name="code">
+            <![CDATA[
+if env.context.get('filtered_date_range'):
+    model.run_process_by_meals_by_nationality_forecast()
+
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Meals by Nationality Forecast ',
+    'res_model': 'meals.by.nationality.forecast',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_graph').id, 'graph'),
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
+    ],
+        'target': 'current',
+    }
+else:
+    action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Meals by Nationality Forecast ',
+    'res_model': 'meals.by.nationality.forecast',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_graph').id, 'graph'),
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
+    ],
+        'domain': [('id', '=', False)],  # Ensures no data is displayed
+        'target': 'current',
+    }
+]]>
+        </field> -->
+
+        <!-- <field name="code">
+            <![CDATA[
+model.run_process_by_meals_by_nationality_forecast()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Meals by Nationality Forecast ',
+    'res_model': 'meals.by.nationality.forecast',
+    'view_mode': 'tree,graph,pivot',
+    'views': [
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_tree').id, 'tree'),
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_graph').id, 'graph'),
+        (env.ref('hotel_management.view_meals_by_nationality_forecast_pivot').id, 'pivot'),
+    ],
+    'target': 'current',
+}
+            ]]>
+        </field> -->
+    <!-- </record> -->
+
+
+
+        <menuitem id="menu_meals_by_nationality_forecast"
+              name="Meals by Nationality Forecast"
+              action="action_run_process_by_meals_by_nationality_forecast"
+              parent="menu_forecast"
+              sequence="40"/>
+    </data>
+</odoo>

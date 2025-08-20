@@ -1,0 +1,14 @@
+<!-- data/sequence.xml -->
+<odoo>
+    <data noupdate="1">
+        <record id="seq_templates" model="ir.sequence">
+            <field name="name">template ID Sequence</field>
+            <field name="code">templates.id</field>
+            <field name="prefix">TMP</field>
+            <field name="padding">2</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+    </data>
+  </odoo>
+  

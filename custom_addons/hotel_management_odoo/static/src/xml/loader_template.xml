@@ -1,7 +1,0 @@
-<templates id="template" xml:space="preserve">
-  <t t-name="hotel_management_odoo.Loader">
-    <div class="o_loader_overlay">
-      <div class="o_loader_spinner"/>
-    </div>
-  </t>
-</templates>

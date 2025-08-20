@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!--    Hotel Access Groups-->
+    <record id="module_category_hotel_management" model="ir.module.category">
+        <field name="name">Hotel Management</field>
+        <field name="description">Hotel Access Groups</field>
+        <field name="sequence">20</field>
+    </record>
+    <!--    Maintenance Team User groups-->
+    <record id="maintenance_team_group_user" model="res.groups">
+        <field name="name">Maintenance Team User</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+    <!--    Maintenance Team Leader group-->
+    <record id="maintenance_team_group_leader" model="res.groups">
+        <field name="name">Maintenance Team Leader</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('hotel_management.maintenance_team_group_user'))]"/>
+    </record>
+    <!--    Reception groups-->
+    <record id="hotel_group_reception" model="res.groups">
+        <field name="name">Receptionist</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+    <!--    Cleaning Team User group-->
+    <record id="cleaning_team_group_user" model="res.groups">
+        <field name="name">Cleaning Team User</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+    <!--    Cleaning Team Head group-->
+    <record id="cleaning_team_group_head" model="res.groups">
+        <field name="name">Cleaning Team Head</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('hotel_management.cleaning_team_group_user'))]"/>
+    </record>
+    <!--Hotel Admin group-->
+    <record id="hotel_group_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('hotel_management.maintenance_team_group_leader')),
+                       (4, ref('hotel_management.cleaning_team_group_head')),
+                       (4, ref('hotel_group_reception')), ]"/>
+    </record>
+
+    <record id="hotel_management_rule_company_restriction_" model="ir.rule">
+        <field name="name">Hotel Management: Restrict module data by company</field>
+        <field name="model_id" ref="hotel_management.model_room_booking"/>
+        <field name="domain_force">[('company_id', '=', company_id),]</field>
+        <field name="global" eval="True"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <record id="hotel_management_rule_company_hotel_rooms" model="ir.rule">
+        <field name="name">Hotel Management: Restrict module data by company</field>
+        <field name="model_id" ref="hotel_management.model_hotel_room" />
+        <field name="domain_force">[('company_id', '=', company_id),]</field>
+        <field name="global" eval="True" />
+        <field name="perm_read" eval="1" />
+        <field name="perm_create" eval="1" />
+        <field name="perm_unlink" eval="1" />
+    </record>
+    <record id="hotel_management_rule_company_fsm_location" model="ir.rule">
+        <field name="name">Hotel Management: Restrict FSM Location data by company</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="domain_force">[('company_id', '=', company_id)]</field>
+        <field name="global" eval="True"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Hotel Management Access Groups Category -->
+    <record id="module_category_hotel_management" model="ir.module.category">
+        <field name="name">Hotel Management</field>
+        <field name="description">Hotel Management Access Groups</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- SYSTEM ADMIN Group -->
+    <record id="system_admin_group" model="res.groups">
+        <field name="name">System Admin</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+        <!-- Inherits full access to settings -->
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+
+    <!-- HOTEL MANAGER Group -->
+    <record id="hotel_manager_group" model="res.groups">
+        <field name="name">Hotel Manager</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+        <!-- Implied access to read-only settings group -->
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+
+    <!-- REVENUE MANAGER Group -->
+    <record id="revenue_manager_group" model="res.groups">
+        <field name="name">Revenue Manager</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+
+    <!-- FRONTDESK STAFF Group -->
+    <record id="frontdesk_staff_group" model="res.groups">
+        <field name="name">Frontdesk Staff</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+
+    <!-- RESERVATION STAFF Group -->
+    <record id="reservation_staff_group" model="res.groups">
+        <field name="name">Reservation Staff</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+
+    <!-- CONCIERGE STAFF Group -->
+    <record id="concierge_staff_group" model="res.groups">
+        <field name="name">Concierge Staff</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+    <!-- System Admin Group: Full Access -->
+    <record id="access_fsm_location_system_admin" model="ir.model.access">
+        <field name="name">fsm.location Full Access for System Admin</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management.system_admin_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Revenue Manager Group: Full Access -->
+    <record id="access_fsm_location_revenue_manager" model="ir.model.access">
+        <field name="name">fsm.location Full Access for Revenue Manager</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management.revenue_manager_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Hotel Manager Group: Read/Write, No Create/Delete -->
+    <record id="access_fsm_location_hotel_manager" model="ir.model.access">
+        <field name="name">fsm.location Read/Write for Hotel Manager</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management.hotel_manager_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="access_fsm_location_frontdesk_reservation_staff" model="ir.model.access">
+        <field name="name">fsm.location Read Only for Frontdesk and Reservation Staff</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management.reservation_staff_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="access_fsm_location_frontdesk_reservation_staff" model="ir.model.access">
+        <field name="name">fsm.location Read Only for Frontdesk and Reservation Staff</field>
+        <field name="model_id" ref="fieldservice.model_fsm_location"/>
+        <field name="group_id" ref="hotel_management.frontdesk_staff_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="crs_user_group" model="res.groups">
+        <field name="name">CRS User</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+
+    <record id="access_room_booking_crs_user" model="ir.model.access">
+        <field name="name">Room Booking Access for CRS User</field>
+        <field name="model_id" ref="hotel_management.model_room_booking"/>
+        <field name="group_id" ref="hotel_management.crs_user_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="crs_admin_group" model="res.groups">
+        <field name="name">CRS Admin</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+
+    <record id="access_room_booking_crs_admin" model="ir.model.access">
+        <field name="name">Room Booking Access for CRS Admin</field>
+        <field name="model_id" ref="hotel_management.model_room_booking"/>
+        <field name="group_id" ref="hotel_management.crs_admin_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <!-- Settings menu access -->
+    <record id="base.menu_administration" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('hotel_management.crs_admin_group'))]"/>
+    </record>
+
+    <!-- Access rights for base settings -->
+    <record id="access_res_config_settings_crs_admin" model="ir.model.access">
+        <field name="name">Settings Access for CRS Admin</field>
+        <field name="model_id" ref="base.model_res_config_settings"/>
+        <field name="group_id" ref="hotel_management.crs_admin_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <record id="front_desk_user_group" model="res.groups">
+        <field name="name">Front Desk User</field>
+        <field name="category_id" ref="hotel_management.module_category_hotel_management"/>
+    </record>
+
+    <record id="access_room_booking_front_desk_user" model="ir.model.access">
+        <field name="name">Room Booking Access for Front Desk User</field>
+        <field name="model_id" ref="hotel_management.model_room_booking"/>
+        <field name="group_id" ref="hotel_management.front_desk_user_group"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+    <record id="rule_room_booking_front_desk" model="ir.rule">
+        <field name="name">Room Booking Access for Front Desk Users</field>
+        <field name="model_id" ref="hotel_management.model_room_booking"/>
+        <field name="domain_force">[('state', '=', 'block')]</field>
+        <field name="groups" eval="[(4, ref('hotel_management.front_desk_user_group'))]"/>
+    </record>
+
+    <record id="hotel_management_rule_company_restriction_group_booking" model="ir.rule">
+        <field name="name">Hotel Management: Restrict module data by company Group Booking</field>
+        <field name="model_id" ref="hotel_management.model_group_booking"/>
+        <field name="domain_force">[('company_id', '=', company_id),]</field>
+        <field name="global" eval="True"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <record id="hotel_management_rule_company_restriction_hotel_amenity" model="ir.rule">
+        <field name="name">Hotel Management: Restrict module data by company Hotel Amenity</field>
+        <field name="model_id" ref="hotel_management.model_hotel_amenity"/>
+        <field name="domain_force">[('company_id', '=', company_id),]</field>
+        <field name="global" eval="True"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+
+
+
+</odoo>

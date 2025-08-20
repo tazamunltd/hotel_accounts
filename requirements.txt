@@ -89,6 +89,5 @@ bcrypt
 redis
 ummalqura
 convertdate
-hijri-converter
 python-bidi
 arabic-reshaper

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="assets_backend" inherit_id="web.assets_backend" name="Custom Header Date Assets">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/hotel_management/static/src/js/systray_date.js"></script>
+        </xpath>
+    </template>
+
+    <template id="custom_systray_date" name="Custom Systray Date">
+        <t t-name="custom_header_date.custom_systray_date">
+            <div class="o_systray_date">
+                <t t-esc="props.systemDate"/>
+            </div>
+        </t>
+    </template>
+</odoo>

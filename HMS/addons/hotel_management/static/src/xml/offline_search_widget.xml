@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Offline Search Widget XML Template
+    Modified: 2025-01-15T15:11:33+05:00
+    Purpose: Enhanced UI with Bootstrap accordion for hotel booking and guest information
+    Key Features:
+    - Dynamic hotel booking form with accordion sections
+    - Searchable group bookings, contacts, and nationalities
+    - Responsive and modern design with smooth transitions
+    - Supports readonly and interactive modes
+-->
+<templates xml:space="preserve">
+    <t t-name="hotel_management.OfflineSearchWidget" owl="1">
+        <div class="offline-search-widget">
+            <div class="container-fluid p-0">
+                <!-- Bootstrap Accordion Implementation -->
+                <div class="accordion" id="bookingAccordion">
+                    <!-- Hotel Booking Section -->
+                    <div class="accordion-item mb-3">
+                        <h2 class="accordion-header" id="headingHotelBooking">
+                            <button 
+                                class="accordion-button" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#collapseHotelBooking" 
+                                aria-expanded="true" 
+                                aria-controls="collapseHotelBooking"
+                            >
+                                HOTEL BOOKING
+                            </button>
+                        </h2>
+                        <div 
+                            id="collapseHotelBooking" 
+                            class="accordion-collapse collapse show" 
+                            aria-labelledby="headingHotelBooking" 
+                            data-bs-parent="#bookingAccordion"
+                        >
+                            <div class="accordion-body">
+                                <div class="row g-3">
+                                    <!-- Hotel Selection -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="hotel" class="form-label">Hotel</label>
+                                            <select 
+                                                id="hotel" 
+                                                class="form-select" 
+                                                t-model="state.hotel"
+                                                t-on-change="onHotelChange"
+                                                disabled="False"
+                                            >
+                                                <option value="">Select Hotel</option>
+                                                <t t-foreach="state.hotels" t-as="hotel" t-key="hotel.id">
+                                                    <option t-att-value="hotel.id">
+                                                        <t t-esc="hotel.name || 'Unnamed Hotel'"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                            <input type="hidden" t-att-name="'hotel'" t-att-value="state.hotel"/>
+
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Room Selection -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="rooms" class="form-label">Number of Rooms</label>
+                                            <input 
+                                                type="number" 
+                                                id="rooms" 
+                                                class="form-control" 
+                                                min="1" 
+                                                t-att-value="state.rooms"
+                                                t-on-change="(ev) => this.updateRooms(ev.target.value)"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Date Selection -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="check-in-date" class="form-label">Check-in Date</label>
+                                            <input 
+                                                type="date" 
+                                                id="check-in-date" 
+                                                class="form-control"
+                                                t-on-change="onCheckInDateChange"
+                                                t-on-blur="onCheckInDateBlur"
+                                                t-att-min="state.systemDate"
+                                                t-att-value="state.checkInDate"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Number of Nights -->
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="nights" class="form-label">Nights</label>
+                                            <input 
+                                                type="number" 
+                                                id="nights" 
+                                                class="form-control"
+                                                t-on-change="(ev) => this.onNightsChange(ev.target.value)"
+                                                t-on-blur="(ev) => this.onNightsBlur(ev.target.value)"
+                                                t-att-value="state.noOfNights"
+                                                min="0"
+                                                max="730"
+                                                step="1"
+                                                value="0"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="check-out-date" class="form-label">Check-out Date</label>
+                                            <input 
+                                                type="date" 
+                                                id="check-out-date" 
+                                                class="form-control"
+                                                t-on-change="(ev) => this.onCheckOutDateChange(ev)"
+                                                t-on-blur="(ev) => this.onCheckOutDateBlur(ev)"
+                                                t-att-min="state.checkInDate"
+                                                t-att-max="state.maxCheckOutDate"
+                                                t-att-value="state.checkOutDate"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Room Type Selection -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="room-type" class="form-label">Room Type</label>
+                                            <select 
+                                                id="room-type" 
+                                                class="form-select" 
+                                                t-model="state.roomType"
+                                            >
+                                                <option value="">Select Room Type</option>
+                                                <t t-foreach="state.roomTypes" t-as="roomType" t-key="roomType.id">
+                                                    <option t-att-value="roomType.id">
+                                                        <t t-esc="roomType.room_type || 'Unnamed Room Type'"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                    <!-- <div class="form-group">
+                                        <label for="contact" class="form-label">Contact</label>
+                                        <select
+                                            id="contact"
+                                            class="form-select"
+                                            t-model="state.contactId"
+                                            t-on-change="onContactChange"
+                                        >
+                                            <option value="">Select Contact</option>
+                                            <t t-foreach="state.contacts" t-as="contact" t-key="contact.id">
+                                                <option t-att-value="contact.id">
+                                                    <t t-esc="contact.name || 'Unnamed Contact'"/>
+                                                </option>
+                                            </t>
+                                        </select>
+                                    </div> -->
+                                </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guest Information Section -->
+                    <div class="accordion-item mb-3">
+                        <h2 class="accordion-header" id="headingGuestInfo">
+                            <button 
+                                class="accordion-button collapsed" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#collapseGuestInfo" 
+                                aria-expanded="false" 
+                                aria-controls="collapseGuestInfo"
+                            >
+                                GUEST INFORMATION
+                            </button>
+                        </h2>
+                        <div 
+                            id="collapseGuestInfo" 
+                            class="accordion-collapse collapse" 
+                            aria-labelledby="headingGuestInfo" 
+                            data-bs-parent="#bookingAccordion"
+                        >
+                            <div class="accordion-body">
+                                <div class="row g-3">
+<!--                                <div class="form-group">-->
+<!--                                    <label for="contact" class="form-label">Contact</label>-->
+<!--                                    <select id="contact" class="form-select" t-model="state.contactId" t-on-change="onContactChange">-->
+<!--                                        <option value="">Select Contact</option>-->
+<!--                                        <t t-foreach="state.contacts" t-as="contact" t-key="contact.id">-->
+<!--                                            <option t-att-value="contact.id">-->
+<!--                                                <t t-esc="contact.name || 'Unnamed Contact'"/>-->
+<!--                                            </option>-->
+<!--                                        </t>-->
+<!--                                    </select>-->
+<!--                                </div>-->
+                                    <!-- Guest Count -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="adults" class="form-label">Adults</label>
+                                            <input 
+                                                type="number" 
+                                                id="adults" 
+                                                class="form-control" 
+                                                min="1" 
+                                                t-att-value="state.adults"
+                                                t-on-change="(ev) => this.updateAdults(ev.target.value)"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="children" class="form-label">Children</label>
+                                            <input 
+                                                type="number" 
+                                                id="children" 
+                                                class="form-control" 
+                                                min="0" 
+                                                t-att-value="state.children"
+                                                t-on-change="(ev) => this.updateChildren(ev.target.value)"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="infants" class="form-label">Infants</label>
+                                            <input 
+                                                type="number" 
+                                                id="infants" 
+                                                class="form-control" 
+                                                min="0" 
+                                                t-att-value="state.infants"
+                                                t-on-change="(ev) => this.updateInfants(ev.target.value)"
+                                            />
+                                        </div>
+                                    </div>
+                                    <!-- Guest Contact and Group fields - 2025-01-10T11:58:35+05:00 -->
+<!--                                    <div class="col-md-3">-->
+<!--                                        <div class="form-group">-->
+<!--                                            <label for="guest-contact" class="form-label">Guest Contact</label>-->
+<!--                                            &lt;!&ndash; Modified: 2025-01-16T10:00:00+05:00 -->
+<!--                                                 Guest contact input field placeholder syntax fixed-->
+<!--                                                 Input type: text-->
+<!--                                                 ID: guest-contact-->
+<!--                                                 Class: form-control-->
+<!--                                                 Placeholder: Enter guest contact-->
+<!--                                            &ndash;&gt;-->
+<!--                                            <input -->
+<!--                                                type="text" -->
+<!--                                                id="guest-contact" -->
+<!--                                                class="form-control"-->
+<!--                                                placeholder="Enter guest contact"-->
+<!--                                                t-model="state.guestContact"-->
+<!--                                            />-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-md-3">-->
+<!--                                        <div class="form-group">-->
+<!--                                            <label for="guest-group" class="form-label">Guest Group</label>-->
+<!--                                            <select -->
+<!--                                                id="group" -->
+<!--                                                class="form-select" -->
+<!--                                                t-model="state.guestGroup"-->
+<!--                                            >-->
+<!--                                                <option value="">Select Group</option>-->
+<!--                                                <t t-foreach="state.groups" t-as="group" t-key="group.id">-->
+<!--                                                    <option t-att-value="group.id">-->
+<!--                                                        <t t-esc="group.name || 'Unnamed Group'"/>-->
+<!--                                                    </option>-->
+<!--                                                </t>-->
+<!--                                            </select>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Action Buttons -->
+                    <div class="action-buttons mt-4">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <button 
+                                    class="btn btn-primary w-100" 
+                                    t-on-click="searchRooms"
+                                >
+                                    Search Rooms
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Results Grid -->
+                    <div class="search-results mt-4" t-if="state.searchResults and state.searchResults.length">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Available Room Types</h5>
+<!--                            <button-->
+<!--                                class="btn btn-success"-->
+<!--                                t-on-click="() => this.createallBookings()"-->
+<!--                            >-->
+<!--                                Create Booking For All Searched Rooms-->
+<!--                            </button>-->
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Room Type</th>
+                                    <th>Hotel</th>
+                                    <th>Rooms Searched</th>
+                                    <th>Rooms with Overbooking</th>
+                                    <th>Available For Sale</th>
+                                    <th>Overbooking Allowed</th>
+                                    <th>Overbooked</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.searchResults" t-as="room" t-key="room.room_type_id">
+                                    <tr>
+                                        <td><t t-esc="room.room_type_name"/></td>
+                                        <td><t t-esc="room.company_name"/></td>
+                                        <td><t t-esc="room.searched_rooms"/></td>
+                                        <td><t t-esc="room.freeToBook"/></td>
+                                        <td><t t-esc="room.actualFreeToSell"/></td>
+                                        <td><t t-esc="room.total_overbooking_rooms"/></td>
+                                        <td><t t-esc="room.overbooked"/></td>
+                                        <td>
+                                            <button
+                                                class="btn btn-primary"
+                                                t-on-click="() => this.createBookingAndLoad(room.room_type_id)"
+                                            >
+                                                Create Booking For Selected Room Type
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- No Results Message -->
+                    <div class="no-results mt-4" 
+                         t-if="state.searchPerformed and (!state.searchResults or !state.searchResults.length)"
+                    >
+                        <div class="alert alert-warning">
+                            No room types available for the selected criteria. Please adjust your search parameters.
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div t-if="state.isLoading" class="loading-state">
+                        <span class="fa fa-spinner fa-spin"></span> Loading...
+                    </div>
+                    
+                    <!-- Error State -->
+                    <div t-if="state.hasError" class="error-state alert alert-danger mt-3">
+                        <span class="fa fa-exclamation-circle"></span>
+                        <t t-esc="state.errorMessage"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
