@@ -1,0 +1,44 @@
+# Odoo specific files to ignore
+odoo.conf
+
+# Directories to ignore
+/addons/
+/debian/
+/doc/
+/odoo/
+/setup/
+
+# Additional common Odoo ignores (recommended)
+*.pyc
+*.pyo
+*.log
+*.pot
+*.mo
+*.tmp
+*.swp
+*.swo
+*~
+
+# Database and filestore
+/filestore/
+/data/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Virtual environment
+venv/
+env/
+.venv/
