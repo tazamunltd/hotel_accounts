@@ -11456,7 +11456,7 @@ class RoomAssignmentWizard(models.TransientModel):
                 )
 
             # _logger.info(f"Booked rooms:: booked_rooms.mapped("name")")
-            _logger.info(f"Available rooms:: {rooms.mapped("name")}")
+           # _logger.info(f"Available rooms:: {rooms.mapped("name")}")
 
             booking.action_assign_all_rooms(available_rooms=rooms)
     
