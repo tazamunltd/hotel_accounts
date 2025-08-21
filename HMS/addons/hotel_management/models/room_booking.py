@@ -51,7 +51,6 @@ class RoomBooking(models.Model):
         #             match = re.search(r'\d+', r.fsm_location.name)
         #             if match:
         #                 floor_numbers.append(int(match.group()))
-
         #     if floor_numbers:
         #         min_floor = min(floor_numbers)
         #         max_floor = max(floor_numbers)
@@ -63,7 +62,7 @@ class RoomBooking(models.Model):
             'res_model': 'room.assignment.wizard',
             'view_mode': 'form',
             'target': 'new',
-            'name': 'Floor Selection',
+            'name': _('Floor Selection'),
             'context': {
                 'default_booking_id': self.id,
                 # 'default_min_floor': min_floor,
@@ -9947,7 +9946,10 @@ class BookingCheckinWizard(models.TransientModel):
                 # if avails[0].get('min_free_to_sell', 0.0) < booking.room_count:
                 if avails[0].get('min_free_to_sell', 0.0) < early_total:
                     raise ValidationError(
-                        f"Only {avails[0]['min_free_to_sell']} rooms are available for early check-in for booking: {booking.name}, but {early_total} required."
+                        # f"Only {avails[0]['min_free_to_sell']} rooms are available for early check-in for booking: {booking.name}, but {early_total} required."
+                        _("Only %s rooms are available for early check-in for booking: %s, but %s required.") % (
+                        avails[0]['min_free_to_sell'], booking.name, early_total)
+
                     )
 
             # Collect IDs for later SQL updates
@@ -11276,24 +11278,30 @@ class RoomAssignmentWizard(models.TransientModel):
     _name = 'room.assignment.wizard'
     _description = 'Auto Room Assignment Wizard'
 
+    allowed_building_ids = fields.Many2many(
+        'fsm.location', compute='_compute_allowed_building_ids', store=False
+    )
+
+    room_type_name_ = fields.Many2one(
+        'room.type', string="Room Type", required=True)
     
     building_id = fields.Many2one(
         'fsm.location',
-        string="Building",
+        string=_("Building"),
         required=True,
-        domain="[('dynamic_selection_id.name', '=', 'Building')]"
+        domain="[('id', 'in', allowed_building_ids)]",
     )
     floor_from = fields.Many2one(
         'fsm.location',
-        string="From Floor",
+        string=_("From Floor"),
         required=True,
-        domain="[('dynamic_selection_id.name', '=', 'Floor'), ('fsm_parent_id', '=', building_id)]")
+        domain="['|', ('dynamic_selection_id.name', '=', 'Floor'), ('dynamic_selection_id.name', '=', 'طابق'), ('fsm_parent_id', '=', building_id)]")
 
     floor_to = fields.Many2one(
         'fsm.location',
-        string="To Floor",
+        string=_("To Floor"),
         required=True,
-        domain="[('dynamic_selection_id.name', '=', 'Floor'), ('fsm_parent_id', '=', building_id)]")
+        domain="['|', ('dynamic_selection_id.name', '=', 'Floor'), ('dynamic_selection_id.name', '=', 'طابق'), ('fsm_parent_id', '=', building_id)]")
 
 
     # min_floor = fields.Integer(string="Min Floor", readonly=True)
@@ -11305,7 +11313,94 @@ class RoomAssignmentWizard(models.TransientModel):
         store=False,
         readonly=True
     )
-    
+
+    @api.onchange('room_type_name_')
+    def _onchange_room_type_name(self):
+        """Limit Building to where this room type actually exists."""
+        domain = [('dynamic_selection_id.name', '=', 'Building')]
+        building_ids = set()
+        
+        if self.room_type_name_:
+            # Get rooms of this type
+            rooms = self.env['hotel.room'].sudo().search([
+                ('room_type_name', '=', self.room_type_name_.id)
+            ])
+            
+            # Get building IDs through the location hierarchy
+            for room in rooms:
+                if room.fsm_location:
+                    # Navigate up the hierarchy to find the building
+                    current_location = room.fsm_location
+                    
+                    # Traverse up the hierarchy until we find a building
+                    while current_location:
+                        # Check if current location is a building (dynamic_selection_id = 1 means Building)
+                        if (hasattr(current_location, 'dynamic_selection_id') and 
+                            current_location.dynamic_selection_id and 
+                            current_location.dynamic_selection_id.id == 1):
+                            building_ids.add(current_location.id)
+                            break
+                        # Move to parent location
+                        current_location = current_location.fsm_parent_id if current_location.fsm_parent_id else None
+            
+            if building_ids:
+                domain.append(('id', 'in', list(building_ids)))
+            else:
+                # No buildings found for this room type, show none
+                domain.append(('id', '=', False))
+        
+        # Clear building_id if it's not in the new domain
+        if self.building_id and self.room_type_name_:
+            if building_ids and self.building_id.id not in building_ids:
+                self.building_id = False
+                self.floor_from = False
+                self.floor_to = False
+                
+        return {'domain': {'building_id': domain}}
+
+    @api.depends('room_type_name_')
+    def _compute_allowed_building_ids(self):
+        for wizard in self:
+            if wizard.room_type_name_:
+                # Get rooms of this type
+                rooms = self.env['hotel.room'].sudo().search([
+                    ('room_type_name', '=', wizard.room_type_name_.id)
+                ])
+                
+                # Get building IDs through the location hierarchy
+                building_ids = set()
+                for room in rooms:
+                    if room.fsm_location:
+                        # Navigate up the hierarchy to find the building
+                        current_location = room.fsm_location
+                        
+                        # Traverse up the hierarchy until we find a building
+                        while current_location:
+                            # Check if current location is a building (dynamic_selection_id = 1 means Building)
+                            if (hasattr(current_location, 'dynamic_selection_id') and 
+                                current_location.dynamic_selection_id and 
+                                current_location.dynamic_selection_id.id == 1):
+                                building_ids.add(current_location.id)
+                                break
+                            # Move to parent location
+                            current_location = current_location.fsm_parent_id if current_location.fsm_parent_id else None
+                
+                if building_ids:
+                    wizard.allowed_building_ids = self.env['fsm.location'].browse(list(building_ids))
+                else:
+                    wizard.allowed_building_ids = self.env['fsm.location']
+            else:
+                # No room type selected, show all buildings
+                wizard.allowed_building_ids = self.env['fsm.location'].search([('dynamic_selection_id.name', '=', 'Building')])
+
+    @api.model
+    def default_get(self, fields_list):
+        vals = super().default_get(fields_list)
+        # Auto-fill the room type from the active booking
+        booking = self.env['room.booking'].browse(self.env.context.get('active_id'))
+        if booking and booking.hotel_room_type:
+            vals['room_type_name_'] = booking.hotel_room_type.id
+        return vals
 
     def action_auto_room(self):
         for wizard in self:
@@ -11316,10 +11411,12 @@ class RoomAssignmentWizard(models.TransientModel):
             floor_locs = self.env['fsm.location'].search([
                 ('dynamic_selection_id.name', '=', 'Floor')
             ])
+            _logger.info(f"Floor Locations: {floor_locs}")
             valid_floor_ids = []
 
             for loc in floor_locs:
                 location = loc
+                _logger.info(f"Location: {location}")
                 while location:
                     if location.id >= wizard.floor_from.id and location.id <= wizard.floor_to.id:
                         valid_floor_ids.append(loc.id)
@@ -11327,7 +11424,6 @@ class RoomAssignmentWizard(models.TransientModel):
                     location = location.fsm_parent_id
 
             booking = wizard.booking_id
-            print(f"BOOKING; {booking}")
             room_type = booking.hotel_room_type
 
             # ✅ get all booked rooms for this booking but only of the same room_type
@@ -11339,17 +11435,8 @@ class RoomAssignmentWizard(models.TransientModel):
                 ('booking_id.checkout_date', '>', booking.checkin_date),
                 ('booking_id', '!=', booking.id),
             ]).mapped("room_id")
-            
-            # booked_rooms = self.env['room.booking.line'].search([
-            #     ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
-            #     ('room_id', '!=', False),
-            #     ('room_id.room_type_name', '=', self.room_type_id.id),  # ✅ same type only
-            #     ('booking_id.checkin_date', '<', self.booking_id.checkout_date),
-            #     ('booking_id.checkout_date', '>', self.booking_id.checkin_date),
-            #     ('booking_id', '!=', self.booking_id.id),  # ✅ exclude current booking
-            # ]).mapped("room_id")
 
-            print("Booked Rooms (same type, same date range):", booked_rooms.mapped("name"))
+            _logger.info("Booked Rooms (same type, same date range):", booked_rooms.mapped("name"))
 
             # ✅ Step 2: Find all rooms with those floor locations
             rooms = self.env['hotel.room'].search([
@@ -11358,9 +11445,9 @@ class RoomAssignmentWizard(models.TransientModel):
                 ('active', '=', True),
                 ('id', 'not in', booked_rooms.ids),
             ])
+            _logger.info(f"Rooms: {rooms}")
             available_count = len(rooms)
-            print('11012', available_count)
-            print(f"Room COunt: {self.booking_id.room_count}")
+            _logger.info(f"Available Count: {available_count}")
 
             if booking.room_count > available_count:
                 raise ValidationError(
@@ -11368,16 +11455,93 @@ class RoomAssignmentWizard(models.TransientModel):
                     f"and room type, but you requested {booking.room_count}.")
                 )
 
-            # if self.booking_id.room_count > available_count:
-            #     raise ValidationError(
-            #         _(f"Only {available_count} rooms are available for the selected floor(s) "
-            #         f"and room type, but you requested {self.booking_id.room_count}.")
-            # )
-
-            print("Booked rooms:", booked_rooms.mapped("name"))
-            print("Available rooms:", rooms.mapped("name"))
+            # _logger.info(f"Booked rooms:: booked_rooms.mapped("name")")
+            _logger.info(f"Available rooms:: {rooms.mapped("name")}")
 
             booking.action_assign_all_rooms(available_rooms=rooms)
+    
+
+    # def action_auto_room(self):
+    #     for wizard in self:
+    #         # ✅ Validation using Many2one
+    #         # if wizard.floor_from.id > wizard.floor_to.id:
+    #         #     raise ValidationError(_("'To Floor' cannot be smaller than 'From Floor'."))
+
+    #         floor_locs = self.env['fsm.location'].search([
+    #             ('dynamic_selection_id.name', '=', 'Floor'),
+    #             ('dynamic_selection_id.name', '=', 'طابق')
+    #         ])
+    #         _logger.info(f"Floor Locations: {floor_locs}")
+    #         valid_floor_ids = []
+
+    #         for loc in floor_locs:
+    #             location = loc
+    #             _logger.info(f"Location: {location}")
+    #             while location:
+    #                 if location.id >= wizard.floor_from.id and location.id <= wizard.floor_to.id:
+    #                     _logger.info(f"Valid Floor: {loc.id}")
+    #                     valid_floor_ids.append(loc.id)
+    #                     break
+    #                 location = location.fsm_parent_id
+    #             _logger.info(f"Valid Floor IDs: {valid_floor_ids}")
+
+    #         booking = wizard.booking_id
+    #         _logger.info(f"Booking: {booking}")
+    #         room_type = booking.hotel_room_type
+
+    #         # ✅ get all booked rooms for this booking but only of the same room_type
+    #         booked_rooms = self.env['room.booking.line'].search([
+    #             ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
+    #             ('room_id', '!=', False),
+    #             ('room_id.room_type_name', '=', wizard.room_type_id.id),
+    #             ('booking_id.checkin_date', '<', booking.checkout_date),
+    #             ('booking_id.checkout_date', '>', booking.checkin_date),
+    #             ('booking_id', '!=', booking.id),
+    #         ]).mapped("room_id")
+    #         _logger.info(f"Booked Rooms: {booked_rooms}")
+            
+    #         # booked_rooms = self.env['room.booking.line'].search([
+    #         #     ('booking_id.state', 'in', ['confirmed', 'block', 'check_in']),
+    #         #     ('room_id', '!=', False),
+    #         #     ('room_id.room_type_name', '=', self.room_type_id.id),  # ✅ same type only
+    #         #     ('booking_id.checkin_date', '<', self.booking_id.checkout_date),
+    #         #     ('booking_id.checkout_date', '>', self.booking_id.checkin_date),
+    #         #     ('booking_id', '!=', self.booking_id.id),  # ✅ exclude current booking
+    #         # ]).mapped("room_id")
+
+    #         print("Booked Rooms (same type, same date range):", booked_rooms.mapped("name"))
+
+    #         # ✅ Step 2: Find all rooms with those floor locations
+    #         rooms = self.env['hotel.room'].search([
+    #             ('fsm_location', 'in', valid_floor_ids),
+    #             ('room_type_name', '=', wizard.room_type_id.id),
+    #             ('active', '=', True),
+    #             ('id', 'not in', booked_rooms.ids),
+    #         ])
+    #         _logger.info(f"Rooms: {rooms}")
+    #         available_count = len(rooms)
+    #         _logger.info(f"AVAILBLE COUNT: {available_count}")
+    #         _logger.info(f"Room COunt: {self.booking_id.room_count}")
+
+    #         if booking.room_count > available_count:
+    #             raise ValidationError(
+    #                 _("Only %s rooms are available for the selected floor(s) and room type, but you requested %s.") % (
+    #                 available_count, booking.room_count)
+    #             )
+    #             # raise ValidationError(
+    #             #     _(f"Only {available_count} rooms are available for the selected floor(s) and room type, but you requested {booking.room_count}.")
+    #             # )
+
+    #         # if self.booking_id.room_count > available_count:
+    #         #     raise ValidationError(
+    #         #         _(f"Only {available_count} rooms are available for the selected floor(s) "
+    #         #         f"and room type, but you requested {self.booking_id.room_count}.")
+    #         # )
+
+    #         print("Booked rooms:", booked_rooms.mapped("name"))
+    #         print("Available rooms:", rooms.mapped("name"))
+
+    #         booking.action_assign_all_rooms(available_rooms=rooms)
 
     
         

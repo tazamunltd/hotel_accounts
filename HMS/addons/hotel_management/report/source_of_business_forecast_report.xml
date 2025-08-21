@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Source of Business Forecast Report Action -->
+    <record id="action_report_source_of_business_forecast" model="ir.actions.report">
+        <field name="name">Source of Business Forecast Report</field>
+        <field name="model">source.of.business.forecast</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_source_of_business_forecast</field>
+        <field name="report_file">hotel_management.report_source_of_business_forecast</field>
+        <field name="binding_model_id" ref="model_source_of_business_forecast"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Source of Business Forecast Report Template -->
+    <template id="report_source_of_business_forecast">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Source of Business Forecast Report</h2>
+                    <br />
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Hotel</th>
+                                <th>Report Date</th>
+                                <th>Room Type</th>
+                                <th>Source of Business</th>
+                                <th>Exp. Arrivals</th>
+                                <th>Exp. Departures</th>
+                                <th>In House</th>
+                                <th>Exp. Arrivals Adults</th>
+                                <th>Exp. Arrivals Children</th>
+                                <th>Exp. Arrivals Infants</th>
+                                <th>Exp. Departures Adults</th>
+                                <th>Exp. Departures Children</th>
+                                <th>Exp. Departures Infants</th>
+                                <th>In House Adults</th>
+                                <th>In House Children</th>
+                                <th>In House Infants</th>
+                                <th>Exp. In-House</th>
+                                <th>Exp. In-House Adults</th>
+                                <th>Exp. In-House Children</th>
+                                <th>Exp. In-House Infants</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o" t-foreach-index="i">
+                                <tr>
+                                    <!-- Sl No. -->
+                                    <td><t t-esc="(i or 0) + 1"/></td>
+                                    <td><t t-esc="o.company_id.name or ''"/></td>
+                                    <td><t t-esc="o.report_date.strftime('%Y-%m-%d') if o.report_date else ''"/></td>
+                                    <td><t t-esc="o.room_type_name or ''"/></td>
+                                    <td><t t-esc="o.source_of_business or ''"/></td>
+                                    <td><t t-esc="o.expected_arrivals or 0"/></td>
+                                    <td><t t-esc="o.expected_departures or 0"/></td>
+                                    <td><t t-esc="o.in_house or 0"/></td>
+                                    <td><t t-esc="o.expected_arrivals_adults or 0"/></td>
+                                    <td><t t-esc="o.expected_arrivals_children or 0"/></td>
+                                    <td><t t-esc="o.expected_arrivals_infants or 0"/></td>
+                                    <td><t t-esc="o.expected_departures_adults or 0"/></td>
+                                    <td><t t-esc="o.expected_departures_children or 0"/></td>
+                                    <td><t t-esc="o.expected_departures_infants or 0"/></td>
+                                    <td><t t-esc="o.in_house_adults or 0"/></td>
+                                    <td><t t-esc="o.in_house_children or 0"/></td>
+                                    <td><t t-esc="o.in_house_infants or 0"/></td>
+                                    <td><t t-esc="o.expected_in_house or 0"/></td>
+                                    <td><t t-esc="o.expected_in_house_adults or 0"/></td>
+                                    <td><t t-esc="o.expected_in_house_children or 0"/></td>
+                                    <td><t t-esc="o.expected_in_house_infants or 0"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

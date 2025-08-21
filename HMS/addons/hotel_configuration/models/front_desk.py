@@ -25,6 +25,15 @@ class RoomType(models.Model):
     _rec_name = 'room_type'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    # Buildings where this room type is allowed
+    building_ids = fields.Many2many(
+        'fsm.location', 'room_type_building_rel',
+        'room_type_id', 'location_id',
+        string='Allowed Buildings',
+        # domain=[('dynamic_selection_id.name', '=', 'Building')],
+        help="Choose which buildings allow this room type."
+    )
+
 
     active = fields.Boolean(default=True, tracking=True)
 

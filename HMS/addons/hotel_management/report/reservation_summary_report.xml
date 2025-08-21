@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Reservation Summary Report Action -->
+    <record id="action_report_reservation_summary" model="ir.actions.report">
+        <field name="name">Reservation Summary Report</field>
+        <field name="model">reservation.summary.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_reservation_summary</field>
+        <field name="report_file">hotel_management.report_reservation_summary</field>
+        <field name="binding_model_id" ref="model_reservation_summary_report"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Reservation Summary Report Template -->
+    <template id="report_reservation_summary">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Reservation Summary Report</h2>
+                    <br />
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Hotel</th>
+                                <th>Booking Type</th>
+                                <th>Group</th>
+                                <th>RMS</th>
+                                <th>SNG</th>
+                                <th>DBL</th>
+                                <th>TPL</th>
+                                <th>OTH</th>
+                                <th>First Arrival</th>
+                                <th>Last Departure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o" t-foreach-index="i">
+                                <tr>
+                                    <!-- Sl No. -->
+                                    <td><t t-esc="(i or 0) + 1"/></td>
+                                    <td><t t-esc="o.company_id.name or ''"/></td>
+                                    <td><t t-esc="o.company_name or ''"/></td>
+                                    <td><t t-esc="o.group_booking_name or ''"/></td>
+                                    <td><t t-esc="o.rms or 0"/></td>
+                                    <td><t t-esc="o.sng or 0"/></td>
+                                    <td><t t-esc="o.dbl or 0"/></td>
+                                    <td><t t-esc="o.tpl or 0"/></td>
+                                    <td><t t-esc="o.oth or 0"/></td>
+                                    <td><t t-esc="o.first_arrival.strftime('%Y-%m-%d') if o.first_arrival else ''"/></td>
+                                    <td><t t-esc="o.last_departure.strftime('%Y-%m-%d') if o.last_departure else ''"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

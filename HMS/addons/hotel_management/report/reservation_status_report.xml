@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Reservation Status Report Action -->
+    <record id="action_report_reservation_status" model="ir.actions.report">
+        <field name="name">Reservation Status Report</field>
+        <field name="model">reservation.status.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_reservation_status</field>
+        <field name="report_file">hotel_management.report_reservation_status</field>
+        <field name="binding_model_id" ref="model_reservation_status_report"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Reservation Status Report Template -->
+    <template id="report_reservation_status">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Reservation Status Report</h2>
+                    <br />
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Hotel</th>
+                                <th>Client</th>
+                                <th>Group</th>
+                                <th>Rooms</th>
+                                <th>Pax</th>
+                                <th>Room No</th>
+                                <th>Room Type</th>
+                                <th>Arrival</th>
+                                <th>Departure</th>
+                                <th>Nights</th>
+                                <th>VIP</th>
+                                <th>House Use</th>
+                                <th>Meal Pattern</th>
+                                <th>Complementary Codes</th>
+                                <th>Nationality</th>
+                                <th>Made On</th>
+                                <th>Room Type Name</th>
+                                <th>State</th>
+                                <th>Original State</th>
+                                <th>Contact</th>
+                                <th>By</th>
+                                <th>Reference</th>
+                                <th>Room Number</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o" t-foreach-index="i">
+                                <tr>
+                                    <!-- Sl No. -->
+                                    <td><t t-esc="(i or 0) + 1"/></td>
+                                    <td><t t-esc="o.company_id.name or ''"/></td>
+                                    <td><t t-esc="o.client_id.name or ''"/></td>
+                                    <td><t t-esc="o.group_booking or ''"/></td>
+                                    <td><t t-esc="o.room_count or 0"/></td>
+                                    <td><t t-esc="o.adult_count or 0"/></td>
+                                    <td><t t-esc="o.room_id or ''"/></td>
+                                    <td><t t-esc="o.hotelroom_type or ''"/></td>
+                                    <td><t t-esc="o.checkin_date.strftime('%Y-%m-%d') if o.checkin_date else ''"/></td>
+                                    <td><t t-esc="o.checkout_date.strftime('%Y-%m-%d') if o.checkout_date else ''"/></td>
+                                    <td><t t-esc="o.no_of_nights or 0"/></td>
+                                    <td><t t-esc="'Yes' if o.vip else 'No'"/></td>
+                                    <td><t t-esc="'Yes' if o.house_use else 'No'"/></td>
+                                    <td><t t-esc="o.meal_pattern or ''"/></td>
+                                    <td><t t-esc="o.complementary_codes or ''"/></td>
+                                    <td><t t-esc="o.nationality or ''"/></td>
+                                    <td><t t-esc="o.date_order.strftime('%Y-%m-%d') if o.date_order else ''"/></td>
+                                    <td><t t-esc="o.room_type_name or ''"/></td>
+                                    <td><t t-esc="o.state or ''"/></td>
+                                    <td><t t-esc="o.original_state or ''"/></td>
+                                    <td><t t-esc="o.partner_name or ''"/></td>
+                                    <td><t t-esc="o.write_user_name or ''"/></td>
+                                    <td><t t-esc="o.ref_id_bk or ''"/></td>
+                                    <td><t t-esc="o.room_name or ''"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

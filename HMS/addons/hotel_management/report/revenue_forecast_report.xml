@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Revenue Forecast Report Action -->
+    <record id="action_report_revenue_forecast" model="ir.actions.report">
+        <field name="name">Revenue Forecast Report</field>
+        <field name="model">revenue.forecast</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_revenue_forecast</field>
+        <field name="report_file">hotel_management.report_revenue_forecast</field>
+        <field name="binding_model_id" ref="model_revenue_forecast"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Revenue Forecast Report Template -->
+    <template id="report_revenue_forecast">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Revenue Forecast Report</h2>
+                    <br/>
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Hotel</th>
+                                <th>Report Date</th>
+                                <th>Rooms</th>
+                                <th>Occupancy (%)</th>
+                                <th>Out of Order</th>
+                                <th>Available Rooms</th>
+                                <th>Rate Revenue</th>
+                                <th>Total Revenue</th>
+                                <th>F&amp;B Revenue</th>
+                                <th>Adult</th>
+                                <th>Children</th>
+                                <th>Infants</th>
+                                <th>Total</th>
+                                <th>Pax/Chi/Inf</th>
+                                <th>Rate/Room</th>
+                                <th>Rate/Pax</th>
+                                <th>Meals/Pax</th>
+                                <th>Total Rooms</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o" t-foreach-index="i">
+                                <tr>
+                                    <td><t t-esc="(i or 0) + 1"/></td>
+                                    <td><t t-esc="o.company_id.name or ''"/></td>
+                                    <td><t t-esc="o.report_date.strftime('%Y-%m-%d') if o.report_date else ''"/></td>
+                                    <td><t t-esc="o.in_house or 0"/></td>
+                                    <td><t t-esc="o.expected_occupied_rate or 0.0"/></td>
+                                    <td><t t-esc="o.out_of_order or 0"/></td>
+                                    <td><t t-esc="o.available_rooms or 0"/></td>
+                                    <td><t t-esc="o.rate_revenue or 0"/></td>
+                                    <td><t t-esc="o.total_revenue or 0"/></td>
+                                    <td><t t-esc="o.fnb_revenue or 0"/></td>
+                                    <td><t t-esc="o.pax_adults or 0"/></td>
+                                    <td><t t-esc="o.pax_children or 0"/></td>
+                                    <td><t t-esc="o.pax_infants or 0"/></td>
+                                    <td><t t-esc="o.pax_totals or 0"/></td>
+                                    <td><t t-esc="o.pax_chi_inf or ''"/></td>
+                                    <td><t t-esc="o.rate_per_room or 0"/></td>
+                                    <td><t t-esc="o.rate_per_pax or 0"/></td>
+                                    <td><t t-esc="o.meals_per_pax or 0"/></td>
+                                    <td><t t-esc="o.total_rooms or 0"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

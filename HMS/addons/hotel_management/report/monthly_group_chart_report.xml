@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Monthly Group Chart Report Action -->
+    <record id="action_report_monthly_group_chart" model="ir.actions.report">
+        <field name="name">Monthly Group Chart</field>
+        <field name="model">monthly.groups.charts</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_monthly_group_chart</field>
+        <field name="report_file">hotel_management.report_monthly_group_chart</field>
+        <field name="binding_model_id" ref="model_monthly_groups_charts"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Monthly Group Chart Report Template -->
+    <template id="report_monthly_group_chart">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Monthly Group Chart</h2>
+                    <br />
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Hotel</th>
+                                <th>Report Date</th>
+                                <th>Room Type</th>
+                                <th>Total Rooms</th>
+                                <th>Available</th>
+                                <th>In-House</th>
+                                <th>Exp. In-House</th>
+                                <th>Group Booking</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o" t-foreach-index="i">
+                                <tr>
+                                    <!-- Safe Sl No. -->
+                                    <td><t t-esc="(i or 0) + 1"/></td>
+                                    <td><t t-esc="o.company_id.name or ''"/></td>
+                                    <td><t t-esc="o.report_date.strftime('%Y-%m-%d') if o.report_date else ''"/></td>
+                                    <td><t t-esc="o.room_type or ''"/></td>
+                                    <td><t t-esc="o.total_rooms or 0"/></td>
+                                    <td><t t-esc="o.available or 0"/></td>
+                                    <td><t t-esc="o.inhouse or 0"/></td>
+                                    <td><t t-esc="o.expected_inhouse or 0"/></td>
+                                    <td><t t-esc="o.group_booking or ''"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

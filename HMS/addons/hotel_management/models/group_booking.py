@@ -13,8 +13,21 @@ class GroupBooking(models.Model):
 
     active = fields.Boolean(default=True, tracking=True)
 
+    # def action_delete_record(self):
+    #     for record in self:
+    #         record.active = False
     def action_delete_record(self):
         for record in self:
+            # Find all bookings linked to this group
+            related_bookings = self.env['room.booking'].search([
+                ('group_booking', '=', record.id),
+                ('state', 'in', ['block', 'check_in', 'confirmed'])
+            ])
+
+            if related_bookings:
+                raise ValidationError(_("Group cannot be deleted because it has reservation."))
+
+            # If no blocking records → allow delete (soft delete)
             record.active = False
     
     def action_unarchieve_record(self):

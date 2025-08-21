@@ -1,66 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- <record id="room_booking_view_kanban" model="ir.ui.view">
-        <field name="name">room.booking.view.kanban</field>
-        <field name="model">room.booking</field>
-        <field name="arch" type="xml">
-            <kanban js_class="reservation_dashboard_kanban">
-                <field name="name"/>
-                <field name="state"/>
-                <templates>
-                    <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_#{record.state.raw_value}">
-                            <div class="oe_kanban_details">
-                                <strong>
-                                    <field name="name"/>
-                                </strong>
-                                <div>
-                                    <span>Room Name:</span>
-                                    <field name="room_ids_display"/>
-                                </div>
-                                <div>
-                                    <span>Room Type:</span>
-                                    <field name="room_type_display"/>
-                                </div>
-                                <div>
-                                    <span>Room Count:</span>
-                                    <field name="room_count_tree"/>
-                                </div>
-                                <div>
-                                    <span>Guest:</span>
-                                    <field name="partner_id"/>
-                                </div>
-                                <div>
-                                    <span>Parent Booking:</span>
-                                    <field name="parent_booking_name"/>
-                                </div>
-                                <div>
-                                    <span>Group Booking:</span>
-                                    <field name="group_booking"/>
-                                </div>
-                                <div>
-                                    <span>Check-in Date:</span>
-                                    <field name="checkin_date"/>
-                                </div>
-                                <div>
-                                    <span>Check-out Date:</span>
-                                    <field name="checkout_date"/>
-                                </div>
-                                <div>
-                                    <span>Date of Order:</span>
-                                    <field name="date_order"/>
-                                </div>
-                                <div>
-                                    <span>Status:</span>
-                                    <field name="state"/>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record> -->
     <record id="room_booking_view_kanban" model="ir.ui.view">
         <field name="name">room.booking.view.kanban</field>
         <field name="model">room.booking</field>
@@ -220,58 +159,41 @@
         <field name="model">room.booking</field>
         <field name="arch" type="xml">
             <search string="Room Booking">
-                <!-- Search by customer -->
                 <field name="name" string="Booking Id" />
                 <field name="room_ids_display" />
                 <field name="hotel_room_type" />
                 <field name="partner_id" string="Customer" />
-                <!-- <field name="partner_id" string="Customer"/> -->
-
-                <!-- Additional Fields -->
                 <field name="reference_contact_" />
                 <field name="parent_booking_name" />
                 <field name="group_booking" />
-<!--                <field name="checkin_date" />-->
-<!--                <field name="checkout_date" />-->
                 <field name="checkin_date_only"  string="Check In"/>
                 <field name="checkout_date_only" string="Check Out"/>
                 <field name="house_use" />
                 <field name="date_order" />
                 <field name="state" />
                 <field name="reservation_status_count_as" />
-                <!-- Optional: Add other fields you want to search by -->
-                <!--                <field name="date_order" string="Order Date"/>-->
-                <!--                <field name="state" string="State"/>-->
             </search>
         </field>
     </record>
 
-<!--    <record id="action_delete_room_booking" model="ir.actions.server">-->
-<!--        <field name="name">Delete</field>-->
-<!--        <field name="model_id" ref="model_room_booking" />-->
-<!--        <field name="state">code</field>-->
-<!--        <field name="code">-->
-<!--            records.action_archive_as_delete_redirect()-->
-<!--        </field>-->
-<!--        <field name="binding_model_id" ref="model_room_booking" />-->
-<!--        <field name="binding_type">action</field>        &lt;!&ndash; Makes it appear in the Actions menu &ndash;&gt;-->
-<!--    </record>-->
+
     <record id="action_delete_room_booking" model="ir.actions.server">
-    <field name="name">Delete</field>
-    <field name="model_id" ref="model_room_booking" />
-    <field name="binding_model_id" ref="model_room_booking" />
-    <field name="binding_type">action</field>
-    <field name="state">code</field>
-    <field name="code"><![CDATA[
-action = {
-    'type': 'ir.actions.client',
-    'tag': 'delete_with_notification_js',
-    'params': {
-        'record_ids': records.ids or [record.id],
-    }
-}
-    ]]></field>
-</record>
+        <field name="name">Delete</field>
+        <field name="model_id" ref="model_room_booking" />
+        <field name="binding_model_id" ref="model_room_booking" />
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code"><![CDATA[
+        action = {
+            'type': 'ir.actions.client',
+            'tag': 'delete_with_notification_js',
+            'params': {
+                'record_ids': records.ids or [record.id],
+            }
+        }
+            ]]></field>
+    </record>
+
     <!--     Room Booking Form View -->
     <record id="room_booking_view_form" model="ir.ui.view">
         <field name="name">room.booking.view.form</field>
@@ -1759,6 +1681,8 @@ action = {
         <field name="arch" type="xml">
             <form string="Auto Room Assignment">
                 <group>
+                    <field name="room_type_name_" invisible="1" />
+                    <field name="allowed_building_ids" invisible="1" />
                     <field name="building_id" />
                     <field name="floor_from" readonly="building_id == False" />
                     <field name="floor_to" readonly="building_id == False" />

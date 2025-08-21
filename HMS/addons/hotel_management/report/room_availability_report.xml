@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Room Availability Report Action -->
+    <record id="action_report_hotel_room_result" model="ir.actions.report">
+        <field name="name">Room Availability</field>
+        <field name="model">hotel.room.result</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_hotel_room_result</field>
+        <field name="report_file">hotel_management.report_hotel_room_result</field>
+        <field name="binding_model_id" ref="model_hotel_room_result"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Room Availability Report Template -->
+    <template id="report_hotel_room_result">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Room Availability</h2>
+                    <br />
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Hotel</th>
+                                <th>Report Date</th>
+                                <th>Room Type</th>
+                                <th>Total Rooms</th>
+                                <th>Available</th>
+                                <th>In-House</th>
+                                <th>Exp. Arrivals</th>
+                                <th>Exp. Departures</th>
+                                <th>Exp. In-House</th>
+                                <th>Reserved</th>
+                                <th>Exp. Occupied Rate (%)</th>
+                                <th>Out of Order</th>
+                                <th>Overbook</th>
+                                <th>Free to Sell</th>
+                                <th>House Use</th>
+                                <th>Complementary Use</th>
+                                <th>Rooms On Hold</th>
+                                <th>Out of Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o" t-foreach-index="i">
+                                <tr>
+                                    <td><t t-esc="(i or 0) + 1"/></td>
+                                    <td><t t-esc="o.company_id.name or ''"/></td>
+                                    <td><t t-esc="o.report_date.strftime('%Y-%m-%d') if o.report_date else ''"/></td>
+                                    <td><t t-esc="o.room_type or ''"/></td>
+                                    <td><t t-esc="o.total_rooms or 0"/></td>
+                                    <td><t t-esc="o.available or 0"/></td>
+                                    <td><t t-esc="o.inhouse or 0"/></td>
+                                    <td><t t-esc="o.expected_arrivals or 0"/></td>
+                                    <td><t t-esc="o.expected_departures or 0"/></td>
+                                    <td><t t-esc="o.expected_inhouse or 0"/></td>
+                                    <td><t t-esc="o.reserved or 0"/></td>
+                                    <td><t t-esc="o.expected_occupied_rate or 0"/></td>
+                                    <td><t t-esc="o.out_of_order or 0"/></td>
+                                    <td><t t-esc="o.overbook or 0"/></td>
+                                    <td><t t-esc="o.free_to_sell or 0"/></td>
+                                    <td><t t-esc="o.house_use_count or 0"/></td>
+                                    <td><t t-esc="o.complementary_use_count or 0"/></td>
+                                    <td><t t-esc="o.rooms_on_hold or 0"/></td>
+                                    <td><t t-esc="o.out_of_service or 0"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Yearly Room Types Chart Report Action -->
+    <record id="action_report_room_result_by_room_type" model="ir.actions.report">
+        <field name="name">Yearly Room Types Chart</field>
+        <field name="model">room.result.by.room.type</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_room_result_by_room_type</field>
+        <field name="report_file">hotel_management.report_room_result_by_room_type</field>
+        <field name="binding_model_id" ref="model_room_result_by_room_type"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Yearly Room Types Chart Report Template -->
+    <template id="report_room_result_by_room_type">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Yearly Room Types Chart</h2>
+                    <br />
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th>Sl No.</th>
+                                <th>Hotel</th>
+                                <th>Report Date</th>
+                                <th>Room Type</th>
+                                <th>Total Rooms</th>
+                                <th>Available</th>
+                                <th>In-House</th>
+                                <th>Exp. Arrivals</th>
+                                <th>Exp. Departures</th>
+                                <th>Exp. In-House</th>
+                                <th>Reserved</th>
+                                <th>Exp. Occupied Rate (%)</th>
+                                <th>Out of Order</th>
+                                <th>Overbook</th>
+                                <th>Free to Sell</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="o" t-foreach-index="i">
+                                <tr>
+                                    <!-- Safe Sl No. -->
+                                    <td><t t-esc="(i or 0) + 1"/></td>
+                                    <td><t t-esc="o.company_id.name or ''"/></td>
+                                    <td><t t-esc="o.report_date.strftime('%Y-%m-%d') if o.report_date else ''"/></td>
+                                    <td><t t-esc="o.room_type or ''"/></td>
+                                    <td><t t-esc="o.total_rooms or 0"/></td>
+                                    <td><t t-esc="o.available or 0"/></td>
+                                    <td><t t-esc="o.inhouse or 0"/></td>
+                                    <td><t t-esc="o.expected_arrivals or 0"/></td>
+                                    <td><t t-esc="o.expected_departures or 0"/></td>
+                                    <td><t t-esc="o.expected_inhouse or 0"/></td>
+                                    <td><t t-esc="o.reserved or 0"/></td>
+                                    <td><t t-esc="o.expected_occupied_rate or 0"/></td>
+                                    <td><t t-esc="o.out_of_order or 0"/></td>
+                                    <td><t t-esc="o.overbook or 0"/></td>
+                                    <td><t t-esc="o.free_to_sell or 0"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
