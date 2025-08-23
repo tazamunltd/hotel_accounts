@@ -1683,9 +1683,9 @@
                 <group>
                     <field name="room_type_name_" invisible="1" />
                     <field name="allowed_building_ids" invisible="1" />
-                    <field name="building_id" />
-                    <field name="floor_from" readonly="building_id == False" />
-                    <field name="floor_to" readonly="building_id == False" />
+                    <field name="building_ids" widget="many2many_tags" />
+                    <field name="floor_from" readonly="building_ids == False" />
+                    <field name="floor_to" readonly="building_ids == False" />
                     <!-- <field name="min_floor" invisible="1"/> -->
                     <!-- <field name="max_floor" invisible="1"/> -->
                 </group>

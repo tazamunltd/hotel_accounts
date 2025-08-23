@@ -304,12 +304,12 @@
                     <div class="search-results mt-4" t-if="state.searchResults and state.searchResults.length">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5>Available Room Types</h5>
-<!--                            <button-->
-<!--                                class="btn btn-success"-->
-<!--                                t-on-click="() => this.createallBookings()"-->
-<!--                            >-->
-<!--                                Create Booking For All Searched Rooms-->
-<!--                            </button>-->
+                            <button
+                                class="btn btn-success"
+                                t-on-click="() => this.createallBookings()"
+                            >
+                                Create Booking
+                            </button>
                         </div>
                         <table class="table table-striped">
                             <thead>
@@ -334,12 +334,12 @@
                                         <td><t t-esc="room.total_overbooking_rooms"/></td>
                                         <td><t t-esc="room.overbooked"/></td>
                                         <td>
-                                            <button
-                                                class="btn btn-primary"
-                                                t-on-click="() => this.createBookingAndLoad(room.room_type_id)"
-                                            >
-                                                Create Booking For Selected Room Type
-                                            </button>
+<!--                                            <button-->
+<!--                                                class="btn btn-primary"-->
+<!--                                                t-on-click="() => this.createBookingAndLoad(room.room_type_id)"-->
+<!--                                            >-->
+<!--                                                Create Booking For Selected Room Type-->
+<!--                                            </button>-->
                                         </td>
                                     </tr>
                                 </t>

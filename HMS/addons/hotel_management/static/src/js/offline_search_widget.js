@@ -1382,7 +1382,7 @@ export class OfflineSearchWidget extends Component {
                 [
                     this.state.checkInDate,
                     this.state.checkOutDate,
-                    this.state.rooms, // Search with 0 rooms to get all available types this.state.rooms
+                    0,//this.state.rooms, // Search with 0 rooms to get all available types this.state.rooms
                     this.state.hotel,
                     this.state.roomType
                 ]
@@ -1396,20 +1396,43 @@ export class OfflineSearchWidget extends Component {
                 roomTypes = availableRooms.filter(result => Number(result.room_type_id) === roomTypeId);
             }
 
+            // Check if total available rooms is less than requested rooms
+            const totalAvailableRooms = roomTypes.reduce((sum, room) => {
+                // min_free_to_sell already includes overbooking capacity
+                // When min_free_to_sell = 0, all capacity (regular + overbooking) is exhausted
+                const totalCapacity = room.min_free_to_sell;
+                console.log(`Room ${room.room_type_name}: min_free_to_sell=${room.min_free_to_sell} (includes overbooking), available=${totalCapacity}`);
+                return sum + Math.max(0, totalCapacity);
+            }, 0);
+            
+            if (totalAvailableRooms < this.state.rooms) {
+//                this.notification.add(
+//                    _t(`Insufficient rooms available. Requested: ${this.state.rooms}, Available: ${totalAvailableRooms}`),
+//                    { type: 'warning', sticky: true }
+//                );
+                console.log(`Insufficient rooms: Requested ${this.state.rooms}, Available ${totalAvailableRooms}`);
+                this.state.searchResults = [];
+                this.state.searchPerformed = true;
+                return; // Exit early when no room types available
+            }
+
             if (Array.isArray(roomTypes) && roomTypes.length > 0) {
                 let remainingRoomsToSearch = this.state.rooms;
 //                console.log("Rooms to allocate:", remainingRoomsToSearch);
 
-                // Initialize room types with actual free to sell
+                // Initialize room types - min_free_to_sell already includes all available capacity
                 const processedRooms = roomTypes.map(room => {
-                    const actualFree = room.min_free_to_sell - room.total_overbooking_rooms;
-//                    console.log(`${room.room_type_name}: actual_free=${actualFree} (min_free=${room.min_free_to_sell}, overbooking=${room.total_overbooking_rooms})`);
+                    // min_free_to_sell already includes overbooking, so use it directly
+                    const totalAvailable = room.min_free_to_sell;
+                    
+                    console.log(`Processing ${room.room_type_name}: total_available=${totalAvailable} (min_free_to_sell includes overbooking)`);
                     return {
                         ...room,
-                        freeToBook: room.min_free_to_sell,
-                        actualFreeToSell: actualFree,
-                        remainingActualFree: actualFree,
-                        remainingOverbooking: room.total_overbooking_rooms,
+                        freeToBook: totalAvailable,
+                        actualFreeToSell: totalAvailable,
+                        remainingActualFree: totalAvailable,
+                        remainingOverbooking: 0, // No separate overbooking since it's included in min_free_to_sell
+                        totalAvailableCapacity: totalAvailable,
                         searched_rooms: 0,
                         overbooked: 0
                     };
@@ -1434,38 +1457,37 @@ export class OfflineSearchWidget extends Component {
 
 //                console.log("After Phase 1 - Remaining rooms:", remainingRoomsToSearch);
 
-                // Second Phase: Use overbooking if needed
-                if (remainingRoomsToSearch > 0) {
-                    // Sort by actual free to sell for overbooking priority
-                    processedRooms.sort((a, b) => b.actualFreeToSell - a.actualFreeToSell);
-//                    console.log("Phase 2 - Room types sorted for overbooking:",
-//                        processedRooms.map(r => `${r.room_type_name}: actual_free=${r.actualFreeToSell}, overbooking=${r.remainingOverbooking}`));
-
-                    for (const room of processedRooms) {
-                        if (remainingRoomsToSearch <= 0) break;
-
-                        if (room.has_overbooking && room.total_overbooking_rooms > 0) {
-                            const additionalRooms = Math.min(remainingRoomsToSearch, room.total_overbooking_rooms);
-                            room.searched_rooms += additionalRooms;
-                            room.overbooked = additionalRooms;
-                            remainingRoomsToSearch -= additionalRooms;
-//                            console.log(`Phase 2: Allocated ${additionalRooms} overbooking rooms to ${room.room_type_name}`);
-                        }
-                    }
-                }
+                // Second Phase: Not needed since overbooking is already included in min_free_to_sell
 
                 // Only include rooms that have allocations
                 this.state.searchResults = processedRooms
                     .filter(room => room.searched_rooms > 0)
-                    .map(room => ({
-                        ...room,
-                        actualFreeToSell: room.actualFreeToSell
-                    }));
+                    .map(room => {
+                        // Calculate correct overbooked count for display
+                        // If min_free_to_sell < (regular_capacity + overbooking), then some overbooking is used
+                        const overbookingCapacity = room.total_overbooking_rooms || 0;
+                        const totalRooms = room.total_rooms || 0;
+                        const regularCapacity = totalRooms - overbookingCapacity;
+                        const totalCapacityWithOverbooking = regularCapacity + (room.total_overbooking_rooms || 0);
+                        
+                        // Only calculate overbooked if overbooking is allowed
+                        const currentOverbooked = overbookingCapacity > 0 && room.min_free_to_sell < totalCapacityWithOverbooking 
+                            ? totalCapacityWithOverbooking - room.min_free_to_sell
+                            : 0;
+                        
+                        console.log(`Overbooked calculation for ${room.room_type_name}: regular=${regularCapacity}, overbooking=${room.total_overbooking_rooms}, total_capacity=${totalCapacityWithOverbooking}, min_free=${room.min_free_to_sell}, overbooked=${currentOverbooked}`);
+                        
+                        return {
+                            ...room,
+                            actualFreeToSell: room.actualFreeToSell,
+                            overbooked: currentOverbooked // Set the correct overbooked count for display
+                        };
+                    });
 
-//                console.log("Final allocations:",
-//                    this.state.searchResults.map(r =>
-//                        `${r.room_type_name}: ${r.searched_rooms} (actual=${r.searched_rooms - r.overbooked}, overbooked=${r.overbooked})`
-//                    ));
+                console.log("Final allocations:",
+                    this.state.searchResults.map(r =>
+                        `${r.room_type_name}: ${r.searched_rooms} (actual=${r.searched_rooms - r.overbooked}, overbooked=${r.overbooked})`
+                    ));
 
                 const totalAllocatedRooms = this.state.searchResults.reduce((sum, room) => sum + room.searched_rooms, 0);
 
@@ -1484,6 +1506,9 @@ export class OfflineSearchWidget extends Component {
                 }
             } else {
                 console.log("No room types available for the selected criteria");
+                this.state.searchResults = [];
+                this.state.searchPerformed = true;
+                return; // Exit early when no room types available
             }
         } catch (error) {
             console.error('Error during room search:', error);
@@ -1554,6 +1579,7 @@ export class OfflineSearchWidget extends Component {
 
             // Update state with results (even if empty)
             this.state.searchResults = results;
+            console.log("results",results);
             this.state.searchPerformed = true;
 
             // Show appropriate notification
@@ -1613,48 +1639,90 @@ export class OfflineSearchWidget extends Component {
             if (!this.state.searchResults || this.state.searchResults.length === 0) {
                 throw new Error('No search results available');
             }
-            // debugger;
-            // call create booking method for each room type
-            for (const room of this.state.searchResults) {
-//                console.log('Processing room:', JSON.stringify(room, null, 2));
+            
+            console.log('Creating single booking with all search results');
+            console.log('Room types to include:', this.state.searchResults.map(r => `${r.room_type_name} (${r.searched_rooms} rooms)`));
+            
+            // Calculate total rooms from all search results
+            const totalRooms = this.state.searchResults.reduce((sum, room) => sum + room.searched_rooms, 0);
+            
+            // Use the first room type as the primary room type for the booking
+            const primaryRoomType = this.state.searchResults[0];
+            
+            // Save current search results before creating booking
+            this.saveSearchResults();
 
-                if (!room.room_type_id) {
-                    console.error('Room type ID missing for room:', room);
-                    continue;
-                }
-
-                await this.createBookingAndLoad(room.room_type_id);
+            // Validate required fields
+            if (!this.state.hotel) {
+                throw new Error('Hotel is required');
             }
 
-            this.notification.add('All rooms added to booking successfully!', {
+            // Get system date from the selected hotel
+            const hotel = this.state.hotels.find(h => h.id === this.state.hotel);
+            if (!hotel) {
+                throw new Error('Selected hotel not found');
+            }
+
+            // Prepare booking context with availability_results
+            let context_ = {
+                room_count: totalRooms,
+                checkin_date: `${this.state.checkInDate} 10:00:00`,
+                no_of_nights: this.state.noOfNights,
+                checkout_date: `${this.state.checkOutDate} 10:00:00`,
+                adult_count: this.state.adults,
+                child_count: this.state.children,
+                infant_count: this.state.infants,
+                hotel_room_type: primaryRoomType.room_type_id,
+                is_offline_search: false,
+                partner_id: this.state.contactId,
+                payment_type: 'cash',
+                availability_results: this.state.searchResults.map(room => [0, 0, {
+                    company_id: room.company_id,
+                    room_type: room.room_type_id,
+                    rooms_reserved: room.searched_rooms,
+                    available_rooms: room.min_free_to_sell,
+                    pax: this.state.adults
+                }])
+            };
+
+            // Create new booking with availability_results
+            const recordId = await this.orm.call(
+                'room.booking',
+                'create',
+                [context_],
+            );
+
+            // Navigate to the created booking
+            const action = {
+                type: 'ir.actions.act_window',
+                res_model: 'room.booking',
+                res_id: recordId,
+                views: [[false, 'form']],
+                target: 'current',
+                flags: {
+                    mode: 'edit'
+                }
+            };
+            await this.env.services.action.doAction(action);
+
+            this.notification.add('Booking created successfully.', {
                 type: 'success'
             });
+
+            // Clear all search results after successful booking creation
+            this.state.searchResults = [];
+            this.saveSearchResults();
+            this.render();
+
         } catch (error) {
-            console.error('Search Error:', error);
-            this.notification.add(`Failed to create bookings: ${error.message}`, {
+            console.error('Booking Creation Error:', error);
+            this.notification.add(`Failed to create booking: ${error.message}`, {
                 type: 'danger',
                 sticky: true
             });
         }
     }
 
-    async createBookingAndLoad(roomTypeId) {
-        try {
-            await this.createBooking(roomTypeId);
-            //await this.loadSearchResults();
-            // Force UI update
-            this.render();
-//            this.notification.add('Search results updated. \n' + this.state.searchResults , {
-//                type: 'success'
-//            });
-        } catch (error) {
-            console.error('Error in createBookingAndLoad:', error);
-            this.notification.add(`Failed to create booking and load results: ${error.message}`, {
-                type: 'danger',
-                sticky: true
-            });
-        }
-    }
     /**
      * Create booking for a specific room type
      * Modified: 2025-01-18T00:50:26+05:00
@@ -1663,7 +1731,7 @@ export class OfflineSearchWidget extends Component {
     async createBooking(roomTypeId) {
         try {
             // Save current search results before creating booking
-//            this.saveSearchResults();
+            this.saveSearchResults();
 
             // Validate required fields
             if (!this.state.hotel) {
@@ -1709,6 +1777,13 @@ export class OfflineSearchWidget extends Component {
                 is_offline_search: false,
                 partner_id: this.state.contactId,
                 payment_type:'cash',
+                availability_results: this.state.searchResults.map(room => [0, 0, {
+                    company_id: room.company_id,
+                    room_type: room.room_type_id,
+                    rooms_reserved: room.searched_rooms,
+                    available_rooms: room.min_free_to_sell,
+                    pax: this.state.adults
+                }])
             };
 
             // Check if we're in a new booking context
@@ -1771,18 +1846,24 @@ export class OfflineSearchWidget extends Component {
             }
 
             try {
-//                // Remove the specific room type from the temporary results
-//                const updatedSearchResults = originalSearchResults.filter(
-//                    result => result.room_type_id !== roomTypeId
-//                );
-//                // Repopulate searchResults with updated results
-//                this.state.searchResults = updatedSearchResults;
-//
-//                // Save the updated search results
-//                this.saveSearchResults();
+                // Remove the specific room type from the temporary results
+                const updatedSearchResults = originalSearchResults.filter(
+                    result => result.room_type_id !== roomTypeId
+                );
+                // Repopulate searchResults with updated results
+                this.state.searchResults = updatedSearchResults;
+
+                // Save the updated search results
+                this.saveSearchResults();
 
                 // Force UI update
                 this.render();
+                
+                // Log for debugging
+//                console.log('Loaded search results:', {
+//                    results: this.state.searchResults,
+//                    searchPerformed: this.state.searchPerformed
+//                });
             } catch (error) {
                 console.error('Error updating search results:', error);
                 throw error;

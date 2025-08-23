@@ -10415,7 +10415,7 @@ msgid "To Floor"
 msgstr "إلى الطابق"
 
 #. module: hotel_management
-#: model:ir.model.fields,field_description:hotel_management.field_room_assignment_wizard__building_id
+#: model:ir.model.fields,field_description:hotel_management.field_room_assignment_wizard__building_ids
 msgid "Building"
 msgstr "المبنى"
 
