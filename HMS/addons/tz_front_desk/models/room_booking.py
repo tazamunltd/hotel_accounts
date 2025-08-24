@@ -518,17 +518,9 @@ class RoomBooking(models.Model):
 
         return result
 
-    def action_assign_all_rooms(self):
-        res = super().action_assign_all_rooms()
+    def action_assign_all_rooms(self, available_rooms=None):
+        res = super().action_assign_all_rooms(available_rooms=available_rooms)
         for booking in self:
-            booking._assign_rooms_to_folios()
-        return res
-
-    def action_assign_all_roomsX(self):
-        res = super().action_assign_all_rooms()
-        for booking in self:
-            if booking.group_booking:
-                continue
             booking._assign_rooms_to_folios()
         return res
 
