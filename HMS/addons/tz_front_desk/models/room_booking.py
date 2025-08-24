@@ -86,6 +86,12 @@ class RoomBooking(models.Model):
         index=True  # Important for performance
     )
 
+    adult_count = fields.Integer(
+        string='Adults',
+        tracking=True,
+        default=1  # Set default value to 1
+    )
+
     @api.depends('meal_pattern.meals_list_ids.meal_code.price_pax',
                  'meal_pattern.meals_list_ids.meal_code.price_child')
     def _compute_price(self):
