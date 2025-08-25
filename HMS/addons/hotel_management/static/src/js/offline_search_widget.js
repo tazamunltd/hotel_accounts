@@ -151,7 +151,8 @@ export class OfflineSearchWidget extends Component {
         try {
             // Load search results if not already present
             if (!this.state.searchResults || this.state.searchResults.length === 0) {
-                this.loadSearchResults();
+                // Removed loadSearchResults() call to prevent loading cached data on initial load
+                // Users should manually search or the search will be triggered by user actions
             }
         } catch (error) {
             console.error('Error during initialization:', error);
@@ -181,7 +182,7 @@ export class OfflineSearchWidget extends Component {
             // Booking details
             dateOfOrder: new Date().toISOString().slice(0, 16),
             checkInDate: "",
-            noOfNights: 0,  // Changed from 1 to 0 as default
+            noOfNights: 1,  // Changed from 0 to 1 as default
             checkOutDate: "",
 
             // Guest details
@@ -281,7 +282,8 @@ export class OfflineSearchWidget extends Component {
         try {
             // Load search results if not already present
             if (!this.state.searchResults || this.state.searchResults.length === 0) {
-                this.loadSearchResults();
+                // Removed loadSearchResults() call to prevent loading cached data on initial load
+                // Users should manually search or the search will be triggered by user actions
             }
         } catch (error) {
             console.error('Error during initialization:', error);
@@ -683,7 +685,7 @@ export class OfflineSearchWidget extends Component {
                 if (isNaN(systemDate.getTime())) {
                     throw new Error('Invalid date format');
                 }
-
+                console.log("system date function checking no of nights",this.state.noOfNights);
                 this.state.systemDate = '';
                 this.state.checkInDate = '';
                 this.state.noOfNights = this.state.noOfNights || 1;
@@ -890,13 +892,14 @@ export class OfflineSearchWidget extends Component {
      */
     updateCheckOutDate() {
         try {
-//            console.log("TESTING", this.state.checkInDate);
+            console.log("TESTING", this.state.checkInDate);
             if (!this.state.checkInDate) return;
 
             const checkIn = new Date(this.state.checkInDate);
             const checkOut = new Date(checkIn);
 
             const nights = this.state.noOfNights || 0;
+            console.log("night value::", nights);
             if (nights <= 0) {
                 // If nights is zero or negative, fallback to same day
                 this.state.checkOutDate = this.state.checkInDate;
@@ -904,7 +907,7 @@ export class OfflineSearchWidget extends Component {
                 checkOut.setDate(checkOut.getDate() + nights);
                 this.state.checkOutDate = checkOut.toISOString().split('T')[0];
             }
-//            console.log("CHECKOUT DATE", this.state.checkOutDate);
+            console.log("CHECKOUT DATE", this.state.checkOutDate);
         } catch (error) {
             console.error('Error in updateCheckOutDate:', error);
             this.handleWidgetError(error);
@@ -1954,7 +1957,7 @@ export class OfflineSearchWidget extends Component {
                     }
                 }
                 this.state.hotel = data.companyId || null;
-                this.state.noOfNights = data.noOfNights || 0;
+                this.state.noOfNights = data.noOfNights || 1;  // Fixed: Default to 1 instead of 0
                 
                 // Force UI update
                 this.render();

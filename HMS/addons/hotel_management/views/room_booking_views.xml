@@ -161,7 +161,9 @@
             <search string="Room Booking">
                 <field name="name" string="Booking Id" />
                 <field name="room_ids_display" />
-                <field name="hotel_room_type" />
+                <field name="room_type_display" />
+
+                <!-- <field name="hotel_room_type" /> -->
                 <field name="partner_id" string="Customer" />
                 <field name="reference_contact_" />
                 <field name="parent_booking_name" />
