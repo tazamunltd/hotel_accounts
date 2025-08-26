@@ -10432,3 +10432,8 @@ msgstr "متاح فقط %s غرفة للطابق (أو الطوابق) ونوع 
 msgid "Create Booking"
 msgstr "إنشاء حجوزات"
 
+#. module: hotel_management
+#: code:addons/hotel_management/models/room_booking.py:0
+#: model_terms:ir.ui.view,arch_db:hotel_management.view_room_assignment_wizard_form
+msgid "Room Type cannot be empty."
+msgstr "لا يمكن أن يكون نوع الغرفة فارغًا."

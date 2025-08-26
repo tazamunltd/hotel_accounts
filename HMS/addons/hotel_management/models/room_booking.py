@@ -5605,9 +5605,9 @@ class RoomBooking(models.Model):
     @api.model
     def name_get(self):
         res = super(RoomBooking, self).name_get()
-        for partner in self.env['res.partner'].search([]):
-            print(
-                f"Partner Name: {partner.name}, is_company: {partner.is_company}")
+        # for partner in self.env['res.partner'].search([]):
+        #     print(
+        #         f"Partner Name: {partner.name}, is_company: {partner.is_company}")
         return res
 
     vip = fields.Boolean(string='VIP')
@@ -6684,10 +6684,11 @@ class RoomBooking(models.Model):
     rooms_to_add = fields.Integer(
         string='Rooms to Add', default=0, tracking=True)
 
-    room_ids_display = fields.Char(string="Room Names", compute="_compute_room_ids_display",
+    room_ids_display = fields.Char(string="Room Name", compute="_compute_room_ids_display",
                                    search="_search_room_ids_display", tracking=True)
     room_type_display = fields.Char(
-        string="Room Types", compute="_compute_room_type_display", tracking=True)
+        string="Room Types", compute="_compute_room_type_display", 
+        search="_search_room_type_display", tracking=True)
 
     room_price = fields.Float(string="Room Price", default=0, tracking=True)
     
@@ -6898,6 +6899,24 @@ class RoomBooking(models.Model):
             
 
     def _search_room_ids_display(self, operator, value):
+        # Handle search for "Room Not Assigned" case (case-insensitive partial matching)
+        if value:
+            value_lower = str(value).lower()
+            room_not_assigned_lower = _('Room Not Assigned').lower()
+            
+            # Check if search value is part of "Room Not Assigned" text
+            if ('room' in value_lower and 'not' in value_lower) or \
+               ('not' in value_lower and 'assigned' in value_lower) or \
+               room_not_assigned_lower in value_lower or \
+               value_lower in room_not_assigned_lower:
+                
+                # Search for bookings with no room assignments
+                if operator in ('=', 'ilike', 'like'):
+                    return [('room_line_ids', '=', False)]
+                elif operator in ('!=', 'not ilike', 'not like'):
+                    return [('room_line_ids', '!=', False)]
+        
+        # Handle normal room name search
         return [('room_line_ids.room_id.name', operator, value)]
 
     @api.depends('room_line_ids')
@@ -6910,6 +6929,27 @@ class RoomBooking(models.Model):
                 # Marked for translation:
                 record.room_type_display = _('Room Not Assigned')
             
+    def _search_room_type_display(self, operator, value):
+        # Handle search for "Room Not Assigned" case (case-insensitive partial matching)
+        if value:
+            value_lower = str(value).lower()
+            room_not_assigned_lower = _('Room Not Assigned').lower()
+            
+            # Check if search value is part of "Room Not Assigned" text
+            if ('room' in value_lower and 'not' in value_lower) or \
+               ('not' in value_lower and 'assigned' in value_lower) or \
+               room_not_assigned_lower in value_lower or \
+               value_lower in room_not_assigned_lower:
+                
+                # Search for bookings with no room assignments
+                if operator in ('=', 'ilike', 'like'):
+                    return [('room_line_ids', '=', False)]
+                elif operator in ('!=', 'not ilike', 'not like'):
+                    return [('room_line_ids', '!=', False)]
+        
+        # Handle normal room type search
+        return [('room_line_ids.hotel_room_type.room_type', operator, value)]
+
     parent_booking_name = fields.Char(
         string="Parent Booking Name",
         compute="_compute_parent_booking_name",
@@ -11435,7 +11475,8 @@ class RoomAssignmentWizard(models.TransientModel):
                             # Check if current location is a building (dynamic_selection_id = 1 means Building)
                             if (hasattr(current_location, 'dynamic_selection_id') and 
                                 current_location.dynamic_selection_id and 
-                                current_location.dynamic_selection_id.id == 1):
+                                # current_location.dynamic_selection_id.id == 1):
+                                current_location.dynamic_selection_id.name in ["Building", "المبنى"]):
                                 building_ids.add(current_location.id)
                                 break
                             # Move to parent location
@@ -11453,7 +11494,8 @@ class RoomAssignmentWizard(models.TransientModel):
                         while current_location:
                             if (hasattr(current_location, 'dynamic_selection_id') and 
                                 current_location.dynamic_selection_id and 
-                                current_location.dynamic_selection_id.id == 1):
+                                # current_location.dynamic_selection_id.id == 1):
+                                current_location.dynamic_selection_id.name in ["Building", "المبنى"]):
                                 building_ids.add(current_location.id)
                                 break
                             current_location = current_location.fsm_parent_id if current_location.fsm_parent_id else None
@@ -11462,7 +11504,7 @@ class RoomAssignmentWizard(models.TransientModel):
                 wizard.allowed_building_ids = self.env['fsm.location'].browse(list(building_ids))
             else:
                 # No buildings found, show all buildings as fallback
-                wizard.allowed_building_ids = self.env['fsm.location'].search([('dynamic_selection_id.name', '=', 'Building')])
+                wizard.allowed_building_ids = self.env['fsm.location'].search(['|', ('dynamic_selection_id.name', '=', 'Building'), ('dynamic_selection_id.name', '=', 'المبنى')])
 
     @api.model
     def default_get(self, fields_list):
@@ -11503,7 +11545,9 @@ class RoomAssignmentWizard(models.TransientModel):
                 # Step 4: Loop through selected floors and check availability for this room type
                 for floor_id in range(wizard.floor_from.id, wizard.floor_to.id + 1):
                     floor_locs = self.env['fsm.location'].search([
+                        '|',
                         ('dynamic_selection_id.name', '=', 'Floor'),
+                        ('dynamic_selection_id.name', '=', 'طابق'),
                         ('id', '=', floor_id)  # Search for specific floor
                     ])
                     _logger.info(f"FLOOR LOCATIONS:{floor_locs}")
@@ -11548,8 +11592,9 @@ class RoomAssignmentWizard(models.TransientModel):
             # Step 6: Validate if the total available rooms are greater than or equal to the requested room count
             if wizard.booking_id.room_count > total_available_rooms:
                 raise ValidationError(
-                    _(f"Only {total_available_rooms} rooms are available for the selected floors and room types, "
-                    f"but you requested {wizard.booking_id.room_count}.")
+                    # _(f"Only {total_available_rooms} rooms are available for the selected floor(s) and room types, but you requested {wizard.booking_id.room_count}.")
+                    _("Only %s rooms are available for the selected floor(s) and room type, but you requested %s.") % (
+                                       total_available_rooms, {wizard.booking_id.room_count})
                 )
 
             # Step 7: If validation passes, assign the rooms (you can add your assignment logic here)
