@@ -165,6 +165,7 @@ class TzHotelManualPosting(models.Model):
                 record.room_id = record.type_id.room_id
                 record.group_booking_id = record.type_id.group_booking_id
                 record.dummy_id = record.type_id.dummy_id
+                record.folio_id = record.type_id.folio_id
             else:
                 record.booking_id = False
                 record.room_id = False
@@ -350,33 +351,33 @@ class TzHotelManualPosting(models.Model):
         for record in self:
             record.price = record.debit_amount or record.credit_amount
 
-    @api.onchange('booking_id', 'room_id', 'group_booking_id', 'dummy_id')
-    def _onchange_booking_room_or_group(self):
-        """Automatically find and suggest folio when booking, room, group, or dummy changes"""
-        if self.booking_id or self.room_id or self.group_booking_id or self.dummy_id:
-            self.folio_id = False
-            domain = []
-            if self.booking_id:
-                domain.append(('booking_ids', 'in', self.booking_id.id))
-            if self.room_id:
-                domain.append(('room_id', '=', self.room_id.id))
-            if self.group_booking_id:
-                domain.append(('group_id', '=', self.group_booking_id.id))
-            if self.dummy_id:
-                domain.append(('dummy_id', '=', self.dummy_id.id))
-
-            if self.room_id and self.group_booking_id:
-                folio = self.env['tz.master.folio'].search([
-                    '|',
-                    ('room_id', '=', self.room_id.id),
-                    ('group_id', '=', self.group_booking_id.id),
-                    ('dummy_id', '=', self.dummy_id.id) if self.dummy_id else ()
-                ], limit=1, order='create_date DESC')
-            elif domain:
-                folio = self.env['tz.master.folio'].search(domain, limit=1, order='create_date DESC')
-            else:
-                folio = False
-            self.folio_id = folio
+    # @api.onchange('booking_id', 'room_id', 'group_booking_id', 'dummy_id')
+    # def _onchange_booking_room_or_group(self):
+    #     """Automatically find and suggest folio when booking, room, group, or dummy changes"""
+    #     if self.booking_id or self.room_id or self.group_booking_id or self.dummy_id:
+    #         self.folio_id = False
+    #         domain = []
+    #         if self.booking_id:
+    #             domain.append(('booking_ids', 'in', self.booking_id.id))
+    #         if self.room_id:
+    #             domain.append(('room_id', '=', self.room_id.id))
+    #         if self.group_booking_id:
+    #             domain.append(('group_id', '=', self.group_booking_id.id))
+    #         if self.dummy_id:
+    #             domain.append(('dummy_id', '=', self.dummy_id.id))
+    #
+    #         if self.room_id and self.group_booking_id:
+    #             folio = self.env['tz.master.folio'].search([
+    #                 '|',
+    #                 ('room_id', '=', self.room_id.id),
+    #                 ('group_id', '=', self.group_booking_id.id),
+    #                 ('dummy_id', '=', self.dummy_id.id) if self.dummy_id else ()
+    #             ], limit=1, order='create_date DESC')
+    #         elif domain:
+    #             folio = self.env['tz.master.folio'].search(domain, limit=1, order='create_date DESC')
+    #         else:
+    #             folio = False
+    #         self.folio_id = folio
 
     @api.onchange('item_id')
     def _onchange_item_id(self):
@@ -881,55 +882,6 @@ class TzHotelManualPosting(models.Model):
 
             # Now you can process base_lines as needed for your tax total computation
             # folio.tax_totals = ...
-
-    def test_function(self):
-        """Sync with the materialized view using ORM."""
-        company_id = self.env.company.id
-
-        # Fetch all relevant rows from the materialized view
-        view_records = self.env['tz.manual.posting.room'].search([
-            ('company_id', '=', company_id),
-        ])
-
-        room_type = self.env['tz.manual.posting.type']
-
-        for view in view_records:
-
-            domain = [
-                ('source_id', '=', view.id),
-                ('booking_id', '=', view.booking_id.id if view.booking_id else False),
-            ]
-
-            existing = room_type.search(domain, limit=1)
-
-            print(existing)
-
-            vals = {
-                'source_id': view.id,
-                'name': view.name,
-                'booking_id': view.booking_id.id,
-                'room_id': view.room_id.id if view.room_id else False,
-                'group_booking_id': view.group_booking_id.id if view.group_booking_id else False,
-                'dummy_id': view.dummy_id.id if view.dummy_id else False,
-                'folio_id': view.folio_id.id if view.folio_id else False,
-                'partner_id': view.partner_id.id if view.partner_id else False,
-                'checkin_date': view.checkin_date,
-                'checkout_date': view.checkout_date,
-                'adult_count': view.adult_count,
-                'child_count': view.child_count,
-                'infant_count': view.infant_count,
-                'rate_code': view.rate_code,
-                'meal_pattern': view.meal_pattern,
-                'company_id': company_id,
-                'state': view.state,
-            }
-
-            if existing:
-                existing.write(vals)
-            else:
-                room_type.create(vals)
-
-        _logger.info("Manual posting type successfully synced with materialized view for company_id %s", company_id)
 
 
 

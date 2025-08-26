@@ -190,7 +190,12 @@ class ManualPostingType(models.Model):
     room_id = fields.Many2one('hotel.room', string='Room')
     group_booking_id = fields.Many2one('group.booking', string='Group Booking')
     dummy_id = fields.Many2one('tz.dummy.group', string='Dummy')
-    folio_id = fields.Many2one('tz.master.folio', string="Master Folio")
+    folio_id = fields.Many2one(
+        'tz.master.folio',
+        string="Master Folio",
+        compute="_compute_folio_id",
+        store=True
+    )
     partner_id = fields.Many2one('res.partner', string='Customer')
     checkin_date = fields.Date(string='Check-in')
     checkout_date = fields.Date(string='Check-out')
@@ -209,6 +214,46 @@ class ManualPostingType(models.Model):
         ('dummy', 'Dummy'),
         ('posted', 'Posted'),
     ], string='State')
+
+    @api.depends('booking_id', 'group_booking_id', 'dummy_id', 'room_id')
+    def _compute_folio_id(self):
+        for record in self:
+            record.folio_id = record.get_master_folio()
+
+    def get_master_folio(self):
+        """Custom logic to find the appropriate Master Folio"""
+        self.ensure_one()
+
+        folio_obj = self.env['tz.master.folio']
+        folio = False
+
+        # Priority 1: Group Booking
+        if self.group_booking_id:
+            folio = folio_obj.search([
+                ('group_id', '=', self.group_booking_id.id),
+                ('room_id', '=', False)  # Ensure it's the group-level folio
+            ], limit=1)
+
+        # Priority 2: Dummy Group
+        elif self.dummy_id:
+            folio = folio_obj.search([
+                ('dummy_id', '=', self.dummy_id.id)
+            ], limit=1)
+
+        # Priority 3: Individual Booking
+        elif self.booking_id:
+            folio = folio_obj.search([
+                ('booking_ids', 'in', [self.booking_id.id])
+            ], limit=1)
+
+        # Priority 4: Room-level fallback
+        elif self.room_id:
+            folio = folio_obj.search([
+                ('room_id', '=', self.room_id.id),
+                # ('group_id', '=', False)  # Avoid matching split group folios
+            ], limit=1)
+
+        return folio.id if folio else False
 
     def sync_with_materialized_view(self):
         """Sync with the materialized view using ORM."""
@@ -243,7 +288,7 @@ class ManualPostingType(models.Model):
                 'room_id': view.room_id.id if view.room_id else False,
                 'group_booking_id': view.group_booking_id.id if view.group_booking_id else False,
                 'dummy_id': view.dummy_id.id if view.dummy_id else False,
-                'folio_id': view.folio_id.id if view.folio_id else False,
+                # 'folio_id': view.folio_id.id if view.folio_id else False,
                 'partner_id': view.partner_id.id if view.partner_id else False,
                 'checkin_date': view.checkin_date,
                 'checkout_date': view.checkout_date,

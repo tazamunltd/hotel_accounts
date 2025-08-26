@@ -124,24 +124,6 @@ class TzMasterFolio(models.Model):
             )[:1]
             folio.balance = last_posting.balance if last_posting else 0.0
 
-    @api.depends_context('lang')
-    @api.depends('manual_posting_ids.taxes', 'manual_posting_ids.total', 'amount_total', 'amount_untaxed')
-    def _compute_tax_totalsX(self):
-        for folio in self:
-            # Filter out:
-            # 1. Display-type lines
-            # 2. Credit-only lines (credit_amount > 0 and debit_amount = 0)
-            # 3. From specific payment/charge groups
-            lines = folio.manual_posting_ids.filtered(
-                lambda l: not l.display_type
-                          and not (l.credit_amount > 0 and l.debit_amount == 0
-                                   and (l.payment_group or l.charge_group)))
-
-            folio.tax_totals = self.env['account.tax']._prepare_tax_totals(
-                [l._convert_to_tax_base_line_dict() for l in lines],
-                folio.currency_id or folio.company_id.currency_id,
-            )
-
     def _compute_tax_totals(self):
         for folio in self:
             # Filter out:
@@ -326,19 +308,6 @@ class TzMasterFolio(models.Model):
         """ Scheduled action to refresh all reports """
         self.search([]).unlink()  # Clear all existing data
         return self.generate_folio_report()
-
-    def get_report_dataX(self):
-        """ Prepare data for the report """
-        return {
-            'doc_ids': self.ids,
-            'doc_model': 'tz.master.folio.report',
-            'docs': self.env['tz.master.folio.report'].browse(self.ids),
-            'format_datetime': lambda dt: dt and fields.Datetime.context_timestamp(self, fields.Datetime.from_string(
-                dt)).strftime('%Y-%m-%d %H:%M') or '',
-            'format_amount': lambda amount, currency: currency and formatLang(self.env, amount,
-                                                                              currency_obj=currency) or formatLang(
-                self.env, amount),
-        }
 
     def get_report_data(self):
         decoded_tax_totals = {}

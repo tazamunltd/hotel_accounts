@@ -202,7 +202,7 @@
                                                     </t>
                                                 </td>
                                                 <td class="text-right">
-                                                    <span t-esc="format_amount(float(tax_group.get('tax_group_amount', 0.0)), currency)"/>
+                                                    <span t-esc="format_amount(round(float(tax_group.get('tax_group_amount', 0.0)), 2), currency)"/>
                                                 </td>
                                             </tr>
                                         </t>
@@ -215,7 +215,7 @@
                                         <strong>Untaxed Amount</strong>
                                     </td>
                                     <td class="text-right">
-                                        <span t-esc="format_amount(float(tax_data.get('amount_untaxed', 0.0)), currency)"/>
+                                        <span t-esc="format_amount(round(float(tax_data.get('amount_untaxed', 0.0)), 2), currency)"/>
                                     </td>
                                 </tr>
                                 <tr class="border-top">
@@ -367,7 +367,6 @@
                             </table>
                         </div>
                     </div>
-
                 </div>
             </t>
         </t>

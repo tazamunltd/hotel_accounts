@@ -186,7 +186,7 @@ class RoomBooking(models.Model):
 
                 booking._get_or_create_master_folio(booking)
                 booking.create_booking_lines()
-                booking.state = "block"
+                booking.state = "check_in"
                 booking.action_checkin()
 
             return booking
@@ -454,6 +454,7 @@ class RoomBooking(models.Model):
             self._get_or_create_master_folio(booking)
         self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
+
         self.env['tz.checkout'].create_or_replace_view()
         self.env['tz.hotel.checkout'].sync_with_materialized_view()
         return self._notify_booking_confirmation(result)
@@ -490,6 +491,9 @@ class RoomBooking(models.Model):
         result = super(RoomBooking, self).action_block()
         self.env['tz.manual.posting.room'].create_or_replace_view()
         self.env['tz.manual.posting.type'].sync_with_materialized_view()
+
+        self.env['tz.checkout'].create_or_replace_view()
+        self.env['tz.hotel.checkout'].sync_with_materialized_view()
         return result
 
     def action_checkin(self):

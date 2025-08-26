@@ -207,7 +207,12 @@ class HotelCheckOut(models.Model):
     booking_id = fields.Many2one('room.booking', string='Booking Id')
     group_booking_id = fields.Many2one('group.booking', string='Group Booking')
     dummy_id = fields.Many2one('tz.dummy.group', string='Dummy')
-    folio_id = fields.Many2one('tz.master.folio', string="Master Folio")
+    folio_id = fields.Many2one(
+        'tz.master.folio',
+        string="Master Folio",
+        compute="_compute_folio_id",
+        store=True
+    )
     room_id = fields.Many2one('hotel.room', string='Room')
     partner_id = fields.Many2one('res.partner', string='Guest')
     checkin_date = fields.Datetime('Check-in Date')
@@ -264,8 +269,29 @@ class HotelCheckOut(models.Model):
     show_re_checkout = fields.Boolean(compute='_compute_button_visibility')
     show_other_buttons = fields.Boolean(compute='_compute_button_visibility')
 
-    # move_id = fields.Many2one('account.move', string='Invoice #')
     move_id = fields.Many2one('account.move', string='Invoice #', readonly=True)
+
+    @api.depends('booking_id', 'group_booking_id', 'dummy_id', 'room_id')
+    def _compute_folio_id(self):
+        for record in self:
+            record.folio_id = record.get_master_folio()
+
+    def get_master_folio(self):
+        """Custom logic to find the appropriate Master Folio"""
+        self.ensure_one()
+
+        domain = []
+        if self.group_booking_id:
+            domain = [('group_id', '=', self.group_booking_id.id)]
+        elif self.booking_id:
+            domain = [('booking_ids', 'in', [self.booking_id.id])]
+        elif self.dummy_id:
+            domain = [('dummy_id', '=', self.dummy_id.id)]
+        elif self.room_id:
+            domain = [('room_id', '=', self.room_id.id)]
+
+        folio = self.env['tz.master.folio'].search(domain, limit=1)
+        return folio.id if folio else False
 
     @api.onchange('is_cashier_checkout')
     def _onchange_is_cashier_checkout(self):
@@ -314,7 +340,6 @@ class HotelCheckOut(models.Model):
                 'room_id': view.room_id.id if view.room_id else False,
                 'group_booking_id': view.group_booking_id.id if view.group_booking_id else False,
                 'dummy_id': view.dummy_id.id if view.dummy_id else False,
-                'folio_id': view.folio_id.id, # if view.folio_id else False
                 'partner_id': view.partner_id.id if view.partner_id else False,
                 'checkin_date': view.checkin_date,
                 'checkout_date': view.checkout_date,
