@@ -12232,3 +12232,9 @@ msgstr "دائن"
 #: code:addons/hotel_configuration/models/front_desk.py:0
 msgid "You must add at least one meal in Meals List."
 msgstr "يجب إضافة وجبة واحدة على الأقل في قائمة الوجبات."
+
+#. module: hotel_configuration
+#: code:addons/hotel_configuration/models/models.py:0
+#, python-format
+msgid "The rate code has a discount and is already used in reservation number %s and you cannot modify it."
+msgstr "كود التعاقد به خصم ومستخدم بالفعل في الحجز رقم %s ولا يمكنك تعديله."

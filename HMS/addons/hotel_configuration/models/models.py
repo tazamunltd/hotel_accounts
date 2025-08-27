@@ -235,6 +235,50 @@ class RateDetail(models.Model):
             record.active = True
 
     def write(self, values):
+        pax_fields = [
+            'pax_1', 'pax_2', 'pax_3', 'pax_4', 'pax_5', 'pax_6',
+            'child_pax_1', 'infant_pax_1',
+            'monday_pax_1','monday_pax_2','monday_pax_3','monday_pax_4','monday_pax_5','monday_pax_6',
+            'tuesday_pax_1','tuesday_pax_2','tuesday_pax_3','tuesday_pax_4','tuesday_pax_5','tuesday_pax_6',
+            'wednesday_pax_1','wednesday_pax_2','wednesday_pax_3','wednesday_pax_4','wednesday_pax_5','wednesday_pax_6',
+            'thursday_pax_1','thursday_pax_2','thursday_pax_3','thursday_pax_4','thursday_pax_5','thursday_pax_6',
+            'friday_pax_1','friday_pax_2','friday_pax_3','friday_pax_4','friday_pax_5','friday_pax_6',
+            'saturday_pax_1','saturday_pax_2','saturday_pax_3','saturday_pax_4','saturday_pax_5','saturday_pax_6',
+            'sunday_pax_1','sunday_pax_2','sunday_pax_3','sunday_pax_4','sunday_pax_5','sunday_pax_6',
+            'monday_child_pax_1','tuesday_child_pax_1','wednesday_child_pax_1','thursday_child_pax_1',
+            'friday_child_pax_1','saturday_child_pax_1','sunday_child_pax_1',
+            'monday_infant_pax_1','tuesday_infant_pax_1','wednesday_infant_pax_1','thursday_infant_pax_1',
+            'friday_infant_pax_1','saturday_infant_pax_1','sunday_infant_pax_1',
+        ]
+
+        for rec in self:
+            # If any pax field is changing in this write
+            if any(field in values for field in pax_fields):
+                 # Condition 1: check discount
+                discount_flag = bool(rec.rate_detail_dicsount and rec.rate_detail_dicsount > 0)
+
+                # Condition 2: find bookings in block/check_in
+                conflict_bookings = False
+                if rec.rate_code_id:
+                    bookings = self.env['room.booking'].search([
+                        ('rate_code', '=', rec.rate_code_id.id),
+                        ('state', 'in', ['block', 'check_in']),
+                    ])
+                    # Filter: skip ones with use_price=True or meal_price=True
+                    bookings = bookings.filtered(lambda b: not (b.use_price or b.meal_price))
+
+                    if bookings:
+                        conflict_bookings = bookings
+
+                # Final validation → if BOTH conditions true
+                if discount_flag and conflict_bookings:
+                    # If any booking belongs to group_booking
+                    for booking in conflict_bookings:
+                        if booking.group_booking:
+                            raise ValidationError(_(
+                                "The rate code has a discount and is already used in reservation number %s and you cannot modify it."
+                            ) % (booking.name))
+                            
         super(RateDetail, self).write(values)
         bookings = self.env['room.booking'].search([
             ('rate_code', '<=', self.id),

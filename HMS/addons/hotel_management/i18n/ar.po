@@ -1451,7 +1451,7 @@ msgstr "الحجز"
 #: code:addons/hotel_management/static/src/js/offline_search_widget.js:0
 #, python-format
 msgid "Booking created successfully."
-msgstr "!تم إنشاء الحجز بنجاح"
+msgstr "تم إنشاء الحجز بنجاح"
 
 #. module: hotel_management
 #. odoo-javascript
@@ -10437,3 +10437,19 @@ msgstr "إنشاء حجوزات"
 #: model_terms:ir.ui.view,arch_db:hotel_management.view_room_assignment_wizard_form
 msgid "Room Type cannot be empty."
 msgstr "لا يمكن أن يكون نوع الغرفة فارغًا."
+
+#. module: hotel_management
+#: model_terms:ir.ui.view,arch_db:hotel_management.view_room_assignment_wizard_form
+#: code:addons/hotel_management/models/room_booking.py:0
+msgid "No room type found in booking or availability results."
+msgstr "لم يتم العثور على نوع غرفة في الحجز أو في نتائج التوافر."
+
+#. module: hotel_management
+#: code:addons/hotel_management/models/room_booking.py:0
+msgid "Floor To is required when Floor From is selected."
+msgstr "الطابق (إلى) مطلوب عند اختيار الطابق (من)."
+
+#. module: hotel_management
+#: code:addons/hotel_management/models/room_booking.py:0
+msgid "Floor From is required when Floor To is selected."
+msgstr "الطابق (من) مطلوب عند اختيار الطابق (إلى)."

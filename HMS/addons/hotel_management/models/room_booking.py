@@ -34,6 +34,21 @@ class RoomBooking(models.Model):
     checkin_date_only = fields.Date(compute="_compute_date_only", store=False)
     checkout_date_only = fields.Date(compute="_compute_date_only", store=False)
 
+    def action_unblock_booking(self):
+        # Check all are in block state
+        if any(rec.state != 'block' for rec in self):
+            raise UserError(_("All selected bookings must be in 'block' state to unblock."))
+
+        # Collect block_line from all records
+        block_line = self.mapped("room_line_ids")
+
+        # Call wizard only once (avoid self.ensure_one())
+        return self[:1]._open_confirm_wizard(   # use only first record to avoid ensure_one issue
+            _("Confirm Unblock"),
+            _("Room number will be released. Do you want to proceed?"),
+            block_line_ids=block_line.ids
+        )
+
     def action_room_assignment_wizard(self):
         """Button on booking to open wizard with computed floors"""
         # self.ensure_one()
@@ -3357,6 +3372,8 @@ class RoomBooking(models.Model):
                         change = False
                     if forecast_date == _date and from_rate_code:
                         change = True
+                    if forecast_date < _date and from_rate_code:
+                        change = False
 
                 if change:
                     meal_price, room_price, package_price, _1, _2 = self.get_all_prices(forecast_date, record)
@@ -3477,6 +3494,8 @@ class RoomBooking(models.Model):
                         _logger.debug(f"line 3212 {before_discount}, {get_discount},{room_price_after_discount},{meal_price_after_discount}")
                     # OPTIMIZATION: Use the pre-fetched existing forecast map
                     existing_forecast = existing_forecast_map.get(forecast_date)
+
+                    # if (record.state == 'check_in' and forecast_date >= _system_date) or record.state != 'check_in':
                     
                     if existing_forecast:
                         existing_forecast.write({
@@ -4855,7 +4874,7 @@ class RoomBooking(models.Model):
             if record.state in ['block', 'confirmed', 'waiting', 'cancel']:
                 record.state = 'not_confirmed'
 
-    def _open_confirm_wizard(self, title, message, block_line=False):
+    def _open_confirm_wizard(self, title, message, block_line_ids=None):
         self.ensure_one()
         return {
             'name': "",
@@ -4865,7 +4884,8 @@ class RoomBooking(models.Model):
             'target': 'new',
             'context': {
                 'default_message': message,
-                'default_line_id': block_line.id if block_line else False,
+                # 'default_line_id': block_line.id if block_line else False,
+                'default_block_line_ids': [(6, 0, block_line_ids or [])],
                 'default_booking_id': self.id,
             },
         }
@@ -4910,7 +4930,8 @@ class RoomBooking(models.Model):
                 return record._open_confirm_wizard(
                     _("Confirm Booking"),
                     _("Room number will be released. Do you want to proceed?"),
-                    block_line=block_line
+                    # block_line=block_line
+                    block_line_ids=block_line.ids
                     
                 )
             # 5) If we reached here, there is NO line in block state => we can confirm now
@@ -11035,11 +11056,21 @@ class RoomBookingUpdateWizard(models.TransientModel):
                 _logger.debug("IDS: %s ", ids)
                 _logger.debug("GROUP: %s ", group)
 
-                # delete old forecasts
-                self.env.cr.execute(
-                    "DELETE FROM room_rate_forecast WHERE room_booking_id = ANY(%s)",
-                    (ids,)
-                )
+                # Only delete forecasts from system_date onwards when updating rate codes
+                # This preserves historical data for past dates
+                system_date = self.env.company.system_date
+                if self.rate_code and not dates_changed:
+                    # Rate code update only - preserve past forecasts
+                    self.env.cr.execute(
+                        "DELETE FROM room_rate_forecast WHERE room_booking_id = ANY(%s) AND date >= %s",
+                        (ids, system_date)
+                    )
+                else:
+                    # Date changes - delete all forecasts and regenerate
+                    self.env.cr.execute(
+                        "DELETE FROM room_rate_forecast WHERE room_booking_id = ANY(%s)",
+                        (ids,)
+                    )
 
                 # regen on first booking
                 first._get_forecast_rates(from_rate_code=True)
@@ -11241,17 +11272,75 @@ class AccountMoveInherit(models.Model):
     )
 
 
+# class ConfirmBookingWizard(models.TransientModel):
+#     _name = "confirm.booking.wizard"
+#     _description = "Confirm Booking Wizard"
+
+#     message = fields.Char(
+#         string="Message",
+#         translate=True,                                  # ← important
+#         default=lambda self: _(
+#             "Room number will be released. Do you want to proceed?")
+#     )
+#     title   = fields.Char(string="Title", translate=True, default=lambda self: _("Confirm Booking"))
+
+#     @api.model
+#     def default_get(self, fields):
+#         res = super().default_get(fields)
+#         res['message'] = _("Room number will be released. Do you want to proceed?")
+#         res['title'] = _("Confirm Booking")
+#         return res
+
+
+#     line_id = fields.Many2one(
+#         'room.booking.line', string="Room Line", readonly=True)
+#     booking_id = fields.Many2one(
+#         'room.booking', string="Booking", readonly=True)
+    
+
+#     def action_confirm(self):
+#         """YES button: if the line is in 'block' state,
+#            set room_id to False and change state to 'confirmed'."""
+#         if self.line_id and self.line_id.state_ == 'block':
+#             self.line_id.room_id = False
+#             self.line_id.state_ = 'confirmed'
+        
+#         if self.booking_id and self.booking_id.state == 'block':
+#             self.booking_id.state = 'confirmed'
+#             # Also clear room_id for all related room lines
+#             for line in self.booking_id.room_line_ids:
+#                 line.room_id = False
+#                 line.state_ = 'confirmed'
+                
+#         return {'type': 'ir.actions.act_window_close'}
+
+#     def action_block(self):
+#         # self.line_id.state_ = 'block'
+#         # self.booking_id.state = 'block'
+#         return {'type': 'ir.actions.act_window_close'}
+
+
 class ConfirmBookingWizard(models.TransientModel):
     _name = "confirm.booking.wizard"
     _description = "Confirm Booking Wizard"
 
     message = fields.Char(
         string="Message",
-        translate=True,                                  # ← important
-        default=lambda self: _(
-            "Room number will be released. Do you want to proceed?")
+        translate=True,
+        default=lambda self: _("Room number will be released. Do you want to proceed?")
     )
-    title   = fields.Char(string="Title", translate=True, default=lambda self: _("Confirm Booking"))
+    title = fields.Char(
+        string="Title",
+        translate=True,
+        default=lambda self: _("Confirm Booking")
+    )
+
+    booking_id = fields.Many2one(
+        'room.booking', string="Booking", readonly=True
+    )
+    block_line_ids = fields.Many2many(
+        'room.booking.line', string="Blocked Lines", readonly=True
+    )
 
     @api.model
     def default_get(self, fields):
@@ -11260,34 +11349,27 @@ class ConfirmBookingWizard(models.TransientModel):
         res['title'] = _("Confirm Booking")
         return res
 
-
-    line_id = fields.Many2one(
-        'room.booking.line', string="Room Line", readonly=True)
-    booking_id = fields.Many2one(
-        'room.booking', string="Booking", readonly=True)
-    
-
     def action_confirm(self):
-        """YES button: if the line is in 'block' state,
-           set room_id to False and change state to 'confirmed'."""
-        if self.line_id and self.line_id.state_ == 'block':
-            self.line_id.room_id = False
-            self.line_id.state_ = 'confirmed'
-        
+        """YES button: if bookings/lines are in 'block' state,
+           release them and set to 'confirmed'."""
+        # Handle multiple lines
+        for line in self.block_line_ids:
+            if line.state_ == 'block':
+                line.room_id = False
+                line.state_ = 'confirmed'
+
+        # Handle booking
         if self.booking_id and self.booking_id.state == 'block':
             self.booking_id.state = 'confirmed'
-            # Also clear room_id for all related room lines
             for line in self.booking_id.room_line_ids:
                 line.room_id = False
                 line.state_ = 'confirmed'
-                
+
         return {'type': 'ir.actions.act_window_close'}
 
     def action_block(self):
-        # self.line_id.state_ = 'block'
-        # self.booking_id.state = 'block'
+        # Optional: revert to block if needed
         return {'type': 'ir.actions.act_window_close'}
-
 
 class RoomCountConfirmWizard(models.TransientModel):
     _name = "room.count.confirm.wizard"
@@ -11333,13 +11415,11 @@ class RoomAssignmentWizard(models.TransientModel):
     floor_from = fields.Many2one(
         'fsm.location',
         string=_("From Floor"),
-        required=True,
         domain="['|', ('dynamic_selection_id.name', '=', 'Floor'), ('dynamic_selection_id.name', '=', 'طابق'), ('fsm_parent_id', 'in', building_ids)]")
 
     floor_to = fields.Many2one(
         'fsm.location',
         string=_("To Floor"),
-        required=True,
         domain="['|', ('dynamic_selection_id.name', '=', 'Floor'), ('dynamic_selection_id.name', '=', 'طابق'), ('fsm_parent_id', 'in', building_ids)]")
 
 
@@ -11517,12 +11597,21 @@ class RoomAssignmentWizard(models.TransientModel):
 
     def action_auto_room(self):
         for wizard in self:
+            # Validation: If floor_from is selected, floor_to must also be selected
+            if wizard.floor_from and not wizard.floor_to:
+                raise ValidationError(_("Floor To is required when Floor From is selected."))
+            
+            # Validation: If floor_to is selected, floor_from must also be selected
+            if wizard.floor_to and not wizard.floor_from:
+                raise ValidationError(_("Floor From is required when Floor To is selected."))
+
             # Step 1: Access the availability results from the related room.booking record
             availability_results = wizard.booking_id.availability_results
             print(f"AVAILABLE RESULTS: {availability_results}")
 
             # Step 2: Initialize total available rooms counter
             total_available_rooms = 0
+            all_available_rooms = self.env['hotel.room']
             
             # Step 2.1: Handle case when availability_results is empty
             if not availability_results:
@@ -11537,13 +11626,25 @@ class RoomAssignmentWizard(models.TransientModel):
                 # Use availability results room types
                 room_types_to_process = [result.room_type for result in availability_results]
 
-            # Step 3: Loop through each room type
+            # Step 3: Determine floors to search
+            if wizard.floor_from and wizard.floor_to:
+                # Use specific floor range
+                floor_ids_to_search = list(range(wizard.floor_from.id, wizard.floor_to.id + 1))
+            else:
+                # Use all floors in selected buildings
+                all_floors = self.env['fsm.location'].search([
+                    '|', ('dynamic_selection_id.name', '=', 'Floor'), ('dynamic_selection_id.name', '=', 'طابق'),
+                    ('fsm_parent_id', 'in', wizard.building_ids.ids)
+                ])
+                floor_ids_to_search = all_floors.ids
+
+            # Step 4: Loop through each room type
             for room_type_record in room_types_to_process:
                 print(f"ROOM TYPE:{room_type_record}")
-                available_rooms_per_floor = 0  # Initialize count for available rooms for this room type
-                print(f"AVAILABLE ROOMS PER FLOOR:{available_rooms_per_floor}")
-                # Step 4: Loop through selected floors and check availability for this room type
-                for floor_id in range(wizard.floor_from.id, wizard.floor_to.id + 1):
+                available_rooms_per_type = 0  # Initialize count for available rooms for this room type
+                
+                # Step 5: Loop through floors and check availability for this room type
+                for floor_id in floor_ids_to_search:
                     floor_locs = self.env['fsm.location'].search([
                         '|',
                         ('dynamic_selection_id.name', '=', 'Floor'),
@@ -11570,7 +11671,7 @@ class RoomAssignmentWizard(models.TransientModel):
                         ]).mapped("room_id")
                         _logger.info(f"BOOKED ROOMS:{booked_rooms}")
 
-                        # Step 5: Find available rooms of the current room type and location (on the floor)
+                        # Step 6: Find available rooms of the current room type and location (on the floor)
                         available_rooms = self.env['hotel.room'].search([
                             ('fsm_location', 'in', valid_floor_ids),
                             ('room_type_name', '=', room_type_record.id),
@@ -11583,27 +11684,22 @@ class RoomAssignmentWizard(models.TransientModel):
                         _logger.info(f"Available rooms for room type {room_type_record.room_type} on Floor {floor_name}: {available_count}")
 
                         # Add available rooms for this floor to the total count
-                        available_rooms_per_floor += available_count
+                        available_rooms_per_type += available_count
+                        all_available_rooms |= available_rooms
 
                 # Add available rooms for this room type to the total count
-                total_available_rooms += available_rooms_per_floor
-                _logger.info(f"Total available rooms for room type {room_type_record.room_type}: {available_rooms_per_floor}")
+                total_available_rooms += available_rooms_per_type
+                _logger.info(f"Total available rooms for room type {room_type_record.room_type}: {available_rooms_per_type}")
 
-            # Step 6: Validate if the total available rooms are greater than or equal to the requested room count
+            # Step 7: Validate if the total available rooms are greater than or equal to the requested room count
             if wizard.booking_id.room_count > total_available_rooms:
                 raise ValidationError(
-                    # _(f"Only {total_available_rooms} rooms are available for the selected floor(s) and room types, but you requested {wizard.booking_id.room_count}.")
                     _("Only %s rooms are available for the selected floor(s) and room type, but you requested %s.") % (
-                                       total_available_rooms, {wizard.booking_id.room_count})
+                        total_available_rooms, wizard.booking_id.room_count)
                 )
 
-            # Step 7: If validation passes, assign the rooms (you can add your assignment logic here)
-            wizard.booking_id.action_assign_all_rooms(available_rooms=available_rooms)
-
-    # def action_auto_room(self):
-    #     for wizard in self:
-    #         # ✅ Validation using Many2one
-    #         # if wizard.floor_from.id > wizard.floor_to.id:
+            # Step 8: If validation passes, assign the rooms
+            wizard.booking_id.action_assign_all_rooms(available_rooms=all_available_rooms)
     #         #     raise ValidationError(_("'To Floor' cannot be smaller than 'From Floor'."))
 
     #         floor_locs = self.env['fsm.location'].search([

@@ -904,7 +904,7 @@ export class OfflineSearchWidget extends Component {
                 // If nights is zero or negative, fallback to same day
                 this.state.checkOutDate = this.state.checkInDate;
             } else {
-                checkOut.setDate(checkOut.getDate() + nights);
+                checkOut.setDate(checkOut.getDate() + nights -1);  // added this to get the free sell proper
                 this.state.checkOutDate = checkOut.toISOString().split('T')[0];
             }
             console.log("CHECKOUT DATE", this.state.checkOutDate);
@@ -1582,7 +1582,7 @@ export class OfflineSearchWidget extends Component {
 
             // Update state with results (even if empty)
             this.state.searchResults = results;
-            console.log("results",results);
+            // console.log("results",results);
             this.state.searchPerformed = true;
 
             // Show appropriate notification
@@ -1708,7 +1708,7 @@ export class OfflineSearchWidget extends Component {
             };
             await this.env.services.action.doAction(action);
 
-            this.notification.add('Booking created successfully.', {
+            this.notification.add(_t('Booking created successfully.'), {
                 type: 'success'
             });
 

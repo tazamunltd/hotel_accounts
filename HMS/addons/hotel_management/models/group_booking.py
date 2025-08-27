@@ -388,16 +388,17 @@ class GroupBooking(models.Model):
         tracking=True
     )
 
-    @api.depends('room_booking_ids.total_total_forecast', 'room_booking_ids.active')
+    @api.depends('room_booking_ids.total_total_forecast', 'room_booking_ids.active', 'room_booking_ids.state')
     def _compute_total_revenue(self):
         for record in self:
             # Filter only active bookings
-            active_bookings = record.room_booking_ids.filtered(
-                lambda b: b.active)
-
-            # Total revenue is the sum of forecasts from only active bookings
-            record.total_revenue = sum(
-                active_bookings.mapped('total_total_forecast') or [0])
+            active_bookings = record.room_booking_ids.filtered(lambda b: b.active)
+            confirmed_bookings = active_bookings.filtered(lambda b: b.state in ('confirmed', 'not_confirmed'))
+            if confirmed_bookings:
+                record.total_revenue = sum(confirmed_bookings.mapped('total_total_forecast') or [0])
+            else:
+                record.total_revenue = sum(
+                    (active_bookings.mapped('total_total_forecast') or [0])) * record.total_room_count
 
     
     @api.model

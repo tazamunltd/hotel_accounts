@@ -124,6 +124,7 @@
             </calendar>
         </field>
     </record>
+
     <record id="view_product_pricelist_custom" model="ir.ui.view">
         <field name="name">product.pricelist.form.inherit.rate.code</field>
         <field name="model">product.pricelist</field>
@@ -143,8 +144,6 @@
                             <field name="code" />
                             <field name="description" />
                             <field name="abbreviation" />
-                            <!-- <field name="arabic_desc" /> -->
-                            <!-- <field name="arabic_abbr" /> -->
                             <field name="rate_code_category_id" />
                         </tree>
                     </field>
@@ -204,16 +203,6 @@
             <form>
 
                 <header>
-                    <!-- <button name="action_back" string="Back" class="btn-secondary"
-                    invisible="state in ('not_confirmed', 'done', 'invoice')" type="object"
-                    confirm="Are you sure you want to go back to the previous status?"/> -->
-
-                    <!-- Confirm Button: Visible when state is 'Not Confirmed', 'Block', 'No Show',
-                    or 'Waiting' -->
-                    <!-- <button name="action_confirm" string="Confirm" class="btn-primary"
-                        invisible="state not in ('not_confirmed', 'no_show', 'waiting','block') or is_checkin_in_past or hide_confirm_button or hide_buttons_front_desk"
-                        type="object" /> -->
-                    
                     <button name="action_confirm" string="UnBlock" class="btn-primary" type="object" invisible="state != 'block'
                             or is_checkin_in_past
                             or hide_confirm_button
@@ -256,55 +245,28 @@
                         invisible="state not in ('confirmed', 'cancel', 'waiting') or is_checkin_in_past or hide_unconfirm_button"
                         type="object" confirm="Are you sure you want to not confirm this booking?" />
 
-                    <!-- Check-In Button: Visible when state is 'Block' or 'Check-Out' -->
-                    <!-- <button name="action_checkin" string="Check-In" class="btn-primary"
-                        invisible="state not in ('block', 'check_out') or is_checkin_in_past or hide_confirm_button or hide_admin_buttons or is_checkout_in_past"
-                        type="object" confirm="Are you sure you want to check-in this booking?" /> -->
-
-                    <!-- UnCheck-Out button: only visible if state is 'check_out' -->
+                    
                     <button name="action_checkin" string="UnCheck-Out" class="btn-primary" invisible="state != 'check_out'" type="object" confirm="Are you sure you want to un-check-out this booking?"/>
 
                     <!-- Original Check-In button: only visible if state == 'block' -->
                     <button name="action_checkin" string="Check-In" class="btn-primary" invisible="state != 'block' or hide_confirm_button or hide_admin_buttons" type="object" confirm="Are you sure you want to check-in this booking?"/>
 
 
-                    <!-- Check-Out Button: Visible only when state is 'Check-In' -->
                     <button name="action_checkout" string="Check-Out" class="btn-primary"
                         invisible="state != 'check_in' or is_checkin_in_past or hide_confirm_button or hide_admin_buttons"
                         type="object" confirm="Are you sure you want to check-out this booking?" />
 
-                    <!-- Set as Done Button: Visible only when state is 'Check-Out' -->
-                    <!-- <button name="action_done" string="Done" class="btn-primary"
-                    invisible="state != 'check_out' or invoice_button_visible == True" type="object"
-                    confirm="Are you sure you want to done this booking?"/> -->
-
-                    <!-- Create Invoice Button: Visible when state is 'Draft' or 'Done' -->
-                    <!-- <button name="action_invoice" string="Create Invoice" class="btn-primary"
-                    invisible="state not in ('draft', 'done') or invoice_button_visible == True"
-                    type="object" confirm="Are you sure you want to create invoice this booking?"/> -->
-
-                    <!-- No Show Button: Visible when state is 'Block' or 'Check-In' -->
                     <button name="no_show" string="No Show" class="btn-danger"
                         invisible="state not in ('block') or hide_confirm_button or hide_admin_buttons"
                         type="object" confirm="Are you sure you want to no show this booking?" />
 
-                    <!-- Statusbar Fields -->
                     <field name="state" widget="statusbar"
                         statusbar_visible="not_confirmed,confirmed,waiting,no_show,block,check_in,check_out,done,cancel" />
 
                     <field name="invoice_status" widget="statusbar" invisible="1" />
                 </header>
-                <!-- <header>
-                    <field name="reservation_status_count_as" widget="statusbar"
-                statusbar_visible="not_confirmed,confirmed,wait_list,release,cancelled"/>
-                </header> -->
                 <sheet class="custom-form-sheet">
                     <notebook>
-<!--                        <page string="Offline Search"-->
-<!--                            invisible="state in ('confirmed', 'block', 'no_show', 'check_in', 'check_out')">-->
-<!--                            <widget name="offline_search_widget" options="{}" />-->
-<!--                        </page>-->
-
                         <page string="Main" 
                         readonly="state in ('check_out', 'no_show')">
                         <div invisible="is_offline_search == False">
@@ -493,7 +455,6 @@
                                                         force_save="1"
                                                         class="form-control form-control-sm"
                                                         placeholder="Select Room" />
-                                                    <!-- <field name="_need_search_rooms" invisible="1"/> -->
 
                                                 </div>
                                                 <div class="form-group col-6 mb-1">
@@ -581,10 +542,6 @@
                                                         invisible="state in ('not_confirmed', 'block', 'check_in','check_out','no_show','cancel')"
                                                         type="object" string="Auto Room Assignment"
                                                         class="btn btn-success btn-sm mb-1"/>
-                                                    <!-- <button name="action_assign_all_rooms"
-                                                        invisible="state in ('block', 'check_in','check_out','no_show','cancel')"
-                                                        type="object" string="Auto Room Assignment"
-                                                        class="btn btn-success btn-sm mb-1" /> -->
                                                 </div>
                                             </div>
                                             <div class="form-group col-12 mb-1 mt-2">
@@ -609,11 +566,7 @@
 
                             </div>
 
-                            <!-- 2) Discounts Section: Meals Discount Details & Additional Details &
-                            Payment Details -->
                             <div class="row g-2" invisible="is_offline_search == True">
-
-                                <!-- Room Discount Details -->
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
@@ -692,7 +645,6 @@
                                                         class="form-label small">Is Percentage?</label>
                                                 </div>
 
-                                                <!-- Amount Selection -->
                                                 <div class="form-group col-6 mb-1"
                                                     invisible="use_price == False or room_is_amount == False">
                                                     <label for="room_amount_selection"
@@ -710,7 +662,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Meals Discount Details -->
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
@@ -791,7 +742,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Payment Details -->
                                 <div class="col-lg-2 col-md-4 col-sm-12">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
@@ -810,7 +760,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Additional Details -->
                                 <div class="col-lg-2 col-md-4 col-sm-12">
                                     <div class="card mb-2 shadow-sm">
                                         <div class="card-header py-1 px-2">
@@ -883,7 +832,6 @@
                                     <field name="room_id" readonly="1" options="{'no_open': True}" />
                                     <field name="first_name" />
                                     <field name="last_name" />
-                                    <!-- <field name="profile" /> -->
                                     <field name="nationality" />
                                     <field name="birth_date" />
                                     <field name="passport_number" />
@@ -929,7 +877,6 @@
                                     <field name="room_id" readonly="1" options="{'no_open': True}" />
                                     <field name="first_name" />
                                     <field name="last_name" />
-                                    <!-- <field name="profile" /> -->
                                     <field name="nationality" />
                                     <field name="birth_date" />
                                     <field name="passport_number" />
@@ -946,10 +893,7 @@
                             readonly="state in ('check_out', 'no_show','cancel')">
                                 <tree editable="bottom">
                                     <field name="posting_item_id" string="Posting Item" />
-                                    <!-- <field name="item_code"/> -->
-
                                     <field name="description" />
-                                    <!-- <field name="posting_item_combined"/> -->
                                     <field name="posting_item_selection" required="1" />
                                     <field name="from_date"
                                         readonly="posting_item_selection != 'custom_date'" />
@@ -979,7 +923,6 @@
                                     <field name="pax" optional='hide' />
                                     <field name="rooms_reserved" optional='show' />
                                     <field name="available_rooms" optional='show' />
-                                    <!-- Adding a button in each line -->
                                     <button name="action_split_selected" type="object"
                                         string="Split Rooms" icon="fa-exchange" />
                                     <button name="action_delete_selected" type="object"
@@ -1024,8 +967,6 @@
                                 </tree>
                             </field>
                             <group colspan="2" class="oe_subtotal_footer oe_right">
-                                <!-- <field name="amount_untaxed_room" sum="Untaxed amount for Room"
-                                    widget="monetary" /> -->
                                 <field name="amount_untaxed_food" sum="Untaxed amount for Food"
                                     widget="monetary" invisible="need_food == False" />
                                 <field name="amount_untaxed_service"
@@ -1035,11 +976,6 @@
                                     widget="monetary" invisible="need_fleet == False" />
                                 <field name="amount_untaxed_event" sum="Untaxed amount for Event"
                                     widget="monetary" invisible="need_event == False" />
-                                <!-- <field name="amount_untaxed" sum="Untaxed amount" widget="monetary" /> -->
-                                <!-- <field name="amount_tax" widget="monetary" /> -->
-                                <!-- <label for="amount_total" /> -->
-                                <!-- <field name="amount_total" nolabel="1" sum="Total amount"
-                                    widget="monetary" /> -->
                             </group>
                             <div class="oe_clear" />
                         </page>
@@ -1169,8 +1105,6 @@
         <field name="arch" type="xml">
             <form string="Update Check-In and Check-Out Dates">
                 <group>
-                    <!-- <field name="checkin_date"/>
-                    <field name="checkout_date"/> -->
                     <field name="readonly_meal_pattern" invisible="1" />
                     <field name="readonly_rate_code" invisible="1" />
                     <field name="readonly_nationality" invisible="1" />
@@ -1179,8 +1113,6 @@
                     <field name="readonly_source_of_business" invisible="1" />
                     <field name="readonly_room_type" invisible="1" />
                     <field name="readonly_market_segment" invisible="1" />
-                    <!-- <field name="readonly_source_of_business" invisible="1"/> -->
-                    <!-- <field name="readonly_market_segment" invisible="1"/> -->
                     <field name="checkin_date" readonly="readonly_checkin_date == True" />
                     <field name="checkout_date" readonly="readonly_checkout_date == True" />
                     <field name="meal_pattern" readonly="readonly_meal_pattern == True" />
@@ -1191,10 +1123,6 @@
                     <field name="rate_code" readonly="readonly_rate_code == True" />
                     <field name="nationality" readonly="readonly_nationality == True" />
                     <field name="company_id" />
-
-                    <!-- <field name="source_of_business" readonly="readonly_source_of_business ==
-                    True"/> -->
-                    <!-- <field name="market_segment" readonly="readonly_market_segment == True"/> -->
                 </group>
                 <footer>
                     <button name="action_update_selected_bookings" string="Update Data"
@@ -1215,35 +1143,6 @@
         <field name="binding_model_id" ref="hotel_management.model_room_booking" />
         <field name="binding_type">action</field>        <!-- Makes it appear in Actions menu -->
     </record>
-
-    <!-- <record id="action_report_consolidated_rc_group" model="ir.actions.server">
-        <field name="name">Generate Group RC Report</field>
-        <field name="model_id" ref="model_room_booking" />
-        <field name="state">code</field>
-        <field name="code">
-            action = {
-            'type': 'ir.actions.act_url',
-            'url': '/generate_rc/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)),
-            'target': 'self',
-            }
-        </field>
-        <field name="binding_model_id" ref="model_room_booking" />
-        <field name="binding_type">action</field>
-    </record> -->
-    <!-- <record id="action_report_consolidated_rc_guest_group" model="ir.actions.server">
-        <field name="name">Generate Group RC Guest Report</field>
-        <field name="model_id" ref="model_room_booking" />
-        <field name="state">code</field>
-        <field name="code">
-            action = {
-            'type': 'ir.actions.act_url',
-            'url': '/generate_rc_guest/bookings_pdf?booking_ids=' + ','.join(map(str, records.ids)) + '&amp;company_id=' + str(env.company.id),
-            'target': 'self',
-            }
-        </field>
-        <field name="binding_model_id" ref="model_room_booking" />
-        <field name="binding_type">action</field>
-    </record> -->
 
     <record id="action_report_rc_guest_group_main" model="ir.actions.server">
         <field name="name">Generate Group RC Guest Report Main</field>
@@ -1281,6 +1180,9 @@
                         confirm="Are you sure you want to confirm this booking?" />
                     <button name="action_cancel_booking" string="Cancel" type="object"
                         class="btn-danger" />
+                    <button name="action_unblock_booking" string="Unblock" type="object"
+                                class="btn-primary"
+                                confirm="Are you sure you want to unblock selected bookings?" />
                     <button name="action_checkin_booking" string="Check-in" type="object"
                         groups="!hotel_management.crs_user_group,!hotel_management.crs_admin_group" 
                         class="btn-primary" />
@@ -1291,12 +1193,6 @@
                     <button name="action_no_show_tree" string="No Show" class="btn-danger"
                         type="object" />
                     <button name="action_open_room_booking_update_wizard" string="Edit Data" type="object" class="oe_highlight" />
-
-                    <!-- <button name="%(action_open_room_booking_update_wizard)d" 
-                            string="Edit Data"
-                            type="action"   
-                            class="oe_highlight"
-                            /> -->
                 </header>  
                 <field name="name" optional="show" />
                 <field name="room_ids_display" string="Room Name" optional="show" />
@@ -1306,36 +1202,17 @@
                 <field name="reference_contact_" optional="show" />
                 <field name="parent_booking_name" optional="show" />
                 <field name="group_booking" optional="show" />
-<!--                <field name="checkin_date" widget="date" optional="show" />-->
-<!--                <field name="checkout_date" optional="show" widget="date" />-->
                 <field name="checkin_date_only" string="Check In Date" optional="show"/>
                 <field name="checkout_date_only" string="Check Out Date" optional="show"/>
                 <field name="house_use" optional="show" />
                 <field name="date_order" widget="date" force_save="1" optional="show" />
                 <field name="state" optional="show" />
                 <field name="reservation_status_count_as" optional="show" />
-
-                <!-- <field name="child_bookings" invisible="1"/> -->
             </tree>
         </field>
     </record>
 
-    <!-- <record id="view_partner_form_inherit_vip" model="ir.ui.view">
-        <field name="name">res.partner.form.inherit.vip</field>
-        <field name="model">res.partner</field>
-        <field name="inherit_id" ref="base.view_partner_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='vat']" position="after">
-                <field name="is_vip" string="VIP"/>
-                <field name="rate_code" string="Rate Code"/>
-                <field name="source_of_business" string="Source of Business"/>
-                <field name="nationality" string="Nationality"/>
-                <field name="market_segments"/>
-                <field name="meal_pattern"/>
-                <field name="max_pax"/>
-            </xpath>
-        </field>
-    </record> -->
+    
 
     <record id="view_partner_form_inherit_vip" model="ir.ui.view">
         <field name="name">res.partner.form.inherit.vip</field>
@@ -1357,15 +1234,12 @@
 
 
             </xpath>
-            <!-- Locate the vat (Tax ID) field and add is_vip after it -->
             <xpath expr="//field[@name='vat']" position="after">
                 <field name="is_vip" string="VIP" />
                 <field name="vip_code" invisible="not is_vip" required="is_vip == True" />
-                <!-- <field name="rate_code" string="Rate Code" /> -->
                 <field name="source_of_business" string="Source of Business" />
                 <field name="nationality" string="Nationality" />
                 <field name="market_segments" />
-                <!-- <field name="meal_pattern" /> -->
                 <field name="max_pax" />
             </xpath>
             <xpath expr="//notebook" position="inside">
@@ -1375,8 +1249,6 @@
                         <tree editable="bottom">
                             <field name="partner_company_id" readonly="1"/>
                             <field name="rate_code"/>
-                                <!-- <field name="rate_code" domain="[('company_id', '=', partner_company_id)]"/> -->
-                                <!-- <field name="meal_pattern" domain="[('company_id', '=', partner_company_id)]"/> -->
                             <field name="meal_pattern"/>
                         </tree>
                     </field>
@@ -1385,19 +1257,12 @@
         </xpath>
         </field>
     </record>
-    <!-- <record id="partner_details_company_rule" model="ir.rule">
-        <field name="name">Partner Details: Restrict to Current Company</field>
-        <field name="model_id" ref="model_partner_details"/>
-        <field name="domain_force">[('company_id', '=', company_id)]</field>
-        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
-    </record> -->
 
     <record id="view_move_form_posting_item" model="ir.ui.view">
         <field name="name">account.move.form.posting.item</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form" />
         <field name="arch" type="xml">
-            <!-- Locate the Invoice Lines tab and modify the tree view -->
             <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='product_id']"
                 position="replace">
                 <field name="posting_item_id" string="Posting Item" optional="show" domain="[]"
@@ -1410,12 +1275,10 @@
             <xpath expr="//field[@name='price_unit']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>
-            <!-- Make the Subtotal field optional -->
             <xpath expr="//field[@name='price_subtotal']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>
             <xpath expr="//field[@name='hotel_booking_id']" position="after">
-                <!-- <field name="hotel_booking_id" /> -->
                 <field name="group_booking_name" readonly="1" />
                 <field name="parent_booking_name" readonly="1" />
                 <field name="room_numbers" readonly="1" />
@@ -1458,7 +1321,6 @@
 
             <xpath expr="//page[@name='branches']" position="after">
                 <page string="Terms and Conditions">
-
                     <group colspan="2" string="RC Report">
                         <group>
                             <field name="term_and_condition_rc_en" />
@@ -1481,10 +1343,8 @@
 
             <xpath expr="//page[@name='branches']" position="after">
                 <page string="Email Configuration">
-
                     <group colspan="2">
                         <group>
-                            <!-- <field name="cron_name" string="Email Name"/> -->
                             <field name="model_id" string="Model" />
                         </group>
                         <group>
@@ -1495,10 +1355,7 @@
                                 invisible="enable_reminder == False" />
                             <field name="pre_arrival_days_before"
                                 invisible="enable_reminder == False" />
-                            <!-- <field name="pre_template_id" widget="selection" />
-                            <field name="pre_arrival_days_before" /> -->
                         </group>
-
                     </group>
                 </page>
             </xpath>
@@ -1512,7 +1369,6 @@
                             <field name="room_type" readonly="1" />
                             <field name="pax" readonly="1" />
                             <field name="total_room_count" readonly="1" />
-                            <!-- <field name="age_threshold"/> -->
                             <field name="web_allowed_reservations" />
                             <field name="overbooking_allowed" />
                             <field name="overbooking_rooms" />
@@ -1528,7 +1384,6 @@
                         <field name="web_star_rating" string="Star rating" />
                         <field name="web_kaaba_view" string="Kaaba view" />
                         <field name="web_hotel_location" string="Hotel location" />
-                        <!-- <field name="web_discount" string="Discount"/> -->
                         <field name="web_review" string="Review" />
                         <field name="web_description" string="Description" />
                         <field name="rate_code" string="Rate Codes" />
@@ -1537,16 +1392,15 @@
                     </group>
                 </page>
             </xpath>
-
         </field>
     </record>
+
     <record id="view_hotel_inventory_form" model="ir.ui.view">
         <field name="name">hotel.inventory.form</field>
         <field name="model">hotel.inventory</field>
         <field name="arch" type="xml">
             <form string="Inventory Details">
                 <group>
-
                     <field name="image"/>
                     <field name="room_type"/>
                     <field name="pax" />
@@ -1555,8 +1409,6 @@
                     <field name="total_room_count"/> <!-- Conditional -->
                     <field name="age_threshold" string="Number of children "/> <!-- Conditional -->
                     <field name="overbooking_allowed"/> <!-- Conditional -->
-
-                    <!-- <field name="image" widget="image" class="oe_avatar"/> -->
                 </group>
             </form>
         </field>
@@ -1574,7 +1426,6 @@
                 <footer>
                     <button string="Send to Waiting List" type="object"
                         name="action_send_to_waiting" class="btn-primary" />
-                    <!-- <button string="Cancel" class="btn-secondary" special="cancel" /> -->
                      <button string="Cancel" type="object"
                         name="action_restore_room_count" class="btn-secondary" />
                 </footer>
@@ -1688,8 +1539,6 @@
                     <field name="building_ids" widget="many2many_tags" />
                     <field name="floor_from" readonly="building_ids == False" />
                     <field name="floor_to" readonly="building_ids == False" />
-                    <!-- <field name="min_floor" invisible="1"/> -->
-                    <!-- <field name="max_floor" invisible="1"/> -->
                 </group>
                 <footer>
                     <button string="Confirm" type="object" name="action_auto_room" class="btn-primary"/>
@@ -1746,17 +1595,6 @@
 
     <menuitem id="individual_reservation_menu" name="Reservation" sequence="10"
         parent="room_booking_menu" action="room_booking_action" />
-
-    <!--    <menuitem id="group_reservation_menu" name="Group Reservation" sequence="20"-->
-    <!-- parent="room_booking_menu"-->
-    <!-- action="group_booking_action"/>-->
-
-    <!-- <record id="action_report_consolidated" model="ir.actions.report">
-        <field name="name">Consolidated Room Booking Report</field>
-        <field name="model">room.booking</field>
-        <field name="report_name">hotel_management.report_consolidated_template</field>
-        <field name="report_type">qweb-pdf</field>
-    </record> -->/
 
     <record id="action_report_consolidated_rc" model="ir.actions.server">
         <field name="name">Generate RC Report</field>
