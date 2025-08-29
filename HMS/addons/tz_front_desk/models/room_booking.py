@@ -293,6 +293,7 @@ class RoomBooking(models.Model):
                 folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
                 folio = master_folio.sudo().create({
                     'name': folio_name,
+                    'booking_id': booking.id,
                     'group_id': booking.group_booking.id,
                     'guest_id': booking.partner_id.id,
                     'rooming_info': booking.group_booking.group_name,
@@ -319,68 +320,7 @@ class RoomBooking(models.Model):
                 folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
                 folio = master_folio.sudo().create({
                     'name': folio_name,
-                    'guest_id': booking.partner_id.id,
-                    'rooming_info': booking.name,
-                    'check_in': booking.checkin_date,
-                    'check_out': booking.checkout_date,
-                    'company_id': company.id,
-                    'currency_id': company.currency_id.id,
-                    'booking_ids': [(4, booking.id)],
-                })
-            return folio
-
-    def _get_or_create_master_folioX(self, booking):
-        """
-        Create or get existing master folio for the booking
-        Rules:
-        - Group bookings: One folio per group (uses group_id as identifier)
-        - Individual bookings: One folio per booking
-        Returns: master folio record
-        """
-        master_folio = self.env['tz.master.folio']
-        company = booking.company_id or self.env.company
-
-        # Base domain
-        domain = [
-            ('company_id', '=', company.id),
-            ('state', '=', 'draft'),
-        ]
-
-        # Group booking logic
-        if booking.group_booking:
-            domain.append(('group_id', '=', booking.group_booking.id))
-            folio = master_folio.sudo().search(domain, limit=1)
-
-            if not folio:
-                # Create new group folio
-                folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
-                folio = master_folio.sudo().create({
-                    'name': folio_name,
-                    'group_id': booking.group_booking.id,
-                    'guest_id': booking.partner_id.id,
-                    'rooming_info': booking.group_booking.group_name,
-                    'check_in': booking.checkin_date,
-                    'check_out': booking.checkout_date,
-                    'company_id': company.id,
-                    'currency_id': company.currency_id.id,
-                })
-
-                # Set has_master_folio = True on the related group booking
-                booking.group_booking.sudo().write({'has_master_folio': True})
-
-            # Always link the current booking to the folio
-            folio.write({'booking_ids': [(4, booking.id)]})
-            return folio
-
-        # Individual booking logic
-        else:
-            domain.append(('booking_ids', 'in', booking.id))
-            folio = master_folio.sudo().search(domain, limit=1)
-
-            if not folio:
-                folio_name = f"{company.name or ''}/{self.env['ir.sequence'].sudo().with_company(company).next_by_code('tz.master.folio') or 'New'}"
-                folio = master_folio.sudo().create({
-                    'name': folio_name,
+                    'booking_id': booking.id,
                     'guest_id': booking.partner_id.id,
                     'rooming_info': booking.name,
                     'check_in': booking.checkin_date,
@@ -409,27 +349,6 @@ class RoomBooking(models.Model):
             # For group bookings, room is already set during folio creation
             pass
 
-    def _update_folio_roomX(self, booking):
-        """Update room_id in folio based on booking type"""
-        folio = self.env['tz.master.folio'].sudo().search(
-            domain=[
-                ('company_id', '=', booking.company_id.id),
-                ('booking_ids', 'in', booking.id),
-                ('state', '=', 'draft'),
-            ]
-            , limit=1)
-        if not booking.group_booking:
-            # Individual booking - take first room
-            if booking.room_line_ids:
-                folio.sudo().write({'room_id': booking.room_line_ids[0].room_id.id})
-        else:
-            non_parent_booking = self.env['room.booking'].sudo().search([
-                ('group_booking', '=', booking.group_booking.id),
-                ('parent_booking_name', '=', False)
-            ], limit=1)
-            if non_parent_booking and non_parent_booking.room_line_ids:
-                folio.sudo().write({'room_id': non_parent_booking.room_line_ids[0].room_id.id})
-
     def _notify_booking_confirmation(self, original_result=None):
         """Helper function to show booking confirmation notification"""
         if original_result and isinstance(original_result, dict) and original_result.get(
@@ -452,11 +371,6 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
-
-        self.env['tz.checkout'].create_or_replace_view()
-        self.env['tz.hotel.checkout'].sync_with_materialized_view()
         return self._notify_booking_confirmation(result)
 
     def action_confirm_booking(self):
@@ -465,8 +379,6 @@ class RoomBooking(models.Model):
 
         for booking in checked_in_bookings:
             self._get_or_create_master_folio(booking)
-        self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
         return self._notify_booking_confirmation(result)
 
     @api.depends('checkin_date', 'checkout_date')
@@ -489,43 +401,6 @@ class RoomBooking(models.Model):
 
     def action_block(self):
         result = super(RoomBooking, self).action_block()
-        self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
-
-        self.env['tz.checkout'].create_or_replace_view()
-        self.env['tz.hotel.checkout'].sync_with_materialized_view()
-        return result
-
-    def action_checkin(self):
-        # Call the parent method first
-        result = super(RoomBooking, self).action_checkin()
-
-        self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
-
-        self.env['tz.checkout'].create_or_replace_view()
-        self.env['tz.hotel.checkout'].sync_with_materialized_view()
-
-        return result
-
-    def action_checkout(self):
-        result = super(RoomBooking, self).action_checkin()
-        self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
-
-        self.env['tz.checkout'].create_or_replace_view()
-        self.env['tz.hotel.checkout'].sync_with_materialized_view()
-        return result
-
-    def action_checkin_booking(self):
-        # Call the parent method first
-        result = super(RoomBooking, self).action_checkin_booking()
-        self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
-        # Refresh the SQL View and Sync data
-        self.env['tz.checkout'].create_or_replace_view()
-        self.env['tz.hotel.checkout'].sync_with_materialized_view()
-
         return result
 
     def action_assign_all_rooms(self, available_rooms=None):
@@ -551,23 +426,6 @@ class RoomBooking(models.Model):
 
             # For group bookings, room is already set in _get_or_create_master_folio
             if not child_booking.group_booking:
-                child_room = child_booking.room_line_ids and child_booking.room_line_ids[0].room_id
-                if child_folio and child_room:
-                    child_folio.sudo().write({'room_id': child_room.id})
-
-    def _assign_rooms_to_foliosX(self):
-        # 🔹 1. Update/Create folio for the parent booking
-        parent_folio = self._get_or_create_master_folio(self)
-        if self.room_line_ids:
-            parent_room = self.room_line_ids[0].room_id
-            if parent_folio and parent_room:
-                parent_folio.sudo().write({'room_id': parent_room.id})
-
-        # 🔹 2. Update/Create folios for each child booking
-        child_bookings = self.search([('parent_booking_id', '=', self.id)])
-        for child_booking in child_bookings:
-            if not child_booking.group_booking:
-                child_folio = self._get_or_create_master_folio(child_booking)
                 child_room = child_booking.room_line_ids and child_booking.room_line_ids[0].room_id
                 if child_folio and child_room:
                     child_folio.sudo().write({'room_id': child_room.id})
@@ -618,6 +476,22 @@ class RoomBooking(models.Model):
             }
         }
 
+    def _cron_update_tz_views(self):
+        """Scheduled action to sync view data into Odoo models for all companies"""
+        _logger.info("=== Starting TZ Views Update Cron ===")
+
+        for company in self.env['res.company'].search([]):
+            try:
+                with self.env.cr.savepoint():
+                    posting_type_model = self.env['tz.manual.posting.type'].with_company(company)
+                    checkout_model = self.env['tz.hotel.checkout'].with_company(company)
+
+                    posting_type_model.update_data_from_sql_view()
+                    checkout_model.update_data_from_sql_view()
+            except Exception as e:
+                _logger.error("=== TZ Views Update FAILED for company %s: %s ===", company.id, str(e))
+
+        _logger.info("=== TZ Views Update Cron Finished ===")
 
 
 class RoomRateForecast(models.Model):

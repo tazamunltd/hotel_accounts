@@ -31,12 +31,12 @@ class TzCheckout(models.Model):
     folio_id = fields.Many2one('tz.master.folio', string="Master Folio")
 
     def create_or_replace_view(self):
-        self.env.cr.execute("DROP MATERIALIZED VIEW IF EXISTS tz_checkout CASCADE")
+        self.env.cr.execute("DROP VIEW IF EXISTS tz_checkout CASCADE")
 
         company_id = self.env.company.id
 
         query = f"""
-            CREATE MATERIALIZED VIEW tz_checkout AS (
+            CREATE OR REPLACE VIEW tz_checkout AS (    
                 SELECT
                     id,
                     name,
@@ -56,7 +56,7 @@ class TzCheckout(models.Model):
                     state,
                     company_id
                 FROM (
-                    -- Room Booking block (include individual bookings and group bookings that have a master folio)
+                    -- Room Booking block
                     SELECT
                         (rb.id * 10 + 1) AS id,
                         COALESCE(hr.name ->> 'en_US', 'Unnamed') AS name,
@@ -71,24 +71,25 @@ class TzCheckout(models.Model):
                         rb.adult_count::integer,
                         rb.child_count::integer,
                         rb.infant_count::integer,
-                        rb.rate_code AS rate_code,  -- Removed varchar cast for Many2one
-                        rb.meal_pattern AS meal_pattern,  -- Removed varchar cast for Many2one
+                        rb.rate_code AS rate_code,
+                        rb.meal_pattern AS meal_pattern,
                         rb.state::varchar AS state,
                         rb.company_id
                     FROM room_booking rb
                     JOIN room_booking_line rbl ON rbl.booking_id = rb.id
                     JOIN hotel_room hr ON rbl.room_id = hr.id
-                    LEFT JOIN tz_master_folio folio ON folio.room_id = rbl.room_id
+                    JOIN tz_master_folio folio
+                        ON folio.room_id = rbl.room_id
                     WHERE rb.state = 'check_in'
                       AND rb.company_id = {company_id}
                       AND (
-                          rb.group_booking IS NULL
-                          OR (rb.group_booking IS NOT NULL AND folio.id IS NOT NULL)
+                        rb.group_booking IS NULL
+                        OR (rb.group_booking IS NOT NULL AND folio.id IS NOT NULL)
                       )
 
                     UNION ALL
 
-                    -- Group Booking block (fixed to prevent duplicates)
+                    -- Group Booking block
                     SELECT DISTINCT ON (gb.id)
                         (gb.id * 10 + 2) AS id,
                         COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
@@ -103,8 +104,8 @@ class TzCheckout(models.Model):
                         gb.total_adult_count::integer,
                         gb.total_child_count::integer,
                         gb.total_infant_count::integer,
-                        gb.rate_code AS rate_code,  -- Removed varchar cast for Many2one
-                        gb.group_meal_pattern AS meal_pattern,  -- Removed varchar cast for Many2one
+                        gb.rate_code AS rate_code,
+                        gb.group_meal_pattern AS meal_pattern,
                         gb.status_code::varchar AS state,
                         gb.company_id
                     FROM group_booking gb
@@ -117,11 +118,7 @@ class TzCheckout(models.Model):
                     ) folio ON true
                     WHERE gb.status_code = 'confirmed'
                       AND gb.company_id = {company_id}
-                      AND gb.id IN (
-                          SELECT rb.group_booking FROM room_booking rb
-                          WHERE rb.state = 'check_in'
-                            AND rb.company_id = {company_id}
-                      )
+                      AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in' AND rb.company_id = {company_id})
 
                     UNION ALL
 
@@ -140,12 +137,13 @@ class TzCheckout(models.Model):
                         NULL::integer AS adult_count,
                         NULL::integer AS child_count,
                         NULL::integer AS infant_count,
-                        NULL::integer AS rate_code,  -- Changed to integer for Many2one
-                        NULL::integer AS meal_pattern,  -- Changed to integer for Many2one
+                        NULL::integer AS rate_code,
+                        NULL::integer AS meal_pattern,
                         dg.state::varchar AS state,
                         dg.company_id
                     FROM tz_dummy_group dg
-                    LEFT JOIN tz_master_folio folio ON folio.dummy_id = dg.id
+                    LEFT JOIN tz_master_folio folio
+                        ON folio.dummy_id = dg.id
                     WHERE dg.obsolete = FALSE
                       AND dg.company_id = {company_id}
                 ) AS unified
@@ -153,7 +151,6 @@ class TzCheckout(models.Model):
         """
 
         self.env.cr.execute(query)
-        self.env.cr.execute("REFRESH MATERIALIZED VIEW tz_checkout")
 
     def _setup_change_triggers(self):
         """Setup automatic refresh triggers on source tables"""
@@ -313,8 +310,7 @@ class HotelCheckOut(models.Model):
                 record.show_re_checkout = False
                 record.show_other_buttons = True
 
-    @api.model
-    def sync_with_materialized_view(self):
+    def update_data_from_sql_view(self):
         """Sync with the materialized view using ORM with consistent field handling."""
         company_id = self.env.company.id
 
@@ -360,51 +356,6 @@ class HotelCheckOut(models.Model):
                 self.sudo().create(vals)
 
         _logger.info("Hotel checkout successfully synced with materialized view for company_id %s", company_id)
-        return True
-
-    @api.model
-    def sync_with_materialized_viewX(self):
-        company_id = self.env.company.id
-        view_model = self.env['tz.checkout']
-        records = view_model.search([])
-
-        for rec in records:
-            domain = []
-            if rec.booking_id:
-                domain.append(('booking_id', '=', rec.booking_id.id))
-            if rec.room_id:
-                domain.append(('room_id', '=', rec.room_id.id))
-            if rec.group_booking_id:
-                domain.append(('group_booking_id', '=', rec.group_booking_id.id))
-            if rec.dummy_id:
-                domain.append(('dummy_id', '=', rec.dummy_id.id))
-
-            # Prepare values for creation or update
-            vals = {
-                'name': rec.name,
-                'booking_id': rec.booking_id.id if rec.booking_id else False,
-                'group_booking_id': rec.group_booking_id.id if rec.group_booking_id else False,
-                'dummy_id': rec.dummy_id.id if rec.dummy_id else False,
-                'room_id': rec.room_id.id if rec.room_id else False,
-                'partner_id': rec.partner_id.id if rec.partner_id else False,
-                'checkin_date': rec.checkin_date,
-                'checkout_date': rec.checkout_date,
-                'adult_count': rec.adult_count,
-                'child_count': rec.child_count,
-                'infant_count': rec.infant_count,
-                'rate_code': rec.rate_code.id if rec.rate_code else False,
-                'meal_pattern': rec.meal_pattern.id if rec.meal_pattern else False,
-                'state': 'In' if rec.state in ('check_in', 'confirmed') else rec.state.capitalize(),
-                'company_id': rec.company_id.id if rec.company_id else company_id,
-                'folio_id': rec.folio_id.id if rec.folio_id else False,
-            }
-
-            existing = self.search(domain, limit=1)
-            if existing:
-                existing.write(vals)  # Update existing record
-            else:
-                self.sudo().create(vals)  # Create new record
-
         return True
 
     @api.model
@@ -545,7 +496,7 @@ class HotelCheckOut(models.Model):
                     ], limit=1)
                     folio = self._find_existing_folio(booking_line)
                     forecast = self._get_forecast_data(booking_line, system_date)
-                    records_created = self._create_folio_lines(record, folio, forecast)
+                    records_created = self._create_folio_lines(booking_line, folio, forecast)
                     created_count += records_created
             elif record.room_id:
                 booking_line = self.env['room.booking.line'].search([
@@ -556,7 +507,7 @@ class HotelCheckOut(models.Model):
 
                 folio = self._find_existing_folio(booking_line)
                 forecast = self._get_forecast_data(booking_line, system_date)
-                records_created = self._create_folio_lines(record, folio, forecast)
+                records_created = self._create_folio_lines(booking_line, folio, forecast)
                 created_count += records_created
         if created_count > 0:
             return self._show_notification(
@@ -566,15 +517,20 @@ class HotelCheckOut(models.Model):
         return self._show_notification(_("No charges available for posting"), "warning")
 
     def _find_existing_folio(self, booking_line):
-        """Find existing folio that is active during the system_date"""
+        """Find existing folio - optimized version"""
         domain = [
             ('company_id', '=', self.env.company.id),
             ('state', '=', 'draft'),
         ]
 
         if booking_line.booking_id.group_booking:
-            domain.append(('group_id', '=', booking_line.booking_id.group_booking.id))
+            # For group bookings, find the master folio for the group
+            domain.extend([
+                ('group_id', '=', booking_line.booking_id.group_booking.id),
+                ('room_id', '=', False)  # Master folio has no room assigned
+            ])
         else:
+            # For individual bookings, find folio by room
             domain.append(('room_id', '=', booking_line.room_id.id))
 
         return self.env['tz.master.folio'].search(domain, limit=1)
@@ -601,89 +557,91 @@ class HotelCheckOut(models.Model):
 
         return forecast
 
-    def _create_folio_lines(self, checkout, folio, forecast):
+    def _create_folio_lines(self, booking_line, folio, forecast):
         """Create posting lines and return count of actually created records"""
+        booking = booking_line.booking_id
         created_count = 0
 
         # Get all posting items
-        rate_item = checkout.rate_code.rate_posting_item if checkout.rate_code else None
-        meal_item = checkout.meal_pattern.meal_posting_item if checkout.meal_pattern else None
-        package_items = checkout.rate_code.rate_detail_ids.line_ids.packages_posting_item if checkout.rate_code else None
-        fixed_items = checkout.booking_id.posting_item_ids.posting_item_id if checkout.booking_id else None
+        rate_item = booking.rate_code.rate_posting_item if booking.rate_code else None
+        meal_item = booking.meal_pattern.meal_posting_item if booking.meal_pattern else None
+        package_items = booking.rate_code.rate_detail_ids.line_ids.packages_posting_item if booking.rate_code else None
+        fixed_items = booking.posting_item_ids.posting_item_id
 
         # Room Rate
         if rate_item and forecast.rate > 0:
             total_amount = forecast.rate
-
-            if checkout.rate_code.include_meals and forecast.meals > 0:
+            if forecast.room_booking_id.rate_code.include_meals and forecast.meals > 0:
                 total_amount += forecast.meals
 
-            if self._create_posting_line(folio, checkout, rate_item.id, rate_item.description, total_amount):
+            if self._create_posting_line(folio, booking_line, rate_item.id, rate_item.description, total_amount):
                 created_count += 1
+        elif forecast.rate > 0 and not rate_item:
+            raise UserError(_("No posting item configured for rate code."))
 
         # Meals
-        if meal_item and forecast.meals > 0 and not checkout.rate_code.include_meals:
-            if self._create_posting_line(folio, checkout, meal_item.id, meal_item.description, forecast.meals):
+        if meal_item and forecast.meals > 0 and not forecast.room_booking_id.rate_code.include_meals:
+            if self._create_posting_line(folio, booking_line, meal_item.id, meal_item.description, forecast.meals):
                 created_count += 1
+        elif forecast.meals > 0 and not forecast.room_booking_id.rate_code.include_meals and not meal_item:
+            raise UserError(_("No posting item configured for meal pattern"))
 
         # Packages
         if package_items and forecast.packages > 0:
-            if self._create_posting_line(folio, checkout, package_items.id, package_items.description,
+            if self._create_posting_line(folio, booking_line, package_items.id, package_items.description,
                                          forecast.packages):
                 created_count += 1
+        elif forecast.packages > 0 and not package_items:
+            raise UserError(_("No posting item configured for package"))
 
         # Fixed Charges
         if fixed_items and forecast.fixed_post > 0:
-            if self._create_posting_line(folio, checkout, fixed_items.id, fixed_items.description, forecast.fixed_post):
+            if self._create_posting_line(folio, booking_line, fixed_items.id, fixed_items.description,
+                                         forecast.fixed_post):
                 created_count += 1
+        elif forecast.fixed_post > 0 and not fixed_items:
+            raise UserError(_("No posting item configured for fixed post"))
 
         return created_count
 
-    def _create_posting_line(self, folio, checkout, item_id, description, amount):
+    def _create_posting_line(self, folio, booking_line, item_id, description, amount):
         """Create posting line and return True if created, False if skipped"""
         system_date = self.env.company.system_date.date()
 
         # Check for existing postings first
-        existing = self.env['tz.manual.posting'].search([
-            ('company_id', '=', checkout.company_id.id),
+        existing_domain = [
+            ('company_id', '=', booking_line.booking_id.company_id.id),
             ('folio_id', '=', folio.id),
             ('item_id', '=', item_id),
-            ('room_id', '=', checkout.room_id.id),
             ('date', '=', system_date),
             ('source_type', '=', 'auto'),
-        ], limit=1)
+            ('room_id', '=', booking_line.room_id.id),
+        ]
+
+        existing = self.env['tz.manual.posting'].search(existing_domain, limit=1)
 
         if not existing:
-            # Build domain to find matching posting type
-            posting_type = self.env['tz.manual.posting.type'].search([
-                ('company_id', '=', checkout.booking_id.company_id.id),
-                ('booking_id', '=', checkout.booking_id.id),
-                ('room_id', '=', checkout.room_id.id),
-                ('name', '!=', False),
-            ], limit=1)
-
+            posting_type = self.get_manual_posting_type(booking_line)
             item = self.env['posting.item'].browse(item_id)
             if item.default_sign == 'main':
                 raise UserError('Please note, main value for Default Sign not accepted, they must only debit or credit')
-
             manual_posting = f"{self.env.company.name}/{self.env['ir.sequence'].next_by_code('tz.manual.posting')}"
             vals = {
                 'name': manual_posting,
                 'date': system_date,
                 'folio_id': folio.id,
                 'item_id': item_id,
+                'room_id': booking_line.room_id.id,
                 'description': description,
-                'booking_id': checkout.booking_id.id,
-                'room_id': checkout.room_id.id,
-                'group_booking_id': folio.group_id.id if folio.group_id else False,
                 'sign': item.default_sign,
                 'quantity': 1,
                 'source_type': 'auto',
                 'total': amount,
                 'debit_amount': amount if item.default_sign == 'debit' else 0.0,
                 'credit_amount': amount if item.default_sign == 'credit' else 0.0,
-                'type_id': posting_type.id  # Linking to posting type instead of posting room
+                'type_id': posting_type.id if posting_type else False
             }
+
             self.env['tz.manual.posting'].create(vals)
             return True
         return False  # Skip if already exists
@@ -857,6 +815,25 @@ class HotelCheckOut(models.Model):
         self.write({'move_id': invoice.id})
 
         return invoice
+
+    def get_manual_posting_type(self, booking_line):
+        """Find tz.manual.posting.type record by any of the provided IDs"""
+        domain = [
+            ('company_id', '=', booking_line.current_company_id.id),
+            ('booking_id', '=', booking_line.booking_id.id),
+        ]
+
+        if booking_line.booking_id.group_booking:
+            domain.append(('group_booking_id', '=', booking_line.booking_id.group_booking.id))
+        else:
+            domain.append(('group_booking_id', '=', False))
+
+        if booking_line.room_id:
+            domain.append(('room_id', '=', booking_line.room_id.id))
+        else:
+            domain.append(('room_id', '=', False))
+
+        return self.env['tz.manual.posting.type'].search(domain, limit=1)
 
 
 

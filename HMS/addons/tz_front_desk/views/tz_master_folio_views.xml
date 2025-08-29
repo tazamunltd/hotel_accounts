@@ -36,20 +36,21 @@
                     </div>
                     <group>
                         <group>
-                            <field name="room_id"/>
-                            <field name="room_type_id"/>
+                            <field name="booking_id"/>
+                            <field name="group_id" invisible="not group_id"/>
+                            <field name="room_id" invisible="not room_id"/>
+                            <field name="room_type_id" invisible="not room_type_id"/>
+                            <field name="dummy_id" invisible="not dummy_id"/>
                             <field name="guest_id"/>
-                            <field name="check_in" widget="date"/>
-                            <field name="check_out" widget="date"/>
-                            <field name="currency_id"/>
                         </group>
                         <group>
                             <field name="company_id"/>
-                            <field name="company_vat"/>
-                            <field name="group_id" invisible="not group_id"/>
-                            <field name="dummy_id" invisible="not dummy_id"/>
+                            <field name="company_vat" invisible="not company_vat"/>
                             <field name="rooming_info"/>
-                            <field name="bill_number"/>
+                            <field name="check_in" widget="date"/>
+                            <field name="check_out" widget="date"/>
+                            <field name="bill_number" invisible="not bill_number"/>
+                            <field name="currency_id"/>
                         </group>
                     </group>
                     <notebook>

@@ -165,7 +165,6 @@ class TzHotelManualPosting(models.Model):
                 record.room_id = record.type_id.room_id
                 record.group_booking_id = record.type_id.group_booking_id
                 record.dummy_id = record.type_id.dummy_id
-                record.folio_id = record.type_id.folio_id
             else:
                 record.booking_id = False
                 record.room_id = False
@@ -175,7 +174,7 @@ class TzHotelManualPosting(models.Model):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
+        self.env['tz.manual.posting.type'].update_data_from_sql_view()
         return res
 
     @api.model
@@ -203,19 +202,15 @@ class TzHotelManualPosting(models.Model):
 
         record = super().create(vals)
 
+        # ✅ Assign folio_id only if not provided
+        if not record.folio_id and record.type_id and record.type_id.folio_id:
+            record.folio_id = record.type_id.folio_id
+
         if self._context.get('manual_creation'):
             record.source_type = 'manual'
 
             group_booking_id = vals.get('group_booking_id')
             room_id = vals.get('room_id')
-
-            # Get or create the master folio
-            # VI! We change the scenario we will create a master folio for each room from booking
-            # folio = record._get_or_create_master_folio(room_id, group_booking_id=group_booking_id)
-            # if folio:
-            #     record.folio_id = folio.id
-            #     self.env['tz.checkout'].create_or_replace_view()
-            #     self.env['tz.hotel.checkout'].sync_with_materialized_view()
 
             if group_booking_id:
                 record.room_id = record._get_master_room_id(group_booking_id)
@@ -882,6 +877,9 @@ class TzHotelManualPosting(models.Model):
 
             # Now you can process base_lines as needed for your tax total computation
             # folio.tax_totals = ...
+
+    def test_function(self):
+        raise UserError(self.env.company.id) # => 3
 
 
 

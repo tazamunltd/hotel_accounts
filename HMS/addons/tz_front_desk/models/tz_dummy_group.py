@@ -96,10 +96,10 @@ class DummyGroup(models.Model):
         group._get_or_create_master_folio()
         # Refresh the SQL View and Sync data
         self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
+        self.env['tz.manual.posting.type'].update_data_from_sql_view()
 
         self.env['tz.checkout'].create_or_replace_view()
-        self.env['tz.hotel.checkout'].sync_with_materialized_view()
+        self.env['tz.hotel.checkout'].update_data_from_sql_view()
         return group
 
     def write(self, vals):
@@ -112,7 +112,7 @@ class DummyGroup(models.Model):
             has_end_date = 'end_date' in vals or record.end_date
             record._get_or_create_master_folio()
             self.env['tz.manual.posting.room'].create_or_replace_view()
-            self.env['tz.manual.posting.type'].sync_with_materialized_view()
+            self.env['tz.manual.posting.type'].update_data_from_sql_view()
 
             if is_reopen and is_state_in and has_end_date:
                 record._get_or_create_master_folio()
@@ -128,7 +128,7 @@ class DummyGroup(models.Model):
         default = dict(default or {}, name=name)
         self._get_or_create_master_folio()
         self.env['tz.manual.posting.room'].create_or_replace_view()
-        self.env['tz.manual.posting.type'].sync_with_materialized_view()
+        self.env['tz.manual.posting.type'].update_data_from_sql_view()
         return super().copy(default)
 
 

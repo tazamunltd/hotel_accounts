@@ -59,7 +59,7 @@
                             <field name="total" readonly="1"/>
                             <field name="description" force_save="1"
                                    readonly="source_type == 'auto' or state == 'posted' or master_id"/>
-                            <field name="payment_group"/>
+                            <field name="payment_group" invisible="not payment_group" force_save="1" readonly="1"/>
                         </group>
                         <group>
                             <field name="currency_id" readonly="1" force_save="1"/>
@@ -69,7 +69,7 @@
                             <field name="taxes" widget="many2many_tags" options="{'no_create': True}"/>
                             <field name="voucher_number"
                                    readonly="source_type == 'auto' or state == 'posted' or master_id"/>
-                            <field name="adjustment"/>
+                            <field name="adjustment" invisible="not adjustment" force_save="1" readonly="1"/>
                         </group>
                     </group>
                     <hr invisible="not type_id"/>
@@ -77,14 +77,14 @@
                         <group>
                             <field name="booking_id" force_save="1" readonly="1"/>
                             <field name="room_id" force_save="1" invisible="1"/>
-                            <field name="folio_id" force_save="1" readonly="1"/>
-                            <field name="payment_id" force_save="1" readonly="1"/>
+                            <field name="folio_id" invisible="not folio_id" force_save="1" readonly="1"/>
+                            <field name="payment_id" invisible="not payment_id" force_save="1" readonly="1"/>
                         </group>
                         <group>
                             <field name="group_booking_id" force_save="1" invisible="1"/>
                             <field name="dummy_id" force_save="1" invisible="1"/>
                             <field name="partner_id" force_save="1"/>
-                            <field name="reference_contact_"/>
+                            <field name="reference_contact_" invisible="not reference_contact_" force_save="1" readonly="1"/>
                         </group>
                     </group>
                     <hr/>

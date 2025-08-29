@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 def _auto_sync_post_init_room_type(env):
     """Post-init hook to create materialized view and sync data"""
     env['tz.manual.posting.room'].create_or_replace_view()
-    env['tz.manual.posting.type'].sync_with_materialized_view()
+    env['tz.manual.posting.type'].update_data_from_sql_view()
 
 
 # def post_init_hook(cr, registry):

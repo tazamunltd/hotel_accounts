@@ -14,6 +14,7 @@ class TzMasterFolio(models.Model):
 
     name = fields.Char(string="Folio Number", required=True, index=True, default="New")
 
+    booking_id = fields.Many2one('room.booking')
     room_id = fields.Many2one('hotel.room', string="Room")
     room_type_id = fields.Many2one('room.type', string="Room Type", related='room_id.room_type_name', store=True)
     guest_id = fields.Many2one('res.partner', string="Guest")
@@ -72,6 +73,18 @@ class TzMasterFolio(models.Model):
 
     @api.depends('manual_posting_ids.total', 'manual_posting_ids.tax_amount')
     def _compute_amounts(self):
+        for folio in self:
+            if not folio.manual_posting_ids:
+                folio.amount_untaxed = 0.0
+                folio.amount_tax = 0.0
+                folio.amount_total = 0.0
+            else:
+                lines = folio.manual_posting_ids
+                folio.amount_untaxed = sum(l.price_subtotal for l in lines)
+                folio.amount_tax = sum(l.tax_amount for l in lines)
+                folio.amount_total = folio.amount_untaxed + folio.amount_tax
+
+    def _compute_amountsX(self):
         for folio in self:
             lines = folio.manual_posting_ids
             folio.amount_untaxed = sum(l.price_subtotal for l in lines)
