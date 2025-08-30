@@ -39,19 +39,16 @@ class ManualPostingRoom(models.Model):
     def create_or_replace_view(self):
         self.env.cr.execute("DROP VIEW IF EXISTS tz_manual_posting_room CASCADE")
 
-        # Get the company ID
-        company_id = self.env.company.id
-
-        # Create a regular VIEW instead of MATERIALIZED VIEW
-        query = f"""
-            CREATE OR REPLACE VIEW tz_manual_posting_room AS 
-            -- Original room booking query
+        # Use parameterized query to prevent SQL injection
+        query = """
+            CREATE OR REPLACE VIEW tz_manual_posting_room AS
+            -- Original room booking query - FIXED
             SELECT
                 (rb.id * 10 + 1) AS id,
                 COALESCE(NULLIF(hr.name ->> 'en_US', 'Unnamed'), rb.name) AS name,
                 rb.id AS booking_id,
                 hr.id AS room_id,
-                rb.group_booking_id,
+                rb.group_booking AS group_booking_id,  -- CHANGED: Use rb.group_booking instead of NULL
                 NULL::integer AS dummy_id,
                 mf.id AS folio_id,
                 rb.partner_id,
@@ -68,12 +65,12 @@ class ManualPostingRoom(models.Model):
             LEFT JOIN room_booking_line rbl ON rbl.booking_id = rb.id
             LEFT JOIN hotel_room hr ON rbl.room_id = hr.id
             JOIN tz_master_folio mf ON mf.room_id = rbl.room_id 
-            WHERE rb.company_id = {company_id}
-              AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
+            WHERE rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
+              AND rb.company_id = %s
 
             UNION ALL
 
-            -- Group booking query
+            -- Modified group booking query to avoid duplicates
             SELECT DISTINCT ON (gb.id)
                 (gb.id * 10 + 2) AS id,
                 COALESCE(gb.group_name ->> 'en_US', 'Unnamed') AS name,
@@ -95,12 +92,12 @@ class ManualPostingRoom(models.Model):
             FROM group_booking gb
             JOIN tz_master_folio mf ON mf.group_id = gb.id  
             WHERE gb.status_code = 'confirmed'
-              AND gb.company_id = {company_id}
-              AND EXISTS (
-                  SELECT 1 FROM room_booking rb 
-                  WHERE rb.group_booking = gb.id 
-                    AND rb.company_id = {company_id}
+              AND gb.company_id = %s
+              AND gb.id IN (
+                  SELECT rb.group_booking FROM room_booking rb
+                  WHERE rb.group_booking IS NOT NULL 
                     AND rb.state IN ('confirmed', 'no_show', 'block', 'check_in')
+                    AND rb.company_id = %s
               )
 
             UNION ALL
@@ -125,12 +122,19 @@ class ManualPostingRoom(models.Model):
                 dg.company_id,
                 'dummy' AS state
             FROM tz_dummy_group dg
-            JOIN tz_master_folio mf ON mf.dummy_id = dg.id
+            JOIN (
+                SELECT DISTINCT ON (dummy_id) id, dummy_id 
+                FROM tz_master_folio 
+                WHERE dummy_id IS NOT NULL
+                ORDER BY dummy_id, id
+            ) mf ON mf.dummy_id = dg.id
             WHERE dg.obsolete = FALSE
-              AND dg.company_id = {company_id}
+              AND dg.company_id = %s
         """
 
-        self.env.cr.execute(query)
+        company_id = self.env.company.id
+        # Execute with parameters to prevent SQL injection
+        self.env.cr.execute(query, (company_id, company_id, company_id, company_id))
 
         # No need for refresh since it's a regular view!
         _logger.info("Regular view created successfully")

@@ -178,6 +178,7 @@ class AutoPostingWizard(models.TransientModel):
 
         if not existing:
             posting_type = self.get_manual_posting_type(booking_line)
+            print(posting_type)
             # if booking_line.booking_id.group_booking:
             #     # For group bookings, search with BOTH group_booking_id AND room_id
             #     posting_type = self.env['tz.manual.posting.type'].search([

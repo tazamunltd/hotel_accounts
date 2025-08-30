@@ -7,9 +7,9 @@ _logger = logging.getLogger(__name__)
 
 class TzCheckout(models.Model):
     _name = 'tz.checkout'
-    _description = 'FrontDesk Checkout'
     _auto = False
-    _check_company_auto = True
+    _description = 'FrontDesk Checkout'
+    # _check_company_auto = True
 
     name = fields.Char('Room')
     all_name = fields.Char('Room', compute='_compute_name', store=False)
@@ -33,9 +33,8 @@ class TzCheckout(models.Model):
     def create_or_replace_view(self):
         self.env.cr.execute("DROP VIEW IF EXISTS tz_checkout CASCADE")
 
-        company_id = self.env.company.id
-
-        query = f"""
+        # Use parameterized query to prevent SQL injection
+        query = """
             CREATE OR REPLACE VIEW tz_checkout AS (    
                 SELECT
                     id,
@@ -81,7 +80,7 @@ class TzCheckout(models.Model):
                     JOIN tz_master_folio folio
                         ON folio.room_id = rbl.room_id
                     WHERE rb.state = 'check_in'
-                      AND rb.company_id = {company_id}
+                      AND rb.company_id = %s
                       AND (
                         rb.group_booking IS NULL
                         OR (rb.group_booking IS NOT NULL AND folio.id IS NOT NULL)
@@ -117,8 +116,8 @@ class TzCheckout(models.Model):
                         LIMIT 1
                     ) folio ON true
                     WHERE gb.status_code = 'confirmed'
-                      AND gb.company_id = {company_id}
-                      AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in' AND rb.company_id = {company_id})
+                      AND gb.company_id = %s
+                      AND gb.id IN (SELECT rb.group_booking FROM room_booking rb WHERE rb.state = 'check_in' AND rb.company_id = %s)
 
                     UNION ALL
 
@@ -137,20 +136,24 @@ class TzCheckout(models.Model):
                         NULL::integer AS adult_count,
                         NULL::integer AS child_count,
                         NULL::integer AS infant_count,
-                        NULL::integer AS rate_code,
-                        NULL::integer AS meal_pattern,
+                        NULL AS rate_code,
+                        NULL AS meal_pattern,
                         dg.state::varchar AS state,
                         dg.company_id
                     FROM tz_dummy_group dg
                     LEFT JOIN tz_master_folio folio
                         ON folio.dummy_id = dg.id
                     WHERE dg.obsolete = FALSE
-                      AND dg.company_id = {company_id}
+                      AND dg.company_id = %s
                 ) AS unified
             )
         """
 
-        self.env.cr.execute(query)
+        company_id = self.env.company.id
+        # Execute with parameters to prevent SQL injection
+        self.env.cr.execute(query, (company_id, company_id, company_id, company_id))
+
+        _logger.info("Checkout view created successfully")
 
     def _setup_change_triggers(self):
         """Setup automatic refresh triggers on source tables"""
